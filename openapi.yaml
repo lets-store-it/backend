@@ -1,0 +1,1330 @@
+openapi: 3.0.3
+info:
+  title: storeit — backend
+  contact:
+    email: evgeny@evseevs.ru
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v0
+  - url: https://{orgName}.storeit.ru/api/v0
+    variables:
+      orgName:
+        default: demo
+        description: Organization name
+tags:
+  - name: unit
+  - name: storage_space
+  - name: employee
+  - name: rbac
+  - name: supplier
+  - name: cell_group
+  - name: cell_kind
+  - name: storage_cell
+  - name: order
+paths:
+  /units:
+    get:
+      tags:
+        - unit
+      summary: Get list of Organization Units
+      operationId: getUnits
+      parameters:
+        - $ref: "#/components/parameters/OffsetParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PagedResponse"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Unit"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - unit
+      summary: Create Organization Unit
+      operationId: createUnit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Unit"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /units/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags:
+        - unit
+      summary: Update Organization Unit
+      operationId: updateUnit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Unit"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unit"
+    get:
+      tags:
+        - unit
+      summary: Get Unit by ID with Spaces
+      operationId: getUnitById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Unit"
+                  - type: object
+                    properties:
+                      spaces:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/StorageSpace"
+        "400":
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Unit not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - unit
+      summary: Delete Organization Unit
+      operationId: deleteUnit
+      responses:
+        "200":
+          description: Successful operation
+  /units/{unitId}/spaces:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - storage_space
+      summary: Get list of Storage Spaces in Unit
+      operationId: getSpaces
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorageSpace"
+    post:
+      tags:
+        - storage_space
+      summary: Create Storage Space
+      operationId: createStorageSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageSpace"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageSpace"
+  /units/{unitId}/spaces/{spaceId}:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: spaceId
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - storage_space
+      summary: Get Storage Space by ID with Groups
+      operationId: getSpaceById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/StorageSpace"
+                  - type: object
+                    properties:
+                      groups:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/StorageCellGroup"
+    put:
+      tags:
+        - storage_space
+      summary: Update Storage Space
+      operationId: updateStorageSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageSpace"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageSpace"
+    delete:
+      tags:
+        - storage_space
+      summary: Delete Storage Space
+      operationId: deleteStorageSpace
+      responses:
+        "200":
+          description: Successful operation
+  /me:
+    get:
+      tags:
+        - employee
+      summary: Get current Employee
+      operationId: getCurrentEmployee
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Employee"
+                  - type: object
+                    properties:
+                      role_bindings:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/RoleBinding"
+  /employees:
+    get:
+      tags:
+        - employee
+      summary: Get list of Employees in Organization
+      operationId: getEmployees
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+  /employees/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Employee ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - employee
+      summary: Get Employee by ID
+      operationId: getEmployeeById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Employee"
+                  - type: object
+                    properties:
+                      role_bindings:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/RoleBinding"
+  /employees/{id}/role-bindings:
+    parameters:
+      - name: id
+        in: path
+        description: Employee ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - rbac
+      summary: Get list of Role Bindings for Employee
+      operationId: getRoleBindings
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoleBinding"
+    patch:
+      tags:
+        - rbac
+      summary: Assign Role to Employee
+      operationId: assignRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleBinding"
+      responses:
+        "200":
+          description: Successful operation
+  /employees/{id}/role-bindings/{roleBindingId}:
+    parameters:
+      - name: id
+        in: path
+        description: Employee ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: roleBindingId
+        in: path
+        description: Role Binding ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - rbac
+      summary: Delete Role Binding
+      operationId: deleteRoleBinding
+      responses:
+        "200":
+          description: Successful operation
+  /rbac/roles:
+    get:
+      tags:
+        - rbac
+      summary: Get list of Roles
+      operationId: getRoles
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+  /suppliers:
+    get:
+      tags:
+        - supplier
+      summary: Get list of Suppliers
+      operationId: getSuppliers
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Supplier"
+    post:
+      tags:
+        - supplier
+      summary: Create Supplier
+      operationId: createSupplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Supplier"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+  /suppliers/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Supplier ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - supplier
+      summary: Get Supplier by ID
+      operationId: getSupplierById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+    put:
+      tags:
+        - supplier
+      summary: Update Supplier
+      operationId: updateSupplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Supplier"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+    delete:
+      tags:
+        - supplier
+      summary: Delete Supplier
+      operationId: deleteSupplier
+      responses:
+        "200":
+          description: Successful operation
+  /cell-kinds:
+    get:
+      tags:
+        - cell_kind
+      summary: Get list of Storage Cell Kinds
+      operationId: getCellKinds
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorageCellKind"
+    post:
+      tags:
+        - cell_kind
+      summary: Create Storage Cell Kind
+      operationId: createCellKind
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCellKind"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCellKind"
+
+  /cell-kinds/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Cell Kind ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cell_kind
+      summary: Get Storage Cell Kind by ID
+      operationId: getCellKindById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCellKind"
+    put:
+      tags:
+        - cell_kind
+      summary: Update Storage Cell Kind
+      operationId: updateCellKind
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCellKind"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCellKind"
+    delete:
+      tags:
+        - cell_kind
+      summary: Delete Storage Cell Kind
+      operationId: deleteCellKind
+      responses:
+        "200":
+          description: Successful operation
+
+  /units/{unitId}/spaces/{spaceId}/groups:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: spaceId
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cell_group
+      summary: Get list of Cell Groups in Storage Space
+      operationId: getCellGroups
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorageCellGroup"
+    post:
+      tags:
+        - cell_group
+      summary: Create Cell Group in Storage Space
+      operationId: createCellGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCellGroup"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCellGroup"
+
+  /units/{unitId}/spaces/{spaceId}/groups/{groupId}:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: spaceId
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: groupId
+        in: path
+        description: Cell Group ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cell_group
+      summary: Get Cell Group by ID with Cells
+      operationId: getCellGroupById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/StorageCellGroup"
+                  - type: object
+                    properties:
+                      cells:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/StorageCell"
+    put:
+      tags:
+        - cell_group
+      summary: Update Cell Group
+      operationId: updateCellGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCellGroup"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCellGroup"
+    delete:
+      tags:
+        - cell_group
+      summary: Delete Cell Group
+      operationId: deleteCellGroup
+      responses:
+        "200":
+          description: Successful operation
+
+  /units/{unitId}/spaces/{spaceId}/groups/{groupId}/cells:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: spaceId
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: groupId
+        in: path
+        description: Cell Group ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - storage_cell
+      summary: Get list of Storage Cells in Cell Group
+      operationId: getStorageCells
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorageCell"
+    post:
+      tags:
+        - storage_cell
+      summary: Create Storage Cell in Cell Group
+      operationId: createStorageCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCell"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCell"
+
+  /units/{unitId}/spaces/{spaceId}/groups/{groupId}/cells/{cellId}:
+    parameters:
+      - name: unitId
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: spaceId
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: groupId
+        in: path
+        description: Cell Group ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cellId
+        in: path
+        description: Storage Cell ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - storage_cell
+      summary: Get Storage Cell by ID
+      operationId: getStorageCellById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCell"
+    put:
+      tags:
+        - storage_cell
+      summary: Update Storage Cell
+      operationId: updateStorageCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StorageCell"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageCell"
+    delete:
+      tags:
+        - storage_cell
+      summary: Delete Storage Cell
+      operationId: deleteStorageCell
+      responses:
+        "200":
+          description: Successful operation
+  /health:
+    get:
+      tags:
+        - system
+      summary: Get API health status
+      operationId: getHealth
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK, DEGRADED]
+                    example: OK
+                  version:
+                    type: string
+                    example: 0.0.1
+                  timestamp:
+                    type: string
+                    format: date-time
+        "503":
+          description: API is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /orders:
+    get:
+      tags:
+        - order
+      summary: Get list of Orders
+      operationId: getOrders
+      parameters:
+        - $ref: "#/components/parameters/OffsetParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PagedResponse"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Operation"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /orders/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Order ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - order
+      summary: Get Order by ID with Items
+      operationId: getOrderById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Operation"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OperationItem"
+        "400":
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  parameters:
+    OffsetParam:
+      name: offset
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+  schemas:
+    Unit:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: "^[\\w\\s-]+$"
+          example: Moscow
+        address:
+          type: string
+          nullable: true
+          maxLength: 200
+          example: Amurskaya St. 3
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    StorageSpace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Main Warehouse
+        short_name:
+          type: string
+          example: MW
+        unit_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        fullname:
+          type: string
+          example: Evgeny Evseev
+        email:
+          type: string
+          example: evgeny@example.com
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Organization Manager
+        permissions:
+          type: array
+          items:
+            type: string
+            example: storage_space.create
+    RoleBinding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        employee_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        role:
+          $ref: "#/components/schemas/Role"
+        target_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        target_type:
+          type: string
+          example: storage_space
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: OOO "Roga i Kopita"
+        legal_ru_id:
+          type: integer
+          example: 1234567890
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    StorageCellGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Zone A
+        short_name:
+          type: string
+          example: ZA
+        space_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    StorageCellKind:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Small Cell
+        height:
+          type: number
+          example: 1.5
+        width:
+          type: number
+          example: 1.0
+        depth:
+          type: number
+          example: 0.5
+        max_weight:
+          type: number
+          example: 1000
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    StorageCell:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        short_name:
+          type: string
+          example: SC1
+        group_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        kind_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        rack:
+          type: string
+          example: A1
+        level:
+          type: integer
+          example: 1
+        position:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Image Frame
+        ean:
+          type: number
+          example: 1234567890123
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    ItemProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        item_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Color
+        type:
+          type: string
+          example: text
+        unit:
+          type: string
+          example: kg
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    ItemVariant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        item_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        variant_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Red
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-01-20 18:00:00
+    ItemInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        track_id:
+          type: string
+          example: 1234567890123
+        item_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        variant_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        cell_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        status:
+          type: string
+          example: avaiable | reserved | consumed
+        reserved_operation_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Operation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        unit_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        operation_number:
+          type: string
+          example: 1234567890
+        action:
+          type: string
+          example: movement | order
+        status:
+          type: string
+          example: in_progress | completed | cancelled
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    OperationItem:
+      type: object
+      properties:
+        item_instance_id:
+          type: string
+          format: uuid
+          readOnly: true
+        location_text:
+          type: array
+          items:
+            type: string
+            example: A1
+        cell_id:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        created_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "RESOURCE_NOT_FOUND"
+        message:
+          type: string
+          example: "The requested resource was not found"
+        details:
+          type: object
+          nullable: true
+          example: { "id": "123e4567-e89b-12d3-a456-426614174000" }
+    PaginationMetadata:
+      type: object
+      properties:
+        offset:
+          type: integer
+          example: 0
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 50
+    PagedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+        metadata:
+          $ref: "#/components/schemas/PaginationMetadata"
