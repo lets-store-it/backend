@@ -12,7 +12,7 @@ import (
 )
 
 func encodeCreateOrgRequest(
-	req *Org,
+	req *Organization,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -40,7 +40,7 @@ func encodeCreateUnitRequest(
 }
 
 func encodeUpdateOrgRequest(
-	req *Org,
+	req *Organization,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

@@ -12,27 +12,22 @@ import (
 )
 
 const createOrg = `-- name: CreateOrg :one
-INSERT INTO org (name, subdomain, created_by) VALUES ($1, $2, $3) RETURNING id, name, subdomain, is_deleted, created_at, created_by, updated_at, updated_by
+INSERT INTO org (name, subdomain) VALUES ($1, $2) RETURNING id, name, subdomain, is_deleted
 `
 
 type CreateOrgParams struct {
 	Name      string
 	Subdomain string
-	CreatedBy pgtype.UUID
 }
 
 func (q *Queries) CreateOrg(ctx context.Context, arg CreateOrgParams) (Org, error) {
-	row := q.db.QueryRow(ctx, createOrg, arg.Name, arg.Subdomain, arg.CreatedBy)
+	row := q.db.QueryRow(ctx, createOrg, arg.Name, arg.Subdomain)
 	var i Org
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Subdomain,
 		&i.IsDeleted,
-		&i.CreatedAt,
-		&i.CreatedBy,
-		&i.UpdatedAt,
-		&i.UpdatedBy,
 	)
 	return i, err
 }
@@ -47,7 +42,7 @@ func (q *Queries) DeleteOrg(ctx context.Context, id pgtype.UUID) error {
 }
 
 const exampleJoin = `-- name: ExampleJoin :many
-SELECT org.id, org.name, subdomain, is_deleted, created_at, created_by, updated_at, updated_by, org_unit.id, org_id, org_unit.name, address FROM org
+SELECT org.id, org.name, subdomain, is_deleted, org_unit.id, org_id, org_unit.name, address FROM org
 JOIN org_unit ON org.id = org_unit.org_id
 WHERE org.id = $1
 `
@@ -57,10 +52,6 @@ type ExampleJoinRow struct {
 	Name      string
 	Subdomain string
 	IsDeleted bool
-	CreatedAt pgtype.Timestamp
-	CreatedBy pgtype.UUID
-	UpdatedAt pgtype.Timestamp
-	UpdatedBy pgtype.UUID
 	ID_2      pgtype.UUID
 	OrgID     pgtype.UUID
 	Name_2    string
@@ -81,10 +72,6 @@ func (q *Queries) ExampleJoin(ctx context.Context, id pgtype.UUID) ([]ExampleJoi
 			&i.Name,
 			&i.Subdomain,
 			&i.IsDeleted,
-			&i.CreatedAt,
-			&i.CreatedBy,
-			&i.UpdatedAt,
-			&i.UpdatedBy,
 			&i.ID_2,
 			&i.OrgID,
 			&i.Name_2,
@@ -101,7 +88,7 @@ func (q *Queries) ExampleJoin(ctx context.Context, id pgtype.UUID) ([]ExampleJoi
 }
 
 const getOrgById = `-- name: GetOrgById :one
-SELECT id, name, subdomain, is_deleted, created_at, created_by, updated_at, updated_by FROM org WHERE id = $1 AND is_deleted = FALSE
+SELECT id, name, subdomain, is_deleted FROM org WHERE id = $1 AND is_deleted = FALSE
 `
 
 func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
@@ -112,16 +99,12 @@ func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
 		&i.Name,
 		&i.Subdomain,
 		&i.IsDeleted,
-		&i.CreatedAt,
-		&i.CreatedBy,
-		&i.UpdatedAt,
-		&i.UpdatedBy,
 	)
 	return i, err
 }
 
 const getOrgs = `-- name: GetOrgs :many
-SELECT id, name, subdomain, is_deleted, created_at, created_by, updated_at, updated_by FROM org WHERE is_deleted = FALSE LIMIT $1 OFFSET $2
+SELECT id, name, subdomain, is_deleted FROM org WHERE is_deleted = FALSE LIMIT $1 OFFSET $2
 `
 
 type GetOrgsParams struct {
@@ -143,10 +126,6 @@ func (q *Queries) GetOrgs(ctx context.Context, arg GetOrgsParams) ([]Org, error)
 			&i.Name,
 			&i.Subdomain,
 			&i.IsDeleted,
-			&i.CreatedAt,
-			&i.CreatedBy,
-			&i.UpdatedAt,
-			&i.UpdatedBy,
 		); err != nil {
 			return nil, err
 		}
@@ -158,34 +137,51 @@ func (q *Queries) GetOrgs(ctx context.Context, arg GetOrgsParams) ([]Org, error)
 	return items, nil
 }
 
+const isOrgExists = `-- name: IsOrgExists :one
+SELECT EXISTS (SELECT 1 FROM org WHERE name = $1 OR subdomain = $2)
+`
+
+type IsOrgExistsParams struct {
+	Name      string
+	Subdomain string
+}
+
+func (q *Queries) IsOrgExists(ctx context.Context, arg IsOrgExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isOrgExists, arg.Name, arg.Subdomain)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isOrgExistsById = `-- name: IsOrgExistsById :one
+SELECT EXISTS (SELECT 1 FROM org WHERE id = $1)
+`
+
+func (q *Queries) IsOrgExistsById(ctx context.Context, id pgtype.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, isOrgExistsById, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const updateOrg = `-- name: UpdateOrg :one
-UPDATE org SET name = $2, subdomain = $3, updated_by = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING id, name, subdomain, is_deleted, created_at, created_by, updated_at, updated_by
+UPDATE org SET name = $2, subdomain = $3 WHERE id = $1 RETURNING id, name, subdomain, is_deleted
 `
 
 type UpdateOrgParams struct {
 	ID        pgtype.UUID
 	Name      string
 	Subdomain string
-	UpdatedBy pgtype.UUID
 }
 
 func (q *Queries) UpdateOrg(ctx context.Context, arg UpdateOrgParams) (Org, error) {
-	row := q.db.QueryRow(ctx, updateOrg,
-		arg.ID,
-		arg.Name,
-		arg.Subdomain,
-		arg.UpdatedBy,
-	)
+	row := q.db.QueryRow(ctx, updateOrg, arg.ID, arg.Name, arg.Subdomain)
 	var i Org
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Subdomain,
 		&i.IsDeleted,
-		&i.CreatedAt,
-		&i.CreatedBy,
-		&i.UpdatedAt,
-		&i.UpdatedBy,
 	)
 	return i, err
 }

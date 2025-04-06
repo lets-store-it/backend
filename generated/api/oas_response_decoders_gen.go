@@ -14,7 +14,7 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func decodeCreateOrgResponse(resp *http.Response) (res *Org, _ error) {
+func decodeCreateOrgResponse(resp *http.Response) (res *Organization, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -30,7 +30,7 @@ func decodeCreateOrgResponse(resp *http.Response) (res *Org, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Org
+			var response Organization
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -46,6 +46,15 @@ func decodeCreateOrgResponse(resp *http.Response) (res *Org, _ error) {
 					Err:         err,
 				}
 				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
 			}
 			return &response, nil
 		default:
@@ -282,7 +291,7 @@ func decodeDeleteUnitResponse(resp *http.Response) (res *DeleteUnitOK, _ error) 
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrgByIdResponse(resp *http.Response) (res *Org, _ error) {
+func decodeGetOrgByIdResponse(resp *http.Response) (res *Organization, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -298,7 +307,7 @@ func decodeGetOrgByIdResponse(resp *http.Response) (res *Org, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Org
+			var response Organization
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -314,6 +323,15 @@ func decodeGetOrgByIdResponse(resp *http.Response) (res *Org, _ error) {
 					Err:         err,
 				}
 				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
 			}
 			return &response, nil
 		default:
@@ -365,7 +383,7 @@ func decodeGetOrgByIdResponse(resp *http.Response) (res *Org, _ error) {
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrgsResponse(resp *http.Response) (res *GetOrgsOK, _ error) {
+func decodeGetOrgsResponse(resp *http.Response) (res *OrganizationsPagedResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -381,7 +399,7 @@ func decodeGetOrgsResponse(resp *http.Response) (res *GetOrgsOK, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response GetOrgsOK
+			var response OrganizationsPagedResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -397,6 +415,15 @@ func decodeGetOrgsResponse(resp *http.Response) (res *GetOrgsOK, _ error) {
 					Err:         err,
 				}
 				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
 			}
 			return &response, nil
 		default:
@@ -614,7 +641,7 @@ func decodeGetUnitsResponse(resp *http.Response) (res *GetUnitsOK, _ error) {
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeUpdateOrgResponse(resp *http.Response) (res *Org, _ error) {
+func decodeUpdateOrgResponse(resp *http.Response) (res *Organization, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -630,7 +657,7 @@ func decodeUpdateOrgResponse(resp *http.Response) (res *Org, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Org
+			var response Organization
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -646,6 +673,15 @@ func decodeUpdateOrgResponse(resp *http.Response) (res *Org, _ error) {
 					Err:         err,
 				}
 				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
 			}
 			return &response, nil
 		default:

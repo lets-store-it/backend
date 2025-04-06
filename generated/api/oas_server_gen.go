@@ -13,7 +13,7 @@ type Handler interface {
 	// Create Organization.
 	//
 	// POST /orgs
-	CreateOrg(ctx context.Context, req *Org) (*Org, error)
+	CreateOrg(ctx context.Context, req *Organization) (*Organization, error)
 	// CreateUnit implements createUnit operation.
 	//
 	// Create Organization Unit.
@@ -37,13 +37,13 @@ type Handler interface {
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Org, error)
+	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error)
 	// GetOrgs implements getOrgs operation.
 	//
 	// Get list of Organizations.
 	//
 	// GET /orgs
-	GetOrgs(ctx context.Context, params GetOrgsParams) (*GetOrgsOK, error)
+	GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error)
 	// GetUnitById implements getUnitById operation.
 	//
 	// Get Unit by ID with Spaces.
@@ -61,7 +61,7 @@ type Handler interface {
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrg(ctx context.Context, req *Org, params UpdateOrgParams) (*Org, error)
+	UpdateOrg(ctx context.Context, req *Organization, params UpdateOrgParams) (*Organization, error)
 	// UpdateUnit implements updateUnit operation.
 	//
 	// Update Organization Unit.

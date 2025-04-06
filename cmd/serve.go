@@ -9,10 +9,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/evevseev/storeit/backend/config"
 	"github.com/evevseev/storeit/backend/generated/api"
 	"github.com/evevseev/storeit/backend/generated/database"
+	"github.com/evevseev/storeit/backend/handlers"
 	"github.com/evevseev/storeit/backend/repositories"
-	"github.com/evevseev/storeit/backend/services"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,33 +24,27 @@ var (
 )
 
 func main() {
-	ctx := context.Background()
+	config := config.GetConfigOrDie()
 
-	conn, err := pgx.Connect(ctx, "user=postgres  password=postgres dbname=postgres sslmode=disable host=localhost port=5432")
+	ctx := context.Background()
+	conn, err := pgx.Connect(ctx,
+		fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s",
+			config.Database.User, config.Database.Password, config.Database.Name, config.Database.Host, config.Database.Port))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer conn.Close(ctx)
 
-	queries := database.New(conn)
-
-	orgRepo := repositories.OrganizationRepository{
-		Queries: queries,
-	}
-
-	flag.Parse()
-
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		*port = envPort
-	}
-
 	e := echo.New()
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	handler := &services.UnitService{
-		OrgRepository: orgRepo,
+	orgRepo := repositories.OrganizationRepository{
+		Queries: database.New(conn),
+	}
+	handler := &handlers.APIImplementation{
+		OrganizationRepository: orgRepo,
 	}
 
 	server, err := api.NewServer(handler)
@@ -58,9 +53,8 @@ func main() {
 	}
 	e.Any("/*", echo.WrapHandler(server))
 
-	addr := fmt.Sprintf(":%s", *port)
 	go func() {
-		if err := e.Start(addr); err != nil {
+		if err := e.Start(config.Server.ListenAddress); err != nil {
 			log.Printf("Server error: %v", err)
 		}
 	}()

@@ -1,13 +1,10 @@
 CREATE TABLE org (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    subdomain VARCHAR(255) NOT NULL,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID NULL,
-    updated_at TIMESTAMP NULL,
-    updated_by UUID
+    name VARCHAR(255) NOT NULL UNIQUE,
+    subdomain VARCHAR(255) NOT NULL UNIQUE CHECK (subdomain ~ '^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$'),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
+CREATE INDEX org_subdomain_idx ON org(subdomain);
 
 CREATE TABLE org_unit (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

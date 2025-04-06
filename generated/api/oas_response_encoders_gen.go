@@ -11,7 +11,7 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeCreateOrgResponse(response *Org, w http.ResponseWriter) error {
+func encodeCreateOrgResponse(response *Organization, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -49,7 +49,7 @@ func encodeDeleteUnitResponse(response *DeleteUnitOK, w http.ResponseWriter) err
 	return nil
 }
 
-func encodeGetOrgByIdResponse(response *Org, w http.ResponseWriter) error {
+func encodeGetOrgByIdResponse(response *Organization, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -62,7 +62,7 @@ func encodeGetOrgByIdResponse(response *Org, w http.ResponseWriter) error {
 	return nil
 }
 
-func encodeGetOrgsResponse(response *GetOrgsOK, w http.ResponseWriter) error {
+func encodeGetOrgsResponse(response *OrganizationsPagedResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -101,7 +101,7 @@ func encodeGetUnitsResponse(response *GetUnitsOK, w http.ResponseWriter) error {
 	return nil
 }
 
-func encodeUpdateOrgResponse(response *Org, w http.ResponseWriter) error {
+func encodeUpdateOrgResponse(response *Organization, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 

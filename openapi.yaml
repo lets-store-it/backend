@@ -37,14 +37,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/PagedResponse"
-                  - type: object
-                    properties:
-                      items:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/OrgWithAudit"
+                $ref: "#/components/schemas/OrganizationsPagedResponse"
         default:
           description: General Error
           content:
@@ -61,14 +54,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Org"
+              $ref: "#/components/schemas/Organization"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Org"
+                $ref: "#/components/schemas/Organization"
         default:
           description: General Error
           content:
@@ -94,14 +87,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Org"
+              $ref: "#/components/schemas/Organization"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Org"
+                $ref: "#/components/schemas/Organization"
         default:
           description: General Error
           content:
@@ -133,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Org"
+                $ref: "#/components/schemas/Organization"
         default:
           description: General Error
           content:
@@ -1066,7 +1059,6 @@ components:
           type: string
           format: date-time
           readOnly: true
-          nullable: true
           example: "2024-01-20T18:00:00Z"
         created_by:
           type: string
@@ -1093,12 +1085,22 @@ components:
         - created_by
         - updated_at
         - updated_by
-    OrgWithAudit:
+    OrganizationsPagedResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/AuditFields"
-        - $ref: "#/components/schemas/Org"
-    Org:
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Organization"
+        - $ref: "#/components/schemas/PagedResponse"
+
+    OrganizationFull:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Organization" # - $ref: "#/components/schemas/AuditFields"
+    Organization:
       type: object
       properties:
         id:
@@ -1112,6 +1114,9 @@ components:
         subdomain:
           type: string
           example: exotic
+          minLength: 1
+          maxLength: 255
+          pattern: "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
       required:
         - name
         - subdomain
@@ -1119,9 +1124,6 @@ components:
       description: Represents error object
       type: object
       properties:
-        code:
-          type: integer
-          format: int64
         message:
           type: string
         details:
@@ -1457,13 +1459,20 @@ components:
       properties:
         offset:
           type: integer
+          format: int32
           example: 0
         limit:
           type: integer
+          format: int32
           example: 20
         total:
           type: integer
+          format: int32
           example: 50
+      required:
+        - offset
+        - limit
+        - total
     PagedResponse:
       type: object
       properties:
@@ -1473,3 +1482,5 @@ components:
             type: object
         metadata:
           $ref: "#/components/schemas/PaginationMetadata"
+      required:
+        - metadata
