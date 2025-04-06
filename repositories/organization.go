@@ -114,3 +114,15 @@ func (r *OrganizationRepository) IsOrgExistsById(ctx context.Context, id uuid.UU
 	}
 	return exists, nil
 }
+
+func (r *OrganizationRepository) UpdateOrg(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	res, err := r.Queries.UpdateOrg(ctx, database.UpdateOrgParams{
+		ID:        pgtype.UUID{Bytes: org.ID, Valid: true},
+		Name:      org.Name,
+		Subdomain: org.Subdomain,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return toOrganization(res)
+}
