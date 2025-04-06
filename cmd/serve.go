@@ -9,7 +9,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/evevseev/storeit/backend/api"
+	"github.com/evevseev/storeit/backend/generated/api"
+	"github.com/evevseev/storeit/backend/generated/database"
+	"github.com/evevseev/storeit/backend/repositories"
+	"github.com/evevseev/storeit/backend/services"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -19,6 +23,20 @@ var (
 )
 
 func main() {
+	ctx := context.Background()
+
+	conn, err := pgx.Connect(ctx, "user=postgres  password=postgres dbname=postgres sslmode=disable host=localhost port=5432")
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer conn.Close(ctx)
+
+	queries := database.New(conn)
+
+	orgRepo := repositories.OrganizationRepository{
+		Queries: queries,
+	}
+
 	flag.Parse()
 
 	if envPort := os.Getenv("PORT"); envPort != "" {
@@ -30,12 +48,14 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	handler := &Handler{}
+	handler := &services.UnitService{
+		OrgRepository: orgRepo,
+	}
+
 	server, err := api.NewServer(handler)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}
-	
 	e.Any("/*", echo.WrapHandler(server))
 
 	addr := fmt.Sprintf(":%s", *port)
@@ -55,14 +75,4 @@ func main() {
 	if err := e.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
-}
-
-type Handler struct {
-	api.UnimplementedHandler
-}
-
-func (h *Handler) GetHealth(ctx context.Context) (api.GetHealthRes, error) {
-	return &api.GetHealthOK{
-		Status: api.NewOptGetHealthOKStatus(api.GetHealthOKStatusOK),
-	}, nil
 }

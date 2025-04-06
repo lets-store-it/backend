@@ -1,7 +1,12 @@
 CREATE TABLE org (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
-    subdomain VARCHAR(255) NOT NULL
+    subdomain VARCHAR(255) NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by UUID NULL,
+    updated_at TIMESTAMP NULL,
+    updated_by UUID
 );
 
 CREATE TABLE org_unit (
