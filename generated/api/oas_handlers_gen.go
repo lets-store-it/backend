@@ -58,7 +58,7 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *Org
+	var response *Organization
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -71,9 +71,9 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = *Org
+			Request  = *Organization
 			Params   = struct{}
-			Response = *Org
+			Response = *Organization
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -421,7 +421,7 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response *Org
+	var response *Organization
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -441,7 +441,7 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = struct{}
 			Params   = GetOrgByIdParams
-			Response = *Org
+			Response = *Organization
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -513,7 +513,7 @@ func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.R
 		return
 	}
 
-	var response *GetOrgsOK
+	var response *OrganizationsPagedResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -537,7 +537,7 @@ func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.R
 		type (
 			Request  = struct{}
 			Params   = GetOrgsParams
-			Response = *GetOrgsOK
+			Response = *OrganizationsPagedResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -812,7 +812,7 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *Org
+	var response *Organization
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -830,9 +830,9 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = *Org
+			Request  = *Organization
 			Params   = UpdateOrgParams
-			Response = *Org
+			Response = *Organization
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

@@ -18,7 +18,7 @@ var _ Handler = UnimplementedHandler{}
 // Create Organization.
 //
 // POST /orgs
-func (UnimplementedHandler) CreateOrg(ctx context.Context, req *Org) (r *Org, _ error) {
+func (UnimplementedHandler) CreateOrg(ctx context.Context, req *Organization) (r *Organization, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -54,7 +54,7 @@ func (UnimplementedHandler) DeleteUnit(ctx context.Context, params DeleteUnitPar
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (UnimplementedHandler) GetOrgById(ctx context.Context, params GetOrgByIdParams) (r *Org, _ error) {
+func (UnimplementedHandler) GetOrgById(ctx context.Context, params GetOrgByIdParams) (r *Organization, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -63,7 +63,7 @@ func (UnimplementedHandler) GetOrgById(ctx context.Context, params GetOrgByIdPar
 // Get list of Organizations.
 //
 // GET /orgs
-func (UnimplementedHandler) GetOrgs(ctx context.Context, params GetOrgsParams) (r *GetOrgsOK, _ error) {
+func (UnimplementedHandler) GetOrgs(ctx context.Context, params GetOrgsParams) (r *OrganizationsPagedResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -90,7 +90,7 @@ func (UnimplementedHandler) GetUnits(ctx context.Context, params GetUnitsParams)
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (UnimplementedHandler) UpdateOrg(ctx context.Context, req *Org, params UpdateOrgParams) (r *Org, _ error) {
+func (UnimplementedHandler) UpdateOrg(ctx context.Context, req *Organization, params UpdateOrgParams) (r *Organization, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

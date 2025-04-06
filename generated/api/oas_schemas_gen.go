@@ -22,14 +22,8 @@ type DeleteUnitOK struct{}
 // Represents error object.
 // Ref: #/components/schemas/Error
 type Error struct {
-	Code    int64         `json:"code"`
 	Message string        `json:"message"`
 	Details *ErrorDetails `json:"details"`
-}
-
-// GetCode returns the value of Code.
-func (s *Error) GetCode() int64 {
-	return s.Code
 }
 
 // GetMessage returns the value of Message.
@@ -40,11 +34,6 @@ func (s *Error) GetMessage() string {
 // GetDetails returns the value of Details.
 func (s *Error) GetDetails() *ErrorDetails {
 	return s.Details
-}
-
-// SetCode sets the value of Code.
-func (s *Error) SetCode(val int64) {
-	s.Code = val
 }
 
 // SetMessage sets the value of Message.
@@ -86,118 +75,8 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 }
 
 // Merged schema.
-type GetOrgsOK struct {
-	// Merged property.
-	Items    []GetOrgsOKItemsItem  `json:"items"`
-	Metadata OptPaginationMetadata `json:"metadata"`
-}
-
-// GetItems returns the value of Items.
-func (s *GetOrgsOK) GetItems() []GetOrgsOKItemsItem {
-	return s.Items
-}
-
-// GetMetadata returns the value of Metadata.
-func (s *GetOrgsOK) GetMetadata() OptPaginationMetadata {
-	return s.Metadata
-}
-
-// SetItems sets the value of Items.
-func (s *GetOrgsOK) SetItems(val []GetOrgsOKItemsItem) {
-	s.Items = val
-}
-
-// SetMetadata sets the value of Metadata.
-func (s *GetOrgsOK) SetMetadata(val OptPaginationMetadata) {
-	s.Metadata = val
-}
-
-// Merged schema.
-type GetOrgsOKItemsItem struct {
-	CreatedAt NilDateTime `json:"created_at"`
-	// ID of the employee who created the entity.
-	CreatedBy NilUUID     `json:"created_by"`
-	UpdatedAt NilDateTime `json:"updated_at"`
-	// ID of the employee who last updated the entity.
-	UpdatedBy NilUUID `json:"updated_by"`
-	ID        OptUUID `json:"id"`
-	Name      string  `json:"name"`
-	Subdomain string  `json:"subdomain"`
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *GetOrgsOKItemsItem) GetCreatedAt() NilDateTime {
-	return s.CreatedAt
-}
-
-// GetCreatedBy returns the value of CreatedBy.
-func (s *GetOrgsOKItemsItem) GetCreatedBy() NilUUID {
-	return s.CreatedBy
-}
-
-// GetUpdatedAt returns the value of UpdatedAt.
-func (s *GetOrgsOKItemsItem) GetUpdatedAt() NilDateTime {
-	return s.UpdatedAt
-}
-
-// GetUpdatedBy returns the value of UpdatedBy.
-func (s *GetOrgsOKItemsItem) GetUpdatedBy() NilUUID {
-	return s.UpdatedBy
-}
-
-// GetID returns the value of ID.
-func (s *GetOrgsOKItemsItem) GetID() OptUUID {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *GetOrgsOKItemsItem) GetName() string {
-	return s.Name
-}
-
-// GetSubdomain returns the value of Subdomain.
-func (s *GetOrgsOKItemsItem) GetSubdomain() string {
-	return s.Subdomain
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *GetOrgsOKItemsItem) SetCreatedAt(val NilDateTime) {
-	s.CreatedAt = val
-}
-
-// SetCreatedBy sets the value of CreatedBy.
-func (s *GetOrgsOKItemsItem) SetCreatedBy(val NilUUID) {
-	s.CreatedBy = val
-}
-
-// SetUpdatedAt sets the value of UpdatedAt.
-func (s *GetOrgsOKItemsItem) SetUpdatedAt(val NilDateTime) {
-	s.UpdatedAt = val
-}
-
-// SetUpdatedBy sets the value of UpdatedBy.
-func (s *GetOrgsOKItemsItem) SetUpdatedBy(val NilUUID) {
-	s.UpdatedBy = val
-}
-
-// SetID sets the value of ID.
-func (s *GetOrgsOKItemsItem) SetID(val OptUUID) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *GetOrgsOKItemsItem) SetName(val string) {
-	s.Name = val
-}
-
-// SetSubdomain sets the value of Subdomain.
-func (s *GetOrgsOKItemsItem) SetSubdomain(val string) {
-	s.Subdomain = val
-}
-
-// Merged schema.
 type GetUnitByIdOK struct {
-	CreatedAt NilDateTime `json:"created_at"`
+	CreatedAt time.Time `json:"created_at"`
 	// ID of the employee who created the entity.
 	CreatedBy NilUUID     `json:"created_by"`
 	UpdatedAt NilDateTime `json:"updated_at"`
@@ -207,7 +86,7 @@ type GetUnitByIdOK struct {
 }
 
 // GetCreatedAt returns the value of CreatedAt.
-func (s *GetUnitByIdOK) GetCreatedAt() NilDateTime {
+func (s *GetUnitByIdOK) GetCreatedAt() time.Time {
 	return s.CreatedAt
 }
 
@@ -232,7 +111,7 @@ func (s *GetUnitByIdOK) GetSpaces() []StorageSpace {
 }
 
 // SetCreatedAt sets the value of CreatedAt.
-func (s *GetUnitByIdOK) SetCreatedAt(val NilDateTime) {
+func (s *GetUnitByIdOK) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
 }
 
@@ -260,7 +139,7 @@ func (s *GetUnitByIdOK) SetSpaces(val []StorageSpace) {
 type GetUnitsOK struct {
 	// Merged property.
 	Items    []GetUnitsOKItemsItem `json:"items"`
-	Metadata OptPaginationMetadata `json:"metadata"`
+	Metadata PaginationMetadata    `json:"metadata"`
 }
 
 // GetItems returns the value of Items.
@@ -269,7 +148,7 @@ func (s *GetUnitsOK) GetItems() []GetUnitsOKItemsItem {
 }
 
 // GetMetadata returns the value of Metadata.
-func (s *GetUnitsOK) GetMetadata() OptPaginationMetadata {
+func (s *GetUnitsOK) GetMetadata() PaginationMetadata {
 	return s.Metadata
 }
 
@@ -279,13 +158,13 @@ func (s *GetUnitsOK) SetItems(val []GetUnitsOKItemsItem) {
 }
 
 // SetMetadata sets the value of Metadata.
-func (s *GetUnitsOK) SetMetadata(val OptPaginationMetadata) {
+func (s *GetUnitsOK) SetMetadata(val PaginationMetadata) {
 	s.Metadata = val
 }
 
 // Merged schema.
 type GetUnitsOKItemsItem struct {
-	CreatedAt NilDateTime `json:"created_at"`
+	CreatedAt time.Time `json:"created_at"`
 	// ID of the employee who created the entity.
 	CreatedBy NilUUID     `json:"created_by"`
 	UpdatedAt NilDateTime `json:"updated_at"`
@@ -294,7 +173,7 @@ type GetUnitsOKItemsItem struct {
 }
 
 // GetCreatedAt returns the value of CreatedAt.
-func (s *GetUnitsOKItemsItem) GetCreatedAt() NilDateTime {
+func (s *GetUnitsOKItemsItem) GetCreatedAt() time.Time {
 	return s.CreatedAt
 }
 
@@ -314,7 +193,7 @@ func (s *GetUnitsOKItemsItem) GetUpdatedBy() NilUUID {
 }
 
 // SetCreatedAt sets the value of CreatedAt.
-func (s *GetUnitsOKItemsItem) SetCreatedAt(val NilDateTime) {
+func (s *GetUnitsOKItemsItem) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
 }
 
@@ -423,52 +302,6 @@ func (o NilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// NewOptInt returns new OptInt with value set to v.
-func NewOptInt(v int) OptInt {
-	return OptInt{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptInt is optional int.
-type OptInt struct {
-	Value int
-	Set   bool
-}
-
-// IsSet returns true if OptInt was set.
-func (o OptInt) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptInt) Reset() {
-	var v int
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptInt) SetTo(v int) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptInt) Get() (v int, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptInt) Or(d int) int {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptInt32 returns new OptInt32 with value set to v.
 func NewOptInt32(v int32) OptInt32 {
 	return OptInt32{
@@ -509,52 +342,6 @@ func (o OptInt32) Get() (v int32, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt32) Or(d int32) int32 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptPaginationMetadata returns new OptPaginationMetadata with value set to v.
-func NewOptPaginationMetadata(v PaginationMetadata) OptPaginationMetadata {
-	return OptPaginationMetadata{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPaginationMetadata is optional PaginationMetadata.
-type OptPaginationMetadata struct {
-	Value PaginationMetadata
-	Set   bool
-}
-
-// IsSet returns true if OptPaginationMetadata was set.
-func (o OptPaginationMetadata) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPaginationMetadata) Reset() {
-	var v PaginationMetadata
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPaginationMetadata) SetTo(v PaginationMetadata) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPaginationMetadata) Get() (v PaginationMetadata, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPaginationMetadata) Or(d PaginationMetadata) PaginationMetadata {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -607,83 +394,148 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// Ref: #/components/schemas/Org
-type Org struct {
+// Ref: #/components/schemas/Organization
+type Organization struct {
 	ID        OptUUID `json:"id"`
 	Name      string  `json:"name"`
 	Subdomain string  `json:"subdomain"`
 }
 
 // GetID returns the value of ID.
-func (s *Org) GetID() OptUUID {
+func (s *Organization) GetID() OptUUID {
 	return s.ID
 }
 
 // GetName returns the value of Name.
-func (s *Org) GetName() string {
+func (s *Organization) GetName() string {
 	return s.Name
 }
 
 // GetSubdomain returns the value of Subdomain.
-func (s *Org) GetSubdomain() string {
+func (s *Organization) GetSubdomain() string {
 	return s.Subdomain
 }
 
 // SetID sets the value of ID.
-func (s *Org) SetID(val OptUUID) {
+func (s *Organization) SetID(val OptUUID) {
 	s.ID = val
 }
 
 // SetName sets the value of Name.
-func (s *Org) SetName(val string) {
+func (s *Organization) SetName(val string) {
 	s.Name = val
 }
 
 // SetSubdomain sets the value of Subdomain.
-func (s *Org) SetSubdomain(val string) {
+func (s *Organization) SetSubdomain(val string) {
+	s.Subdomain = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/OrganizationsPagedResponse
+type OrganizationsPagedResponse struct {
+	// Merged property.
+	Items    []OrganizationsPagedResponseItemsItem `json:"items"`
+	Metadata PaginationMetadata                    `json:"metadata"`
+}
+
+// GetItems returns the value of Items.
+func (s *OrganizationsPagedResponse) GetItems() []OrganizationsPagedResponseItemsItem {
+	return s.Items
+}
+
+// GetMetadata returns the value of Metadata.
+func (s *OrganizationsPagedResponse) GetMetadata() PaginationMetadata {
+	return s.Metadata
+}
+
+// SetItems sets the value of Items.
+func (s *OrganizationsPagedResponse) SetItems(val []OrganizationsPagedResponseItemsItem) {
+	s.Items = val
+}
+
+// SetMetadata sets the value of Metadata.
+func (s *OrganizationsPagedResponse) SetMetadata(val PaginationMetadata) {
+	s.Metadata = val
+}
+
+// Merged schema.
+type OrganizationsPagedResponseItemsItem struct {
+	ID        OptUUID `json:"id"`
+	Name      string  `json:"name"`
+	Subdomain string  `json:"subdomain"`
+}
+
+// GetID returns the value of ID.
+func (s *OrganizationsPagedResponseItemsItem) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *OrganizationsPagedResponseItemsItem) GetName() string {
+	return s.Name
+}
+
+// GetSubdomain returns the value of Subdomain.
+func (s *OrganizationsPagedResponseItemsItem) GetSubdomain() string {
+	return s.Subdomain
+}
+
+// SetID sets the value of ID.
+func (s *OrganizationsPagedResponseItemsItem) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *OrganizationsPagedResponseItemsItem) SetName(val string) {
+	s.Name = val
+}
+
+// SetSubdomain sets the value of Subdomain.
+func (s *OrganizationsPagedResponseItemsItem) SetSubdomain(val string) {
 	s.Subdomain = val
 }
 
 // Ref: #/components/schemas/PaginationMetadata
 type PaginationMetadata struct {
-	Offset OptInt `json:"offset"`
-	Limit  OptInt `json:"limit"`
-	Total  OptInt `json:"total"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Total  int32 `json:"total"`
 }
 
 // GetOffset returns the value of Offset.
-func (s *PaginationMetadata) GetOffset() OptInt {
+func (s *PaginationMetadata) GetOffset() int32 {
 	return s.Offset
 }
 
 // GetLimit returns the value of Limit.
-func (s *PaginationMetadata) GetLimit() OptInt {
+func (s *PaginationMetadata) GetLimit() int32 {
 	return s.Limit
 }
 
 // GetTotal returns the value of Total.
-func (s *PaginationMetadata) GetTotal() OptInt {
+func (s *PaginationMetadata) GetTotal() int32 {
 	return s.Total
 }
 
 // SetOffset sets the value of Offset.
-func (s *PaginationMetadata) SetOffset(val OptInt) {
+func (s *PaginationMetadata) SetOffset(val int32) {
 	s.Offset = val
 }
 
 // SetLimit sets the value of Limit.
-func (s *PaginationMetadata) SetLimit(val OptInt) {
+func (s *PaginationMetadata) SetLimit(val int32) {
 	s.Limit = val
 }
 
 // SetTotal sets the value of Total.
-func (s *PaginationMetadata) SetTotal(val OptInt) {
+func (s *PaginationMetadata) SetTotal(val int32) {
 	s.Total = val
 }
 
 // Ref: #/components/schemas/StorageSpace
 type StorageSpace struct {
-	CreatedAt NilDateTime `json:"created_at"`
+	CreatedAt time.Time `json:"created_at"`
 	// ID of the employee who created the entity.
 	CreatedBy NilUUID     `json:"created_by"`
 	UpdatedAt NilDateTime `json:"updated_at"`
@@ -692,7 +544,7 @@ type StorageSpace struct {
 }
 
 // GetCreatedAt returns the value of CreatedAt.
-func (s *StorageSpace) GetCreatedAt() NilDateTime {
+func (s *StorageSpace) GetCreatedAt() time.Time {
 	return s.CreatedAt
 }
 
@@ -712,7 +564,7 @@ func (s *StorageSpace) GetUpdatedBy() NilUUID {
 }
 
 // SetCreatedAt sets the value of CreatedAt.
-func (s *StorageSpace) SetCreatedAt(val NilDateTime) {
+func (s *StorageSpace) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
 }
 
@@ -733,7 +585,7 @@ func (s *StorageSpace) SetUpdatedBy(val NilUUID) {
 
 // Ref: #/components/schemas/Unit
 type Unit struct {
-	CreatedAt NilDateTime `json:"created_at"`
+	CreatedAt time.Time `json:"created_at"`
 	// ID of the employee who created the entity.
 	CreatedBy NilUUID     `json:"created_by"`
 	UpdatedAt NilDateTime `json:"updated_at"`
@@ -742,7 +594,7 @@ type Unit struct {
 }
 
 // GetCreatedAt returns the value of CreatedAt.
-func (s *Unit) GetCreatedAt() NilDateTime {
+func (s *Unit) GetCreatedAt() time.Time {
 	return s.CreatedAt
 }
 
@@ -762,7 +614,7 @@ func (s *Unit) GetUpdatedBy() NilUUID {
 }
 
 // SetCreatedAt sets the value of CreatedAt.
-func (s *Unit) SetCreatedAt(val NilDateTime) {
+func (s *Unit) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
 }
 

@@ -3,29 +3,16 @@ package repositories
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/evevseev/storeit/backend/generated/database"
+	"github.com/evevseev/storeit/backend/models"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type OrganizationRepository struct {
 	Queries *database.Queries
-}
-
-type AuditFields struct {
-	CreatedAt time.Time
-	UpdatedAt *time.Time
-	CreatedBy *uuid.UUID
-	UpdatedBy *uuid.UUID
-}
-
-type Organization struct {
-	ID          uuid.UUID
-	Name        string
-	Subdomain   string
-	AuditFields *AuditFields
 }
 
 func uuidFromPgx(id pgtype.UUID) *uuid.UUID {
@@ -36,32 +23,43 @@ func uuidFromPgx(id pgtype.UUID) *uuid.UUID {
 	return &uuid
 }
 
-func datetimeFromPgx(datetime pgtype.Timestamp) *time.Time {
-	if !datetime.Valid {
-		return nil
-	}
-	return &datetime.Time
+// func datetimeFromPgx(datetime pgtype.Timestamp) *time.Time {
+// 	if !datetime.Valid {
+// 		return nil
+// 	}
+// 	return &datetime.Time
+// }
+
+// Organization errors
+// Organization Exists Error
+type OrganizationExistsError struct {
 }
 
-func toOrganization(org database.Org) (*Organization, error) {
+func (e *OrganizationExistsError) Error() string {
+	return "organization already exists"
+}
+
+func toOrganization(org database.Org) (*models.Organization, error) {
 	id := uuidFromPgx(org.ID)
 	if id == nil {
 		return nil, errors.New("id is nil")
 	}
-	return &Organization{
+	return &models.Organization{
 		ID:        *id,
 		Name:      org.Name,
 		Subdomain: org.Subdomain,
-		AuditFields: &AuditFields{
-			CreatedAt: org.CreatedAt.Time,
-			UpdatedAt: datetimeFromPgx(org.UpdatedAt),
-			CreatedBy: uuidFromPgx(org.CreatedBy),
-			UpdatedBy: uuidFromPgx(org.UpdatedBy),
-		},
 	}, nil
 }
 
-func (r *OrganizationRepository) GetOrgs(ctx context.Context, limit int32, offset int32) ([]*Organization, error) {
+func (r *OrganizationRepository) GetOrgById(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
+	org, err := r.Queries.GetOrgById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+	return toOrganization(org)
+}
+
+func (r *OrganizationRepository) GetOrgs(ctx context.Context, limit int32, offset int32) ([]*models.Organization, error) {
 	res, err := r.Queries.GetOrgs(ctx, database.GetOrgsParams{
 		Limit:  limit,
 		Offset: offset,
@@ -70,7 +68,7 @@ func (r *OrganizationRepository) GetOrgs(ctx context.Context, limit int32, offse
 		return nil, err
 	}
 
-	orgs := make([]*Organization, len(res))
+	orgs := make([]*models.Organization, len(res))
 	for i, org := range res {
 		orgs[i], err = toOrganization(org)
 		if err != nil {
@@ -81,7 +79,7 @@ func (r *OrganizationRepository) GetOrgs(ctx context.Context, limit int32, offse
 	return orgs, nil
 }
 
-func (r *OrganizationRepository) CreateOrg(ctx context.Context, name string, subdomain string) (*Organization, error) {
+func (r *OrganizationRepository) CreateOrg(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
 	org, err := r.Queries.CreateOrg(ctx, database.CreateOrgParams{
 		Name:      name,
 		Subdomain: subdomain,
@@ -91,4 +89,28 @@ func (r *OrganizationRepository) CreateOrg(ctx context.Context, name string, sub
 	}
 
 	return toOrganization(org)
+}
+
+func (r *OrganizationRepository) DeleteOrg(ctx context.Context, id uuid.UUID) error {
+	err := r.Queries.DeleteOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
+	return err
+}
+
+func (r *OrganizationRepository) IsOrgExists(ctx context.Context, name string, subdomain string) (bool, error) {
+	exists, err := r.Queries.IsOrgExists(ctx, database.IsOrgExistsParams{
+		Name:      name,
+		Subdomain: subdomain,
+	})
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (r *OrganizationRepository) IsOrgExistsById(ctx context.Context, id uuid.UUID) (bool, error) {
+	exists, err := r.Queries.IsOrgExistsById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }

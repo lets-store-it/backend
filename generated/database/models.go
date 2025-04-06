@@ -107,10 +107,6 @@ type Org struct {
 	Name      string
 	Subdomain string
 	IsDeleted bool
-	CreatedAt pgtype.Timestamp
-	CreatedBy pgtype.UUID
-	UpdatedAt pgtype.Timestamp
-	UpdatedBy pgtype.UUID
 }
 
 type OrgUnit struct {

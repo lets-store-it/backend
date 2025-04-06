@@ -26,7 +26,7 @@ type Invoker interface {
 	// Create Organization.
 	//
 	// POST /orgs
-	CreateOrg(ctx context.Context, request *Org) (*Org, error)
+	CreateOrg(ctx context.Context, request *Organization) (*Organization, error)
 	// CreateUnit invokes createUnit operation.
 	//
 	// Create Organization Unit.
@@ -50,13 +50,13 @@ type Invoker interface {
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Org, error)
+	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error)
 	// GetOrgs invokes getOrgs operation.
 	//
 	// Get list of Organizations.
 	//
 	// GET /orgs
-	GetOrgs(ctx context.Context, params GetOrgsParams) (*GetOrgsOK, error)
+	GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error)
 	// GetUnitById invokes getUnitById operation.
 	//
 	// Get Unit by ID with Spaces.
@@ -74,7 +74,7 @@ type Invoker interface {
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrg(ctx context.Context, request *Org, params UpdateOrgParams) (*Org, error)
+	UpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (*Organization, error)
 	// UpdateUnit invokes updateUnit operation.
 	//
 	// Update Organization Unit.
@@ -135,12 +135,12 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 // Create Organization.
 //
 // POST /orgs
-func (c *Client) CreateOrg(ctx context.Context, request *Org) (*Org, error) {
+func (c *Client) CreateOrg(ctx context.Context, request *Organization) (*Organization, error) {
 	res, err := c.sendCreateOrg(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateOrg(ctx context.Context, request *Org) (res *Org, err error) {
+func (c *Client) sendCreateOrg(ctx context.Context, request *Organization) (res *Organization, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
@@ -321,12 +321,12 @@ func (c *Client) sendDeleteUnit(ctx context.Context, params DeleteUnitParams) (r
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (c *Client) GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Org, error) {
+func (c *Client) GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error) {
 	res, err := c.sendGetOrgById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (res *Org, err error) {
+func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (res *Organization, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
@@ -375,12 +375,12 @@ func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (r
 // Get list of Organizations.
 //
 // GET /orgs
-func (c *Client) GetOrgs(ctx context.Context, params GetOrgsParams) (*GetOrgsOK, error) {
+func (c *Client) GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error) {
 	res, err := c.sendGetOrgs(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetOrgs(ctx context.Context, params GetOrgsParams) (res *GetOrgsOK, err error) {
+func (c *Client) sendGetOrgs(ctx context.Context, params GetOrgsParams) (res *OrganizationsPagedResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
@@ -575,12 +575,12 @@ func (c *Client) sendGetUnits(ctx context.Context, params GetUnitsParams) (res *
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (c *Client) UpdateOrg(ctx context.Context, request *Org, params UpdateOrgParams) (*Org, error) {
+func (c *Client) UpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (*Organization, error) {
 	res, err := c.sendUpdateOrg(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateOrg(ctx context.Context, request *Org, params UpdateOrgParams) (res *Org, err error) {
+func (c *Client) sendUpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (res *Organization, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
