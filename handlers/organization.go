@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/evevseev/storeit/backend/generated/api"
+	"github.com/evevseev/storeit/backend/models"
 	"github.com/evevseev/storeit/backend/repositories"
 )
 
@@ -12,10 +13,21 @@ type APIImplementation struct {
 	OrganizationRepository repositories.OrganizationRepository
 }
 
-const (
-	DefaultLimit  = 10
-	DefaultOffset = 0
-)
+func dtoToModel(org *api.Organization) *models.Organization {
+	return &models.Organization{
+		ID:        org.ID.Value,
+		Name:      org.Name,
+		Subdomain: org.Subdomain,
+	}
+}
+
+func modelToDto(org *models.Organization) *api.Organization {
+	return &api.Organization{
+		ID:        api.NewOptUUID(org.ID),
+		Name:      org.Name,
+		Subdomain: org.Subdomain,
+	}
+}
 
 func (s *APIImplementation) GetOrgs(ctx context.Context, params api.GetOrgsParams) (*api.OrganizationsPagedResponse, error) {
 	orgs, err := s.OrganizationRepository.GetOrgs(ctx, params.Limit.Or(DefaultLimit), params.Offset.Or(DefaultOffset))
@@ -112,7 +124,17 @@ func (s *APIImplementation) GetOrgById(ctx context.Context, params api.GetOrgByI
 }
 
 func (s *APIImplementation) UpdateOrg(ctx context.Context, req *api.Organization, params api.UpdateOrgParams) (*api.Organization, error) {
-	panic("unimplemented")
+	req.ID = api.NewOptUUID(params.ID)
+	org, err := s.OrganizationRepository.UpdateOrg(ctx, dtoToModel(req))
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.Organization{
+		ID:        api.NewOptUUID(org.ID),
+		Name:      org.Name,
+		Subdomain: org.Subdomain,
+	}, nil
 }
 
 func (s *APIImplementation) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
