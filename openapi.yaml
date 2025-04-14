@@ -279,6 +279,138 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /storage-spaces:
+    get:
+      tags:
+        - storage-space
+      summary: Get list of Storage Spaces
+      operationId: getStorageSpaces
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetStorageSpacesResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - storage-space
+      summary: Create Storage Space
+      operationId: createStorageSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStorageSpaceRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateStorageSpaceResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /storage-spaces/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Storage Space ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - storage-space
+      summary: Get Storage Space by ID
+      operationId: getStorageSpaceById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetStorageSpaceByIdResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - storage-space
+      summary: Delete Storage Space
+      operationId: deleteStorageSpace
+      responses:
+        "200":
+          description: Successful operation
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - storage-space
+      summary: Patch Storage Space
+      operationId: patchStorageSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchStorageSpaceRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatchStorageSpaceResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags:
+        - storage-space
+      summary: Update Storage Space
+      operationId: updateStorageSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStorageSpaceRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateStorageSpaceResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   # parameters:
@@ -441,6 +573,7 @@ components:
       required:
         - name
         - subdomain
+    # Organization Unit
     Unit:
       type: object
       properties:
@@ -540,26 +673,114 @@ components:
                 $ref: "#/components/schemas/Unit"
           required:
             - data
-    # StorageSpace:
-    #   type: object
-    #   allOf:
-    #     - $ref: "#/components/schemas/AuditFields"
-    #   properties:
-    #     id:
-    #       type: string
-    #       format: uuid
-    #       readOnly: true
-    #       example: def3df1a-7b8f-4552-b437-a1eab851403f
-    #     name:
-    #       type: string
-    #       example: Main Warehouse
-    #     short_name:
-    #       type: string
-    #       example: MW
-    #     unit_id:
-    #       type: string
-    #       format: uuid
-    #       example: def3df1a-7b8f-4552-b437-a1eab851403f
+    # Storage Space
+    StorageSpace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        parentId:
+          type: string
+          format: uuid
+          nullable: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Main Warehouse
+        alias:
+          type: string
+          example: MW
+        unitId:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+      required:
+        - name
+        - alias
+        - unitId
+    CreateStorageSpaceRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/StorageSpace"
+    CreateStorageSpaceResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/StorageSpace"
+          required:
+            - data
+    GetStorageSpacesResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/StorageSpace"
+          required:
+            - data
+    GetStorageSpaceByIdResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/StorageSpace"
+          required:
+            - data
+    UpdateStorageSpaceRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/StorageSpace"
+    UpdateStorageSpaceResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/StorageSpace"
+          required:
+            - data
+    PatchStorageSpaceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Main Warehouse
+        alias:
+          type: string
+          example: MW
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        parentId:
+          type: string
+          format: uuid
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+    PatchStorageSpaceResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/StorageSpace"
+          required:
+            - data
+
     # PaginationMetadata:
     #   type: object
     #   properties:

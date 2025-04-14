@@ -148,6 +148,72 @@ func decodeDeleteOrganizationUnitParams(args [1]string, argsEscaped bool, r *htt
 	return params, nil
 }
 
+// DeleteStorageSpaceParams is parameters of deleteStorageSpace operation.
+type DeleteStorageSpaceParams struct {
+	// Storage Space ID.
+	ID uuid.UUID
+}
+
+func unpackDeleteStorageSpaceParams(packed middleware.Parameters) (params DeleteStorageSpaceParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteStorageSpaceParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetOrganizationByIdParams is parameters of getOrganizationById operation.
 type GetOrganizationByIdParams struct {
 	// Organization ID.
@@ -232,6 +298,72 @@ func unpackGetOrganizationUnitByIdParams(packed middleware.Parameters) (params G
 }
 
 func decodeGetOrganizationUnitByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationUnitByIdParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetStorageSpaceByIdParams is parameters of getStorageSpaceById operation.
+type GetStorageSpaceByIdParams struct {
+	// Storage Space ID.
+	ID uuid.UUID
+}
+
+func unpackGetStorageSpaceByIdParams(packed middleware.Parameters) (params GetStorageSpaceByIdParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetStorageSpaceByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetStorageSpaceByIdParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -412,6 +544,72 @@ func decodePatchOrganizationUnitParams(args [1]string, argsEscaped bool, r *http
 	return params, nil
 }
 
+// PatchStorageSpaceParams is parameters of patchStorageSpace operation.
+type PatchStorageSpaceParams struct {
+	// Storage Space ID.
+	ID uuid.UUID
+}
+
+func unpackPatchStorageSpaceParams(packed middleware.Parameters) (params PatchStorageSpaceParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodePatchStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchStorageSpaceParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateOrganizationParams is parameters of updateOrganization operation.
 type UpdateOrganizationParams struct {
 	// Organization ID.
@@ -496,6 +694,72 @@ func unpackUpdateOrganizationUnitParams(packed middleware.Parameters) (params Up
 }
 
 func decodeUpdateOrganizationUnitParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateOrganizationUnitParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateStorageSpaceParams is parameters of updateStorageSpace operation.
+type UpdateStorageSpaceParams struct {
+	// Storage Space ID.
+	ID uuid.UUID
+}
+
+func unpackUpdateStorageSpaceParams(packed middleware.Parameters) (params UpdateStorageSpaceParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateStorageSpaceParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]

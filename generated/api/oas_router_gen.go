@@ -127,6 +127,72 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 's': // Prefix: "storage-spaces"
+
+				if l := len("storage-spaces"); len(elem) >= l && elem[0:l] == "storage-spaces" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetStorageSpacesRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateStorageSpaceRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteStorageSpaceRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetStorageSpaceByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handlePatchStorageSpaceRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateStorageSpaceRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+						}
+
+						return
+					}
+
+				}
+
 			case 'u': // Prefix: "units"
 
 				if l := len("units"); len(elem) >= l && elem[0:l] == "units" {
@@ -367,6 +433,96 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.summary = "Update Organization"
 							r.operationID = "updateOrganization"
 							r.pathPattern = "/orgs/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
+			case 's': // Prefix: "storage-spaces"
+
+				if l := len("storage-spaces"); len(elem) >= l && elem[0:l] == "storage-spaces" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = GetStorageSpacesOperation
+						r.summary = "Get list of Storage Spaces"
+						r.operationID = "getStorageSpaces"
+						r.pathPattern = "/storage-spaces"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateStorageSpaceOperation
+						r.summary = "Create Storage Space"
+						r.operationID = "createStorageSpace"
+						r.pathPattern = "/storage-spaces"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteStorageSpaceOperation
+							r.summary = "Delete Storage Space"
+							r.operationID = "deleteStorageSpace"
+							r.pathPattern = "/storage-spaces/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetStorageSpaceByIdOperation
+							r.summary = "Get Storage Space by ID"
+							r.operationID = "getStorageSpaceById"
+							r.pathPattern = "/storage-spaces/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = PatchStorageSpaceOperation
+							r.summary = "Patch Storage Space"
+							r.operationID = "patchStorageSpace"
+							r.pathPattern = "/storage-spaces/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateStorageSpaceOperation
+							r.summary = "Update Storage Space"
+							r.operationID = "updateStorageSpace"
+							r.pathPattern = "/storage-spaces/{id}"
 							r.args = args
 							r.count = 1
 							return r, true

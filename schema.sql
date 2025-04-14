@@ -21,14 +21,18 @@ CREATE INDEX org_unit_alias_idx ON org_unit(org_id, alias);
 
 CREATE TABLE storage_space (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
     parent_id UUID,
     name VARCHAR(255) NOT NULL,
-    short_name VARCHAR(255),
-    UNIQUE (unit_id, name),
+    alias VARCHAR(255),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (org_id, unit_id, name),
     FOREIGN KEY (parent_id) REFERENCES storage_space(id) ON DELETE RESTRICT,
     CHECK (parent_id != id)
 );
+CREATE INDEX storage_space_org_id_idx ON storage_space(org_id, id);
+CREATE INDEX storage_space_unit_id_idx ON storage_space(org_id, unit_id);
 
 CREATE TABLE cell_kind (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

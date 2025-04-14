@@ -7,15 +7,21 @@ type OperationName = string
 
 const (
 	CreateOrganizationOperation      OperationName = "CreateOrganization"
+	CreateStorageSpaceOperation      OperationName = "CreateStorageSpace"
 	CreateUnitOperation              OperationName = "CreateUnit"
 	DeleteOrganizationOperation      OperationName = "DeleteOrganization"
 	DeleteOrganizationUnitOperation  OperationName = "DeleteOrganizationUnit"
+	DeleteStorageSpaceOperation      OperationName = "DeleteStorageSpace"
 	GetOrganizationByIdOperation     OperationName = "GetOrganizationById"
 	GetOrganizationUnitByIdOperation OperationName = "GetOrganizationUnitById"
 	GetOrganizationUnitsOperation    OperationName = "GetOrganizationUnits"
 	GetOrganizationsOperation        OperationName = "GetOrganizations"
+	GetStorageSpaceByIdOperation     OperationName = "GetStorageSpaceById"
+	GetStorageSpacesOperation        OperationName = "GetStorageSpaces"
 	PatchOrganizationOperation       OperationName = "PatchOrganization"
 	PatchOrganizationUnitOperation   OperationName = "PatchOrganizationUnit"
+	PatchStorageSpaceOperation       OperationName = "PatchStorageSpace"
 	UpdateOrganizationOperation      OperationName = "UpdateOrganization"
 	UpdateOrganizationUnitOperation  OperationName = "UpdateOrganizationUnit"
+	UpdateStorageSpaceOperation      OperationName = "UpdateStorageSpace"
 )
