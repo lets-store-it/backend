@@ -79,3 +79,38 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 
 	return uc.service.Delete(ctx, id)
 }
+
+func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	if err := uc.validateOrganizationData(org.Name, org.Subdomain); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
+	return uc.service.Update(ctx, org)
+}
+
+func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
+	if id == uuid.Nil {
+		return nil, fmt.Errorf("invalid organization ID")
+	}
+
+	// Get current organization
+	org, err := uc.service.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organization: %w", err)
+	}
+
+	// Apply updates
+	if name, ok := updates["name"].(string); ok {
+		org.Name = name
+	}
+	if subdomain, ok := updates["subdomain"].(string); ok {
+		org.Subdomain = subdomain
+	}
+
+	// Validate updated data
+	if err := uc.validateOrganizationData(org.Name, org.Subdomain); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
+	return uc.service.Update(ctx, org)
+}
