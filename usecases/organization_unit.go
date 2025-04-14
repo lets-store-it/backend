@@ -21,7 +21,7 @@ func NewOrganizationUnitUseCase(service *services.OrganizationUnitService) *Orga
 	}
 }
 
-func (uc *OrganizationUnitUseCase) validateOrganizationUnitData(name string) error {
+func (uc *OrganizationUnitUseCase) validateOrganizationUnitData(name string, alias string) error {
 	if strings.TrimSpace(name) == "" {
 		return fmt.Errorf("organization unit name cannot be empty")
 	}
@@ -31,6 +31,17 @@ func (uc *OrganizationUnitUseCase) validateOrganizationUnitData(name string) err
 	matched, _ := regexp.MatchString("^[\\w\\s-]+$", name)
 	if !matched {
 		return fmt.Errorf("organization unit name can only contain letters, numbers, spaces, and hyphens")
+	}
+
+	if strings.TrimSpace(alias) == "" {
+		return fmt.Errorf("organization unit alias cannot be empty")
+	}
+	if len(alias) > 100 {
+		return fmt.Errorf("organization unit alias is too long (max 100 characters)")
+	}
+	matched, _ = regexp.MatchString("^[\\w-]+$", alias)
+	if !matched {
+		return fmt.Errorf("organization unit alias can only contain letters, numbers, and hyphens (no spaces)")
 	}
 	return nil
 }
@@ -46,12 +57,12 @@ func (uc *OrganizationUnitUseCase) checkUnitBelongsToOrganization(ctx context.Co
 	return nil
 }
 
-func (uc *OrganizationUnitUseCase) Create(ctx context.Context, orgID uuid.UUID, name string, address string) (*models.OrganizationUnit, error) {
-	if err := uc.validateOrganizationUnitData(name); err != nil {
+func (uc *OrganizationUnitUseCase) Create(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
+	if err := uc.validateOrganizationUnitData(name, alias); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	return uc.service.Create(ctx, orgID, name, address)
+	return uc.service.Create(ctx, orgID, name, alias, address)
 }
 
 func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error) {
@@ -96,7 +107,7 @@ func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) err
 }
 
 func (uc *OrganizationUnitUseCase) Update(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	if err := uc.validateOrganizationUnitData(unit.Name); err != nil {
+	if err := uc.validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -132,13 +143,18 @@ func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, upda
 
 	// Apply updates
 	if name, ok := updates["name"].(string); ok {
-		if err := uc.validateOrganizationUnitData(name); err != nil {
-			return nil, fmt.Errorf("validation failed: %w", err)
-		}
 		unit.Name = name
+	}
+	if alias, ok := updates["alias"].(string); ok {
+		unit.Alias = alias
 	}
 	if address, ok := updates["address"].(string); ok {
 		unit.Address = address
+	}
+
+	// Validate after updates
+	if err := uc.validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
 	return uc.service.Update(ctx, unit)

@@ -17,6 +17,7 @@ CREATE TABLE org_unit (
     UNIQUE (org_id, alias)
 );
 CREATE INDEX org_unit_org_id_idx ON org_unit(org_id, id);
+CREATE INDEX org_unit_alias_idx ON org_unit(org_id, alias);
 
 CREATE TABLE storage_space (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

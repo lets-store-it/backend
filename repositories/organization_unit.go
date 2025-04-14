@@ -27,6 +27,7 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 		ID:      *id,
 		OrgID:   *orgID,
 		Name:    unit.Name,
+		Alias:   unit.Alias,
 		Address: unit.Address.String,
 	}, nil
 }
@@ -56,10 +57,11 @@ func (r *OrganizationUnitRepository) GetOrganizationUnits(ctx context.Context, o
 	return result, nil
 }
 
-func (r *OrganizationUnitRepository) CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, address string) (*models.OrganizationUnit, error) {
+func (r *OrganizationUnitRepository) CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
 	unit, err := r.Queries.CreateOrganizationUnit(ctx, database.CreateOrganizationUnitParams{
 		OrgID:   pgtype.UUID{Bytes: orgID, Valid: true},
 		Name:    name,
+		Alias:   alias,
 		Address: pgtype.Text{String: address, Valid: true},
 	})
 	if err != nil {
@@ -77,6 +79,7 @@ func (r *OrganizationUnitRepository) UpdateOrganizationUnit(ctx context.Context,
 	updatedUnit, err := r.Queries.UpdateOrganizationUnit(ctx, database.UpdateOrganizationUnitParams{
 		ID:      pgtype.UUID{Bytes: unit.ID, Valid: true},
 		Name:    unit.Name,
+		Alias:   unit.Alias,
 		Address: pgtype.Text{String: unit.Address, Valid: true},
 	})
 	if err != nil {
