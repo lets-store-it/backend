@@ -257,10 +257,8 @@ func (s *CreateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
-		if s.Alias.Set {
-			e.FieldStart("alias")
-			s.Alias.Encode(e)
-		}
+		e.FieldStart("alias")
+		e.Str(s.Alias)
 	}
 	{
 		if s.Address.Set {
@@ -309,9 +307,11 @@ func (s *CreateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Alias.Reset()
-				if err := s.Alias.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Alias = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -338,7 +338,7 @@ func (s *CreateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000010,
+		0b00000110,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1621,10 +1621,8 @@ func (s *Unit) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
-		if s.Alias.Set {
-			e.FieldStart("alias")
-			s.Alias.Encode(e)
-		}
+		e.FieldStart("alias")
+		e.Str(s.Alias)
 	}
 	{
 		if s.Address.Set {
@@ -1673,9 +1671,11 @@ func (s *Unit) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Alias.Reset()
-				if err := s.Alias.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Alias = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1702,7 +1702,7 @@ func (s *Unit) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000010,
+		0b00000110,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2004,10 +2004,8 @@ func (s *UpdateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
-		if s.Alias.Set {
-			e.FieldStart("alias")
-			s.Alias.Encode(e)
-		}
+		e.FieldStart("alias")
+		e.Str(s.Alias)
 	}
 	{
 		if s.Address.Set {
@@ -2056,9 +2054,11 @@ func (s *UpdateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Alias.Reset()
-				if err := s.Alias.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Alias = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -2085,7 +2085,7 @@ func (s *UpdateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000010,
+		0b00000110,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

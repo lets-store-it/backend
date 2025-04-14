@@ -467,6 +467,7 @@ components:
           example: Amurskaya St. 3
       required:
         - name
+        - alias
     GetOrganizationUnitsResponse:
       type: object
       allOf:

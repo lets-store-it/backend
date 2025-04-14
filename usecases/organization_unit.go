@@ -12,12 +12,14 @@ import (
 )
 
 type OrganizationUnitUseCase struct {
-	service *services.OrganizationUnitService
+	service    *services.OrganizationUnitService
+	orgService *services.OrganizationService
 }
 
-func NewOrganizationUnitUseCase(service *services.OrganizationUnitService) *OrganizationUnitUseCase {
+func NewOrganizationUnitUseCase(service *services.OrganizationUnitService, orgService *services.OrganizationService) *OrganizationUnitUseCase {
 	return &OrganizationUnitUseCase{
-		service: service,
+		service:    service,
+		orgService: orgService,
 	}
 }
 
@@ -28,10 +30,6 @@ func (uc *OrganizationUnitUseCase) validateOrganizationUnitData(name string, ali
 	if len(name) > 100 {
 		return fmt.Errorf("organization unit name is too long (max 100 characters)")
 	}
-	matched, _ := regexp.MatchString("^[\\w\\s-]+$", name)
-	if !matched {
-		return fmt.Errorf("organization unit name can only contain letters, numbers, spaces, and hyphens")
-	}
 
 	if strings.TrimSpace(alias) == "" {
 		return fmt.Errorf("organization unit alias cannot be empty")
@@ -39,7 +37,7 @@ func (uc *OrganizationUnitUseCase) validateOrganizationUnitData(name string, ali
 	if len(alias) > 100 {
 		return fmt.Errorf("organization unit alias is too long (max 100 characters)")
 	}
-	matched, _ = regexp.MatchString("^[\\w-]+$", alias)
+	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
 	if !matched {
 		return fmt.Errorf("organization unit alias can only contain letters, numbers, and hyphens (no spaces)")
 	}
@@ -58,6 +56,15 @@ func (uc *OrganizationUnitUseCase) checkUnitBelongsToOrganization(ctx context.Co
 }
 
 func (uc *OrganizationUnitUseCase) Create(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
+	// Check if organization exists
+	exists, err := uc.orgService.IsOrganizationExistsByID(ctx, orgID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check organization existence: %w", err)
+	}
+	if !exists {
+		return nil, services.ErrOrganizationNotFound
+	}
+
 	if err := uc.validateOrganizationUnitData(name, alias); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}

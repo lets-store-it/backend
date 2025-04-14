@@ -80,3 +80,7 @@ func (s *OrganizationService) Patch(ctx context.Context, id uuid.UUID, updates m
 
 	return s.repo.UpdateOrganization(ctx, org)
 }
+
+func (s *OrganizationService) IsOrganizationExistsByID(ctx context.Context, id uuid.UUID) (bool, error) {
+	return s.repo.IsOrganizationExistsByID(ctx, id)
+}

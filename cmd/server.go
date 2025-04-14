@@ -52,7 +52,7 @@ func main() {
 		Queries: queries,
 	}
 	orgUnitService := services.NewOrganizationUnitService(orgUnitRepo)
-	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgUnitService)
+	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgUnitService, orgService)
 
 	// Initialize handlers
 	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase)
