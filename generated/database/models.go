@@ -110,10 +110,11 @@ type Org struct {
 }
 
 type OrgUnit struct {
-	ID      pgtype.UUID
-	OrgID   pgtype.UUID
-	Name    string
-	Address pgtype.Text
+	ID        pgtype.UUID
+	OrgID     pgtype.UUID
+	Name      string
+	Address   pgtype.Text
+	IsDeleted bool
 }
 
 type Role struct {

@@ -37,19 +37,33 @@ func main() {
 	// e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	// Initialize layers
+	// Initialize database queries
+	queries := database.New(conn)
+
+	// Initialize organization layers
 	orgRepo := &repositories.OrganizationRepository{
-		Queries: database.New(conn),
+		Queries: queries,
 	}
 	orgService := services.NewOrganizationService(orgRepo)
 	orgUseCase := usecases.NewOrganizationUseCase(orgService)
-	handler := handlers.NewRestApiImplementation(orgUseCase)
+
+	// Initialize organization unit layers
+	orgUnitRepo := &repositories.OrganizationUnitRepository{
+		Queries: queries,
+	}
+	orgUnitService := services.NewOrganizationUnitService(orgUnitRepo)
+	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgUnitService)
+
+	// Initialize handlers
+	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase)
 
 	server, err := api.NewServer(handler)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}
-	e.Any("/*", echo.WrapHandler(server))
+
+	// Add organization ID middleware
+	e.Any("/*", echo.WrapHandler(handlers.WithOrganizationID(server)))
 
 	go func() {
 		if err := e.Start(config.Server.ListenAddress); err != nil {
