@@ -32,12 +32,44 @@ func (q *Queries) CreateOrg(ctx context.Context, arg CreateOrgParams) (Org, erro
 	return i, err
 }
 
+const createOrganizationUnit = `-- name: CreateOrganizationUnit :one
+INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING id, org_id, name, address, is_deleted
+`
+
+type CreateOrganizationUnitParams struct {
+	OrgID   pgtype.UUID
+	Name    string
+	Address pgtype.Text
+}
+
+func (q *Queries) CreateOrganizationUnit(ctx context.Context, arg CreateOrganizationUnitParams) (OrgUnit, error) {
+	row := q.db.QueryRow(ctx, createOrganizationUnit, arg.OrgID, arg.Name, arg.Address)
+	var i OrgUnit
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.Name,
+		&i.Address,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
 const deleteOrg = `-- name: DeleteOrg :exec
 UPDATE org SET is_deleted = TRUE WHERE id = $1
 `
 
 func (q *Queries) DeleteOrg(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteOrg, id)
+	return err
+}
+
+const deleteOrganizationUnit = `-- name: DeleteOrganizationUnit :exec
+UPDATE org_unit SET is_deleted = TRUE WHERE id = $1
+`
+
+func (q *Queries) DeleteOrganizationUnit(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteOrganizationUnit, id)
 	return err
 }
 
@@ -55,6 +87,55 @@ func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
 		&i.IsDeleted,
 	)
 	return i, err
+}
+
+const getOrganizationUnitById = `-- name: GetOrganizationUnitById :one
+SELECT id, org_id, name, address, is_deleted FROM org_unit WHERE id = $1 AND is_deleted = FALSE
+`
+
+func (q *Queries) GetOrganizationUnitById(ctx context.Context, id pgtype.UUID) (OrgUnit, error) {
+	row := q.db.QueryRow(ctx, getOrganizationUnitById, id)
+	var i OrgUnit
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.Name,
+		&i.Address,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
+const getOrganizationUnits = `-- name: GetOrganizationUnits :many
+
+SELECT id, org_id, name, address, is_deleted FROM org_unit WHERE org_id = $1 AND is_deleted = FALSE
+`
+
+// -- Units
+func (q *Queries) GetOrganizationUnits(ctx context.Context, orgID pgtype.UUID) ([]OrgUnit, error) {
+	rows, err := q.db.Query(ctx, getOrganizationUnits, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrgUnit
+	for rows.Next() {
+		var i OrgUnit
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.Name,
+			&i.Address,
+			&i.IsDeleted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrgs = `-- name: GetOrgs :many
@@ -113,6 +194,22 @@ func (q *Queries) IsOrgExistsById(ctx context.Context, id pgtype.UUID) (bool, er
 	return exists, err
 }
 
+const isOrganizationUnitExistsForOrganization = `-- name: IsOrganizationUnitExistsForOrganization :one
+SELECT EXISTS (SELECT 1 FROM org_unit WHERE org_id = $1 AND id = $2 AND is_deleted = FALSE)
+`
+
+type IsOrganizationUnitExistsForOrganizationParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) IsOrganizationUnitExistsForOrganization(ctx context.Context, arg IsOrganizationUnitExistsForOrganizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isOrganizationUnitExistsForOrganization, arg.OrgID, arg.ID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const updateOrg = `-- name: UpdateOrg :one
 UPDATE org SET name = $2, subdomain = $3 WHERE id = $1 RETURNING id, name, subdomain, is_deleted
 `
@@ -130,6 +227,29 @@ func (q *Queries) UpdateOrg(ctx context.Context, arg UpdateOrgParams) (Org, erro
 		&i.ID,
 		&i.Name,
 		&i.Subdomain,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
+const updateOrganizationUnit = `-- name: UpdateOrganizationUnit :one
+UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING id, org_id, name, address, is_deleted
+`
+
+type UpdateOrganizationUnitParams struct {
+	ID      pgtype.UUID
+	Name    string
+	Address pgtype.Text
+}
+
+func (q *Queries) UpdateOrganizationUnit(ctx context.Context, arg UpdateOrganizationUnitParams) (OrgUnit, error) {
+	row := q.db.QueryRow(ctx, updateOrganizationUnit, arg.ID, arg.Name, arg.Address)
+	var i OrgUnit
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.Name,
+		&i.Address,
 		&i.IsDeleted,
 	)
 	return i, err

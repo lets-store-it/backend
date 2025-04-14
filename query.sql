@@ -22,16 +22,19 @@ UPDATE org SET is_deleted = TRUE WHERE id = $1;
 -- -- Units
 
 -- name: GetOrganizationUnits :many
-SELECT * FROM org_unit WHERE org_id = $1;
+SELECT * FROM org_unit WHERE org_id = $1 AND is_deleted = FALSE;
+
+-- name: IsOrganizationUnitExistsForOrganization :one
+SELECT EXISTS (SELECT 1 FROM org_unit WHERE org_id = $1 AND id = $2 AND is_deleted = FALSE);
 
 -- name: GetOrganizationUnitById :one
-SELECT * FROM org_unit WHERE id = $1;
+SELECT * FROM org_unit WHERE id = $1 AND is_deleted = FALSE;
 
 -- name: CreateOrganizationUnit :one
 INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: UpdateOrganizationUnit :one
-UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 RETURNING *;
+UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING *;
 
 -- name: DeleteOrganizationUnit :exec
 UPDATE org_unit SET is_deleted = TRUE WHERE id = $1;
