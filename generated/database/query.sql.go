@@ -33,22 +33,29 @@ func (q *Queries) CreateOrg(ctx context.Context, arg CreateOrgParams) (Org, erro
 }
 
 const createOrganizationUnit = `-- name: CreateOrganizationUnit :one
-INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING id, org_id, name, address, is_deleted
+INSERT INTO org_unit (org_id, name, alias, address) VALUES ($1, $2, $3, $4) RETURNING id, org_id, name, alias, address, is_deleted
 `
 
 type CreateOrganizationUnitParams struct {
 	OrgID   pgtype.UUID
 	Name    string
+	Alias   string
 	Address pgtype.Text
 }
 
 func (q *Queries) CreateOrganizationUnit(ctx context.Context, arg CreateOrganizationUnitParams) (OrgUnit, error) {
-	row := q.db.QueryRow(ctx, createOrganizationUnit, arg.OrgID, arg.Name, arg.Address)
+	row := q.db.QueryRow(ctx, createOrganizationUnit,
+		arg.OrgID,
+		arg.Name,
+		arg.Alias,
+		arg.Address,
+	)
 	var i OrgUnit
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
 		&i.Name,
+		&i.Alias,
 		&i.Address,
 		&i.IsDeleted,
 	)
@@ -90,7 +97,7 @@ func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
 }
 
 const getOrganizationUnitById = `-- name: GetOrganizationUnitById :one
-SELECT id, org_id, name, address, is_deleted FROM org_unit WHERE id = $1 AND is_deleted = FALSE
+SELECT id, org_id, name, alias, address, is_deleted FROM org_unit WHERE id = $1 AND is_deleted = FALSE
 `
 
 func (q *Queries) GetOrganizationUnitById(ctx context.Context, id pgtype.UUID) (OrgUnit, error) {
@@ -100,6 +107,7 @@ func (q *Queries) GetOrganizationUnitById(ctx context.Context, id pgtype.UUID) (
 		&i.ID,
 		&i.OrgID,
 		&i.Name,
+		&i.Alias,
 		&i.Address,
 		&i.IsDeleted,
 	)
@@ -108,7 +116,7 @@ func (q *Queries) GetOrganizationUnitById(ctx context.Context, id pgtype.UUID) (
 
 const getOrganizationUnits = `-- name: GetOrganizationUnits :many
 
-SELECT id, org_id, name, address, is_deleted FROM org_unit WHERE org_id = $1 AND is_deleted = FALSE
+SELECT id, org_id, name, alias, address, is_deleted FROM org_unit WHERE org_id = $1 AND is_deleted = FALSE
 `
 
 // -- Units
@@ -125,6 +133,7 @@ func (q *Queries) GetOrganizationUnits(ctx context.Context, orgID pgtype.UUID) (
 			&i.ID,
 			&i.OrgID,
 			&i.Name,
+			&i.Alias,
 			&i.Address,
 			&i.IsDeleted,
 		); err != nil {
@@ -233,22 +242,29 @@ func (q *Queries) UpdateOrg(ctx context.Context, arg UpdateOrgParams) (Org, erro
 }
 
 const updateOrganizationUnit = `-- name: UpdateOrganizationUnit :one
-UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING id, org_id, name, address, is_deleted
+UPDATE org_unit SET name = $2, alias = $3, address = $4 WHERE id = $1 AND is_deleted = FALSE RETURNING id, org_id, name, alias, address, is_deleted
 `
 
 type UpdateOrganizationUnitParams struct {
 	ID      pgtype.UUID
 	Name    string
+	Alias   string
 	Address pgtype.Text
 }
 
 func (q *Queries) UpdateOrganizationUnit(ctx context.Context, arg UpdateOrganizationUnitParams) (OrgUnit, error) {
-	row := q.db.QueryRow(ctx, updateOrganizationUnit, arg.ID, arg.Name, arg.Address)
+	row := q.db.QueryRow(ctx, updateOrganizationUnit,
+		arg.ID,
+		arg.Name,
+		arg.Alias,
+		arg.Address,
+	)
 	var i OrgUnit
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
 		&i.Name,
+		&i.Alias,
 		&i.Address,
 		&i.IsDeleted,
 	)

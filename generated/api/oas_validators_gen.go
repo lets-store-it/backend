@@ -78,7 +78,7 @@ func (s *CreateOrganizationUnitRequest) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[\\w\\s-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Name)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -86,6 +86,32 @@ func (s *CreateOrganizationUnitRequest) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "name",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.Alias.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    1,
+					MinLengthSet: true,
+					MaxLength:    100,
+					MaxLengthSet: true,
+					Email:        false,
+					Hostname:     false,
+					Regex:        nil,
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "alias",
 			Error: err,
 		})
 	}
@@ -437,7 +463,7 @@ func (s *Unit) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[\\w\\s-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Name)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -445,6 +471,32 @@ func (s *Unit) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "name",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.Alias.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    1,
+					MinLengthSet: true,
+					MaxLength:    100,
+					MaxLengthSet: true,
+					Email:        false,
+					Hostname:     false,
+					Regex:        nil,
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "alias",
 			Error: err,
 		})
 	}
@@ -565,7 +617,7 @@ func (s *UpdateOrganizationUnitRequest) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[\\w\\s-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Name)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -573,6 +625,32 @@ func (s *UpdateOrganizationUnitRequest) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "name",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.Alias.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    1,
+					MinLengthSet: true,
+					MaxLength:    100,
+					MaxLengthSet: true,
+					Email:        false,
+					Hostname:     false,
+					Regex:        nil,
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "alias",
 			Error: err,
 		})
 	}

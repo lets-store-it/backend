@@ -257,6 +257,12 @@ func (s *CreateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
+		if s.Alias.Set {
+			e.FieldStart("alias")
+			s.Alias.Encode(e)
+		}
+	}
+	{
 		if s.Address.Set {
 			e.FieldStart("address")
 			s.Address.Encode(e)
@@ -264,10 +270,11 @@ func (s *CreateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateOrganizationUnitRequest = [3]string{
+var jsonFieldsNameOfCreateOrganizationUnitRequest = [4]string{
 	0: "id",
 	1: "name",
-	2: "address",
+	2: "alias",
+	3: "address",
 }
 
 // Decode decodes CreateOrganizationUnitRequest from json.
@@ -300,6 +307,16 @@ func (s *CreateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "alias":
+			if err := func() error {
+				s.Alias.Reset()
+				if err := s.Alias.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "address":
 			if err := func() error {
@@ -1397,6 +1414,12 @@ func (s *PatchOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Alias.Set {
+			e.FieldStart("alias")
+			s.Alias.Encode(e)
+		}
+	}
+	{
 		if s.Address.Set {
 			e.FieldStart("address")
 			s.Address.Encode(e)
@@ -1404,9 +1427,10 @@ func (s *PatchOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPatchOrganizationUnitRequest = [2]string{
+var jsonFieldsNameOfPatchOrganizationUnitRequest = [3]string{
 	0: "name",
-	1: "address",
+	1: "alias",
+	2: "address",
 }
 
 // Decode decodes PatchOrganizationUnitRequest from json.
@@ -1426,6 +1450,16 @@ func (s *PatchOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "alias":
+			if err := func() error {
+				s.Alias.Reset()
+				if err := s.Alias.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "address":
 			if err := func() error {
@@ -1587,6 +1621,12 @@ func (s *Unit) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
+		if s.Alias.Set {
+			e.FieldStart("alias")
+			s.Alias.Encode(e)
+		}
+	}
+	{
 		if s.Address.Set {
 			e.FieldStart("address")
 			s.Address.Encode(e)
@@ -1594,10 +1634,11 @@ func (s *Unit) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUnit = [3]string{
+var jsonFieldsNameOfUnit = [4]string{
 	0: "id",
 	1: "name",
-	2: "address",
+	2: "alias",
+	3: "address",
 }
 
 // Decode decodes Unit from json.
@@ -1630,6 +1671,16 @@ func (s *Unit) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "alias":
+			if err := func() error {
+				s.Alias.Reset()
+				if err := s.Alias.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "address":
 			if err := func() error {
@@ -1953,6 +2004,12 @@ func (s *UpdateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
+		if s.Alias.Set {
+			e.FieldStart("alias")
+			s.Alias.Encode(e)
+		}
+	}
+	{
 		if s.Address.Set {
 			e.FieldStart("address")
 			s.Address.Encode(e)
@@ -1960,10 +2017,11 @@ func (s *UpdateOrganizationUnitRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateOrganizationUnitRequest = [3]string{
+var jsonFieldsNameOfUpdateOrganizationUnitRequest = [4]string{
 	0: "id",
 	1: "name",
-	2: "address",
+	2: "alias",
+	3: "address",
 }
 
 // Decode decodes UpdateOrganizationUnitRequest from json.
@@ -1996,6 +2054,16 @@ func (s *UpdateOrganizationUnitRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "alias":
+			if err := func() error {
+				s.Alias.Reset()
+				if err := s.Alias.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "address":
 			if err := func() error {

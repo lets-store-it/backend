@@ -68,6 +68,7 @@ func (s *CreateOrganizationResponse) SetData(val Organization) {
 type CreateOrganizationUnitRequest struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
+	Alias   OptString    `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -79,6 +80,11 @@ func (s *CreateOrganizationUnitRequest) GetID() OptUUID {
 // GetName returns the value of Name.
 func (s *CreateOrganizationUnitRequest) GetName() string {
 	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *CreateOrganizationUnitRequest) GetAlias() OptString {
+	return s.Alias
 }
 
 // GetAddress returns the value of Address.
@@ -94,6 +100,11 @@ func (s *CreateOrganizationUnitRequest) SetID(val OptUUID) {
 // SetName sets the value of Name.
 func (s *CreateOrganizationUnitRequest) SetName(val string) {
 	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CreateOrganizationUnitRequest) SetAlias(val OptString) {
+	s.Alias = val
 }
 
 // SetAddress sets the value of Address.
@@ -517,12 +528,18 @@ func (s *PatchOrganizationResponse) SetData(val []Organization) {
 // Ref: #/components/schemas/PatchOrganizationUnitRequest
 type PatchOrganizationUnitRequest struct {
 	Name    OptString `json:"name"`
+	Alias   OptString `json:"alias"`
 	Address OptString `json:"address"`
 }
 
 // GetName returns the value of Name.
 func (s *PatchOrganizationUnitRequest) GetName() OptString {
 	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *PatchOrganizationUnitRequest) GetAlias() OptString {
+	return s.Alias
 }
 
 // GetAddress returns the value of Address.
@@ -533,6 +550,11 @@ func (s *PatchOrganizationUnitRequest) GetAddress() OptString {
 // SetName sets the value of Name.
 func (s *PatchOrganizationUnitRequest) SetName(val OptString) {
 	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *PatchOrganizationUnitRequest) SetAlias(val OptString) {
+	s.Alias = val
 }
 
 // SetAddress sets the value of Address.
@@ -559,6 +581,7 @@ func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
 type Unit struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
+	Alias   OptString    `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -570,6 +593,11 @@ func (s *Unit) GetID() OptUUID {
 // GetName returns the value of Name.
 func (s *Unit) GetName() string {
 	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *Unit) GetAlias() OptString {
+	return s.Alias
 }
 
 // GetAddress returns the value of Address.
@@ -585,6 +613,11 @@ func (s *Unit) SetID(val OptUUID) {
 // SetName sets the value of Name.
 func (s *Unit) SetName(val string) {
 	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *Unit) SetAlias(val OptString) {
+	s.Alias = val
 }
 
 // SetAddress sets the value of Address.
@@ -648,6 +681,7 @@ func (s *UpdateOrganizationResponse) SetData(val []Organization) {
 type UpdateOrganizationUnitRequest struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
+	Alias   OptString    `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -659,6 +693,11 @@ func (s *UpdateOrganizationUnitRequest) GetID() OptUUID {
 // GetName returns the value of Name.
 func (s *UpdateOrganizationUnitRequest) GetName() string {
 	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *UpdateOrganizationUnitRequest) GetAlias() OptString {
+	return s.Alias
 }
 
 // GetAddress returns the value of Address.
@@ -674,6 +713,11 @@ func (s *UpdateOrganizationUnitRequest) SetID(val OptUUID) {
 // SetName sets the value of Name.
 func (s *UpdateOrganizationUnitRequest) SetName(val string) {
 	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *UpdateOrganizationUnitRequest) SetAlias(val OptString) {
+	s.Alias = val
 }
 
 // SetAddress sets the value of Address.

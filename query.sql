@@ -31,10 +31,10 @@ SELECT EXISTS (SELECT 1 FROM org_unit WHERE org_id = $1 AND id = $2 AND is_delet
 SELECT * FROM org_unit WHERE id = $1 AND is_deleted = FALSE;
 
 -- name: CreateOrganizationUnit :one
-INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING *;
+INSERT INTO org_unit (org_id, name, alias, address) VALUES ($1, $2, $3, $4) RETURNING *;
 
 -- name: UpdateOrganizationUnit :one
-UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING *;
+UPDATE org_unit SET name = $2, alias = $3, address = $4 WHERE id = $1 AND is_deleted = FALSE RETURNING *;
 
 -- name: DeleteOrganizationUnit :exec
 UPDATE org_unit SET is_deleted = TRUE WHERE id = $1;
