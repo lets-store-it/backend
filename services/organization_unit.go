@@ -15,7 +15,7 @@ var (
 type OrganizationUnitRepository interface {
 	GetOrganizationUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error)
 	GetOrganizationUnits(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error)
-	CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, address string) (*models.OrganizationUnit, error)
+	CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error)
 	DeleteOrganizationUnit(ctx context.Context, id uuid.UUID) error
 	UpdateOrganizationUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error)
 	IsOrganizationUnitExistsForOrganization(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error)
@@ -31,8 +31,8 @@ func NewOrganizationUnitService(repo OrganizationUnitRepository) *OrganizationUn
 	}
 }
 
-func (s *OrganizationUnitService) Create(ctx context.Context, orgID uuid.UUID, name string, address string) (*models.OrganizationUnit, error) {
-	return s.repo.CreateOrganizationUnit(ctx, orgID, name, address)
+func (s *OrganizationUnitService) Create(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
+	return s.repo.CreateOrganizationUnit(ctx, orgID, name, alias, address)
 }
 
 func (s *OrganizationUnitService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error) {
@@ -67,6 +67,9 @@ func (s *OrganizationUnitService) Patch(ctx context.Context, id uuid.UUID, updat
 	// Apply updates
 	if name, ok := updates["name"].(string); ok {
 		unit.Name = name
+	}
+	if alias, ok := updates["alias"].(string); ok {
+		unit.Alias = alias
 	}
 	if address, ok := updates["address"].(string); ok {
 		unit.Address = address

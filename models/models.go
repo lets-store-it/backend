@@ -20,6 +20,7 @@ type OrganizationUnit struct {
 	ID      uuid.UUID
 	OrgID   uuid.UUID
 	Name    string
+	Alias   string
 	Address string
 }
 
