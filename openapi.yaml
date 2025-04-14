@@ -147,131 +147,138 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  # /units:
-  #   get:
-  #     tags:
-  #       - unit
-  #     summary: Get list of Organization Units
-  #     operationId: getUnits
-  #     parameters:
-  #       - $ref: "#/components/parameters/OffsetParam"
-  #       - $ref: "#/components/parameters/LimitParam"
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               allOf:
-  #                 - $ref: "#/components/schemas/PagedResponse"
-  #                 - type: object
-  #                   properties:
-  #                     items:
-  #                       type: array
-  #                       items:
-  #                         $ref: "#/components/schemas/Unit"
-  #       default:
-  #         description: General Error
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Error"
-  #   post:
-  #     tags:
-  #       - unit
-  #     summary: Create Organization Unit
-  #     operationId: createUnit
-  #     requestBody:
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: "#/components/schemas/Unit"
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Unit"
-  #       default:
-  #         description: General Error
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Error"
-  # /units/{id}:
-  #   parameters:
-  #     - name: id
-  #       in: path
-  #       description: Unit ID
-  #       required: true
-  #       schema:
-  #         type: string
-  #         format: uuid
-  #   put:
-  #     tags:
-  #       - unit
-  #     summary: Update Organization Unit
-  #     operationId: updateUnit
-  #     requestBody:
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: "#/components/schemas/Unit"
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Unit"
-  #       default:
-  #         description: General Error
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Error"
-  #   get:
-  #     tags:
-  #       - unit
-  #     summary: Get Unit by ID with Spaces
-  #     operationId: getUnitById
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               allOf:
-  #                 - $ref: "#/components/schemas/Unit"
-  #                 - type: object
-  #                   properties:
-  #                     spaces:
-  #                       type: array
-  #                       items:
-  #                         $ref: "#/components/schemas/StorageSpace"
-  #       default:
-  #         description: General Error
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Error"
-  #   delete:
-  #     tags:
-  #       - unit
-  #     summary: Delete Organization Unit
-  #     operationId: deleteUnit
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #       default:
-  #         description: General Error
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Error"
+  /units:
+    get:
+      tags:
+        - unit
+      summary: Get list of Organization Units
+      operationId: getOrganizationUnits
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetOrganizationUnitsResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - unit
+      summary: Create Organization Unit
+      operationId: createUnit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrganizationUnitRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateOrganizationUnitResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /units/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Unit ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - unit
+      summary: Get Unit by ID with Spaces
+      operationId: getOrganizationUnitById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetOrganizationUnitByIdResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - unit
+      summary: Delete Organization Unit
+      operationId: deleteOrganizationUnit
+      responses:
+        "200":
+          description: Successful operation
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags:
+        - unit
+      summary: Update Organization Unit
+      operationId: updateOrganizationUnit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrganizationUnitRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateOrganizationUnitResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - unit
+      summary: Patch Organization Unit
+      operationId: patchOrganizationUnit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchOrganizationUnitRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatchOrganizationUnitResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   # parameters:
@@ -434,29 +441,96 @@ components:
       required:
         - name
         - subdomain
-    # Unit:
-    #   type: object
-    #   required:
-    #     - name
-    #   allOf:
-    #     - $ref: "#/components/schemas/AuditFields"
-    #   properties:
-    #     id:
-    #       type: string
-    #       format: uuid
-    #       readOnly: true
-    #       example: def3df1a-7b8f-4552-b437-a1eab851403f
-    #     name:
-    #       type: string
-    #       minLength: 1
-    #       maxLength: 100
-    #       pattern: "^[\\w\\s-]+$"
-    #       example: Moscow
-    #     address:
-    #       type: string
-    #       nullable: true
-    #       maxLength: 200
-    #       example: Amurskaya St. 3
+    Unit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: "^[\\w\\s-]+$"
+          example: Moscow
+        address:
+          type: string
+          nullable: true
+          maxLength: 200
+          example: Amurskaya St. 3
+      required:
+        - name
+    GetOrganizationUnitsResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Unit"
+          required:
+            - data
+    CreateOrganizationUnitRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Unit"
+    CreateOrganizationUnitResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/Unit"
+    GetOrganizationUnitByIdResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/Unit"
+          required:
+            - data
+    UpdateOrganizationUnitRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Unit"
+    UpdateOrganizationUnitResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Unit"
+          required:
+            - data
+    PatchOrganizationUnitRequest:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            name:
+              type: string
+              example: Moscow
+            address:
+              type: string
+    PatchOrganizationUnitResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Unit"
+          required:
+            - data
     # StorageSpace:
     #   type: object
     #   allOf:

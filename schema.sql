@@ -11,8 +11,10 @@ CREATE TABLE org_unit (
     org_id UUID NOT NULL REFERENCES org(id),
     name VARCHAR(255) NOT NULL,
     address VARCHAR(255),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     UNIQUE (org_id, name)
 );
+CREATE INDEX org_unit_org_id_idx ON org_unit(org_id, id);
 
 CREATE TABLE storage_space (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
