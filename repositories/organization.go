@@ -59,11 +59,8 @@ func (r *OrganizationRepository) GetOrgById(ctx context.Context, id uuid.UUID) (
 	return toOrganization(org)
 }
 
-func (r *OrganizationRepository) GetOrgs(ctx context.Context, limit int32, offset int32) ([]*models.Organization, error) {
-	res, err := r.Queries.GetOrgs(ctx, database.GetOrgsParams{
-		Limit:  limit,
-		Offset: offset,
-	})
+func (r *OrganizationRepository) GetOrgs(ctx context.Context) ([]*models.Organization, error) {
+	res, err := r.Queries.GetOrgs(ctx)
 	if err != nil {
 		return nil, err
 	}

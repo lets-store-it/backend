@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -17,10 +16,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-)
-
-var (
-	port = flag.String("port", "8080", "Port to listen on")
 )
 
 func main() {
@@ -43,9 +38,8 @@ func main() {
 	orgRepo := repositories.OrganizationRepository{
 		Queries: database.New(conn),
 	}
-	handler := &handlers.APIImplementation{
-		OrganizationRepository: orgRepo,
-	}
+	
+	handler := handlers.NewGlobalHandler(orgRepo)
 
 	server, err := api.NewServer(handler)
 	if err != nil {

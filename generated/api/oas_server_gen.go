@@ -8,66 +8,42 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// CreateOrg implements createOrg operation.
+	// CreateOrganization implements createOrganization operation.
 	//
 	// Create Organization.
 	//
 	// POST /orgs
-	CreateOrg(ctx context.Context, req *Organization) (*Organization, error)
-	// CreateUnit implements createUnit operation.
-	//
-	// Create Organization Unit.
-	//
-	// POST /units
-	CreateUnit(ctx context.Context, req *Unit) (*Unit, error)
-	// DeleteOrg implements deleteOrg operation.
+	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	// DeleteOrganization implements deleteOrganization operation.
 	//
 	// Delete Organization.
 	//
 	// DELETE /orgs/{id}
-	DeleteOrg(ctx context.Context, params DeleteOrgParams) error
-	// DeleteUnit implements deleteUnit operation.
-	//
-	// Delete Organization Unit.
-	//
-	// DELETE /units/{id}
-	DeleteUnit(ctx context.Context, params DeleteUnitParams) error
-	// GetOrgById implements getOrgById operation.
+	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error
+	// GetOrganizationById implements getOrganizationById operation.
 	//
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error)
-	// GetOrgs implements getOrgs operation.
+	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
+	// GetOrganizations implements getOrganizations operation.
 	//
 	// Get list of Organizations.
 	//
 	// GET /orgs
-	GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error)
-	// GetUnitById implements getUnitById operation.
+	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
+	// PatchOrganization implements patchOrganization operation.
 	//
-	// Get Unit by ID with Spaces.
+	// Update Organization.
 	//
-	// GET /units/{id}
-	GetUnitById(ctx context.Context, params GetUnitByIdParams) (*GetUnitByIdOK, error)
-	// GetUnits implements getUnits operation.
-	//
-	// Get list of Organization Units.
-	//
-	// GET /units
-	GetUnits(ctx context.Context, params GetUnitsParams) (*GetUnitsOK, error)
-	// UpdateOrg implements updateOrg operation.
+	// PATCH /orgs/{id}
+	PatchOrganization(ctx context.Context, req *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error)
+	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrg(ctx context.Context, req *Organization, params UpdateOrgParams) (*Organization, error)
-	// UpdateUnit implements updateUnit operation.
-	//
-	// Update Organization Unit.
-	//
-	// PUT /units/{id}
-	UpdateUnit(ctx context.Context, req *Unit, params UpdateUnitParams) (*Unit, error)
+	UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

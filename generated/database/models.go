@@ -136,6 +136,7 @@ type RolePermission struct {
 type StorageSpace struct {
 	ID        pgtype.UUID
 	UnitID    pgtype.UUID
+	ParentID  pgtype.UUID
 	Name      string
 	ShortName pgtype.Text
 }

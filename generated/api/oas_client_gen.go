@@ -21,66 +21,42 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
-	// CreateOrg invokes createOrg operation.
+	// CreateOrganization invokes createOrganization operation.
 	//
 	// Create Organization.
 	//
 	// POST /orgs
-	CreateOrg(ctx context.Context, request *Organization) (*Organization, error)
-	// CreateUnit invokes createUnit operation.
-	//
-	// Create Organization Unit.
-	//
-	// POST /units
-	CreateUnit(ctx context.Context, request *Unit) (*Unit, error)
-	// DeleteOrg invokes deleteOrg operation.
+	CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	// DeleteOrganization invokes deleteOrganization operation.
 	//
 	// Delete Organization.
 	//
 	// DELETE /orgs/{id}
-	DeleteOrg(ctx context.Context, params DeleteOrgParams) error
-	// DeleteUnit invokes deleteUnit operation.
-	//
-	// Delete Organization Unit.
-	//
-	// DELETE /units/{id}
-	DeleteUnit(ctx context.Context, params DeleteUnitParams) error
-	// GetOrgById invokes getOrgById operation.
+	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error
+	// GetOrganizationById invokes getOrganizationById operation.
 	//
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error)
-	// GetOrgs invokes getOrgs operation.
+	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
+	// GetOrganizations invokes getOrganizations operation.
 	//
 	// Get list of Organizations.
 	//
 	// GET /orgs
-	GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error)
-	// GetUnitById invokes getUnitById operation.
+	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
+	// PatchOrganization invokes patchOrganization operation.
 	//
-	// Get Unit by ID with Spaces.
+	// Update Organization.
 	//
-	// GET /units/{id}
-	GetUnitById(ctx context.Context, params GetUnitByIdParams) (*GetUnitByIdOK, error)
-	// GetUnits invokes getUnits operation.
-	//
-	// Get list of Organization Units.
-	//
-	// GET /units
-	GetUnits(ctx context.Context, params GetUnitsParams) (*GetUnitsOK, error)
-	// UpdateOrg invokes updateOrg operation.
+	// PATCH /orgs/{id}
+	PatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error)
+	// UpdateOrganization invokes updateOrganization operation.
 	//
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (*Organization, error)
-	// UpdateUnit invokes updateUnit operation.
-	//
-	// Update Organization Unit.
-	//
-	// PUT /units/{id}
-	UpdateUnit(ctx context.Context, request *Unit, params UpdateUnitParams) (*Unit, error)
+	UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error)
 }
 
 // Client implements OAS client.
@@ -130,17 +106,17 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
-// CreateOrg invokes createOrg operation.
+// CreateOrganization invokes createOrganization operation.
 //
 // Create Organization.
 //
 // POST /orgs
-func (c *Client) CreateOrg(ctx context.Context, request *Organization) (*Organization, error) {
-	res, err := c.sendCreateOrg(ctx, request)
+func (c *Client) CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error) {
+	res, err := c.sendCreateOrganization(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateOrg(ctx context.Context, request *Organization) (res *Organization, err error) {
+func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (res *CreateOrganizationResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
@@ -151,7 +127,7 @@ func (c *Client) sendCreateOrg(ctx context.Context, request *Organization) (res 
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeCreateOrgRequest(request, r); err != nil {
+	if err := encodeCreateOrganizationRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -161,7 +137,7 @@ func (c *Client) sendCreateOrg(ctx context.Context, request *Organization) (res 
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeCreateOrgResponse(resp)
+	result, err := decodeCreateOrganizationResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -169,56 +145,17 @@ func (c *Client) sendCreateOrg(ctx context.Context, request *Organization) (res 
 	return result, nil
 }
 
-// CreateUnit invokes createUnit operation.
-//
-// Create Organization Unit.
-//
-// POST /units
-func (c *Client) CreateUnit(ctx context.Context, request *Unit) (*Unit, error) {
-	res, err := c.sendCreateUnit(ctx, request)
-	return res, err
-}
-
-func (c *Client) sendCreateUnit(ctx context.Context, request *Unit) (res *Unit, err error) {
-
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/units"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	r, err := ht.NewRequest(ctx, "POST", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeCreateUnitRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	result, err := decodeCreateUnitResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// DeleteOrg invokes deleteOrg operation.
+// DeleteOrganization invokes deleteOrganization operation.
 //
 // Delete Organization.
 //
 // DELETE /orgs/{id}
-func (c *Client) DeleteOrg(ctx context.Context, params DeleteOrgParams) error {
-	_, err := c.sendDeleteOrg(ctx, params)
+func (c *Client) DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error {
+	_, err := c.sendDeleteOrganization(ctx, params)
 	return err
 }
 
-func (c *Client) sendDeleteOrg(ctx context.Context, params DeleteOrgParams) (res *DeleteOrgOK, err error) {
+func (c *Client) sendDeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (res *DeleteOrganizationOK, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
@@ -254,7 +191,7 @@ func (c *Client) sendDeleteOrg(ctx context.Context, params DeleteOrgParams) (res
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeDeleteOrgResponse(resp)
+	result, err := decodeDeleteOrganizationResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -262,71 +199,17 @@ func (c *Client) sendDeleteOrg(ctx context.Context, params DeleteOrgParams) (res
 	return result, nil
 }
 
-// DeleteUnit invokes deleteUnit operation.
-//
-// Delete Organization Unit.
-//
-// DELETE /units/{id}
-func (c *Client) DeleteUnit(ctx context.Context, params DeleteUnitParams) error {
-	_, err := c.sendDeleteUnit(ctx, params)
-	return err
-}
-
-func (c *Client) sendDeleteUnit(ctx context.Context, params DeleteUnitParams) (res *DeleteUnitOK, err error) {
-
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/units/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	r, err := ht.NewRequest(ctx, "DELETE", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	result, err := decodeDeleteUnitResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// GetOrgById invokes getOrgById operation.
+// GetOrganizationById invokes getOrganizationById operation.
 //
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (c *Client) GetOrgById(ctx context.Context, params GetOrgByIdParams) (*Organization, error) {
-	res, err := c.sendGetOrgById(ctx, params)
+func (c *Client) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error) {
+	res, err := c.sendGetOrganizationById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (res *Organization, err error) {
+func (c *Client) sendGetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (res *GetOrganizationByIdResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
@@ -362,7 +245,7 @@ func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (r
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetOrgByIdResponse(resp)
+	result, err := decodeGetOrganizationByIdResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -370,60 +253,23 @@ func (c *Client) sendGetOrgById(ctx context.Context, params GetOrgByIdParams) (r
 	return result, nil
 }
 
-// GetOrgs invokes getOrgs operation.
+// GetOrganizations invokes getOrganizations operation.
 //
 // Get list of Organizations.
 //
 // GET /orgs
-func (c *Client) GetOrgs(ctx context.Context, params GetOrgsParams) (*OrganizationsPagedResponse, error) {
-	res, err := c.sendGetOrgs(ctx, params)
+func (c *Client) GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error) {
+	res, err := c.sendGetOrganizations(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetOrgs(ctx context.Context, params GetOrgsParams) (res *OrganizationsPagedResponse, err error) {
+func (c *Client) sendGetOrganizations(ctx context.Context) (res *GetOrganizationsResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
 	pathParts[0] = "/orgs"
 	uri.AddPathParts(u, pathParts[:]...)
 
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "offset" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "offset",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Offset.Get(); ok {
-				return e.EncodeValue(conv.Int32ToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
-		// Encode "limit" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "limit",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Limit.Get(); ok {
-				return e.EncodeValue(conv.Int32ToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
 	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
@@ -435,7 +281,7 @@ func (c *Client) sendGetOrgs(ctx context.Context, params GetOrgsParams) (res *Or
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetOrgsResponse(resp)
+	result, err := decodeGetOrganizationsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -443,21 +289,21 @@ func (c *Client) sendGetOrgs(ctx context.Context, params GetOrgsParams) (res *Or
 	return result, nil
 }
 
-// GetUnitById invokes getUnitById operation.
+// PatchOrganization invokes patchOrganization operation.
 //
-// Get Unit by ID with Spaces.
+// Update Organization.
 //
-// GET /units/{id}
-func (c *Client) GetUnitById(ctx context.Context, params GetUnitByIdParams) (*GetUnitByIdOK, error) {
-	res, err := c.sendGetUnitById(ctx, params)
+// PATCH /orgs/{id}
+func (c *Client) PatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error) {
+	res, err := c.sendPatchOrganization(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendGetUnitById(ctx context.Context, params GetUnitByIdParams) (res *GetUnitByIdOK, err error) {
+func (c *Client) sendPatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (res *PatchOrganizationResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/units/"
+	pathParts[0] = "/orgs/"
 	{
 		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -478,9 +324,12 @@ func (c *Client) sendGetUnitById(ctx context.Context, params GetUnitByIdParams) 
 	}
 	uri.AddPathParts(u, pathParts[:]...)
 
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "PATCH", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodePatchOrganizationRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	resp, err := c.cfg.Client.Do(r)
@@ -489,7 +338,7 @@ func (c *Client) sendGetUnitById(ctx context.Context, params GetUnitByIdParams) 
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetUnitByIdResponse(resp)
+	result, err := decodePatchOrganizationResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -497,90 +346,17 @@ func (c *Client) sendGetUnitById(ctx context.Context, params GetUnitByIdParams) 
 	return result, nil
 }
 
-// GetUnits invokes getUnits operation.
-//
-// Get list of Organization Units.
-//
-// GET /units
-func (c *Client) GetUnits(ctx context.Context, params GetUnitsParams) (*GetUnitsOK, error) {
-	res, err := c.sendGetUnits(ctx, params)
-	return res, err
-}
-
-func (c *Client) sendGetUnits(ctx context.Context, params GetUnitsParams) (res *GetUnitsOK, err error) {
-
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/units"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "offset" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "offset",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Offset.Get(); ok {
-				return e.EncodeValue(conv.Int32ToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
-		// Encode "limit" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "limit",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Limit.Get(); ok {
-				return e.EncodeValue(conv.Int32ToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
-	r, err := ht.NewRequest(ctx, "GET", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	result, err := decodeGetUnitsResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// UpdateOrg invokes updateOrg operation.
+// UpdateOrganization invokes updateOrganization operation.
 //
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (c *Client) UpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (*Organization, error) {
-	res, err := c.sendUpdateOrg(ctx, request, params)
+func (c *Client) UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error) {
+	res, err := c.sendUpdateOrganization(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateOrg(ctx context.Context, request *Organization, params UpdateOrgParams) (res *Organization, err error) {
+func (c *Client) sendUpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (res *UpdateOrganizationResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
@@ -609,7 +385,7 @@ func (c *Client) sendUpdateOrg(ctx context.Context, request *Organization, param
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeUpdateOrgRequest(request, r); err != nil {
+	if err := encodeUpdateOrganizationRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -619,64 +395,7 @@ func (c *Client) sendUpdateOrg(ctx context.Context, request *Organization, param
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeUpdateOrgResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// UpdateUnit invokes updateUnit operation.
-//
-// Update Organization Unit.
-//
-// PUT /units/{id}
-func (c *Client) UpdateUnit(ctx context.Context, request *Unit, params UpdateUnitParams) (*Unit, error) {
-	res, err := c.sendUpdateUnit(ctx, request, params)
-	return res, err
-}
-
-func (c *Client) sendUpdateUnit(ctx context.Context, request *Unit, params UpdateUnitParams) (res *Unit, err error) {
-
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/units/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	r, err := ht.NewRequest(ctx, "PUT", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeUpdateUnitRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	result, err := decodeUpdateUnitResponse(resp)
+	result, err := decodeUpdateOrganizationResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

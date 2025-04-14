@@ -11,8 +11,8 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeCreateOrgRequest(
-	req *Organization,
+func encodeCreateOrganizationRequest(
+	req *CreateOrganizationRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -25,8 +25,8 @@ func encodeCreateOrgRequest(
 	return nil
 }
 
-func encodeCreateUnitRequest(
-	req *Unit,
+func encodePatchOrganizationRequest(
+	req *PatchOrganizationRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -39,22 +39,8 @@ func encodeCreateUnitRequest(
 	return nil
 }
 
-func encodeUpdateOrgRequest(
-	req *Organization,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodeUpdateUnitRequest(
-	req *Unit,
+func encodeUpdateOrganizationRequest(
+	req *UpdateOrganizationRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

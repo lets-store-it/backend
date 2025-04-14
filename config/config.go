@@ -13,9 +13,9 @@ type ServerConfig struct {
 type DatabaseConfig struct {
 	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
 	Port     string `yaml:"port" env:"DB_PORT" env-default:"5432"`
-	Name     string `yaml:"name" env:"DB_NAME" env-default:"postgres"`
-	User     string `yaml:"user" env:"DB_USER" env-default:"postgres"`
-	Password string `yaml:"password" env:"DB_PASSWORD" env-default:"postgres"`
+	Name     string `yaml:"name" env:"DB_NAME" env-default:"storeit"`
+	User     string `yaml:"user" env:"DB_USER" env-default:"storeit"`
+	Password string `yaml:"password" env:"DB_PASSWORD" env-default:"storeit"`
 }
 
 type Config struct {

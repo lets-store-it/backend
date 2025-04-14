@@ -11,7 +11,7 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeCreateOrgResponse(response *Organization, w http.ResponseWriter) error {
+func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -24,7 +24,13 @@ func encodeCreateOrgResponse(response *Organization, w http.ResponseWriter) erro
 	return nil
 }
 
-func encodeCreateUnitResponse(response *Unit, w http.ResponseWriter) error {
+func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.ResponseWriter) error {
+	w.WriteHeader(200)
+
+	return nil
+}
+
+func encodeGetOrganizationByIdResponse(response *GetOrganizationByIdResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -37,19 +43,7 @@ func encodeCreateUnitResponse(response *Unit, w http.ResponseWriter) error {
 	return nil
 }
 
-func encodeDeleteOrgResponse(response *DeleteOrgOK, w http.ResponseWriter) error {
-	w.WriteHeader(200)
-
-	return nil
-}
-
-func encodeDeleteUnitResponse(response *DeleteUnitOK, w http.ResponseWriter) error {
-	w.WriteHeader(200)
-
-	return nil
-}
-
-func encodeGetOrgByIdResponse(response *Organization, w http.ResponseWriter) error {
+func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -62,7 +56,7 @@ func encodeGetOrgByIdResponse(response *Organization, w http.ResponseWriter) err
 	return nil
 }
 
-func encodeGetOrgsResponse(response *OrganizationsPagedResponse, w http.ResponseWriter) error {
+func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -75,46 +69,7 @@ func encodeGetOrgsResponse(response *OrganizationsPagedResponse, w http.Response
 	return nil
 }
 
-func encodeGetUnitByIdResponse(response *GetUnitByIdOK, w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-
-	e := new(jx.Encoder)
-	response.Encode(e)
-	if _, err := e.WriteTo(w); err != nil {
-		return errors.Wrap(err, "write")
-	}
-
-	return nil
-}
-
-func encodeGetUnitsResponse(response *GetUnitsOK, w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-
-	e := new(jx.Encoder)
-	response.Encode(e)
-	if _, err := e.WriteTo(w); err != nil {
-		return errors.Wrap(err, "write")
-	}
-
-	return nil
-}
-
-func encodeUpdateOrgResponse(response *Organization, w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-
-	e := new(jx.Encoder)
-	response.Encode(e)
-	if _, err := e.WriteTo(w); err != nil {
-		return errors.Wrap(err, "write")
-	}
-
-	return nil
-}
-
-func encodeUpdateUnitResponse(response *Unit, w http.ResponseWriter) error {
+func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
