@@ -10,9 +10,11 @@ CREATE TABLE org_unit (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
     name VARCHAR(255) NOT NULL,
+    alias VARCHAR(255) NOT NULL,
     address VARCHAR(255),
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    UNIQUE (org_id, name)
+    UNIQUE (org_id, name),
+    UNIQUE (org_id, alias)
 );
 CREATE INDEX org_unit_org_id_idx ON org_unit(org_id, id);
 

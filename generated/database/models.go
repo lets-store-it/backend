@@ -113,6 +113,7 @@ type OrgUnit struct {
 	ID        pgtype.UUID
 	OrgID     pgtype.UUID
 	Name      string
+	Alias     string
 	Address   pgtype.Text
 	IsDeleted bool
 }

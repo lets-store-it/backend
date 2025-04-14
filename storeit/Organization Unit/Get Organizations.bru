@@ -1,0 +1,15 @@
+meta {
+  name: Get Organizations
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/units
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-organization-id: 8bda9d24-a2f1-4c2e-9c87-13a879de1d59
+}
