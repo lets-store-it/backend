@@ -21,20 +21,20 @@ UPDATE org SET is_deleted = TRUE WHERE id = $1;
 
 -- -- Units
 
--- -- name: GetOrgUnits :many
--- SELECT * FROM org_unit WHERE org_id = $1 LIMIT $2 OFFSET $3;
+-- name: GetOrganizationUnits :many
+SELECT * FROM org_unit WHERE org_id = $1;
 
--- -- name: GetUnitById :one
--- SELECT * FROM org_unit WHERE id = $1;
+-- name: GetOrganizationUnitById :one
+SELECT * FROM org_unit WHERE id = $1;
 
--- -- name: CreateUnit :one
--- INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING *;
+-- name: CreateOrganizationUnit :one
+INSERT INTO org_unit (org_id, name, address) VALUES ($1, $2, $3) RETURNING *;
 
--- -- name: UpdateUnit :one
--- UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 RETURNING *;
+-- name: UpdateOrganizationUnit :one
+UPDATE org_unit SET name = $2, address = $3 WHERE id = $1 RETURNING *;
 
--- -- name: DeleteUnit :exec
--- UPDATE org_unit SET is_deleted = TRUE WHERE id = $1;
+-- name: DeleteOrganizationUnit :exec
+UPDATE org_unit SET is_deleted = TRUE WHERE id = $1;
 
 -- --- Storage spaces
 
