@@ -84,10 +84,39 @@ func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params 
 
 // PatchOrganization implements api.Handler.
 func (h *RestApiImplementation) PatchOrganization(ctx context.Context, req *api.PatchOrganizationRequest, params api.PatchOrganizationParams) (*api.PatchOrganizationResponse, error) {
-	panic("unimplemented")
+	updates := make(map[string]interface{})
+
+	if req.Name.IsSet() {
+		updates["name"] = req.Name.Value
+	}
+	if req.Subdomain.IsSet() {
+		updates["subdomain"] = req.Subdomain.Value
+	}
+
+	org, err := h.orgUseCase.Patch(ctx, params.ID, updates)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.PatchOrganizationResponse{
+		Data: []api.Organization{*createOrganizationResponse(org)},
+	}, nil
 }
 
 // UpdateOrganization implements api.Handler.
 func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.UpdateOrganizationRequest, params api.UpdateOrganizationParams) (*api.UpdateOrganizationResponse, error) {
-	panic("unimplemented")
+	org := &models.Organization{
+		ID:        params.ID,
+		Name:      req.Name,
+		Subdomain: req.Subdomain,
+	}
+
+	updatedOrg, err := h.orgUseCase.Update(ctx, org)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateOrganizationResponse{
+		Data: []api.Organization{*createOrganizationResponse(updatedOrg)},
+	}, nil
 }
