@@ -14,18 +14,42 @@ type Handler interface {
 	//
 	// POST /orgs
 	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	// CreateUnit implements createUnit operation.
+	//
+	// Create Organization Unit.
+	//
+	// POST /units
+	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
 	// DeleteOrganization implements deleteOrganization operation.
 	//
 	// Delete Organization.
 	//
 	// DELETE /orgs/{id}
 	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error
+	// DeleteOrganizationUnit implements deleteOrganizationUnit operation.
+	//
+	// Delete Organization Unit.
+	//
+	// DELETE /units/{id}
+	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
 	// GetOrganizationById implements getOrganizationById operation.
 	//
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
 	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
+	// GetOrganizationUnitById implements getOrganizationUnitById operation.
+	//
+	// Get Unit by ID with Spaces.
+	//
+	// GET /units/{id}
+	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error)
+	// GetOrganizationUnits implements getOrganizationUnits operation.
+	//
+	// Get list of Organization Units.
+	//
+	// GET /units
+	GetOrganizationUnits(ctx context.Context) (*GetOrganizationUnitsResponse, error)
 	// GetOrganizations implements getOrganizations operation.
 	//
 	// Get list of Organizations.
@@ -38,12 +62,24 @@ type Handler interface {
 	//
 	// PATCH /orgs/{id}
 	PatchOrganization(ctx context.Context, req *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error)
+	// PatchOrganizationUnit implements patchOrganizationUnit operation.
+	//
+	// Patch Organization Unit.
+	//
+	// PATCH /units/{id}
+	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
 	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
 	UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error)
+	// UpdateOrganizationUnit implements updateOrganizationUnit operation.
+	//
+	// Update Organization Unit.
+	//
+	// PUT /units/{id}
+	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

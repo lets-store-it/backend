@@ -6,10 +6,16 @@ package api
 type OperationName = string
 
 const (
-	CreateOrganizationOperation  OperationName = "CreateOrganization"
-	DeleteOrganizationOperation  OperationName = "DeleteOrganization"
-	GetOrganizationByIdOperation OperationName = "GetOrganizationById"
-	GetOrganizationsOperation    OperationName = "GetOrganizations"
-	PatchOrganizationOperation   OperationName = "PatchOrganization"
-	UpdateOrganizationOperation  OperationName = "UpdateOrganization"
+	CreateOrganizationOperation      OperationName = "CreateOrganization"
+	CreateUnitOperation              OperationName = "CreateUnit"
+	DeleteOrganizationOperation      OperationName = "DeleteOrganization"
+	DeleteOrganizationUnitOperation  OperationName = "DeleteOrganizationUnit"
+	GetOrganizationByIdOperation     OperationName = "GetOrganizationById"
+	GetOrganizationUnitByIdOperation OperationName = "GetOrganizationUnitById"
+	GetOrganizationUnitsOperation    OperationName = "GetOrganizationUnits"
+	GetOrganizationsOperation        OperationName = "GetOrganizations"
+	PatchOrganizationOperation       OperationName = "PatchOrganization"
+	PatchOrganizationUnitOperation   OperationName = "PatchOrganizationUnit"
+	UpdateOrganizationOperation      OperationName = "UpdateOrganization"
+	UpdateOrganizationUnitOperation  OperationName = "UpdateOrganizationUnit"
 )

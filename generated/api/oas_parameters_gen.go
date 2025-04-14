@@ -82,6 +82,72 @@ func decodeDeleteOrganizationParams(args [1]string, argsEscaped bool, r *http.Re
 	return params, nil
 }
 
+// DeleteOrganizationUnitParams is parameters of deleteOrganizationUnit operation.
+type DeleteOrganizationUnitParams struct {
+	// Unit ID.
+	ID uuid.UUID
+}
+
+func unpackDeleteOrganizationUnitParams(packed middleware.Parameters) (params DeleteOrganizationUnitParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteOrganizationUnitParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteOrganizationUnitParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetOrganizationByIdParams is parameters of getOrganizationById operation.
 type GetOrganizationByIdParams struct {
 	// Organization ID.
@@ -100,6 +166,72 @@ func unpackGetOrganizationByIdParams(packed middleware.Parameters) (params GetOr
 }
 
 func decodeGetOrganizationByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationByIdParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationUnitByIdParams is parameters of getOrganizationUnitById operation.
+type GetOrganizationUnitByIdParams struct {
+	// Unit ID.
+	ID uuid.UUID
+}
+
+func unpackGetOrganizationUnitByIdParams(packed middleware.Parameters) (params GetOrganizationUnitByIdParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetOrganizationUnitByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationUnitByIdParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -214,6 +346,72 @@ func decodePatchOrganizationParams(args [1]string, argsEscaped bool, r *http.Req
 	return params, nil
 }
 
+// PatchOrganizationUnitParams is parameters of patchOrganizationUnit operation.
+type PatchOrganizationUnitParams struct {
+	// Unit ID.
+	ID uuid.UUID
+}
+
+func unpackPatchOrganizationUnitParams(packed middleware.Parameters) (params PatchOrganizationUnitParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodePatchOrganizationUnitParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchOrganizationUnitParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateOrganizationParams is parameters of updateOrganization operation.
 type UpdateOrganizationParams struct {
 	// Organization ID.
@@ -232,6 +430,72 @@ func unpackUpdateOrganizationParams(packed middleware.Parameters) (params Update
 }
 
 func decodeUpdateOrganizationParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateOrganizationParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateOrganizationUnitParams is parameters of updateOrganizationUnit operation.
+type UpdateOrganizationUnitParams struct {
+	// Unit ID.
+	ID uuid.UUID
+}
+
+func unpackUpdateOrganizationUnitParams(packed middleware.Parameters) (params UpdateOrganizationUnitParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateOrganizationUnitParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateOrganizationUnitParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]

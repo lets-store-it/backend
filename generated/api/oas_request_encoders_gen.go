@@ -25,6 +25,20 @@ func encodeCreateOrganizationRequest(
 	return nil
 }
 
+func encodeCreateUnitRequest(
+	req *CreateOrganizationUnitRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodePatchOrganizationRequest(
 	req *PatchOrganizationRequest,
 	r *http.Request,
@@ -39,8 +53,36 @@ func encodePatchOrganizationRequest(
 	return nil
 }
 
+func encodePatchOrganizationUnitRequest(
+	req *PatchOrganizationUnitRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateOrganizationRequest(
 	req *UpdateOrganizationRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateOrganizationUnitRequest(
+	req *UpdateOrganizationUnitRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
