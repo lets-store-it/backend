@@ -12,6 +12,7 @@ func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
 	return api.Unit{
 		ID:      api.NewOptUUID(unit.ID),
 		Name:    unit.Name,
+		Alias:   api.OptString{Value: unit.Alias},
 		Address: api.OptNilString{Value: unit.Address},
 	}
 }
@@ -20,7 +21,7 @@ func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
 func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (*api.CreateOrganizationUnitResponse, error) {
 	orgID := ctx.Value("organization_id").(uuid.UUID)
 
-	unit, err := h.orgUnitUseCase.Create(ctx, orgID, req.Name, req.Address.Value)
+	unit, err := h.orgUnitUseCase.Create(ctx, orgID, req.Name, req.Alias.Value, req.Address.Value)
 	if err != nil {
 		return nil, err
 	}
