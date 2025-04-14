@@ -51,7 +51,7 @@ func toOrganization(org database.Org) (*models.Organization, error) {
 	}, nil
 }
 
-func (r *OrganizationRepository) GetOrgById(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
+func (r *OrganizationRepository) GetOrganizationByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
 	org, err := r.Queries.GetOrgById(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (r *OrganizationRepository) GetOrgById(ctx context.Context, id uuid.UUID) (
 	return toOrganization(org)
 }
 
-func (r *OrganizationRepository) GetOrgs(ctx context.Context) ([]*models.Organization, error) {
+func (r *OrganizationRepository) GetOrganizations(ctx context.Context) ([]*models.Organization, error) {
 	res, err := r.Queries.GetOrgs(ctx)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (r *OrganizationRepository) GetOrgs(ctx context.Context) ([]*models.Organiz
 	return orgs, nil
 }
 
-func (r *OrganizationRepository) CreateOrg(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
+func (r *OrganizationRepository) CreateOrganization(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
 	org, err := r.Queries.CreateOrg(ctx, database.CreateOrgParams{
 		Name:      name,
 		Subdomain: subdomain,
@@ -88,12 +88,12 @@ func (r *OrganizationRepository) CreateOrg(ctx context.Context, name string, sub
 	return toOrganization(org)
 }
 
-func (r *OrganizationRepository) DeleteOrg(ctx context.Context, id uuid.UUID) error {
+func (r *OrganizationRepository) DeleteOrganization(ctx context.Context, id uuid.UUID) error {
 	err := r.Queries.DeleteOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	return err
 }
 
-func (r *OrganizationRepository) IsOrgExists(ctx context.Context, name string, subdomain string) (bool, error) {
+func (r *OrganizationRepository) IsOrganizationExists(ctx context.Context, name string, subdomain string) (bool, error) {
 	exists, err := r.Queries.IsOrgExists(ctx, database.IsOrgExistsParams{
 		Name:      name,
 		Subdomain: subdomain,
@@ -104,7 +104,7 @@ func (r *OrganizationRepository) IsOrgExists(ctx context.Context, name string, s
 	return exists, nil
 }
 
-func (r *OrganizationRepository) IsOrgExistsById(ctx context.Context, id uuid.UUID) (bool, error) {
+func (r *OrganizationRepository) IsOrganizationExistsByID(ctx context.Context, id uuid.UUID) (bool, error) {
 	exists, err := r.Queries.IsOrgExistsById(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	if err != nil {
 		return false, err
@@ -112,7 +112,7 @@ func (r *OrganizationRepository) IsOrgExistsById(ctx context.Context, id uuid.UU
 	return exists, nil
 }
 
-func (r *OrganizationRepository) UpdateOrg(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+func (r *OrganizationRepository) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	res, err := r.Queries.UpdateOrg(ctx, database.UpdateOrgParams{
 		ID:        pgtype.UUID{Bytes: org.ID, Valid: true},
 		Name:      org.Name,

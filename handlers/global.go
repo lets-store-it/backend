@@ -4,16 +4,18 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/evevseev/storeit/backend/repositories"
 	"github.com/evevseev/storeit/backend/generated/api"
+	"github.com/evevseev/storeit/backend/usecases"
 )
 
 type RestApiImplementation struct {
-	repo repositories.OrganizationRepository
+	orgUseCase *usecases.OrganizationUseCase
 }
 
-func NewGlobalHandler(repo repositories.OrganizationRepository) *RestApiImplementation {
-	return &RestApiImplementation{repo: repo}
+func NewRestApiImplementation(orgUseCase *usecases.OrganizationUseCase) *RestApiImplementation {
+	return &RestApiImplementation{
+		orgUseCase: orgUseCase,
+	}
 }
 
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
