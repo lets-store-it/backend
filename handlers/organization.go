@@ -38,9 +38,8 @@ func createErrorResponse(statusCode int, message string) *api.ErrorStatusCode {
 
 // CreateOrganization implements api.Handler.
 func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api.CreateOrganizationRequest) (*api.CreateOrganizationResponse, error) {
-	org, err := h.repo.CreateOrg(ctx, req.Name, req.Subdomain)
+	org, err := h.orgUseCase.Create(ctx, req.Name, req.Subdomain)
 	if err != nil {
-		// TODO: implement org exist error
 		return nil, err
 	}
 
@@ -51,8 +50,7 @@ func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api
 
 // GetOrganizations implements api.Handler.
 func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetOrganizationsResponse, error) {
-
-	orgs, err := h.repo.GetOrgs(ctx)
+	orgs, err := h.orgUseCase.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +67,12 @@ func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetO
 
 // DeleteOrganization implements api.Handler.
 func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params api.DeleteOrganizationParams) error {
-	// TODO: implement org not found error
-	return h.repo.DeleteOrg(ctx, params.ID)
+	return h.orgUseCase.Delete(ctx, params.ID)
 }
 
 // GetOrganizationById implements api.Handler.
 func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params api.GetOrganizationByIdParams) (*api.GetOrganizationByIdResponse, error) {
-	org, err := h.repo.GetOrgById(ctx, params.ID)
+	org, err := h.orgUseCase.GetByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
