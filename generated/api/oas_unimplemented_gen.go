@@ -22,6 +22,15 @@ func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateO
 	return r, ht.ErrNotImplemented
 }
 
+// CreateUnit implements createUnit operation.
+//
+// Create Organization Unit.
+//
+// POST /units
+func (UnimplementedHandler) CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (r *CreateOrganizationUnitResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // DeleteOrganization implements deleteOrganization operation.
 //
 // Delete Organization.
@@ -31,12 +40,39 @@ func (UnimplementedHandler) DeleteOrganization(ctx context.Context, params Delet
 	return ht.ErrNotImplemented
 }
 
+// DeleteOrganizationUnit implements deleteOrganizationUnit operation.
+//
+// Delete Organization Unit.
+//
+// DELETE /units/{id}
+func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error {
+	return ht.ErrNotImplemented
+}
+
 // GetOrganizationById implements getOrganizationById operation.
 //
 // Get Organization by ID.
 //
 // GET /orgs/{id}
 func (UnimplementedHandler) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (r *GetOrganizationByIdResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationUnitById implements getOrganizationUnitById operation.
+//
+// Get Unit by ID with Spaces.
+//
+// GET /units/{id}
+func (UnimplementedHandler) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (r *GetOrganizationUnitByIdResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationUnits implements getOrganizationUnits operation.
+//
+// Get list of Organization Units.
+//
+// GET /units
+func (UnimplementedHandler) GetOrganizationUnits(ctx context.Context) (r *GetOrganizationUnitsResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -58,12 +94,30 @@ func (UnimplementedHandler) PatchOrganization(ctx context.Context, req *PatchOrg
 	return r, ht.ErrNotImplemented
 }
 
+// PatchOrganizationUnit implements patchOrganizationUnit operation.
+//
+// Patch Organization Unit.
+//
+// PATCH /units/{id}
+func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (r *PatchOrganizationUnitResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateOrganization implements updateOrganization operation.
 //
 // Update Organization.
 //
 // PUT /orgs/{id}
 func (UnimplementedHandler) UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (r *UpdateOrganizationResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateOrganizationUnit implements updateOrganizationUnit operation.
+//
+// Update Organization Unit.
+//
+// PUT /units/{id}
+func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (r *UpdateOrganizationUnitResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

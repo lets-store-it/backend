@@ -64,8 +64,63 @@ func (s *CreateOrganizationResponse) SetData(val Organization) {
 	s.Data = val
 }
 
+// Ref: #/components/schemas/CreateOrganizationUnitRequest
+type CreateOrganizationUnitRequest struct {
+	ID      OptUUID      `json:"id"`
+	Name    string       `json:"name"`
+	Address OptNilString `json:"address"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateOrganizationUnitRequest) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CreateOrganizationUnitRequest) GetName() string {
+	return s.Name
+}
+
+// GetAddress returns the value of Address.
+func (s *CreateOrganizationUnitRequest) GetAddress() OptNilString {
+	return s.Address
+}
+
+// SetID sets the value of ID.
+func (s *CreateOrganizationUnitRequest) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateOrganizationUnitRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetAddress sets the value of Address.
+func (s *CreateOrganizationUnitRequest) SetAddress(val OptNilString) {
+	s.Address = val
+}
+
+// Ref: #/components/schemas/CreateOrganizationUnitResponse
+type CreateOrganizationUnitResponse struct {
+	Data OptUnit `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateOrganizationUnitResponse) GetData() OptUnit {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateOrganizationUnitResponse) SetData(val OptUnit) {
+	s.Data = val
+}
+
 // DeleteOrganizationOK is response for DeleteOrganization operation.
 type DeleteOrganizationOK struct{}
+
+// DeleteOrganizationUnitOK is response for DeleteOrganizationUnit operation.
+type DeleteOrganizationUnitOK struct{}
 
 // Represents error object.
 // Ref: #/components/schemas/Error
@@ -135,6 +190,36 @@ func (s *GetOrganizationByIdResponse) SetData(val Organization) {
 	s.Data = val
 }
 
+// Ref: #/components/schemas/GetOrganizationUnitByIdResponse
+type GetOrganizationUnitByIdResponse struct {
+	Data Unit `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetOrganizationUnitByIdResponse) GetData() Unit {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetOrganizationUnitByIdResponse) SetData(val Unit) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/GetOrganizationUnitsResponse
+type GetOrganizationUnitsResponse struct {
+	Data []Unit `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetOrganizationUnitsResponse) GetData() []Unit {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetOrganizationUnitsResponse) SetData(val []Unit) {
+	s.Data = val
+}
+
 // Ref: #/components/schemas/GetOrganizationsResponse
 type GetOrganizationsResponse struct {
 	Data []Organization `json:"data"`
@@ -148,6 +233,69 @@ func (s *GetOrganizationsResponse) GetData() []Organization {
 // SetData sets the value of Data.
 func (s *GetOrganizationsResponse) SetData(val []Organization) {
 	s.Data = val
+}
+
+// NewOptNilString returns new OptNilString with value set to v.
+func NewOptNilString(v string) OptNilString {
+	return OptNilString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilString is optional nullable string.
+type OptNilString struct {
+	Value string
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilString was set.
+func (o OptNilString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilString) SetTo(v string) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilString) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilString) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // NewOptString returns new OptString with value set to v.
@@ -242,6 +390,52 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptUnit returns new OptUnit with value set to v.
+func NewOptUnit(v Unit) OptUnit {
+	return OptUnit{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUnit is optional Unit.
+type OptUnit struct {
+	Value Unit
+	Set   bool
+}
+
+// IsSet returns true if OptUnit was set.
+func (o OptUnit) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUnit) Reset() {
+	var v Unit
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUnit) SetTo(v Unit) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUnit) Get() (v Unit, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUnit) Or(d Unit) Unit {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // Ref: #/components/schemas/Organization
 type Organization struct {
 	ID        OptUUID `json:"id"`
@@ -320,6 +514,84 @@ func (s *PatchOrganizationResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
+// Ref: #/components/schemas/PatchOrganizationUnitRequest
+type PatchOrganizationUnitRequest struct {
+	Name    OptString `json:"name"`
+	Address OptString `json:"address"`
+}
+
+// GetName returns the value of Name.
+func (s *PatchOrganizationUnitRequest) GetName() OptString {
+	return s.Name
+}
+
+// GetAddress returns the value of Address.
+func (s *PatchOrganizationUnitRequest) GetAddress() OptString {
+	return s.Address
+}
+
+// SetName sets the value of Name.
+func (s *PatchOrganizationUnitRequest) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetAddress sets the value of Address.
+func (s *PatchOrganizationUnitRequest) SetAddress(val OptString) {
+	s.Address = val
+}
+
+// Ref: #/components/schemas/PatchOrganizationUnitResponse
+type PatchOrganizationUnitResponse struct {
+	Data []Unit `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *PatchOrganizationUnitResponse) GetData() []Unit {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/Unit
+type Unit struct {
+	ID      OptUUID      `json:"id"`
+	Name    string       `json:"name"`
+	Address OptNilString `json:"address"`
+}
+
+// GetID returns the value of ID.
+func (s *Unit) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Unit) GetName() string {
+	return s.Name
+}
+
+// GetAddress returns the value of Address.
+func (s *Unit) GetAddress() OptNilString {
+	return s.Address
+}
+
+// SetID sets the value of ID.
+func (s *Unit) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Unit) SetName(val string) {
+	s.Name = val
+}
+
+// SetAddress sets the value of Address.
+func (s *Unit) SetAddress(val OptNilString) {
+	s.Address = val
+}
+
 // Ref: #/components/schemas/UpdateOrganizationRequest
 type UpdateOrganizationRequest struct {
 	ID        OptUUID `json:"id"`
@@ -369,5 +641,57 @@ func (s *UpdateOrganizationResponse) GetData() []Organization {
 
 // SetData sets the value of Data.
 func (s *UpdateOrganizationResponse) SetData(val []Organization) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/UpdateOrganizationUnitRequest
+type UpdateOrganizationUnitRequest struct {
+	ID      OptUUID      `json:"id"`
+	Name    string       `json:"name"`
+	Address OptNilString `json:"address"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateOrganizationUnitRequest) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *UpdateOrganizationUnitRequest) GetName() string {
+	return s.Name
+}
+
+// GetAddress returns the value of Address.
+func (s *UpdateOrganizationUnitRequest) GetAddress() OptNilString {
+	return s.Address
+}
+
+// SetID sets the value of ID.
+func (s *UpdateOrganizationUnitRequest) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateOrganizationUnitRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetAddress sets the value of Address.
+func (s *UpdateOrganizationUnitRequest) SetAddress(val OptNilString) {
+	s.Address = val
+}
+
+// Ref: #/components/schemas/UpdateOrganizationUnitResponse
+type UpdateOrganizationUnitResponse struct {
+	Data []Unit `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UpdateOrganizationUnitResponse) GetData() []Unit {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UpdateOrganizationUnitResponse) SetData(val []Unit) {
 	s.Data = val
 }

@@ -12,6 +12,7 @@ import (
 )
 
 var regexMap = map[string]ogenregex.Regexp{
+	"^[\\w\\s-]+$":                      ogenregex.MustCompile("^[\\w\\s-]+$"),
 	"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$": ogenregex.MustCompile("^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"),
 }
 

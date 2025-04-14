@@ -24,13 +24,58 @@ func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w ht
 	return nil
 }
 
+func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.ResponseWriter) error {
 	w.WriteHeader(200)
 
 	return nil
 }
 
+func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w http.ResponseWriter) error {
+	w.WriteHeader(200)
+
+	return nil
+}
+
 func encodeGetOrganizationByIdResponse(response *GetOrganizationByIdResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeGetOrganizationUnitByIdResponse(response *GetOrganizationUnitByIdResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeGetOrganizationUnitsResponse(response *GetOrganizationUnitsResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -69,7 +114,33 @@ func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http
 	return nil
 }
 
+func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
