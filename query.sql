@@ -40,35 +40,20 @@ UPDATE org_unit SET name = $2, alias = $3, address = $4 WHERE id = $1 AND is_del
 UPDATE org_unit SET is_deleted = TRUE WHERE id = $1;
 
 -- --- Storage spaces
+-- -- name: GetOrganizationStorageSpaces :many
+SELECT * FROM storage_space WHERE org_id = $1 AND is_deleted = FALSE;
 
--- -- name: GetOrgStorageSpaces :many
--- SELECT * FROM storage_space WHERE org_id = $1 LIMIT $2 OFFSET $3;
+-- name: IsStorageSpaceExistsForOrganization :one
+SELECT EXISTS (SELECT 1 FROM storage_space WHERE org_id = $1 AND id = $2 AND is_deleted = FALSE);
 
--- -- name: GetStorageSpaceById :one
--- SELECT * FROM storage_space WHERE id = $1;
+-- name: GetStorageSpaceById :one
+SELECT * FROM storage_space WHERE id = $1 AND is_deleted = FALSE;
 
--- -- name: GetStorageSpaceByUnitId :many
--- SELECT * FROM storage_space WHERE unit_id = $1;
+-- name: CreateStorageSpace :one
+INSERT INTO storage_space (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
--- -- name: CreateStorageSpace :one
--- INSERT INTO storage_space (unit_id, name, short_name) VALUES ($1, $2, $3) RETURNING *;
+-- name: UpdateStorageSpace :one
+UPDATE storage_space SET name = $2, alias = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING *;
 
--- -- name: UpdateStorageSpace :one
--- UPDATE storage_space SET name = $2, short_name = $3 WHERE id = $1 RETURNING *;
-
--- -- name: DeleteStorageSpace :exec
--- UPDATE storage_space SET is_deleted = TRUE WHERE id = $1;
-
--- --- name: GetStorageSpaceChain:
--- WITH RECURSIVE storage_space_chain AS (
---     SELECT id, name, short_name, parent_id, unit_id, org_id
---     FROM storage_space
---     WHERE id = $1
---     UNION ALL
---     SELECT s.id, s.name, s.short_name, s.parent_id, s.unit_id, s.org_id
---     FROM storage_space s
---     JOIN storage_space_chain c ON s.parent_id = c.id
--- )
--- SELECT * FROM storage_space_chain;
-
-
+-- name: DeleteStorageSpace :exec
+UPDATE storage_space SET is_deleted = TRUE WHERE id = $1;

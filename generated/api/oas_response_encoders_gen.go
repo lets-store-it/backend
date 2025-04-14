@@ -24,6 +24,19 @@ func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w ht
 	return nil
 }
 
+func encodeCreateStorageSpaceResponse(response *CreateStorageSpaceResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -44,6 +57,12 @@ func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.Res
 }
 
 func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w http.ResponseWriter) error {
+	w.WriteHeader(200)
+
+	return nil
+}
+
+func encodeDeleteStorageSpaceResponse(response *DeleteStorageSpaceOK, w http.ResponseWriter) error {
 	w.WriteHeader(200)
 
 	return nil
@@ -101,6 +120,32 @@ func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.R
 	return nil
 }
 
+func encodeGetStorageSpaceByIdResponse(response *GetStorageSpaceByIdResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeGetStorageSpacesResponse(response *GetStorageSpacesResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -127,6 +172,19 @@ func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse
 	return nil
 }
 
+func encodePatchStorageSpaceResponse(response *PatchStorageSpaceResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -141,6 +199,19 @@ func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w ht
 }
 
 func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeUpdateStorageSpaceResponse(response *UpdateStorageSpaceResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 

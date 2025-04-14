@@ -62,6 +62,39 @@ func (q *Queries) CreateOrganizationUnit(ctx context.Context, arg CreateOrganiza
 	return i, err
 }
 
+const createStorageSpace = `-- name: CreateStorageSpace :one
+INSERT INTO storage_space (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, is_deleted
+`
+
+type CreateStorageSpaceParams struct {
+	OrgID    pgtype.UUID
+	UnitID   pgtype.UUID
+	ParentID pgtype.UUID
+	Name     string
+	Alias    pgtype.Text
+}
+
+func (q *Queries) CreateStorageSpace(ctx context.Context, arg CreateStorageSpaceParams) (StorageSpace, error) {
+	row := q.db.QueryRow(ctx, createStorageSpace,
+		arg.OrgID,
+		arg.UnitID,
+		arg.ParentID,
+		arg.Name,
+		arg.Alias,
+	)
+	var i StorageSpace
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.ParentID,
+		&i.Name,
+		&i.Alias,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
 const deleteOrg = `-- name: DeleteOrg :exec
 UPDATE org SET is_deleted = TRUE WHERE id = $1
 `
@@ -77,6 +110,15 @@ UPDATE org_unit SET is_deleted = TRUE WHERE id = $1
 
 func (q *Queries) DeleteOrganizationUnit(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteOrganizationUnit, id)
+	return err
+}
+
+const deleteStorageSpace = `-- name: DeleteStorageSpace :exec
+UPDATE storage_space SET is_deleted = TRUE WHERE id = $1
+`
+
+func (q *Queries) DeleteStorageSpace(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteStorageSpace, id)
 	return err
 }
 
@@ -176,6 +218,25 @@ func (q *Queries) GetOrgs(ctx context.Context) ([]Org, error) {
 	return items, nil
 }
 
+const getStorageSpaceById = `-- name: GetStorageSpaceById :one
+SELECT id, org_id, unit_id, parent_id, name, alias, is_deleted FROM storage_space WHERE id = $1 AND is_deleted = FALSE
+`
+
+func (q *Queries) GetStorageSpaceById(ctx context.Context, id pgtype.UUID) (StorageSpace, error) {
+	row := q.db.QueryRow(ctx, getStorageSpaceById, id)
+	var i StorageSpace
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.ParentID,
+		&i.Name,
+		&i.Alias,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
 const isOrgExists = `-- name: IsOrgExists :one
 SELECT EXISTS (SELECT 1 FROM org WHERE name = $1 OR subdomain = $2)
 `
@@ -214,6 +275,22 @@ type IsOrganizationUnitExistsForOrganizationParams struct {
 
 func (q *Queries) IsOrganizationUnitExistsForOrganization(ctx context.Context, arg IsOrganizationUnitExistsForOrganizationParams) (bool, error) {
 	row := q.db.QueryRow(ctx, isOrganizationUnitExistsForOrganization, arg.OrgID, arg.ID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isStorageSpaceExistsForOrganization = `-- name: IsStorageSpaceExistsForOrganization :one
+SELECT EXISTS (SELECT 1 FROM storage_space WHERE org_id = $1 AND id = $2 AND is_deleted = FALSE)
+`
+
+type IsStorageSpaceExistsForOrganizationParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) IsStorageSpaceExistsForOrganization(ctx context.Context, arg IsStorageSpaceExistsForOrganizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isStorageSpaceExistsForOrganization, arg.OrgID, arg.ID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
@@ -266,6 +343,31 @@ func (q *Queries) UpdateOrganizationUnit(ctx context.Context, arg UpdateOrganiza
 		&i.Name,
 		&i.Alias,
 		&i.Address,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
+const updateStorageSpace = `-- name: UpdateStorageSpace :one
+UPDATE storage_space SET name = $2, alias = $3 WHERE id = $1 AND is_deleted = FALSE RETURNING id, org_id, unit_id, parent_id, name, alias, is_deleted
+`
+
+type UpdateStorageSpaceParams struct {
+	ID    pgtype.UUID
+	Name  string
+	Alias pgtype.Text
+}
+
+func (q *Queries) UpdateStorageSpace(ctx context.Context, arg UpdateStorageSpaceParams) (StorageSpace, error) {
+	row := q.db.QueryRow(ctx, updateStorageSpace, arg.ID, arg.Name, arg.Alias)
+	var i StorageSpace
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.ParentID,
+		&i.Name,
+		&i.Alias,
 		&i.IsDeleted,
 	)
 	return i, err

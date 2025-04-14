@@ -25,6 +25,20 @@ func encodeCreateOrganizationRequest(
 	return nil
 }
 
+func encodeCreateStorageSpaceRequest(
+	req *CreateStorageSpaceRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateUnitRequest(
 	req *CreateOrganizationUnitRequest,
 	r *http.Request,
@@ -67,6 +81,20 @@ func encodePatchOrganizationUnitRequest(
 	return nil
 }
 
+func encodePatchStorageSpaceRequest(
+	req *PatchStorageSpaceRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateOrganizationRequest(
 	req *UpdateOrganizationRequest,
 	r *http.Request,
@@ -83,6 +111,20 @@ func encodeUpdateOrganizationRequest(
 
 func encodeUpdateOrganizationUnitRequest(
 	req *UpdateOrganizationUnitRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateStorageSpaceRequest(
+	req *UpdateStorageSpaceRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
