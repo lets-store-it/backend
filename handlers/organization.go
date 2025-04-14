@@ -2,18 +2,12 @@ package handlers
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/evevseev/storeit/backend/generated/api"
 	"github.com/evevseev/storeit/backend/models"
-	"github.com/evevseev/storeit/backend/repositories"
 )
 
-type APIImplementation struct {
-	OrganizationRepository repositories.OrganizationRepository
-}
-
-func dtoToModel(org *api.Organization) *models.Organization {
+func convertToModel(org *api.Organization) *models.Organization {
 	return &models.Organization{
 		ID:        org.ID.Value,
 		Name:      org.Name,
@@ -21,7 +15,7 @@ func dtoToModel(org *api.Organization) *models.Organization {
 	}
 }
 
-func modelToDto(org *models.Organization) *api.Organization {
+func convertToDTO(org *models.Organization) *api.Organization {
 	return &api.Organization{
 		ID:        api.NewOptUUID(org.ID),
 		Name:      org.Name,
@@ -29,139 +23,74 @@ func modelToDto(org *models.Organization) *api.Organization {
 	}
 }
 
-func (s *APIImplementation) GetOrgs(ctx context.Context, params api.GetOrgsParams) (*api.OrganizationsPagedResponse, error) {
-	orgs, err := s.OrganizationRepository.GetOrgs(ctx, params.Limit.Or(DefaultLimit), params.Offset.Or(DefaultOffset))
-	if err != nil {
-		return nil, err
-	}
-
-	items := make([]api.OrganizationsPagedResponseItemsItem, 0, len(orgs)) // Initialize with capacity
-	for _, org := range orgs {
-		items = append(items, api.OrganizationsPagedResponseItemsItem{
-			ID:        api.NewOptUUID(org.ID),
-			Name:      org.Name,
-			Subdomain: org.Subdomain,
-		})
-	}
-
-	return &api.OrganizationsPagedResponse{
-		Items: items,
-		Metadata: api.PaginationMetadata{
-			Total:  int32(len(orgs)),
-			Limit:  params.Limit.Or(DefaultLimit),
-			Offset: params.Offset.Or(DefaultOffset),
-		},
-	}, nil
+func createOrganizationResponse(org *models.Organization) *api.Organization {
+	return convertToDTO(org)
 }
 
-func (s *APIImplementation) CreateOrg(ctx context.Context, req *api.Organization) (*api.Organization, error) {
-	exists, err := s.OrganizationRepository.IsOrgExists(ctx, req.Name, req.Subdomain)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, &api.ErrorStatusCode{
-			StatusCode: http.StatusConflict,
-			Response: api.Error{
-				Message: "Organization with such name or subdomain already exists",
-			},
-		}
-	}
-
-	org, err := s.OrganizationRepository.CreateOrg(ctx, req.Name, req.Subdomain)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.Organization{
-		ID:        api.NewOptUUID(org.ID),
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
-	}, nil
-}
-
-func (s *APIImplementation) DeleteOrg(ctx context.Context, params api.DeleteOrgParams) error {
-	exists, err := s.OrganizationRepository.IsOrgExistsById(ctx, params.ID)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return &api.ErrorStatusCode{
-			StatusCode: http.StatusNotFound,
-			Response: api.Error{
-				Message: "Organization not found",
-			},
-		}
-	}
-
-	err = s.OrganizationRepository.DeleteOrg(ctx, params.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func (s *APIImplementation) GetOrgById(ctx context.Context, params api.GetOrgByIdParams) (*api.Organization, error) {
-	org, err := s.OrganizationRepository.GetOrgById(ctx, params.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	// if org == nil {
-	// 	return &api.ErrorStatusCode{
-	// 		StatusCode: http.StatusNotFound,
-	// 		Response: api.Error{
-	// 			Message: "Organization not found",
-	// 		},
-	// 	}
-	// }
-
-	return &api.Organization{
-		ID:        api.NewOptUUID(org.ID),
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
-	}, nil
-}
-
-func (s *APIImplementation) UpdateOrg(ctx context.Context, req *api.Organization, params api.UpdateOrgParams) (*api.Organization, error) {
-	req.ID = api.NewOptUUID(params.ID)
-	org, err := s.OrganizationRepository.UpdateOrg(ctx, dtoToModel(req))
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.Organization{
-		ID:        api.NewOptUUID(org.ID),
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
-	}, nil
-}
-
-func (s *APIImplementation) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
+func createErrorResponse(statusCode int, message string) *api.ErrorStatusCode {
 	return &api.ErrorStatusCode{
-		StatusCode: http.StatusInternalServerError,
+		StatusCode: statusCode,
 		Response: api.Error{
-			Message: err.Error(),
+			Message: message,
 		},
 	}
 }
 
-func (s *APIImplementation) CreateUnit(ctx context.Context, request *api.Unit) (*api.Unit, error) {
-	return nil, nil
+// CreateOrganization implements api.Handler.
+func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api.CreateOrganizationRequest) (*api.CreateOrganizationResponse, error) {
+	org, err := h.repo.CreateOrg(ctx, req.Name, req.Subdomain)
+	if err != nil {
+		// TODO: implement org exist error
+		return nil, err
+	}
+
+	return &api.CreateOrganizationResponse{
+		Data: *createOrganizationResponse(org),
+	}, nil
 }
 
-func (s *APIImplementation) DeleteUnit(ctx context.Context, params api.DeleteUnitParams) error {
-	return nil
+// GetOrganizations implements api.Handler.
+func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetOrganizationsResponse, error) {
+
+	orgs, err := h.repo.GetOrgs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]api.Organization, 0, len(orgs))
+	for _, org := range orgs {
+		items = append(items, *convertToDTO(org))
+	}
+
+	return &api.GetOrganizationsResponse{
+		Data: items,
+	}, nil
 }
 
-func (s *APIImplementation) GetUnitById(ctx context.Context, params api.GetUnitByIdParams) (*api.GetUnitByIdOK, error) {
-	return nil, nil
+// DeleteOrganization implements api.Handler.
+func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params api.DeleteOrganizationParams) error {
+	// TODO: implement org not found error
+	return h.repo.DeleteOrg(ctx, params.ID)
 }
 
-func (s *APIImplementation) GetUnits(ctx context.Context, params api.GetUnitsParams) (*api.GetUnitsOK, error) {
-	return nil, nil
+// GetOrganizationById implements api.Handler.
+func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params api.GetOrganizationByIdParams) (*api.GetOrganizationByIdResponse, error) {
+	org, err := h.repo.GetOrgById(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetOrganizationByIdResponse{
+		Data: *convertToDTO(org),
+	}, nil
 }
 
-func (s *APIImplementation) UpdateUnit(ctx context.Context, request *api.Unit, params api.UpdateUnitParams) (*api.Unit, error) {
-	return nil, nil
+// PatchOrganization implements api.Handler.
+func (h *RestApiImplementation) PatchOrganization(ctx context.Context, req *api.PatchOrganizationRequest, params api.PatchOrganizationParams) (*api.PatchOrganizationResponse, error) {
+	panic("unimplemented")
+}
+
+// UpdateOrganization implements api.Handler.
+func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.UpdateOrganizationRequest, params api.UpdateOrganizationParams) (*api.UpdateOrganizationResponse, error) {
+	panic("unimplemented")
 }

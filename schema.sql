@@ -17,9 +17,12 @@ CREATE TABLE org_unit (
 CREATE TABLE storage_space (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
+    parent_id UUID,
     name VARCHAR(255) NOT NULL,
     short_name VARCHAR(255),
-    UNIQUE (unit_id, name)
+    UNIQUE (unit_id, name),
+    FOREIGN KEY (parent_id) REFERENCES storage_space(id) ON DELETE RESTRICT,
+    CHECK (parent_id != id)
 );
 
 CREATE TABLE cell_kind (

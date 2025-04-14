@@ -41,52 +41,6 @@ func (q *Queries) DeleteOrg(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
-const exampleJoin = `-- name: ExampleJoin :many
-SELECT org.id, org.name, subdomain, is_deleted, org_unit.id, org_id, org_unit.name, address FROM org
-JOIN org_unit ON org.id = org_unit.org_id
-WHERE org.id = $1
-`
-
-type ExampleJoinRow struct {
-	ID        pgtype.UUID
-	Name      string
-	Subdomain string
-	IsDeleted bool
-	ID_2      pgtype.UUID
-	OrgID     pgtype.UUID
-	Name_2    string
-	Address   pgtype.Text
-}
-
-func (q *Queries) ExampleJoin(ctx context.Context, id pgtype.UUID) ([]ExampleJoinRow, error) {
-	rows, err := q.db.Query(ctx, exampleJoin, id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ExampleJoinRow
-	for rows.Next() {
-		var i ExampleJoinRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Subdomain,
-			&i.IsDeleted,
-			&i.ID_2,
-			&i.OrgID,
-			&i.Name_2,
-			&i.Address,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getOrgById = `-- name: GetOrgById :one
 SELECT id, name, subdomain, is_deleted FROM org WHERE id = $1 AND is_deleted = FALSE
 `
@@ -104,16 +58,11 @@ func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
 }
 
 const getOrgs = `-- name: GetOrgs :many
-SELECT id, name, subdomain, is_deleted FROM org WHERE is_deleted = FALSE LIMIT $1 OFFSET $2
+SELECT id, name, subdomain, is_deleted FROM org WHERE is_deleted = FALSE
 `
 
-type GetOrgsParams struct {
-	Limit  int32
-	Offset int32
-}
-
-func (q *Queries) GetOrgs(ctx context.Context, arg GetOrgsParams) ([]Org, error) {
-	rows, err := q.db.Query(ctx, getOrgs, arg.Limit, arg.Offset)
+func (q *Queries) GetOrgs(ctx context.Context) ([]Org, error) {
+	rows, err := q.db.Query(ctx, getOrgs)
 	if err != nil {
 		return nil, err
 	}

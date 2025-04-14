@@ -49,140 +49,68 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/"
+		case '/': // Prefix: "/orgs"
 
-			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+			if l := len("/orgs"); len(elem) >= l && elem[0:l] == "/orgs" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				break
+				switch r.Method {
+				case "GET":
+					s.handleGetOrganizationsRequest([0]string{}, elemIsEscaped, w, r)
+				case "POST":
+					s.handleCreateOrganizationRequest([0]string{}, elemIsEscaped, w, r)
+				default:
+					s.notAllowed(w, r, "GET,POST")
+				}
+
+				return
 			}
 			switch elem[0] {
-			case 'o': // Prefix: "orgs"
+			case '/': // Prefix: "/"
 
-				if l := len("orgs"); len(elem) >= l && elem[0:l] == "orgs" {
+				if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleGetOrgsRequest([0]string{}, elemIsEscaped, w, r)
-					case "POST":
-						s.handleCreateOrgRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "DELETE":
-							s.handleDeleteOrgRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						case "GET":
-							s.handleGetOrgByIdRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						case "PUT":
-							s.handleUpdateOrgRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "DELETE,GET,PUT")
-						}
-
-						return
-					}
-
-				}
-
-			case 'u': // Prefix: "units"
-
-				if l := len("units"); len(elem) >= l && elem[0:l] == "units" {
-					elem = elem[l:]
-				} else {
+				// Param: "id"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
 					break
 				}
+				args[0] = elem
+				elem = ""
 
 				if len(elem) == 0 {
+					// Leaf node.
 					switch r.Method {
+					case "DELETE":
+						s.handleDeleteOrganizationRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
 					case "GET":
-						s.handleGetUnitsRequest([0]string{}, elemIsEscaped, w, r)
-					case "POST":
-						s.handleCreateUnitRequest([0]string{}, elemIsEscaped, w, r)
+						s.handleGetOrganizationByIdRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					case "PATCH":
+						s.handlePatchOrganizationRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					case "PUT":
+						s.handleUpdateOrganizationRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "GET,POST")
+						s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
 					}
 
 					return
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "DELETE":
-							s.handleDeleteUnitRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						case "GET":
-							s.handleGetUnitByIdRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						case "PUT":
-							s.handleUpdateUnitRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "DELETE,GET,PUT")
-						}
-
-						return
-					}
-
 				}
 
 			}
@@ -267,180 +195,92 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/"
+		case '/': // Prefix: "/orgs"
 
-			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+			if l := len("/orgs"); len(elem) >= l && elem[0:l] == "/orgs" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				break
+				switch method {
+				case "GET":
+					r.name = GetOrganizationsOperation
+					r.summary = "Get list of Organizations"
+					r.operationID = "getOrganizations"
+					r.pathPattern = "/orgs"
+					r.args = args
+					r.count = 0
+					return r, true
+				case "POST":
+					r.name = CreateOrganizationOperation
+					r.summary = "Create Organization"
+					r.operationID = "createOrganization"
+					r.pathPattern = "/orgs"
+					r.args = args
+					r.count = 0
+					return r, true
+				default:
+					return
+				}
 			}
 			switch elem[0] {
-			case 'o': // Prefix: "orgs"
+			case '/': // Prefix: "/"
 
-				if l := len("orgs"); len(elem) >= l && elem[0:l] == "orgs" {
+				if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = GetOrgsOperation
-						r.summary = "Get list of Organizations"
-						r.operationID = "getOrgs"
-						r.pathPattern = "/orgs"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = CreateOrgOperation
-						r.summary = "Create Organization"
-						r.operationID = "createOrg"
-						r.pathPattern = "/orgs"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "DELETE":
-							r.name = DeleteOrgOperation
-							r.summary = "Delete Organization"
-							r.operationID = "deleteOrg"
-							r.pathPattern = "/orgs/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "GET":
-							r.name = GetOrgByIdOperation
-							r.summary = "Get Organization by ID"
-							r.operationID = "getOrgById"
-							r.pathPattern = "/orgs/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PUT":
-							r.name = UpdateOrgOperation
-							r.summary = "Update Organization"
-							r.operationID = "updateOrg"
-							r.pathPattern = "/orgs/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
-						}
-					}
-
-				}
-
-			case 'u': // Prefix: "units"
-
-				if l := len("units"); len(elem) >= l && elem[0:l] == "units" {
-					elem = elem[l:]
-				} else {
+				// Param: "id"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
 					break
 				}
+				args[0] = elem
+				elem = ""
 
 				if len(elem) == 0 {
+					// Leaf node.
 					switch method {
-					case "GET":
-						r.name = GetUnitsOperation
-						r.summary = "Get list of Organization Units"
-						r.operationID = "getUnits"
-						r.pathPattern = "/units"
+					case "DELETE":
+						r.name = DeleteOrganizationOperation
+						r.summary = "Delete Organization"
+						r.operationID = "deleteOrganization"
+						r.pathPattern = "/orgs/{id}"
 						r.args = args
-						r.count = 0
+						r.count = 1
 						return r, true
-					case "POST":
-						r.name = CreateUnitOperation
-						r.summary = "Create Organization Unit"
-						r.operationID = "createUnit"
-						r.pathPattern = "/units"
+					case "GET":
+						r.name = GetOrganizationByIdOperation
+						r.summary = "Get Organization by ID"
+						r.operationID = "getOrganizationById"
+						r.pathPattern = "/orgs/{id}"
 						r.args = args
-						r.count = 0
+						r.count = 1
+						return r, true
+					case "PATCH":
+						r.name = PatchOrganizationOperation
+						r.summary = "Update Organization"
+						r.operationID = "patchOrganization"
+						r.pathPattern = "/orgs/{id}"
+						r.args = args
+						r.count = 1
+						return r, true
+					case "PUT":
+						r.name = UpdateOrganizationOperation
+						r.summary = "Update Organization"
+						r.operationID = "updateOrganization"
+						r.pathPattern = "/orgs/{id}"
+						r.args = args
+						r.count = 1
 						return r, true
 					default:
 						return
 					}
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "DELETE":
-							r.name = DeleteUnitOperation
-							r.summary = "Delete Organization Unit"
-							r.operationID = "deleteUnit"
-							r.pathPattern = "/units/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "GET":
-							r.name = GetUnitByIdOperation
-							r.summary = "Get Unit by ID with Spaces"
-							r.operationID = "getUnitById"
-							r.pathPattern = "/units/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PUT":
-							r.name = UpdateUnitOperation
-							r.summary = "Update Organization Unit"
-							r.operationID = "updateUnit"
-							r.pathPattern = "/units/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
-						}
-					}
-
 				}
 
 			}

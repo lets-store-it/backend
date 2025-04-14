@@ -25,12 +25,12 @@ func (c *codeRecorder) WriteHeader(status int) {
 
 func recordError(string, error) {}
 
-// handleCreateOrgRequest handles createOrg operation.
+// handleCreateOrganizationRequest handles createOrganization operation.
 //
 // Create Organization.
 //
 // POST /orgs
-func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -38,11 +38,11 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: CreateOrgOperation,
-			ID:   "createOrg",
+			Name: CreateOrganizationOperation,
+			ID:   "createOrganization",
 		}
 	)
-	request, close, err := s.decodeCreateOrgRequest(r)
+	request, close, err := s.decodeCreateOrganizationRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -58,22 +58,22 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *Organization
+	var response *CreateOrganizationResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    CreateOrgOperation,
+			OperationName:    CreateOrganizationOperation,
 			OperationSummary: "Create Organization",
-			OperationID:      "createOrg",
+			OperationID:      "createOrganization",
 			Body:             request,
 			Params:           middleware.Parameters{},
 			Raw:              r,
 		}
 
 		type (
-			Request  = *Organization
+			Request  = *CreateOrganizationRequest
 			Params   = struct{}
-			Response = *Organization
+			Response = *CreateOrganizationResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -84,12 +84,12 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CreateOrg(ctx, request)
+				response, err = s.h.CreateOrganization(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CreateOrg(ctx, request)
+		response, err = s.h.CreateOrganization(ctx, request)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -108,7 +108,7 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 		return
 	}
 
-	if err := encodeCreateOrgResponse(response, w); err != nil {
+	if err := encodeCreateOrganizationResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -117,104 +117,12 @@ func (s *Server) handleCreateOrgRequest(args [0]string, argsEscaped bool, w http
 	}
 }
 
-// handleCreateUnitRequest handles createUnit operation.
-//
-// Create Organization Unit.
-//
-// POST /units
-func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	ctx := r.Context()
-
-	var (
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: CreateUnitOperation,
-			ID:   "createUnit",
-		}
-	)
-	request, close, err := s.decodeCreateUnitRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response *Unit
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    CreateUnitOperation,
-			OperationSummary: "Create Organization Unit",
-			OperationID:      "createUnit",
-			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
-		}
-
-		type (
-			Request  = *Unit
-			Params   = struct{}
-			Response = *Unit
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			nil,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CreateUnit(ctx, request)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.CreateUnit(ctx, request)
-	}
-	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
-			defer recordError("Internal", err)
-		}
-		return
-	}
-
-	if err := encodeCreateUnitResponse(response, w); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleDeleteOrgRequest handles deleteOrg operation.
+// handleDeleteOrganizationRequest handles deleteOrganization operation.
 //
 // Delete Organization.
 //
 // DELETE /orgs/{id}
-func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -222,11 +130,11 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: DeleteOrgOperation,
-			ID:   "deleteOrg",
+			Name: DeleteOrganizationOperation,
+			ID:   "deleteOrganization",
 		}
 	)
-	params, err := decodeDeleteOrgParams(args, argsEscaped, r)
+	params, err := decodeDeleteOrganizationParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -237,13 +145,13 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 		return
 	}
 
-	var response *DeleteOrgOK
+	var response *DeleteOrganizationOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    DeleteOrgOperation,
+			OperationName:    DeleteOrganizationOperation,
 			OperationSummary: "Delete Organization",
-			OperationID:      "deleteOrg",
+			OperationID:      "deleteOrganization",
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
@@ -256,8 +164,8 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 
 		type (
 			Request  = struct{}
-			Params   = DeleteOrgParams
-			Response = *DeleteOrgOK
+			Params   = DeleteOrganizationParams
+			Response = *DeleteOrganizationOK
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -266,14 +174,14 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 		](
 			m,
 			mreq,
-			unpackDeleteOrgParams,
+			unpackDeleteOrganizationParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteOrg(ctx, params)
+				err = s.h.DeleteOrganization(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteOrg(ctx, params)
+		err = s.h.DeleteOrganization(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -292,7 +200,7 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 		return
 	}
 
-	if err := encodeDeleteOrgResponse(response, w); err != nil {
+	if err := encodeDeleteOrganizationResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -301,104 +209,12 @@ func (s *Server) handleDeleteOrgRequest(args [1]string, argsEscaped bool, w http
 	}
 }
 
-// handleDeleteUnitRequest handles deleteUnit operation.
-//
-// Delete Organization Unit.
-//
-// DELETE /units/{id}
-func (s *Server) handleDeleteUnitRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	ctx := r.Context()
-
-	var (
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: DeleteUnitOperation,
-			ID:   "deleteUnit",
-		}
-	)
-	params, err := decodeDeleteUnitParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response *DeleteUnitOK
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    DeleteUnitOperation,
-			OperationSummary: "Delete Organization Unit",
-			OperationID:      "deleteUnit",
-			Body:             nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = DeleteUnitParams
-			Response = *DeleteUnitOK
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackDeleteUnitParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteUnit(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		err = s.h.DeleteUnit(ctx, params)
-	}
-	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
-			defer recordError("Internal", err)
-		}
-		return
-	}
-
-	if err := encodeDeleteUnitResponse(response, w); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleGetOrgByIdRequest handles getOrgById operation.
+// handleGetOrganizationByIdRequest handles getOrganizationById operation.
 //
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -406,11 +222,11 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: GetOrgByIdOperation,
-			ID:   "getOrgById",
+			Name: GetOrganizationByIdOperation,
+			ID:   "getOrganizationById",
 		}
 	)
-	params, err := decodeGetOrgByIdParams(args, argsEscaped, r)
+	params, err := decodeGetOrganizationByIdParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -421,13 +237,13 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response *Organization
+	var response *GetOrganizationByIdResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    GetOrgByIdOperation,
+			OperationName:    GetOrganizationByIdOperation,
 			OperationSummary: "Get Organization by ID",
-			OperationID:      "getOrgById",
+			OperationID:      "getOrganizationById",
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
@@ -440,8 +256,8 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 
 		type (
 			Request  = struct{}
-			Params   = GetOrgByIdParams
-			Response = *Organization
+			Params   = GetOrganizationByIdParams
+			Response = *GetOrganizationByIdResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -450,14 +266,14 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 		](
 			m,
 			mreq,
-			unpackGetOrgByIdParams,
+			unpackGetOrganizationByIdParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetOrgById(ctx, params)
+				response, err = s.h.GetOrganizationById(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetOrgById(ctx, params)
+		response, err = s.h.GetOrganizationById(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -476,7 +292,7 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	if err := encodeGetOrgByIdResponse(response, w); err != nil {
+	if err := encodeGetOrganizationByIdResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -485,59 +301,36 @@ func (s *Server) handleGetOrgByIdRequest(args [1]string, argsEscaped bool, w htt
 	}
 }
 
-// handleGetOrgsRequest handles getOrgs operation.
+// handleGetOrganizationsRequest handles getOrganizations operation.
 //
 // Get list of Organizations.
 //
 // GET /orgs
-func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
 
 	var (
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: GetOrgsOperation,
-			ID:   "getOrgs",
-		}
+		err error
 	)
-	params, err := decodeGetOrgsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
-	var response *OrganizationsPagedResponse
+	var response *GetOrganizationsResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    GetOrgsOperation,
+			OperationName:    GetOrganizationsOperation,
 			OperationSummary: "Get list of Organizations",
-			OperationID:      "getOrgs",
+			OperationID:      "getOrganizations",
 			Body:             nil,
-			Params: middleware.Parameters{
-				{
-					Name: "offset",
-					In:   "query",
-				}: params.Offset,
-				{
-					Name: "limit",
-					In:   "query",
-				}: params.Limit,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = GetOrgsParams
-			Response = *OrganizationsPagedResponse
+			Params   = struct{}
+			Response = *GetOrganizationsResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -546,14 +339,14 @@ func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.R
 		](
 			m,
 			mreq,
-			unpackGetOrgsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetOrgs(ctx, params)
+				response, err = s.h.GetOrganizations(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetOrgs(ctx, params)
+		response, err = s.h.GetOrganizations(ctx)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -572,7 +365,7 @@ func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.R
 		return
 	}
 
-	if err := encodeGetOrgsResponse(response, w); err != nil {
+	if err := encodeGetOrganizationsResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -581,12 +374,12 @@ func (s *Server) handleGetOrgsRequest(args [0]string, argsEscaped bool, w http.R
 	}
 }
 
-// handleGetUnitByIdRequest handles getUnitById operation.
+// handlePatchOrganizationRequest handles patchOrganization operation.
 //
-// Get Unit by ID with Spaces.
+// Update Organization.
 //
-// GET /units/{id}
-func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PATCH /orgs/{id}
+func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -594,11 +387,11 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: GetUnitByIdOperation,
-			ID:   "getUnitById",
+			Name: PatchOrganizationOperation,
+			ID:   "patchOrganization",
 		}
 	)
-	params, err := decodeGetUnitByIdParams(args, argsEscaped, r)
+	params, err := decodePatchOrganizationParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -608,15 +401,30 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	request, close, err := s.decodePatchOrganizationRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	var response *GetUnitByIdOK
+	var response *PatchOrganizationResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    GetUnitByIdOperation,
-			OperationSummary: "Get Unit by ID with Spaces",
-			OperationID:      "getUnitById",
-			Body:             nil,
+			OperationName:    PatchOrganizationOperation,
+			OperationSummary: "Update Organization",
+			OperationID:      "patchOrganization",
+			Body:             request,
 			Params: middleware.Parameters{
 				{
 					Name: "id",
@@ -627,9 +435,9 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 		}
 
 		type (
-			Request  = struct{}
-			Params   = GetUnitByIdParams
-			Response = *GetUnitByIdOK
+			Request  = *PatchOrganizationRequest
+			Params   = PatchOrganizationParams
+			Response = *PatchOrganizationResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -638,14 +446,14 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 		](
 			m,
 			mreq,
-			unpackGetUnitByIdParams,
+			unpackPatchOrganizationParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUnitById(ctx, params)
+				response, err = s.h.PatchOrganization(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetUnitById(ctx, params)
+		response, err = s.h.PatchOrganization(ctx, request, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -664,7 +472,7 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 		return
 	}
 
-	if err := encodeGetUnitByIdResponse(response, w); err != nil {
+	if err := encodePatchOrganizationResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -673,108 +481,12 @@ func (s *Server) handleGetUnitByIdRequest(args [1]string, argsEscaped bool, w ht
 	}
 }
 
-// handleGetUnitsRequest handles getUnits operation.
-//
-// Get list of Organization Units.
-//
-// GET /units
-func (s *Server) handleGetUnitsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	ctx := r.Context()
-
-	var (
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: GetUnitsOperation,
-			ID:   "getUnits",
-		}
-	)
-	params, err := decodeGetUnitsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response *GetUnitsOK
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    GetUnitsOperation,
-			OperationSummary: "Get list of Organization Units",
-			OperationID:      "getUnits",
-			Body:             nil,
-			Params: middleware.Parameters{
-				{
-					Name: "offset",
-					In:   "query",
-				}: params.Offset,
-				{
-					Name: "limit",
-					In:   "query",
-				}: params.Limit,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = GetUnitsParams
-			Response = *GetUnitsOK
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackGetUnitsParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUnits(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.GetUnits(ctx, params)
-	}
-	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
-			defer recordError("Internal", err)
-		}
-		return
-	}
-
-	if err := encodeGetUnitsResponse(response, w); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleUpdateOrgRequest handles updateOrg operation.
+// handleUpdateOrganizationRequest handles updateOrganization operation.
 //
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -782,11 +494,11 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: UpdateOrgOperation,
-			ID:   "updateOrg",
+			Name: UpdateOrganizationOperation,
+			ID:   "updateOrganization",
 		}
 	)
-	params, err := decodeUpdateOrgParams(args, argsEscaped, r)
+	params, err := decodeUpdateOrganizationParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -796,7 +508,7 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodeUpdateOrgRequest(r)
+	request, close, err := s.decodeUpdateOrganizationRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -812,13 +524,13 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *Organization
+	var response *UpdateOrganizationResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    UpdateOrgOperation,
+			OperationName:    UpdateOrganizationOperation,
 			OperationSummary: "Update Organization",
-			OperationID:      "updateOrg",
+			OperationID:      "updateOrganization",
 			Body:             request,
 			Params: middleware.Parameters{
 				{
@@ -830,9 +542,9 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = *Organization
-			Params   = UpdateOrgParams
-			Response = *Organization
+			Request  = *UpdateOrganizationRequest
+			Params   = UpdateOrganizationParams
+			Response = *UpdateOrganizationResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -841,14 +553,14 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		](
 			m,
 			mreq,
-			unpackUpdateOrgParams,
+			unpackUpdateOrganizationParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateOrg(ctx, request, params)
+				response, err = s.h.UpdateOrganization(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateOrg(ctx, request, params)
+		response, err = s.h.UpdateOrganization(ctx, request, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -867,114 +579,7 @@ func (s *Server) handleUpdateOrgRequest(args [1]string, argsEscaped bool, w http
 		return
 	}
 
-	if err := encodeUpdateOrgResponse(response, w); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleUpdateUnitRequest handles updateUnit operation.
-//
-// Update Organization Unit.
-//
-// PUT /units/{id}
-func (s *Server) handleUpdateUnitRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	ctx := r.Context()
-
-	var (
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: UpdateUnitOperation,
-			ID:   "updateUnit",
-		}
-	)
-	params, err := decodeUpdateUnitParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	request, close, err := s.decodeUpdateUnitRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response *Unit
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    UpdateUnitOperation,
-			OperationSummary: "Update Organization Unit",
-			OperationID:      "updateUnit",
-			Body:             request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = *Unit
-			Params   = UpdateUnitParams
-			Response = *Unit
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackUpdateUnitParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUnit(ctx, request, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.UpdateUnit(ctx, request, params)
-	}
-	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
-			defer recordError("Internal", err)
-		}
-		return
-	}
-
-	if err := encodeUpdateUnitResponse(response, w); err != nil {
+	if err := encodeUpdateOrganizationResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
