@@ -13,6 +13,8 @@ import (
 	"github.com/evevseev/storeit/backend/generated/database"
 	"github.com/evevseev/storeit/backend/handlers"
 	"github.com/evevseev/storeit/backend/repositories"
+	"github.com/evevseev/storeit/backend/services"
+	"github.com/evevseev/storeit/backend/usecases"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -35,11 +37,13 @@ func main() {
 	// e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	orgRepo := repositories.OrganizationRepository{
+	// Initialize layers
+	orgRepo := &repositories.OrganizationRepository{
 		Queries: database.New(conn),
 	}
-	
-	handler := handlers.NewGlobalHandler(orgRepo)
+	orgService := services.NewOrganizationService(orgRepo)
+	orgUseCase := usecases.NewOrganizationUseCase(orgService)
+	handler := handlers.NewRestApiImplementation(orgUseCase)
 
 	server, err := api.NewServer(handler)
 	if err != nil {
