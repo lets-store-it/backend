@@ -68,7 +68,7 @@ func (s *CreateOrganizationResponse) SetData(val Organization) {
 type CreateOrganizationUnitRequest struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
-	Alias   OptString    `json:"alias"`
+	Alias   string       `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -83,7 +83,7 @@ func (s *CreateOrganizationUnitRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *CreateOrganizationUnitRequest) GetAlias() OptString {
+func (s *CreateOrganizationUnitRequest) GetAlias() string {
 	return s.Alias
 }
 
@@ -103,7 +103,7 @@ func (s *CreateOrganizationUnitRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *CreateOrganizationUnitRequest) SetAlias(val OptString) {
+func (s *CreateOrganizationUnitRequest) SetAlias(val string) {
 	s.Alias = val
 }
 
@@ -581,7 +581,7 @@ func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
 type Unit struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
-	Alias   OptString    `json:"alias"`
+	Alias   string       `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -596,7 +596,7 @@ func (s *Unit) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *Unit) GetAlias() OptString {
+func (s *Unit) GetAlias() string {
 	return s.Alias
 }
 
@@ -616,7 +616,7 @@ func (s *Unit) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *Unit) SetAlias(val OptString) {
+func (s *Unit) SetAlias(val string) {
 	s.Alias = val
 }
 
@@ -681,7 +681,7 @@ func (s *UpdateOrganizationResponse) SetData(val []Organization) {
 type UpdateOrganizationUnitRequest struct {
 	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
-	Alias   OptString    `json:"alias"`
+	Alias   string       `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -696,7 +696,7 @@ func (s *UpdateOrganizationUnitRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *UpdateOrganizationUnitRequest) GetAlias() OptString {
+func (s *UpdateOrganizationUnitRequest) GetAlias() string {
 	return s.Alias
 }
 
@@ -716,7 +716,7 @@ func (s *UpdateOrganizationUnitRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *UpdateOrganizationUnitRequest) SetAlias(val OptString) {
+func (s *UpdateOrganizationUnitRequest) SetAlias(val string) {
 	s.Alias = val
 }
 
