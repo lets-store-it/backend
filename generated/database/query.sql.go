@@ -142,6 +142,40 @@ func (q *Queries) GetOrgById(ctx context.Context, id pgtype.UUID) (Org, error) {
 	return i, err
 }
 
+const getOrganizationStorageGroups = `-- name: GetOrganizationStorageGroups :many
+SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_space WHERE org_id = $1 AND deleted_at IS NULL
+`
+
+// --- Storage spaces
+func (q *Queries) GetOrganizationStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]StorageSpace, error) {
+	rows, err := q.db.Query(ctx, getOrganizationStorageGroups, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []StorageSpace
+	for rows.Next() {
+		var i StorageSpace
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.UnitID,
+			&i.ParentID,
+			&i.Name,
+			&i.Alias,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrganizationUnitById = `-- name: GetOrganizationUnitById :one
 SELECT id, org_id, name, alias, address, created_at, deleted_at FROM org_unit WHERE id = $1 AND deleted_at IS NULL
 `

@@ -40,7 +40,7 @@ UPDATE org_unit SET name = $2, alias = $3, address = $4 WHERE id = $1 AND delete
 UPDATE org_unit SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
 
 -- --- Storage spaces
--- -- name: GetOrganizationStorageGroups :many
+-- name: GetOrganizationStorageGroups :many
 SELECT * FROM storage_space WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- name: IsStorageGroupExistsForOrganization :one
