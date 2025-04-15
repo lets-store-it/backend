@@ -11,6 +11,19 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
+func encodeCreateItemResponse(response *CreateItemResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -50,6 +63,12 @@ func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.R
 	return nil
 }
 
+func encodeDeleteItemResponse(response *DeleteItemOK, w http.ResponseWriter) error {
+	w.WriteHeader(200)
+
+	return nil
+}
+
 func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.ResponseWriter) error {
 	w.WriteHeader(200)
 
@@ -64,6 +83,32 @@ func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w 
 
 func encodeDeleteStorageGroupResponse(response *DeleteStorageGroupOK, w http.ResponseWriter) error {
 	w.WriteHeader(200)
+
+	return nil
+}
+
+func encodeGetItemByIdResponse(response *GetItemByIdResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeGetItemsResponse(response *GetItemsResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
 
 	return nil
 }
@@ -146,6 +191,19 @@ func encodeGetStorageGroupsResponse(response *GetStorageGroupsResponse, w http.R
 	return nil
 }
 
+func encodePatchItemResponse(response *PatchItemResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
 func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -173,6 +231,19 @@ func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse
 }
 
 func encodePatchStorageGroupResponse(response *PatchStorageGroupResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
+}
+
+func encodeUpdateItemResponse(response *UpdateItemResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 

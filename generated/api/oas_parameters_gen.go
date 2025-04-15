@@ -16,6 +16,72 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+// DeleteItemParams is parameters of deleteItem operation.
+type DeleteItemParams struct {
+	// Item ID.
+	ID uuid.UUID
+}
+
+func unpackDeleteItemParams(packed middleware.Parameters) (params DeleteItemParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteItemParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteItemParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteOrganizationParams is parameters of deleteOrganization operation.
 type DeleteOrganizationParams struct {
 	// Organization ID.
@@ -166,6 +232,72 @@ func unpackDeleteStorageGroupParams(packed middleware.Parameters) (params Delete
 }
 
 func decodeDeleteStorageGroupParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteStorageGroupParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetItemByIdParams is parameters of getItemById operation.
+type GetItemByIdParams struct {
+	// Item ID.
+	ID uuid.UUID
+}
+
+func unpackGetItemByIdParams(packed middleware.Parameters) (params GetItemByIdParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetItemByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetItemByIdParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -412,6 +544,72 @@ func decodeGetStorageGroupByIdParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// PatchItemParams is parameters of patchItem operation.
+type PatchItemParams struct {
+	// Item ID.
+	ID uuid.UUID
+}
+
+func unpackPatchItemParams(packed middleware.Parameters) (params PatchItemParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodePatchItemParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchItemParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // PatchOrganizationParams is parameters of patchOrganization operation.
 type PatchOrganizationParams struct {
 	// Organization ID.
@@ -562,6 +760,72 @@ func unpackPatchStorageGroupParams(packed middleware.Parameters) (params PatchSt
 }
 
 func decodePatchStorageGroupParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchStorageGroupParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateItemParams is parameters of updateItem operation.
+type UpdateItemParams struct {
+	// Item ID.
+	ID uuid.UUID
+}
+
+func unpackUpdateItemParams(packed middleware.Parameters) (params UpdateItemParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateItemParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateItemParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
