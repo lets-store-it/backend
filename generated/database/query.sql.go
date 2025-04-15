@@ -76,7 +76,7 @@ type CreateStorageGroupParams struct {
 	Alias    pgtype.Text
 }
 
-func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroupParams) (StorageGroup, error) {
+func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroupParams) (StorageSpace, error) {
 	row := q.db.QueryRow(ctx, createStorageGroup,
 		arg.OrgID,
 		arg.UnitID,
@@ -84,7 +84,7 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 		arg.Name,
 		arg.Alias,
 	)
-	var i StorageGroup
+	var i StorageSpace
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
@@ -229,9 +229,9 @@ const getStorageGroupById = `-- name: GetStorageGroupById :one
 SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_space WHERE id = $1 AND deleted_at IS NULL
 `
 
-func (q *Queries) GetStorageGroupById(ctx context.Context, id pgtype.UUID) (StorageGroup, error) {
+func (q *Queries) GetStorageGroupById(ctx context.Context, id pgtype.UUID) (StorageSpace, error) {
 	row := q.db.QueryRow(ctx, getStorageGroupById, id)
-	var i StorageGroup
+	var i StorageSpace
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
@@ -368,9 +368,9 @@ type UpdateStorageGroupParams struct {
 	Alias pgtype.Text
 }
 
-func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroupParams) (StorageGroup, error) {
+func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroupParams) (StorageSpace, error) {
 	row := q.db.QueryRow(ctx, updateStorageGroup, arg.ID, arg.Name, arg.Alias)
-	var i StorageGroup
+	var i StorageSpace
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
