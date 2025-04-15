@@ -5,14 +5,20 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/orgs
+  url: http://localhost:8080/units
   body: json
   auth: inherit
 }
 
+headers {
+  x-organization-id: 26ee3aec-bca5-4f55-9f5f-a2a2e6406fd8
+}
+
 body:json {
   {
-    "name": "ООО \"Экзотика\"",
-    "subdomain": "exotic"
+    "name": "Москва",
+    "alias": "MWS",
+    "address": "ул. Амурская 1А к3"
   }
+    
 }
