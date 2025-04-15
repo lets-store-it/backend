@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/storeit/models"
 )
 
 var (
@@ -72,7 +72,7 @@ func (s *OrganizationUnitService) Patch(ctx context.Context, id uuid.UUID, updat
 		unit.Alias = alias
 	}
 	if address, ok := updates["address"].(string); ok {
-		unit.Address = address
+		unit.Address = &address
 	}
 
 	return s.repo.UpdateOrganizationUnit(ctx, unit)

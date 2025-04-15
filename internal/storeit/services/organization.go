@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/storeit/models"
 )
 
 var (

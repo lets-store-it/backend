@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
-	"github.com/evevseev/storeit/backend/internal/storeit/services"
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/storeit/services"
 )
 
 type OrganizationUseCase struct {
@@ -54,10 +54,6 @@ func (uc *OrganizationUseCase) GetAll(ctx context.Context) ([]*models.Organizati
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("invalid organization ID")
-	}
-
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization: %w", err)
@@ -67,16 +63,6 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 }
 
 func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	if id == uuid.Nil {
-		return fmt.Errorf("invalid organization ID")
-	}
-
-	// Check if organization exists before deletion
-	_, err := uc.service.GetByID(ctx, id)
-	if err != nil {
-		return fmt.Errorf("organization not found: %w", err)
-	}
-
 	return uc.service.Delete(ctx, id)
 }
 
@@ -89,10 +75,6 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 }
 
 func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("invalid organization ID")
-	}
-
 	// Get current organization
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {
@@ -113,4 +95,8 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	}
 
 	return uc.service.Update(ctx, org)
+}
+
+func (uc *OrganizationUseCase) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	return uc.service.IsOrganizationExistsByID(ctx, id)
 }

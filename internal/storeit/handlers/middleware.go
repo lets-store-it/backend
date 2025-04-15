@@ -7,9 +7,20 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/storeit/usecases"
 )
 
-func WithOrganizationID(next http.Handler) http.Handler {
+type OrganizationIDMiddleware struct {
+	orgUseCase *usecases.OrganizationUseCase
+}
+
+func NewOrganizationIDMiddleware(orgUseCase *usecases.OrganizationUseCase) *OrganizationIDMiddleware {
+	return &OrganizationIDMiddleware{
+		orgUseCase: orgUseCase,
+	}
+}
+
+func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Skip organization header check for /orgs paths
 		if strings.HasPrefix(r.URL.Path, "/orgs") {
@@ -29,7 +40,18 @@ func WithOrganizationID(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "organization_id", orgID)
+		exists, err := m.orgUseCase.IsOrganizationExists(r.Context(), orgID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to check organization existence: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		if !exists {
+			http.Error(w, "organization not found", http.StatusNotFound)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), usecases.OrganizationIDKey, orgID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
