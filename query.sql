@@ -40,20 +40,20 @@ UPDATE org_unit SET name = $2, alias = $3, address = $4 WHERE id = $1 AND delete
 UPDATE org_unit SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
 
 -- --- Storage spaces
--- -- name: GetOrganizationStorageSpaces :many
+-- -- name: GetOrganizationStorageGroups :many
 SELECT * FROM storage_space WHERE org_id = $1 AND deleted_at IS NULL;
 
--- name: IsStorageSpaceExistsForOrganization :one
+-- name: IsStorageGroupExistsForOrganization :one
 SELECT EXISTS (SELECT 1 FROM storage_space WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
--- name: GetStorageSpaceById :one
+-- name: GetStorageGroupById :one
 SELECT * FROM storage_space WHERE id = $1 AND deleted_at IS NULL;
 
--- name: CreateStorageSpace :one
+-- name: CreateStorageGroup :one
 INSERT INTO storage_space (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
--- name: UpdateStorageSpace :one
+-- name: UpdateStorageGroup :one
 UPDATE storage_space SET name = $2, alias = $3 WHERE id = $1 AND deleted_at IS NULL RETURNING *;
 
--- name: DeleteStorageSpace :exec
+-- name: DeleteStorageGroup :exec
 UPDATE storage_space SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;

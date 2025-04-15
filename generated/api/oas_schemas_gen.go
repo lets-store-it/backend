@@ -127,8 +127,8 @@ func (s *CreateOrganizationUnitResponse) SetData(val OptUnit) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/CreateStorageSpaceRequest
-type CreateStorageSpaceRequest struct {
+// Ref: #/components/schemas/CreateStorageGroupRequest
+type CreateStorageGroupRequest struct {
 	ID       OptUUID    `json:"id"`
 	ParentId OptNilUUID `json:"parentId"`
 	Name     string     `json:"name"`
@@ -137,67 +137,67 @@ type CreateStorageSpaceRequest struct {
 }
 
 // GetID returns the value of ID.
-func (s *CreateStorageSpaceRequest) GetID() OptUUID {
+func (s *CreateStorageGroupRequest) GetID() OptUUID {
 	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
-func (s *CreateStorageSpaceRequest) GetParentId() OptNilUUID {
+func (s *CreateStorageGroupRequest) GetParentId() OptNilUUID {
 	return s.ParentId
 }
 
 // GetName returns the value of Name.
-func (s *CreateStorageSpaceRequest) GetName() string {
+func (s *CreateStorageGroupRequest) GetName() string {
 	return s.Name
 }
 
 // GetAlias returns the value of Alias.
-func (s *CreateStorageSpaceRequest) GetAlias() string {
+func (s *CreateStorageGroupRequest) GetAlias() string {
 	return s.Alias
 }
 
 // GetUnitId returns the value of UnitId.
-func (s *CreateStorageSpaceRequest) GetUnitId() uuid.UUID {
+func (s *CreateStorageGroupRequest) GetUnitId() uuid.UUID {
 	return s.UnitId
 }
 
 // SetID sets the value of ID.
-func (s *CreateStorageSpaceRequest) SetID(val OptUUID) {
+func (s *CreateStorageGroupRequest) SetID(val OptUUID) {
 	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.
-func (s *CreateStorageSpaceRequest) SetParentId(val OptNilUUID) {
+func (s *CreateStorageGroupRequest) SetParentId(val OptNilUUID) {
 	s.ParentId = val
 }
 
 // SetName sets the value of Name.
-func (s *CreateStorageSpaceRequest) SetName(val string) {
+func (s *CreateStorageGroupRequest) SetName(val string) {
 	s.Name = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *CreateStorageSpaceRequest) SetAlias(val string) {
+func (s *CreateStorageGroupRequest) SetAlias(val string) {
 	s.Alias = val
 }
 
 // SetUnitId sets the value of UnitId.
-func (s *CreateStorageSpaceRequest) SetUnitId(val uuid.UUID) {
+func (s *CreateStorageGroupRequest) SetUnitId(val uuid.UUID) {
 	s.UnitId = val
 }
 
-// Ref: #/components/schemas/CreateStorageSpaceResponse
-type CreateStorageSpaceResponse struct {
-	Data StorageSpace `json:"data"`
+// Ref: #/components/schemas/CreateStorageGroupResponse
+type CreateStorageGroupResponse struct {
+	Data StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *CreateStorageSpaceResponse) GetData() StorageSpace {
+func (s *CreateStorageGroupResponse) GetData() StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *CreateStorageSpaceResponse) SetData(val StorageSpace) {
+func (s *CreateStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
@@ -207,8 +207,8 @@ type DeleteOrganizationOK struct{}
 // DeleteOrganizationUnitOK is response for DeleteOrganizationUnit operation.
 type DeleteOrganizationUnitOK struct{}
 
-// DeleteStorageSpaceOK is response for DeleteStorageSpace operation.
-type DeleteStorageSpaceOK struct{}
+// DeleteStorageGroupOK is response for DeleteStorageGroup operation.
+type DeleteStorageGroupOK struct{}
 
 // Represents error object.
 // Ref: #/components/schemas/Error
@@ -323,33 +323,33 @@ func (s *GetOrganizationsResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/GetStorageSpaceByIdResponse
-type GetStorageSpaceByIdResponse struct {
-	Data StorageSpace `json:"data"`
+// Ref: #/components/schemas/GetStorageGroupByIdResponse
+type GetStorageGroupByIdResponse struct {
+	Data StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetStorageSpaceByIdResponse) GetData() StorageSpace {
+func (s *GetStorageGroupByIdResponse) GetData() StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetStorageSpaceByIdResponse) SetData(val StorageSpace) {
+func (s *GetStorageGroupByIdResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/GetStorageSpacesResponse
-type GetStorageSpacesResponse struct {
-	Data []StorageSpace `json:"data"`
+// Ref: #/components/schemas/GetStorageGroupsResponse
+type GetStorageGroupsResponse struct {
+	Data []StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetStorageSpacesResponse) GetData() []StorageSpace {
+func (s *GetStorageGroupsResponse) GetData() []StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetStorageSpacesResponse) SetData(val []StorageSpace) {
+func (s *GetStorageGroupsResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
 
@@ -747,8 +747,8 @@ func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/PatchStorageSpaceRequest
-type PatchStorageSpaceRequest struct {
+// Ref: #/components/schemas/PatchStorageGroupRequest
+type PatchStorageGroupRequest struct {
 	Name     OptString  `json:"name"`
 	Alias    OptString  `json:"alias"`
 	UnitId   OptNilUUID `json:"unitId"`
@@ -756,62 +756,62 @@ type PatchStorageSpaceRequest struct {
 }
 
 // GetName returns the value of Name.
-func (s *PatchStorageSpaceRequest) GetName() OptString {
+func (s *PatchStorageGroupRequest) GetName() OptString {
 	return s.Name
 }
 
 // GetAlias returns the value of Alias.
-func (s *PatchStorageSpaceRequest) GetAlias() OptString {
+func (s *PatchStorageGroupRequest) GetAlias() OptString {
 	return s.Alias
 }
 
 // GetUnitId returns the value of UnitId.
-func (s *PatchStorageSpaceRequest) GetUnitId() OptNilUUID {
+func (s *PatchStorageGroupRequest) GetUnitId() OptNilUUID {
 	return s.UnitId
 }
 
 // GetParentId returns the value of ParentId.
-func (s *PatchStorageSpaceRequest) GetParentId() OptUUID {
+func (s *PatchStorageGroupRequest) GetParentId() OptUUID {
 	return s.ParentId
 }
 
 // SetName sets the value of Name.
-func (s *PatchStorageSpaceRequest) SetName(val OptString) {
+func (s *PatchStorageGroupRequest) SetName(val OptString) {
 	s.Name = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *PatchStorageSpaceRequest) SetAlias(val OptString) {
+func (s *PatchStorageGroupRequest) SetAlias(val OptString) {
 	s.Alias = val
 }
 
 // SetUnitId sets the value of UnitId.
-func (s *PatchStorageSpaceRequest) SetUnitId(val OptNilUUID) {
+func (s *PatchStorageGroupRequest) SetUnitId(val OptNilUUID) {
 	s.UnitId = val
 }
 
 // SetParentId sets the value of ParentId.
-func (s *PatchStorageSpaceRequest) SetParentId(val OptUUID) {
+func (s *PatchStorageGroupRequest) SetParentId(val OptUUID) {
 	s.ParentId = val
 }
 
-// Ref: #/components/schemas/PatchStorageSpaceResponse
-type PatchStorageSpaceResponse struct {
-	Data []StorageSpace `json:"data"`
+// Ref: #/components/schemas/PatchStorageGroupResponse
+type PatchStorageGroupResponse struct {
+	Data []StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *PatchStorageSpaceResponse) GetData() []StorageSpace {
+func (s *PatchStorageGroupResponse) GetData() []StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *PatchStorageSpaceResponse) SetData(val []StorageSpace) {
+func (s *PatchStorageGroupResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/StorageSpace
-type StorageSpace struct {
+// Ref: #/components/schemas/StorageGroup
+type StorageGroup struct {
 	ID       OptUUID    `json:"id"`
 	ParentId OptNilUUID `json:"parentId"`
 	Name     string     `json:"name"`
@@ -820,52 +820,52 @@ type StorageSpace struct {
 }
 
 // GetID returns the value of ID.
-func (s *StorageSpace) GetID() OptUUID {
+func (s *StorageGroup) GetID() OptUUID {
 	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
-func (s *StorageSpace) GetParentId() OptNilUUID {
+func (s *StorageGroup) GetParentId() OptNilUUID {
 	return s.ParentId
 }
 
 // GetName returns the value of Name.
-func (s *StorageSpace) GetName() string {
+func (s *StorageGroup) GetName() string {
 	return s.Name
 }
 
 // GetAlias returns the value of Alias.
-func (s *StorageSpace) GetAlias() string {
+func (s *StorageGroup) GetAlias() string {
 	return s.Alias
 }
 
 // GetUnitId returns the value of UnitId.
-func (s *StorageSpace) GetUnitId() uuid.UUID {
+func (s *StorageGroup) GetUnitId() uuid.UUID {
 	return s.UnitId
 }
 
 // SetID sets the value of ID.
-func (s *StorageSpace) SetID(val OptUUID) {
+func (s *StorageGroup) SetID(val OptUUID) {
 	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.
-func (s *StorageSpace) SetParentId(val OptNilUUID) {
+func (s *StorageGroup) SetParentId(val OptNilUUID) {
 	s.ParentId = val
 }
 
 // SetName sets the value of Name.
-func (s *StorageSpace) SetName(val string) {
+func (s *StorageGroup) SetName(val string) {
 	s.Name = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *StorageSpace) SetAlias(val string) {
+func (s *StorageGroup) SetAlias(val string) {
 	s.Alias = val
 }
 
 // SetUnitId sets the value of UnitId.
-func (s *StorageSpace) SetUnitId(val uuid.UUID) {
+func (s *StorageGroup) SetUnitId(val uuid.UUID) {
 	s.UnitId = val
 }
 
@@ -1032,8 +1032,8 @@ func (s *UpdateOrganizationUnitResponse) SetData(val []Unit) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/UpdateStorageSpaceRequest
-type UpdateStorageSpaceRequest struct {
+// Ref: #/components/schemas/UpdateStorageGroupRequest
+type UpdateStorageGroupRequest struct {
 	ID       OptUUID    `json:"id"`
 	ParentId OptNilUUID `json:"parentId"`
 	Name     string     `json:"name"`
@@ -1042,66 +1042,66 @@ type UpdateStorageSpaceRequest struct {
 }
 
 // GetID returns the value of ID.
-func (s *UpdateStorageSpaceRequest) GetID() OptUUID {
+func (s *UpdateStorageGroupRequest) GetID() OptUUID {
 	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
-func (s *UpdateStorageSpaceRequest) GetParentId() OptNilUUID {
+func (s *UpdateStorageGroupRequest) GetParentId() OptNilUUID {
 	return s.ParentId
 }
 
 // GetName returns the value of Name.
-func (s *UpdateStorageSpaceRequest) GetName() string {
+func (s *UpdateStorageGroupRequest) GetName() string {
 	return s.Name
 }
 
 // GetAlias returns the value of Alias.
-func (s *UpdateStorageSpaceRequest) GetAlias() string {
+func (s *UpdateStorageGroupRequest) GetAlias() string {
 	return s.Alias
 }
 
 // GetUnitId returns the value of UnitId.
-func (s *UpdateStorageSpaceRequest) GetUnitId() uuid.UUID {
+func (s *UpdateStorageGroupRequest) GetUnitId() uuid.UUID {
 	return s.UnitId
 }
 
 // SetID sets the value of ID.
-func (s *UpdateStorageSpaceRequest) SetID(val OptUUID) {
+func (s *UpdateStorageGroupRequest) SetID(val OptUUID) {
 	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.
-func (s *UpdateStorageSpaceRequest) SetParentId(val OptNilUUID) {
+func (s *UpdateStorageGroupRequest) SetParentId(val OptNilUUID) {
 	s.ParentId = val
 }
 
 // SetName sets the value of Name.
-func (s *UpdateStorageSpaceRequest) SetName(val string) {
+func (s *UpdateStorageGroupRequest) SetName(val string) {
 	s.Name = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *UpdateStorageSpaceRequest) SetAlias(val string) {
+func (s *UpdateStorageGroupRequest) SetAlias(val string) {
 	s.Alias = val
 }
 
 // SetUnitId sets the value of UnitId.
-func (s *UpdateStorageSpaceRequest) SetUnitId(val uuid.UUID) {
+func (s *UpdateStorageGroupRequest) SetUnitId(val uuid.UUID) {
 	s.UnitId = val
 }
 
-// Ref: #/components/schemas/UpdateStorageSpaceResponse
-type UpdateStorageSpaceResponse struct {
-	Data []StorageSpace `json:"data"`
+// Ref: #/components/schemas/UpdateStorageGroupResponse
+type UpdateStorageGroupResponse struct {
+	Data []StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateStorageSpaceResponse) GetData() []StorageSpace {
+func (s *UpdateStorageGroupResponse) GetData() []StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateStorageSpaceResponse) SetData(val []StorageSpace) {
+func (s *UpdateStorageGroupResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }

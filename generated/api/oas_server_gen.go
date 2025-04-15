@@ -14,12 +14,12 @@ type Handler interface {
 	//
 	// POST /orgs
 	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
-	// CreateStorageSpace implements createStorageSpace operation.
+	// CreateStorageGroup implements createStorageGroup operation.
 	//
 	// Create Storage Space.
 	//
-	// POST /storage-spaces
-	CreateStorageSpace(ctx context.Context, req *CreateStorageSpaceRequest) (*CreateStorageSpaceResponse, error)
+	// POST /storage-groups
+	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
 	// CreateUnit implements createUnit operation.
 	//
 	// Create Organization Unit.
@@ -38,12 +38,12 @@ type Handler interface {
 	//
 	// DELETE /units/{id}
 	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
-	// DeleteStorageSpace implements deleteStorageSpace operation.
+	// DeleteStorageGroup implements deleteStorageGroup operation.
 	//
 	// Delete Storage Space.
 	//
-	// DELETE /storage-spaces/{id}
-	DeleteStorageSpace(ctx context.Context, params DeleteStorageSpaceParams) error
+	// DELETE /storage-groups/{id}
+	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
 	// GetOrganizationById implements getOrganizationById operation.
 	//
 	// Get Organization by ID.
@@ -68,18 +68,18 @@ type Handler interface {
 	//
 	// GET /orgs
 	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
-	// GetStorageSpaceById implements getStorageSpaceById operation.
+	// GetStorageGroupById implements getStorageGroupById operation.
 	//
 	// Get Storage Space by ID.
 	//
-	// GET /storage-spaces/{id}
-	GetStorageSpaceById(ctx context.Context, params GetStorageSpaceByIdParams) (*GetStorageSpaceByIdResponse, error)
-	// GetStorageSpaces implements getStorageSpaces operation.
+	// GET /storage-groups/{id}
+	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
+	// GetStorageGroups implements getStorageGroups operation.
 	//
 	// Get list of Storage Spaces.
 	//
-	// GET /storage-spaces
-	GetStorageSpaces(ctx context.Context) (*GetStorageSpacesResponse, error)
+	// GET /storage-groups
+	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
 	// PatchOrganization implements patchOrganization operation.
 	//
 	// Update Organization.
@@ -92,12 +92,12 @@ type Handler interface {
 	//
 	// PATCH /units/{id}
 	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
-	// PatchStorageSpace implements patchStorageSpace operation.
+	// PatchStorageGroup implements patchStorageGroup operation.
 	//
 	// Patch Storage Space.
 	//
-	// PATCH /storage-spaces/{id}
-	PatchStorageSpace(ctx context.Context, req *PatchStorageSpaceRequest, params PatchStorageSpaceParams) (*PatchStorageSpaceResponse, error)
+	// PATCH /storage-groups/{id}
+	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
 	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update Organization.
@@ -110,12 +110,12 @@ type Handler interface {
 	//
 	// PUT /units/{id}
 	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
-	// UpdateStorageSpace implements updateStorageSpace operation.
+	// UpdateStorageGroup implements updateStorageGroup operation.
 	//
 	// Update Storage Space.
 	//
-	// PUT /storage-spaces/{id}
-	UpdateStorageSpace(ctx context.Context, req *UpdateStorageSpaceRequest, params UpdateStorageSpaceParams) (*UpdateStorageSpaceResponse, error)
+	// PUT /storage-groups/{id}
+	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

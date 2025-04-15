@@ -117,12 +117,12 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 	}
 }
 
-// handleCreateStorageSpaceRequest handles createStorageSpace operation.
+// handleCreateStorageGroupRequest handles createStorageGroup operation.
 //
 // Create Storage Space.
 //
-// POST /storage-spaces
-func (s *Server) handleCreateStorageSpaceRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /storage-groups
+func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -130,11 +130,11 @@ func (s *Server) handleCreateStorageSpaceRequest(args [0]string, argsEscaped boo
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: CreateStorageSpaceOperation,
-			ID:   "createStorageSpace",
+			Name: CreateStorageGroupOperation,
+			ID:   "createStorageGroup",
 		}
 	)
-	request, close, err := s.decodeCreateStorageSpaceRequest(r)
+	request, close, err := s.decodeCreateStorageGroupRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -150,22 +150,22 @@ func (s *Server) handleCreateStorageSpaceRequest(args [0]string, argsEscaped boo
 		}
 	}()
 
-	var response *CreateStorageSpaceResponse
+	var response *CreateStorageGroupResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    CreateStorageSpaceOperation,
+			OperationName:    CreateStorageGroupOperation,
 			OperationSummary: "Create Storage Space",
-			OperationID:      "createStorageSpace",
+			OperationID:      "createStorageGroup",
 			Body:             request,
 			Params:           middleware.Parameters{},
 			Raw:              r,
 		}
 
 		type (
-			Request  = *CreateStorageSpaceRequest
+			Request  = *CreateStorageGroupRequest
 			Params   = struct{}
-			Response = *CreateStorageSpaceResponse
+			Response = *CreateStorageGroupResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -176,12 +176,12 @@ func (s *Server) handleCreateStorageSpaceRequest(args [0]string, argsEscaped boo
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CreateStorageSpace(ctx, request)
+				response, err = s.h.CreateStorageGroup(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CreateStorageSpace(ctx, request)
+		response, err = s.h.CreateStorageGroup(ctx, request)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -200,7 +200,7 @@ func (s *Server) handleCreateStorageSpaceRequest(args [0]string, argsEscaped boo
 		return
 	}
 
-	if err := encodeCreateStorageSpaceResponse(response, w); err != nil {
+	if err := encodeCreateStorageGroupResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -485,12 +485,12 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 	}
 }
 
-// handleDeleteStorageSpaceRequest handles deleteStorageSpace operation.
+// handleDeleteStorageGroupRequest handles deleteStorageGroup operation.
 //
 // Delete Storage Space.
 //
-// DELETE /storage-spaces/{id}
-func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// DELETE /storage-groups/{id}
+func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -498,11 +498,11 @@ func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped boo
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: DeleteStorageSpaceOperation,
-			ID:   "deleteStorageSpace",
+			Name: DeleteStorageGroupOperation,
+			ID:   "deleteStorageGroup",
 		}
 	)
-	params, err := decodeDeleteStorageSpaceParams(args, argsEscaped, r)
+	params, err := decodeDeleteStorageGroupParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -513,13 +513,13 @@ func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	var response *DeleteStorageSpaceOK
+	var response *DeleteStorageGroupOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    DeleteStorageSpaceOperation,
+			OperationName:    DeleteStorageGroupOperation,
 			OperationSummary: "Delete Storage Space",
-			OperationID:      "deleteStorageSpace",
+			OperationID:      "deleteStorageGroup",
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
@@ -532,8 +532,8 @@ func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped boo
 
 		type (
 			Request  = struct{}
-			Params   = DeleteStorageSpaceParams
-			Response = *DeleteStorageSpaceOK
+			Params   = DeleteStorageGroupParams
+			Response = *DeleteStorageGroupOK
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -542,14 +542,14 @@ func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped boo
 		](
 			m,
 			mreq,
-			unpackDeleteStorageSpaceParams,
+			unpackDeleteStorageGroupParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteStorageSpace(ctx, params)
+				err = s.h.DeleteStorageGroup(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteStorageSpace(ctx, params)
+		err = s.h.DeleteStorageGroup(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -568,7 +568,7 @@ func (s *Server) handleDeleteStorageSpaceRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	if err := encodeDeleteStorageSpaceResponse(response, w); err != nil {
+	if err := encodeDeleteStorageGroupResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -907,12 +907,12 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 	}
 }
 
-// handleGetStorageSpaceByIdRequest handles getStorageSpaceById operation.
+// handleGetStorageGroupByIdRequest handles getStorageGroupById operation.
 //
 // Get Storage Space by ID.
 //
-// GET /storage-spaces/{id}
-func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /storage-groups/{id}
+func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -920,11 +920,11 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: GetStorageSpaceByIdOperation,
-			ID:   "getStorageSpaceById",
+			Name: GetStorageGroupByIdOperation,
+			ID:   "getStorageGroupById",
 		}
 	)
-	params, err := decodeGetStorageSpaceByIdParams(args, argsEscaped, r)
+	params, err := decodeGetStorageGroupByIdParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -935,13 +935,13 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 		return
 	}
 
-	var response *GetStorageSpaceByIdResponse
+	var response *GetStorageGroupByIdResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    GetStorageSpaceByIdOperation,
+			OperationName:    GetStorageGroupByIdOperation,
 			OperationSummary: "Get Storage Space by ID",
-			OperationID:      "getStorageSpaceById",
+			OperationID:      "getStorageGroupById",
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
@@ -954,8 +954,8 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 
 		type (
 			Request  = struct{}
-			Params   = GetStorageSpaceByIdParams
-			Response = *GetStorageSpaceByIdResponse
+			Params   = GetStorageGroupByIdParams
+			Response = *GetStorageGroupByIdResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -964,14 +964,14 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 		](
 			m,
 			mreq,
-			unpackGetStorageSpaceByIdParams,
+			unpackGetStorageGroupByIdParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetStorageSpaceById(ctx, params)
+				response, err = s.h.GetStorageGroupById(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetStorageSpaceById(ctx, params)
+		response, err = s.h.GetStorageGroupById(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -990,7 +990,7 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 		return
 	}
 
-	if err := encodeGetStorageSpaceByIdResponse(response, w); err != nil {
+	if err := encodeGetStorageGroupByIdResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -999,12 +999,12 @@ func (s *Server) handleGetStorageSpaceByIdRequest(args [1]string, argsEscaped bo
 	}
 }
 
-// handleGetStorageSpacesRequest handles getStorageSpaces operation.
+// handleGetStorageGroupsRequest handles getStorageGroups operation.
 //
 // Get list of Storage Spaces.
 //
-// GET /storage-spaces
-func (s *Server) handleGetStorageSpacesRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /storage-groups
+func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -1013,13 +1013,13 @@ func (s *Server) handleGetStorageSpacesRequest(args [0]string, argsEscaped bool,
 		err error
 	)
 
-	var response *GetStorageSpacesResponse
+	var response *GetStorageGroupsResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    GetStorageSpacesOperation,
+			OperationName:    GetStorageGroupsOperation,
 			OperationSummary: "Get list of Storage Spaces",
-			OperationID:      "getStorageSpaces",
+			OperationID:      "getStorageGroups",
 			Body:             nil,
 			Params:           middleware.Parameters{},
 			Raw:              r,
@@ -1028,7 +1028,7 @@ func (s *Server) handleGetStorageSpacesRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetStorageSpacesResponse
+			Response = *GetStorageGroupsResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1039,12 +1039,12 @@ func (s *Server) handleGetStorageSpacesRequest(args [0]string, argsEscaped bool,
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetStorageSpaces(ctx)
+				response, err = s.h.GetStorageGroups(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetStorageSpaces(ctx)
+		response, err = s.h.GetStorageGroups(ctx)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -1063,7 +1063,7 @@ func (s *Server) handleGetStorageSpacesRequest(args [0]string, argsEscaped bool,
 		return
 	}
 
-	if err := encodeGetStorageSpacesResponse(response, w); err != nil {
+	if err := encodeGetStorageGroupsResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1286,12 +1286,12 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 	}
 }
 
-// handlePatchStorageSpaceRequest handles patchStorageSpace operation.
+// handlePatchStorageGroupRequest handles patchStorageGroup operation.
 //
 // Patch Storage Space.
 //
-// PATCH /storage-spaces/{id}
-func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PATCH /storage-groups/{id}
+func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -1299,11 +1299,11 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: PatchStorageSpaceOperation,
-			ID:   "patchStorageSpace",
+			Name: PatchStorageGroupOperation,
+			ID:   "patchStorageGroup",
 		}
 	)
-	params, err := decodePatchStorageSpaceParams(args, argsEscaped, r)
+	params, err := decodePatchStorageGroupParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -1313,7 +1313,7 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodePatchStorageSpaceRequest(r)
+	request, close, err := s.decodePatchStorageGroupRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -1329,13 +1329,13 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 		}
 	}()
 
-	var response *PatchStorageSpaceResponse
+	var response *PatchStorageGroupResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    PatchStorageSpaceOperation,
+			OperationName:    PatchStorageGroupOperation,
 			OperationSummary: "Patch Storage Space",
-			OperationID:      "patchStorageSpace",
+			OperationID:      "patchStorageGroup",
 			Body:             request,
 			Params: middleware.Parameters{
 				{
@@ -1347,9 +1347,9 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 		}
 
 		type (
-			Request  = *PatchStorageSpaceRequest
-			Params   = PatchStorageSpaceParams
-			Response = *PatchStorageSpaceResponse
+			Request  = *PatchStorageGroupRequest
+			Params   = PatchStorageGroupParams
+			Response = *PatchStorageGroupResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1358,14 +1358,14 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 		](
 			m,
 			mreq,
-			unpackPatchStorageSpaceParams,
+			unpackPatchStorageGroupParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.PatchStorageSpace(ctx, request, params)
+				response, err = s.h.PatchStorageGroup(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.PatchStorageSpace(ctx, request, params)
+		response, err = s.h.PatchStorageGroup(ctx, request, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -1384,7 +1384,7 @@ func (s *Server) handlePatchStorageSpaceRequest(args [1]string, argsEscaped bool
 		return
 	}
 
-	if err := encodePatchStorageSpaceResponse(response, w); err != nil {
+	if err := encodePatchStorageGroupResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1607,12 +1607,12 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 	}
 }
 
-// handleUpdateStorageSpaceRequest handles updateStorageSpace operation.
+// handleUpdateStorageGroupRequest handles updateStorageGroup operation.
 //
 // Update Storage Space.
 //
-// PUT /storage-spaces/{id}
-func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /storage-groups/{id}
+func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	ctx := r.Context()
@@ -1620,11 +1620,11 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 	var (
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: UpdateStorageSpaceOperation,
-			ID:   "updateStorageSpace",
+			Name: UpdateStorageGroupOperation,
+			ID:   "updateStorageGroup",
 		}
 	)
-	params, err := decodeUpdateStorageSpaceParams(args, argsEscaped, r)
+	params, err := decodeUpdateStorageGroupParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -1634,7 +1634,7 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodeUpdateStorageSpaceRequest(r)
+	request, close, err := s.decodeUpdateStorageGroupRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -1650,13 +1650,13 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 		}
 	}()
 
-	var response *UpdateStorageSpaceResponse
+	var response *UpdateStorageGroupResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    UpdateStorageSpaceOperation,
+			OperationName:    UpdateStorageGroupOperation,
 			OperationSummary: "Update Storage Space",
-			OperationID:      "updateStorageSpace",
+			OperationID:      "updateStorageGroup",
 			Body:             request,
 			Params: middleware.Parameters{
 				{
@@ -1668,9 +1668,9 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 		}
 
 		type (
-			Request  = *UpdateStorageSpaceRequest
-			Params   = UpdateStorageSpaceParams
-			Response = *UpdateStorageSpaceResponse
+			Request  = *UpdateStorageGroupRequest
+			Params   = UpdateStorageGroupParams
+			Response = *UpdateStorageGroupResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1679,14 +1679,14 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 		](
 			m,
 			mreq,
-			unpackUpdateStorageSpaceParams,
+			unpackUpdateStorageGroupParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateStorageSpace(ctx, request, params)
+				response, err = s.h.UpdateStorageGroup(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateStorageSpace(ctx, request, params)
+		response, err = s.h.UpdateStorageGroup(ctx, request, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
@@ -1705,7 +1705,7 @@ func (s *Server) handleUpdateStorageSpaceRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	if err := encodeUpdateStorageSpaceResponse(response, w); err != nil {
+	if err := encodeUpdateStorageGroupResponse(response, w); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)

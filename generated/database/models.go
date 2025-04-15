@@ -26,7 +26,7 @@ type OrgUnit struct {
 	DeletedAt pgtype.Timestamp
 }
 
-type StorageSpace struct {
+type StorageGroup struct {
 	ID        pgtype.UUID
 	OrgID     pgtype.UUID
 	UnitID    pgtype.UUID

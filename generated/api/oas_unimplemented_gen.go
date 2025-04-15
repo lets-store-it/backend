@@ -22,12 +22,12 @@ func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateO
 	return r, ht.ErrNotImplemented
 }
 
-// CreateStorageSpace implements createStorageSpace operation.
+// CreateStorageGroup implements createStorageGroup operation.
 //
 // Create Storage Space.
 //
-// POST /storage-spaces
-func (UnimplementedHandler) CreateStorageSpace(ctx context.Context, req *CreateStorageSpaceRequest) (r *CreateStorageSpaceResponse, _ error) {
+// POST /storage-groups
+func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (r *CreateStorageGroupResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -58,12 +58,12 @@ func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params D
 	return ht.ErrNotImplemented
 }
 
-// DeleteStorageSpace implements deleteStorageSpace operation.
+// DeleteStorageGroup implements deleteStorageGroup operation.
 //
 // Delete Storage Space.
 //
-// DELETE /storage-spaces/{id}
-func (UnimplementedHandler) DeleteStorageSpace(ctx context.Context, params DeleteStorageSpaceParams) error {
+// DELETE /storage-groups/{id}
+func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
 	return ht.ErrNotImplemented
 }
 
@@ -103,21 +103,21 @@ func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r *GetOrganiz
 	return r, ht.ErrNotImplemented
 }
 
-// GetStorageSpaceById implements getStorageSpaceById operation.
+// GetStorageGroupById implements getStorageGroupById operation.
 //
 // Get Storage Space by ID.
 //
-// GET /storage-spaces/{id}
-func (UnimplementedHandler) GetStorageSpaceById(ctx context.Context, params GetStorageSpaceByIdParams) (r *GetStorageSpaceByIdResponse, _ error) {
+// GET /storage-groups/{id}
+func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (r *GetStorageGroupByIdResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// GetStorageSpaces implements getStorageSpaces operation.
+// GetStorageGroups implements getStorageGroups operation.
 //
 // Get list of Storage Spaces.
 //
-// GET /storage-spaces
-func (UnimplementedHandler) GetStorageSpaces(ctx context.Context) (r *GetStorageSpacesResponse, _ error) {
+// GET /storage-groups
+func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorageGroupsResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -139,12 +139,12 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 	return r, ht.ErrNotImplemented
 }
 
-// PatchStorageSpace implements patchStorageSpace operation.
+// PatchStorageGroup implements patchStorageGroup operation.
 //
 // Patch Storage Space.
 //
-// PATCH /storage-spaces/{id}
-func (UnimplementedHandler) PatchStorageSpace(ctx context.Context, req *PatchStorageSpaceRequest, params PatchStorageSpaceParams) (r *PatchStorageSpaceResponse, _ error) {
+// PATCH /storage-groups/{id}
+func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -166,12 +166,12 @@ func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *Upd
 	return r, ht.ErrNotImplemented
 }
 
-// UpdateStorageSpace implements updateStorageSpace operation.
+// UpdateStorageGroup implements updateStorageGroup operation.
 //
 // Update Storage Space.
 //
-// PUT /storage-spaces/{id}
-func (UnimplementedHandler) UpdateStorageSpace(ctx context.Context, req *UpdateStorageSpaceRequest, params UpdateStorageSpaceParams) (r *UpdateStorageSpaceResponse, _ error) {
+// PUT /storage-groups/{id}
+func (UnimplementedHandler) UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (r *UpdateStorageGroupResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

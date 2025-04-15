@@ -106,7 +106,7 @@ func decodeCreateOrganizationResponse(resp *http.Response) (res *CreateOrganizat
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeCreateStorageSpaceResponse(resp *http.Response) (res *CreateStorageSpaceResponse, _ error) {
+func decodeCreateStorageGroupResponse(resp *http.Response) (res *CreateStorageGroupResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -122,7 +122,7 @@ func decodeCreateStorageSpaceResponse(resp *http.Response) (res *CreateStorageSp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response CreateStorageSpaceResponse
+			var response CreateStorageGroupResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -383,11 +383,11 @@ func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res *DeleteOrgan
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeDeleteStorageSpaceResponse(resp *http.Response) (res *DeleteStorageSpaceOK, _ error) {
+func decodeDeleteStorageGroupResponse(resp *http.Response) (res *DeleteStorageGroupOK, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
-		return &DeleteStorageSpaceOK{}, nil
+		return &DeleteStorageGroupOK{}, nil
 	}
 	// Convenient error response.
 	defRes, err := func() (res *ErrorStatusCode, err error) {
@@ -802,7 +802,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *GetOrganizationsR
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetStorageSpaceByIdResponse(resp *http.Response) (res *GetStorageSpaceByIdResponse, _ error) {
+func decodeGetStorageGroupByIdResponse(resp *http.Response) (res *GetStorageGroupByIdResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -818,7 +818,7 @@ func decodeGetStorageSpaceByIdResponse(resp *http.Response) (res *GetStorageSpac
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response GetStorageSpaceByIdResponse
+			var response GetStorageGroupByIdResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -885,7 +885,7 @@ func decodeGetStorageSpaceByIdResponse(resp *http.Response) (res *GetStorageSpac
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetStorageSpacesResponse(resp *http.Response) (res *GetStorageSpacesResponse, _ error) {
+func decodeGetStorageGroupsResponse(resp *http.Response) (res *GetStorageGroupsResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -901,7 +901,7 @@ func decodeGetStorageSpacesResponse(resp *http.Response) (res *GetStorageSpacesR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response GetStorageSpacesResponse
+			var response GetStorageGroupsResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1161,7 +1161,7 @@ func decodePatchOrganizationUnitResponse(resp *http.Response) (res *PatchOrganiz
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodePatchStorageSpaceResponse(resp *http.Response) (res *PatchStorageSpaceResponse, _ error) {
+func decodePatchStorageGroupResponse(resp *http.Response) (res *PatchStorageGroupResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -1177,7 +1177,7 @@ func decodePatchStorageSpaceResponse(resp *http.Response) (res *PatchStorageSpac
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response PatchStorageSpaceResponse
+			var response PatchStorageGroupResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1437,7 +1437,7 @@ func decodeUpdateOrganizationUnitResponse(resp *http.Response) (res *UpdateOrgan
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeUpdateStorageSpaceResponse(resp *http.Response) (res *UpdateStorageSpaceResponse, _ error) {
+func decodeUpdateStorageGroupResponse(resp *http.Response) (res *UpdateStorageGroupResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -1453,7 +1453,7 @@ func decodeUpdateStorageSpaceResponse(resp *http.Response) (res *UpdateStorageSp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response UpdateStorageSpaceResponse
+			var response UpdateStorageGroupResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

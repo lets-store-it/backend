@@ -127,9 +127,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 's': // Prefix: "storage-spaces"
+			case 's': // Prefix: "storage-groups"
 
-				if l := len("storage-spaces"); len(elem) >= l && elem[0:l] == "storage-spaces" {
+				if l := len("storage-groups"); len(elem) >= l && elem[0:l] == "storage-groups" {
 					elem = elem[l:]
 				} else {
 					break
@@ -138,9 +138,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if len(elem) == 0 {
 					switch r.Method {
 					case "GET":
-						s.handleGetStorageSpacesRequest([0]string{}, elemIsEscaped, w, r)
+						s.handleGetStorageGroupsRequest([0]string{}, elemIsEscaped, w, r)
 					case "POST":
-						s.handleCreateStorageSpaceRequest([0]string{}, elemIsEscaped, w, r)
+						s.handleCreateStorageGroupRequest([0]string{}, elemIsEscaped, w, r)
 					default:
 						s.notAllowed(w, r, "GET,POST")
 					}
@@ -169,19 +169,19 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						// Leaf node.
 						switch r.Method {
 						case "DELETE":
-							s.handleDeleteStorageSpaceRequest([1]string{
+							s.handleDeleteStorageGroupRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						case "GET":
-							s.handleGetStorageSpaceByIdRequest([1]string{
+							s.handleGetStorageGroupByIdRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						case "PATCH":
-							s.handlePatchStorageSpaceRequest([1]string{
+							s.handlePatchStorageGroupRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						case "PUT":
-							s.handleUpdateStorageSpaceRequest([1]string{
+							s.handleUpdateStorageGroupRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
@@ -443,9 +443,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 's': // Prefix: "storage-spaces"
+			case 's': // Prefix: "storage-groups"
 
-				if l := len("storage-spaces"); len(elem) >= l && elem[0:l] == "storage-spaces" {
+				if l := len("storage-groups"); len(elem) >= l && elem[0:l] == "storage-groups" {
 					elem = elem[l:]
 				} else {
 					break
@@ -454,18 +454,18 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				if len(elem) == 0 {
 					switch method {
 					case "GET":
-						r.name = GetStorageSpacesOperation
+						r.name = GetStorageGroupsOperation
 						r.summary = "Get list of Storage Spaces"
-						r.operationID = "getStorageSpaces"
-						r.pathPattern = "/storage-spaces"
+						r.operationID = "getStorageGroups"
+						r.pathPattern = "/storage-groups"
 						r.args = args
 						r.count = 0
 						return r, true
 					case "POST":
-						r.name = CreateStorageSpaceOperation
+						r.name = CreateStorageGroupOperation
 						r.summary = "Create Storage Space"
-						r.operationID = "createStorageSpace"
-						r.pathPattern = "/storage-spaces"
+						r.operationID = "createStorageGroup"
+						r.pathPattern = "/storage-groups"
 						r.args = args
 						r.count = 0
 						return r, true
@@ -495,34 +495,34 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						// Leaf node.
 						switch method {
 						case "DELETE":
-							r.name = DeleteStorageSpaceOperation
+							r.name = DeleteStorageGroupOperation
 							r.summary = "Delete Storage Space"
-							r.operationID = "deleteStorageSpace"
-							r.pathPattern = "/storage-spaces/{id}"
+							r.operationID = "deleteStorageGroup"
+							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
 							r.count = 1
 							return r, true
 						case "GET":
-							r.name = GetStorageSpaceByIdOperation
+							r.name = GetStorageGroupByIdOperation
 							r.summary = "Get Storage Space by ID"
-							r.operationID = "getStorageSpaceById"
-							r.pathPattern = "/storage-spaces/{id}"
+							r.operationID = "getStorageGroupById"
+							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
 							r.count = 1
 							return r, true
 						case "PATCH":
-							r.name = PatchStorageSpaceOperation
+							r.name = PatchStorageGroupOperation
 							r.summary = "Patch Storage Space"
-							r.operationID = "patchStorageSpace"
-							r.pathPattern = "/storage-spaces/{id}"
+							r.operationID = "patchStorageGroup"
+							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
 							r.count = 1
 							return r, true
 						case "PUT":
-							r.name = UpdateStorageSpaceOperation
+							r.name = UpdateStorageGroupOperation
 							r.summary = "Update Storage Space"
-							r.operationID = "updateStorageSpace"
-							r.pathPattern = "/storage-spaces/{id}"
+							r.operationID = "updateStorageGroup"
+							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
 							r.count = 1
 							return r, true

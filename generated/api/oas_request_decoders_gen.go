@@ -86,8 +86,8 @@ func (s *Server) decodeCreateOrganizationRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodeCreateStorageSpaceRequest(r *http.Request) (
-	req *CreateStorageSpaceRequest,
+func (s *Server) decodeCreateStorageGroupRequest(r *http.Request) (
+	req *CreateStorageGroupRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -126,7 +126,7 @@ func (s *Server) decodeCreateStorageSpaceRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request CreateStorageSpaceRequest
+		var request CreateStorageGroupRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -354,8 +354,8 @@ func (s *Server) decodePatchOrganizationUnitRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodePatchStorageSpaceRequest(r *http.Request) (
-	req *PatchStorageSpaceRequest,
+func (s *Server) decodePatchStorageGroupRequest(r *http.Request) (
+	req *PatchStorageGroupRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -394,7 +394,7 @@ func (s *Server) decodePatchStorageSpaceRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request PatchStorageSpaceRequest
+		var request PatchStorageGroupRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -559,8 +559,8 @@ func (s *Server) decodeUpdateOrganizationUnitRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodeUpdateStorageSpaceRequest(r *http.Request) (
-	req *UpdateStorageSpaceRequest,
+func (s *Server) decodeUpdateStorageGroupRequest(r *http.Request) (
+	req *UpdateStorageGroupRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -599,7 +599,7 @@ func (s *Server) decodeUpdateStorageSpaceRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request UpdateStorageSpaceRequest
+		var request UpdateStorageGroupRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
