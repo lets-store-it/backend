@@ -37,8 +37,11 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 	}, nil
 }
 
-func (r *OrganizationUnitRepository) GetOrganizationUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	unit, err := r.Queries.GetOrganizationUnitById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *OrganizationUnitRepository) GetOrganizationUnit(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.OrganizationUnit, error) {
+	unit, err := r.Queries.GetOrgUnit(ctx, database.GetOrgUnitParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +49,7 @@ func (r *OrganizationUnitRepository) GetOrganizationUnitByID(ctx context.Context
 }
 
 func (r *OrganizationUnitRepository) GetOrganizationUnits(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error) {
-	units, err := r.Queries.GetOrganizationUnits(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	units, err := r.Queries.GetActiveOrgUnits(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +66,7 @@ func (r *OrganizationUnitRepository) GetOrganizationUnits(ctx context.Context, o
 }
 
 func (r *OrganizationUnitRepository) CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	unit, err := r.Queries.CreateOrganizationUnit(ctx, database.CreateOrganizationUnitParams{
+	unit, err := r.Queries.CreateOrgUnit(ctx, database.CreateOrgUnitParams{
 		OrgID:   pgtype.UUID{Bytes: orgID, Valid: true},
 		Name:    name,
 		Alias:   alias,
@@ -76,8 +79,11 @@ func (r *OrganizationUnitRepository) CreateOrganizationUnit(ctx context.Context,
 	return toOrganizationUnit(unit)
 }
 
-func (r *OrganizationUnitRepository) DeleteOrganizationUnit(ctx context.Context, id uuid.UUID) error {
-	return r.Queries.DeleteOrganizationUnit(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *OrganizationUnitRepository) DeleteOrganizationUnit(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
+	return r.Queries.DeleteOrgUnit(ctx, database.DeleteOrgUnitParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
 }
 
 func (r *OrganizationUnitRepository) UpdateOrganizationUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
@@ -86,7 +92,7 @@ func (r *OrganizationUnitRepository) UpdateOrganizationUnit(ctx context.Context,
 		address = *unit.Address
 	}
 
-	updatedUnit, err := r.Queries.UpdateOrganizationUnit(ctx, database.UpdateOrganizationUnitParams{
+	updatedUnit, err := r.Queries.UpdateOrgUnit(ctx, database.UpdateOrgUnitParams{
 		ID:      pgtype.UUID{Bytes: unit.ID, Valid: true},
 		Name:    unit.Name,
 		Alias:   unit.Alias,
@@ -98,8 +104,8 @@ func (r *OrganizationUnitRepository) UpdateOrganizationUnit(ctx context.Context,
 	return toOrganizationUnit(updatedUnit)
 }
 
-func (r *OrganizationUnitRepository) IsOrganizationUnitExistsForOrganization(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error) {
-	return r.Queries.IsOrganizationUnitExistsForOrganization(ctx, database.IsOrganizationUnitExistsForOrganizationParams{
+func (r *OrganizationUnitRepository) IsOrganizationUnitExists(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error) {
+	return r.Queries.IsOrgUnitExists(ctx, database.IsOrgUnitExistsParams{
 		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
 		ID:    pgtype.UUID{Bytes: unitID, Valid: true},
 	})

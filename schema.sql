@@ -28,15 +28,99 @@ CREATE TABLE storage_space (
     unit_id UUID NOT NULL REFERENCES org_unit(id),
     parent_id UUID,
     name VARCHAR(255) NOT NULL,
-    alias VARCHAR(255),
+    alias VARCHAR(255) NOT NULL,
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    UNIQUE (org_id, unit_id, name),
-    FOREIGN KEY (parent_id) REFERENCES storage_space(id) ON DELETE RESTRICT,
+    UNIQUE (org_id, alias),
+    FOREIGN KEY (parent_id) REFERENCES storage_space(id) ON DELETE CASCADE,
     CHECK (parent_id != id)
 );
 CREATE INDEX storage_space_org_id_idx ON storage_space(org_id, id);
 CREATE INDEX storage_space_unit_id_idx ON storage_space(org_id, unit_id);
+
+CREATE TABLE item (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+CREATE INDEX item_org_id_idx ON item(org_id, id);
+
+CREATE TABLE item_variant (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    item_id UUID NOT NULL REFERENCES item(id),
+
+    name VARCHAR(255) NOT NULL,
+
+    article VARCHAR(255),
+    ean13 INTEGER,    
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    UNIQUE (item_id, name)
+);
+CREATE INDEX item_variant_item_id_idx ON item_variant(item_id);
+CREATE INDEX item_variant_ean13_idx ON item_variant(ean13);
+CREATE INDEX item_variant_article_idx ON item_variant(article);
+
+CREATE TABLE item_instance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    item_id UUID NOT NULL REFERENCES item(id),
+    variant_id UUID NOT NULL REFERENCES item_variant(id),
+
+    -- cell_id UUID REFERENCES cell(id),
+    -- status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
+    -- affected_by_operation_id UUID REFERENCES operation(id)
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    UNIQUE (item_id, variant_id)
+);
+
+-- CREATE TABLE object_type (
+--     id INTEGER PRIMARY KEY,
+--     group VARCHAR(100) NOT NULL,
+--     name VARCHAR(100) NOT NULL,
+--     UNIQUE (group, name)
+-- );
+-- CREATE INDEX object_type_id_idx ON object_type(id);
+
+-- INSERT INTO object_type (id, group, name) VALUES 
+--     (1, 'storage', 'group'),
+--     (2, 'storage', 'cells-group'),
+--     (3, 'storage', 'cell'),
+--     (4, 'items', 'item'),
+--     (5, 'items', 'instance');
+
+-- CREATE TABLE custom_field (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     org_id UUID NOT NULL REFERENCES org(id),
+--     type VARCHAR(100) NOT NULL CHECK (type IN ('text', 'integer', 'decimal' 'boolean')),
+--     name VARCHAR(100) NOT NULL,
+--     label VARCHAR(100) NOT NULL,
+--     description VARCHAR(255),
+--     group_name VARCHAR(100),
+--     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP,
+--     UNIQUE (org_id, name)
+-- );
+-- CREATE INDEX custom_field_org_id_idx ON custom_field(org_id, id);
+-- CREATE INDEX custom_field_group_name_idx ON custom_field(org_id, name);
+-- -- relate
+
+-- CREATE TABLE custom_field_related_types (
+--     custom_field_id UUID NOT NULL REFERENCES custom_field(id),
+--     object_type_id INTEGER NOT NULL REFERENCES object_type(id),
+--     PRIMARY KEY (custom_field_id, object_type_id)
+-- );
+-- CREATE INDEX custom_field_related_types_custom_field_id_idx ON custom_field_related_types(custom_field_id);
+-- CREATE INDEX custom_field_related_types_object_type_id_idx ON custom_field_related_types(object_type_id);
+
 
 -- CREATE TABLE cell_kind (
 --     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

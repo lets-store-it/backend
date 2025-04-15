@@ -3,32 +3,48 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/storeit/repositories"
 )
 
 var (
 	ErrOrganizationUnitNotFound = errors.New("organization unit not found")
 )
 
-type OrganizationUnitRepository interface {
-	GetOrganizationUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error)
-	GetOrganizationUnits(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error)
-	CreateOrganizationUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error)
-	DeleteOrganizationUnit(ctx context.Context, id uuid.UUID) error
-	UpdateOrganizationUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error)
-	IsOrganizationUnitExistsForOrganization(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error)
-}
-
 type OrganizationUnitService struct {
-	repo OrganizationUnitRepository
+	repo *repositories.OrganizationUnitRepository
 }
 
-func NewOrganizationUnitService(repo OrganizationUnitRepository) *OrganizationUnitService {
+func NewOrganizationUnitService(repo *repositories.OrganizationUnitRepository) *OrganizationUnitService {
 	return &OrganizationUnitService{
 		repo: repo,
 	}
+}
+
+func validateOrganizationUnitData(name string, alias string) error {
+	if strings.TrimSpace(name) == "" {
+		return fmt.Errorf("organization unit name cannot be empty")
+	}
+	if len(name) > 100 {
+		return fmt.Errorf("organization unit name is too long (max 100 characters)")
+	}
+
+	if strings.TrimSpace(alias) == "" {
+		return fmt.Errorf("organization unit alias cannot be empty")
+	}
+	if len(alias) > 100 {
+		return fmt.Errorf("organization unit alias is too long (max 100 characters)")
+	}
+	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
+	if !matched {
+		return fmt.Errorf("organization unit alias can only contain letters, numbers, and hyphens (no spaces)")
+	}
+	return nil
 }
 
 func (s *OrganizationUnitService) Create(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
@@ -39,8 +55,8 @@ func (s *OrganizationUnitService) GetAll(ctx context.Context, orgID uuid.UUID) (
 	return s.repo.GetOrganizationUnits(ctx, orgID)
 }
 
-func (s *OrganizationUnitService) GetByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	unit, err := s.repo.GetOrganizationUnitByID(ctx, id)
+func (s *OrganizationUnitService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.OrganizationUnit, error) {
+	unit, err := s.repo.GetOrganizationUnit(ctx, orgID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -50,34 +66,14 @@ func (s *OrganizationUnitService) GetByID(ctx context.Context, id uuid.UUID) (*m
 	return unit, nil
 }
 
-func (s *OrganizationUnitService) Delete(ctx context.Context, id uuid.UUID) error {
-	return s.repo.DeleteOrganizationUnit(ctx, id)
+func (s *OrganizationUnitService) Delete(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
+	return s.repo.DeleteOrganizationUnit(ctx, orgID, id)
 }
 
 func (s *OrganizationUnitService) Update(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
 	return s.repo.UpdateOrganizationUnit(ctx, unit)
 }
 
-func (s *OrganizationUnitService) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	unit, err := s.GetByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	// Apply updates
-	if name, ok := updates["name"].(string); ok {
-		unit.Name = name
-	}
-	if alias, ok := updates["alias"].(string); ok {
-		unit.Alias = alias
-	}
-	if address, ok := updates["address"].(string); ok {
-		unit.Address = &address
-	}
-
-	return s.repo.UpdateOrganizationUnit(ctx, unit)
-}
-
-func (s *OrganizationUnitService) IsOrganizationUnitExistsForOrganization(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error) {
-	return s.repo.IsOrganizationUnitExistsForOrganization(ctx, orgID, unitID)
+func (s *OrganizationUnitService) IsOrganizationUnitExists(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error) {
+	return s.repo.IsOrganizationUnitExists(ctx, orgID, unitID)
 }
