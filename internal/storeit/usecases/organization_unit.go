@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
-	"github.com/evevseev/storeit/backend/internal/storeit/services"
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/storeit/services"
 )
 
 type OrganizationUnitUseCase struct {
@@ -55,14 +55,25 @@ func (uc *OrganizationUnitUseCase) checkUnitBelongsToOrganization(ctx context.Co
 	return nil
 }
 
-func (uc *OrganizationUnitUseCase) Create(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	// Check if organization exists
-	exists, err := uc.orgService.IsOrganizationExistsByID(ctx, orgID)
+func (uc *OrganizationUnitUseCase) validateOrganizationAccess(ctx context.Context, unitID uuid.UUID) (uuid.UUID, error) {
+	orgID, err := GetOrganizationIDFromContext(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to check organization existence: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
 	}
-	if !exists {
-		return nil, services.ErrOrganizationNotFound
+
+	if unitID != uuid.Nil {
+		if err := uc.checkUnitBelongsToOrganization(ctx, orgID, unitID); err != nil {
+			return uuid.Nil, err
+		}
+	}
+
+	return orgID, nil
+}
+
+func (uc *OrganizationUnitUseCase) Create(ctx context.Context, name string, alias string, address string) (*models.OrganizationUnit, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := uc.validateOrganizationUnitData(name, alias); err != nil {
@@ -72,20 +83,18 @@ func (uc *OrganizationUnitUseCase) Create(ctx context.Context, orgID uuid.UUID, 
 	return uc.service.Create(ctx, orgID, name, alias, address)
 }
 
-func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error) {
+func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context) ([]*models.OrganizationUnit, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	if err != nil {
+		return nil, err
+	}
+
 	return uc.service.GetAll(ctx, orgID)
 }
 
 func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("invalid organization unit ID")
-	}
-
-	// Get organization ID from context
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	// Check if the unit belongs to the organization
-	if err := uc.checkUnitBelongsToOrganization(ctx, orgID, id); err != nil {
+	_, err := uc.validateOrganizationAccess(ctx, id)
+	if err != nil {
 		return nil, err
 	}
 
@@ -98,15 +107,8 @@ func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	if id == uuid.Nil {
-		return fmt.Errorf("invalid organization unit ID")
-	}
-
-	// Get organization ID from context
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	// Check if the unit belongs to the organization
-	if err := uc.checkUnitBelongsToOrganization(ctx, orgID, id); err != nil {
+	_, err := uc.validateOrganizationAccess(ctx, id)
+	if err != nil {
 		return err
 	}
 
@@ -114,35 +116,24 @@ func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) err
 }
 
 func (uc *OrganizationUnitUseCase) Update(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	if err := uc.validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	_, err := uc.validateOrganizationAccess(ctx, unit.ID)
+	if err != nil {
+		return nil, err
 	}
 
-	// Get organization ID from context
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	// Check if the unit belongs to the organization
-	if err := uc.checkUnitBelongsToOrganization(ctx, orgID, unit.ID); err != nil {
-		return nil, err
+	if err := uc.validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
 	return uc.service.Update(ctx, unit)
 }
 
 func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("invalid organization unit ID")
-	}
-
-	// Get organization ID from context
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	// Check if the unit belongs to the organization
-	if err := uc.checkUnitBelongsToOrganization(ctx, orgID, id); err != nil {
+	_, err := uc.validateOrganizationAccess(ctx, id)
+	if err != nil {
 		return nil, err
 	}
 
-	// Get current organization unit
 	unit, err := uc.service.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
@@ -156,10 +147,9 @@ func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, upda
 		unit.Alias = alias
 	}
 	if address, ok := updates["address"].(string); ok {
-		unit.Address = address
+		unit.Address = &address
 	}
 
-	// Validate after updates
 	if err := uc.validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}

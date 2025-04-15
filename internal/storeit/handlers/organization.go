@@ -3,17 +3,9 @@ package handlers
 import (
 	"context"
 
-	"github.com/evevseev/storeit/backend/generated/api"
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/storeit/models"
 )
-
-func convertToModel(org *api.Organization) *models.Organization {
-	return &models.Organization{
-		ID:        org.ID.Value,
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
-	}
-}
 
 func convertToDTO(org *models.Organization) *api.Organization {
 	return &api.Organization{
@@ -21,10 +13,6 @@ func convertToDTO(org *models.Organization) *api.Organization {
 		Name:      org.Name,
 		Subdomain: org.Subdomain,
 	}
-}
-
-func createOrganizationResponse(org *models.Organization) *api.Organization {
-	return convertToDTO(org)
 }
 
 func createErrorResponse(statusCode int, message string) *api.ErrorStatusCode {
@@ -44,7 +32,7 @@ func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api
 	}
 
 	return &api.CreateOrganizationResponse{
-		Data: *createOrganizationResponse(org),
+		Data: *convertToDTO(org),
 	}, nil
 }
 
@@ -99,7 +87,7 @@ func (h *RestApiImplementation) PatchOrganization(ctx context.Context, req *api.
 	}
 
 	return &api.PatchOrganizationResponse{
-		Data: []api.Organization{*createOrganizationResponse(org)},
+		Data: []api.Organization{*convertToDTO(org)},
 	}, nil
 }
 
@@ -117,6 +105,6 @@ func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api
 	}
 
 	return &api.UpdateOrganizationResponse{
-		Data: []api.Organization{*createOrganizationResponse(updatedOrg)},
+		Data: []api.Organization{*convertToDTO(updatedOrg)},
 	}, nil
 }

@@ -2,43 +2,38 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/evevseev/storeit/backend/config"
-	"github.com/evevseev/storeit/backend/generated/api"
-	"github.com/evevseev/storeit/backend/generated/database"
-	"github.com/evevseev/storeit/backend/internal/storeit/handlers"
-	"github.com/evevseev/storeit/backend/internal/storeit/repositories"
-	"github.com/evevseev/storeit/backend/internal/storeit/services"
-	"github.com/evevseev/storeit/backend/internal/storeit/usecases"
-	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/let-store-it/backend/config"
+	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/generated/database"
+	db "github.com/let-store-it/backend/internal/storeit/database"
+	"github.com/let-store-it/backend/internal/storeit/handlers"
+	"github.com/let-store-it/backend/internal/storeit/repositories"
+	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/storeit/usecases"
 )
 
 func main() {
 	config := config.GetConfigOrDie()
 
-	ctx := context.Background()
-	conn, err := pgx.Connect(ctx,
-		fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s",
-			config.Database.User, config.Database.Password, config.Database.Name, config.Database.Host, config.Database.Port))
+	dbCtx := context.Background()
+	conn, err := db.InitDatabaseOrDie(dbCtx, config)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer conn.Close(ctx)
+	queries := database.New(conn)
+	defer conn.Close(dbCtx)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
-	// e.Use(middleware.Recover())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-
-	// Initialize database queries
-	queries := database.New(conn)
 
 	// Initialize organization layers
 	orgRepo := &repositories.OrganizationRepository{
@@ -63,7 +58,8 @@ func main() {
 	}
 
 	// Add organization ID middleware
-	e.Any("/*", echo.WrapHandler(handlers.WithOrganizationID(server)))
+	orgIDMiddleware := handlers.NewOrganizationIDMiddleware(orgUseCase)
+	e.Any("/*", echo.WrapHandler(orgIDMiddleware.WithOrganizationID(server)))
 
 	go func() {
 		if err := e.Start(config.Server.ListenAddress); err != nil {
@@ -71,6 +67,7 @@ func main() {
 		}
 	}()
 
+	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

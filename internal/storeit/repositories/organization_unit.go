@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/evevseev/storeit/backend/generated/database"
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/let-store-it/backend/generated/database"
+	"github.com/let-store-it/backend/internal/storeit/models"
 )
 
 type OrganizationUnitRepository struct {
@@ -23,12 +23,17 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 	if orgID == nil {
 		return nil, errors.New("org_id is nil")
 	}
+
+	var address *string
+	if unit.Address.Valid {
+		address = &unit.Address.String
+	}
 	return &models.OrganizationUnit{
 		ID:      *id,
 		OrgID:   *orgID,
 		Name:    unit.Name,
 		Alias:   unit.Alias,
-		Address: unit.Address.String,
+		Address: address,
 	}, nil
 }
 
@@ -76,11 +81,16 @@ func (r *OrganizationUnitRepository) DeleteOrganizationUnit(ctx context.Context,
 }
 
 func (r *OrganizationUnitRepository) UpdateOrganizationUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
+	var address string
+	if unit.Address != nil {
+		address = *unit.Address
+	}
+
 	updatedUnit, err := r.Queries.UpdateOrganizationUnit(ctx, database.UpdateOrganizationUnitParams{
 		ID:      pgtype.UUID{Bytes: unit.ID, Valid: true},
 		Name:    unit.Name,
 		Alias:   unit.Alias,
-		Address: pgtype.Text{String: unit.Address, Valid: true},
+		Address: pgtype.Text{String: address, Valid: address != ""},
 	})
 	if err != nil {
 		return nil, err

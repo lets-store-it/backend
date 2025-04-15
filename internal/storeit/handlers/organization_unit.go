@@ -3,40 +3,29 @@ package handlers
 import (
 	"context"
 
-	"github.com/evevseev/storeit/backend/generated/api"
-	"github.com/evevseev/storeit/backend/internal/storeit/models"
-	"github.com/google/uuid"
+	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/storeit/models"
 )
 
 func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
+	var address api.OptNilString
+	if unit.Address == nil {
+		address.SetToNull()
+	} else {
+		address.SetTo(*unit.Address)
+	}
+
 	return api.Unit{
 		ID:      api.NewOptUUID(unit.ID),
 		Name:    unit.Name,
 		Alias:   unit.Alias,
-		Address: api.OptNilString{Value: unit.Address},
+		Address: address,
 	}
-}
-
-// CreateUnit implements api.Handler.
-func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (*api.CreateOrganizationUnitResponse, error) {
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	unit, err := h.orgUnitUseCase.Create(ctx, orgID, req.Name, req.Alias, req.Address.Value)
-	if err != nil {
-		return nil, err
-	}
-
-	unitDTO := convertUnitToDTO(unit)
-	return &api.CreateOrganizationUnitResponse{
-		Data: api.NewOptUnit(unitDTO),
-	}, nil
 }
 
 // GetOrganizationUnits implements api.Handler.
 func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (*api.GetOrganizationUnitsResponse, error) {
-	orgID := ctx.Value("organization_id").(uuid.UUID)
-
-	units, err := h.orgUnitUseCase.GetAll(ctx, orgID)
+	units, err := h.orgUnitUseCase.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +37,19 @@ func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (*api.
 
 	return &api.GetOrganizationUnitsResponse{
 		Data: items,
+	}, nil
+}
+
+// CreateUnit implements api.Handler.
+func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (*api.CreateOrganizationUnitResponse, error) {
+	unit, err := h.orgUnitUseCase.Create(ctx, req.Name, req.Alias, req.Address.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	unitDTO := convertUnitToDTO(unit)
+	return &api.CreateOrganizationUnitResponse{
+		Data: api.NewOptUnit(unitDTO),
 	}, nil
 }
 
@@ -94,11 +96,15 @@ func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *
 
 // UpdateOrganizationUnit implements api.Handler.
 func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req *api.UpdateOrganizationUnitRequest, params api.UpdateOrganizationUnitParams) (*api.UpdateOrganizationUnitResponse, error) {
+	var address *string
+	if req.Address.IsSet() {
+		address = &req.Address.Value
+	}
 	unit := &models.OrganizationUnit{
 		ID:      params.ID,
 		Name:    req.Name,
 		Alias:   req.Alias,
-		Address: req.Address.Value,
+		Address: address,
 	}
 
 	updatedUnit, err := h.orgUnitUseCase.Update(ctx, unit)

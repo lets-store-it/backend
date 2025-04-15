@@ -1,19 +1,18 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
-
-type User struct {
-	ID       uuid.UUID
-	FullName string
-	Email    string
-}
 
 type Organization struct {
 	ID        uuid.UUID
 	Name      string
 	Subdomain string
+
+	CreatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type OrganizationUnit struct {
@@ -21,7 +20,10 @@ type OrganizationUnit struct {
 	OrgID   uuid.UUID
 	Name    string
 	Alias   string
-	Address string
+	Address *string
+
+	CreatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type StorageGroup struct {
@@ -30,28 +32,7 @@ type StorageGroup struct {
 	ParentID   uuid.UUID
 	Name       string
 	ShortAlias string
-}
 
-type CellKind struct {
-	ID                   uuid.UUID
-	OrgID                uuid.UUID
-	Name                 string
-	Height, Width, Depth int
-	MaxWeight            int
-}
-
-type CellGroup struct {
-	ID         uuid.UUID
-	SpaceID    uuid.UUID
-	Name       string
-	ShortAlias string
-}
-
-type Cell struct {
-	ID              uuid.UUID
-	ShortAlias      string
-	GroupID         uuid.UUID
-	KindID          uuid.UUID
-	Rack            string
-	Level, Position int
+	CreatedAt time.Time
+	DeletedAt *time.Time
 }
