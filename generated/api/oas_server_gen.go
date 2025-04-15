@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateItem implements createItem operation.
+	//
+	// Create Item.
+	//
+	// POST /items
+	CreateItem(ctx context.Context, req *CreateItemRequest) (*CreateItemResponse, error)
 	// CreateOrganization implements createOrganization operation.
 	//
 	// Create Organization.
@@ -26,6 +32,12 @@ type Handler interface {
 	//
 	// POST /units
 	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	// DeleteItem implements deleteItem operation.
+	//
+	// Delete Item.
+	//
+	// DELETE /items/{id}
+	DeleteItem(ctx context.Context, params DeleteItemParams) error
 	// DeleteOrganization implements deleteOrganization operation.
 	//
 	// Delete Organization.
@@ -44,6 +56,18 @@ type Handler interface {
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	// GetItemById implements getItemById operation.
+	//
+	// Get Item by ID.
+	//
+	// GET /items/{id}
+	GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error)
+	// GetItems implements getItems operation.
+	//
+	// Get list of Items.
+	//
+	// GET /items
+	GetItems(ctx context.Context) (*GetItemsResponse, error)
 	// GetOrganizationById implements getOrganizationById operation.
 	//
 	// Get Organization by ID.
@@ -80,6 +104,12 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// PatchItem implements patchItem operation.
+	//
+	// Patch Item.
+	//
+	// PATCH /items/{id}
+	PatchItem(ctx context.Context, req *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
 	// PatchOrganization implements patchOrganization operation.
 	//
 	// Update Organization.
@@ -98,6 +128,12 @@ type Handler interface {
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	// UpdateItem implements updateItem operation.
+	//
+	// Update Item.
+	//
+	// PUT /items/{id}
+	UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error)
 	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update Organization.

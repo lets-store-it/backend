@@ -61,6 +61,72 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
+			case 'i': // Prefix: "items"
+
+				if l := len("items"); len(elem) >= l && elem[0:l] == "items" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetItemsRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateItemRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteItemRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetItemByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handlePatchItemRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateItemRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+						}
+
+						return
+					}
+
+				}
+
 			case 'o': // Prefix: "orgs"
 
 				if l := len("orgs"); len(elem) >= l && elem[0:l] == "orgs" {
@@ -353,6 +419,96 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
+			case 'i': // Prefix: "items"
+
+				if l := len("items"); len(elem) >= l && elem[0:l] == "items" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = GetItemsOperation
+						r.summary = "Get list of Items"
+						r.operationID = "getItems"
+						r.pathPattern = "/items"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateItemOperation
+						r.summary = "Create Item"
+						r.operationID = "createItem"
+						r.pathPattern = "/items"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteItemOperation
+							r.summary = "Delete Item"
+							r.operationID = "deleteItem"
+							r.pathPattern = "/items/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetItemByIdOperation
+							r.summary = "Get Item by ID"
+							r.operationID = "getItemById"
+							r.pathPattern = "/items/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = PatchItemOperation
+							r.summary = "Patch Item"
+							r.operationID = "patchItem"
+							r.pathPattern = "/items/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateItemOperation
+							r.summary = "Update Item"
+							r.operationID = "updateItem"
+							r.pathPattern = "/items/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
 			case 'o': // Prefix: "orgs"
 
 				if l := len("orgs"); len(elem) >= l && elem[0:l] == "orgs" {

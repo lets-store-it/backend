@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateItem implements createItem operation.
+//
+// Create Item.
+//
+// POST /items
+func (UnimplementedHandler) CreateItem(ctx context.Context, req *CreateItemRequest) (r *CreateItemResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateOrganization implements createOrganization operation.
 //
 // Create Organization.
@@ -40,6 +49,15 @@ func (UnimplementedHandler) CreateUnit(ctx context.Context, req *CreateOrganizat
 	return r, ht.ErrNotImplemented
 }
 
+// DeleteItem implements deleteItem operation.
+//
+// Delete Item.
+//
+// DELETE /items/{id}
+func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemParams) error {
+	return ht.ErrNotImplemented
+}
+
 // DeleteOrganization implements deleteOrganization operation.
 //
 // Delete Organization.
@@ -65,6 +83,24 @@ func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params D
 // DELETE /storage-groups/{id}
 func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
 	return ht.ErrNotImplemented
+}
+
+// GetItemById implements getItemById operation.
+//
+// Get Item by ID.
+//
+// GET /items/{id}
+func (UnimplementedHandler) GetItemById(ctx context.Context, params GetItemByIdParams) (r *GetItemByIdResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetItems implements getItems operation.
+//
+// Get list of Items.
+//
+// GET /items
+func (UnimplementedHandler) GetItems(ctx context.Context) (r *GetItemsResponse, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // GetOrganizationById implements getOrganizationById operation.
@@ -121,6 +157,15 @@ func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorage
 	return r, ht.ErrNotImplemented
 }
 
+// PatchItem implements patchItem operation.
+//
+// Patch Item.
+//
+// PATCH /items/{id}
+func (UnimplementedHandler) PatchItem(ctx context.Context, req *PatchItemRequest, params PatchItemParams) (r *PatchItemResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // PatchOrganization implements patchOrganization operation.
 //
 // Update Organization.
@@ -145,6 +190,15 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 //
 // PATCH /storage-groups/{id}
 func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateItem implements updateItem operation.
+//
+// Update Item.
+//
+// PUT /items/{id}
+func (UnimplementedHandler) UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (r *UpdateItemResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

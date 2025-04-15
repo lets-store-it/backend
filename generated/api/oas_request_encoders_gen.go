@@ -11,6 +11,20 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
+func encodeCreateItemRequest(
+	req *CreateItemRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateOrganizationRequest(
 	req *CreateOrganizationRequest,
 	r *http.Request,
@@ -53,6 +67,20 @@ func encodeCreateUnitRequest(
 	return nil
 }
 
+func encodePatchItemRequest(
+	req *PatchItemRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodePatchOrganizationRequest(
 	req *PatchOrganizationRequest,
 	r *http.Request,
@@ -83,6 +111,20 @@ func encodePatchOrganizationUnitRequest(
 
 func encodePatchStorageGroupRequest(
 	req *PatchStorageGroupRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateItemRequest(
+	req *UpdateItemRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

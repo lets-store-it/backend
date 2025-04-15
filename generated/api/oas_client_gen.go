@@ -21,6 +21,12 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
+	// CreateItem invokes createItem operation.
+	//
+	// Create Item.
+	//
+	// POST /items
+	CreateItem(ctx context.Context, request *CreateItemRequest) (*CreateItemResponse, error)
 	// CreateOrganization invokes createOrganization operation.
 	//
 	// Create Organization.
@@ -39,6 +45,12 @@ type Invoker interface {
 	//
 	// POST /units
 	CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	// DeleteItem invokes deleteItem operation.
+	//
+	// Delete Item.
+	//
+	// DELETE /items/{id}
+	DeleteItem(ctx context.Context, params DeleteItemParams) error
 	// DeleteOrganization invokes deleteOrganization operation.
 	//
 	// Delete Organization.
@@ -57,6 +69,18 @@ type Invoker interface {
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	// GetItemById invokes getItemById operation.
+	//
+	// Get Item by ID.
+	//
+	// GET /items/{id}
+	GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error)
+	// GetItems invokes getItems operation.
+	//
+	// Get list of Items.
+	//
+	// GET /items
+	GetItems(ctx context.Context) (*GetItemsResponse, error)
 	// GetOrganizationById invokes getOrganizationById operation.
 	//
 	// Get Organization by ID.
@@ -93,6 +117,12 @@ type Invoker interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// PatchItem invokes patchItem operation.
+	//
+	// Patch Item.
+	//
+	// PATCH /items/{id}
+	PatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
 	// PatchOrganization invokes patchOrganization operation.
 	//
 	// Update Organization.
@@ -111,6 +141,12 @@ type Invoker interface {
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	// UpdateItem invokes updateItem operation.
+	//
+	// Update Item.
+	//
+	// PUT /items/{id}
+	UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error)
 	// UpdateOrganization invokes updateOrganization operation.
 	//
 	// Update Organization.
@@ -176,6 +212,45 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 		return c.serverURL
 	}
 	return u
+}
+
+// CreateItem invokes createItem operation.
+//
+// Create Item.
+//
+// POST /items
+func (c *Client) CreateItem(ctx context.Context, request *CreateItemRequest) (*CreateItemResponse, error) {
+	res, err := c.sendCreateItem(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateItem(ctx context.Context, request *CreateItemRequest) (res *CreateItemResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/items"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateItemRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeCreateItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
 }
 
 // CreateOrganization invokes createOrganization operation.
@@ -288,6 +363,60 @@ func (c *Client) sendCreateUnit(ctx context.Context, request *CreateOrganization
 	defer resp.Body.Close()
 
 	result, err := decodeCreateUnitResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteItem invokes deleteItem operation.
+//
+// Delete Item.
+//
+// DELETE /items/{id}
+func (c *Client) DeleteItem(ctx context.Context, params DeleteItemParams) error {
+	_, err := c.sendDeleteItem(ctx, params)
+	return err
+}
+
+func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (res *DeleteItemOK, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeDeleteItemResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -450,6 +579,96 @@ func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorag
 	defer resp.Body.Close()
 
 	result, err := decodeDeleteStorageGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetItemById invokes getItemById operation.
+//
+// Get Item by ID.
+//
+// GET /items/{id}
+func (c *Client) GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error) {
+	res, err := c.sendGetItemById(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetItemById(ctx context.Context, params GetItemByIdParams) (res *GetItemByIdResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetItemByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetItems invokes getItems operation.
+//
+// Get list of Items.
+//
+// GET /items
+func (c *Client) GetItems(ctx context.Context) (*GetItemsResponse, error) {
+	res, err := c.sendGetItems(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetItems(ctx context.Context) (res *GetItemsResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/items"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetItemsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -727,6 +946,63 @@ func (c *Client) sendGetStorageGroups(ctx context.Context) (res *GetStorageGroup
 	return result, nil
 }
 
+// PatchItem invokes patchItem operation.
+//
+// Patch Item.
+//
+// PATCH /items/{id}
+func (c *Client) PatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error) {
+	res, err := c.sendPatchItem(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendPatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (res *PatchItemResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodePatchItemRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodePatchItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // PatchOrganization invokes patchOrganization operation.
 //
 // Update Organization.
@@ -891,6 +1167,63 @@ func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorag
 	defer resp.Body.Close()
 
 	result, err := decodePatchStorageGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateItem invokes updateItem operation.
+//
+// Update Item.
+//
+// PUT /items/{id}
+func (c *Client) UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error) {
+	res, err := c.sendUpdateItem(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (res *UpdateItemResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateItemRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeUpdateItemResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
