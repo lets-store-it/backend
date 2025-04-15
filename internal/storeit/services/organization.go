@@ -3,35 +3,53 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/storeit/repositories"
 )
 
 var (
 	ErrOrganizationNotFound = errors.New("organization not found")
 )
 
-type OrganizationRepository interface {
-	CreateOrganization(ctx context.Context, name string, subdomain string) (*models.Organization, error)
-	GetOrganizations(ctx context.Context) ([]*models.Organization, error)
-	GetOrganizationByID(ctx context.Context, id uuid.UUID) (*models.Organization, error)
-	DeleteOrganization(ctx context.Context, id uuid.UUID) error
-	UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error)
-	IsOrganizationExistsByID(ctx context.Context, id uuid.UUID) (bool, error)
-}
-
 type OrganizationService struct {
-	repo OrganizationRepository
+	repo *repositories.OrganizationRepository
 }
 
-func NewOrganizationService(repo OrganizationRepository) *OrganizationService {
+func NewOrganizationService(repo *repositories.OrganizationRepository) *OrganizationService {
 	return &OrganizationService{
 		repo: repo,
 	}
 }
 
+func validateOrganizationData(name, subdomain string) error {
+	if strings.TrimSpace(name) == "" {
+		return fmt.Errorf("organization name cannot be empty")
+	}
+	if len(name) > 100 {
+		return fmt.Errorf("organization name is too long (max 100 characters)")
+	}
+	if strings.TrimSpace(subdomain) == "" {
+		return fmt.Errorf("subdomain cannot be empty")
+	}
+	if len(subdomain) > 63 {
+		return fmt.Errorf("subdomain is too long (max 63 characters)")
+	}
+	matched, _ := regexp.MatchString("^[a-z0-9-]+$", subdomain)
+	if !matched {
+		return fmt.Errorf("subdomain can only contain lowercase letters, numbers, and hyphens")
+	}
+	return nil
+}
+
 func (s *OrganizationService) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
+	if err := validateOrganizationData(name, subdomain); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
 	return s.repo.CreateOrganization(ctx, name, subdomain)
 }
 
@@ -40,7 +58,7 @@ func (s *OrganizationService) GetAll(ctx context.Context) ([]*models.Organizatio
 }
 
 func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	return s.repo.GetOrganizationByID(ctx, id)
+	return s.repo.GetOrganization(ctx, id)
 }
 
 func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
@@ -48,39 +66,19 @@ func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *OrganizationService) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	exists, err := s.repo.IsOrganizationExistsByID(ctx, org.ID)
+	exists, err := s.repo.IsOrganizationExists(ctx, org.ID)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
 		return nil, ErrOrganizationNotFound
 	}
+	if err := validateOrganizationData(org.Name, org.Subdomain); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
 	return s.repo.UpdateOrganization(ctx, org)
 }
 
-func (s *OrganizationService) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	org, err := s.GetByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	// Apply partial updates
-	for field, value := range updates {
-		switch field {
-		case "name":
-			if name, ok := value.(string); ok {
-				org.Name = name
-			}
-		case "subdomain":
-			if subdomain, ok := value.(string); ok {
-				org.Subdomain = subdomain
-			}
-		}
-	}
-
-	return s.repo.UpdateOrganization(ctx, org)
-}
-
-func (s *OrganizationService) IsOrganizationExistsByID(ctx context.Context, id uuid.UUID) (bool, error) {
-	return s.repo.IsOrganizationExistsByID(ctx, id)
+func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	return s.repo.IsOrganizationExists(ctx, id)
 }

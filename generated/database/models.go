@@ -8,6 +8,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Item struct {
+	ID          pgtype.UUID
+	OrgID       pgtype.UUID
+	Name        string
+	Description pgtype.Text
+	CreatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
+}
+
+type ItemInstance struct {
+	ID        pgtype.UUID
+	ItemID    pgtype.UUID
+	VariantID pgtype.UUID
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
+type ItemVariant struct {
+	ID        pgtype.UUID
+	ItemID    pgtype.UUID
+	Name      string
+	Article   pgtype.Text
+	Ean13     pgtype.Int4
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
 type Org struct {
 	ID        pgtype.UUID
 	Name      string
@@ -32,7 +59,7 @@ type StorageSpace struct {
 	UnitID    pgtype.UUID
 	ParentID  pgtype.UUID
 	Name      string
-	Alias     pgtype.Text
+	Alias     string
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }

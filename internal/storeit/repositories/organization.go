@@ -23,22 +23,6 @@ func uuidFromPgx(id pgtype.UUID) *uuid.UUID {
 	return &uuid
 }
 
-// func datetimeFromPgx(datetime pgtype.Timestamp) *time.Time {
-// 	if !datetime.Valid {
-// 		return nil
-// 	}
-// 	return &datetime.Time
-// }
-
-// Organization errors
-// Organization Exists Error
-type OrganizationExistsError struct {
-}
-
-func (e *OrganizationExistsError) Error() string {
-	return "organization already exists"
-}
-
 func toOrganization(org database.Org) (*models.Organization, error) {
 	id := uuidFromPgx(org.ID)
 	if id == nil {
@@ -51,8 +35,8 @@ func toOrganization(org database.Org) (*models.Organization, error) {
 	}, nil
 }
 
-func (r *OrganizationRepository) GetOrganizationByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	org, err := r.Queries.GetOrgById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *OrganizationRepository) GetOrganization(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
+	org, err := r.Queries.GetOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +44,7 @@ func (r *OrganizationRepository) GetOrganizationByID(ctx context.Context, id uui
 }
 
 func (r *OrganizationRepository) GetOrganizations(ctx context.Context) ([]*models.Organization, error) {
-	res, err := r.Queries.GetOrgs(ctx)
+	res, err := r.Queries.GetActiveOrgs(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,19 +77,8 @@ func (r *OrganizationRepository) DeleteOrganization(ctx context.Context, id uuid
 	return err
 }
 
-func (r *OrganizationRepository) IsOrganizationExists(ctx context.Context, name string, subdomain string) (bool, error) {
-	exists, err := r.Queries.IsOrgExists(ctx, database.IsOrgExistsParams{
-		Name:      name,
-		Subdomain: subdomain,
-	})
-	if err != nil {
-		return false, err
-	}
-	return exists, nil
-}
-
-func (r *OrganizationRepository) IsOrganizationExistsByID(ctx context.Context, id uuid.UUID) (bool, error) {
-	exists, err := r.Queries.IsOrgExistsById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *OrganizationRepository) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	exists, err := r.Queries.IsOrgExists(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	if err != nil {
 		return false, err
 	}

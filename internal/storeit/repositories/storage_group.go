@@ -29,12 +29,15 @@ func toStorageGroup(group database.StorageSpace) (*models.StorageGroup, error) {
 		UnitID:   *unitID,
 		ParentID: *uuidFromPgx(group.ParentID),
 		Name:     group.Name,
-		Alias:    group.Alias.String,
+		Alias:    group.Alias,
 	}, nil
 }
 
-func (r *StorageGroupRepository) GetStorageGroupByID(ctx context.Context, id uuid.UUID) (*models.StorageGroup, error) {
-	group, err := r.Queries.GetStorageGroupById(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *StorageGroupRepository) GetStorageGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.StorageGroup, error) {
+	group, err := r.Queries.GetStorageGroup(ctx, database.GetStorageGroupParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +45,7 @@ func (r *StorageGroupRepository) GetStorageGroupByID(ctx context.Context, id uui
 }
 
 func (r *StorageGroupRepository) GetStorageGroups(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
-	groups, err := r.Queries.GetOrganizationStorageGroups(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	groups, err := r.Queries.GetActiveStorageGroups(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +72,7 @@ func (r *StorageGroupRepository) CreateStorageGroup(ctx context.Context, orgID u
 		UnitID:   pgtype.UUID{Bytes: unitID, Valid: true},
 		ParentID: parentIDPgx,
 		Name:     name,
-		Alias:    pgtype.Text{String: alias, Valid: true},
+		Alias:    alias,
 	})
 	if err != nil {
 		return nil, err
@@ -78,15 +81,18 @@ func (r *StorageGroupRepository) CreateStorageGroup(ctx context.Context, orgID u
 	return toStorageGroup(group)
 }
 
-func (r *StorageGroupRepository) DeleteStorageGroup(ctx context.Context, id uuid.UUID) error {
-	return r.Queries.DeleteStorageGroup(ctx, pgtype.UUID{Bytes: id, Valid: true})
+func (r *StorageGroupRepository) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
+	return r.Queries.DeleteStorageGroup(ctx, database.DeleteStorageGroupParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
 }
 
 func (r *StorageGroupRepository) UpdateStorageGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
 	updatedGroup, err := r.Queries.UpdateStorageGroup(ctx, database.UpdateStorageGroupParams{
 		ID:    pgtype.UUID{Bytes: group.ID, Valid: true},
 		Name:  group.Name,
-		Alias: pgtype.Text{String: group.Alias, Valid: true},
+		Alias: group.Alias,
 	})
 	if err != nil {
 		return nil, err
@@ -94,8 +100,8 @@ func (r *StorageGroupRepository) UpdateStorageGroup(ctx context.Context, group *
 	return toStorageGroup(updatedGroup)
 }
 
-func (r *StorageGroupRepository) IsStorageGroupExistsForOrganization(ctx context.Context, orgID uuid.UUID, groupID uuid.UUID) (bool, error) {
-	return r.Queries.IsStorageGroupExistsForOrganization(ctx, database.IsStorageGroupExistsForOrganizationParams{
+func (r *StorageGroupRepository) IsStorageGroupExists(ctx context.Context, orgID uuid.UUID, groupID uuid.UUID) (bool, error) {
+	return r.Queries.IsStorageGroupExists(ctx, database.IsStorageGroupExistsParams{
 		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
 		ID:    pgtype.UUID{Bytes: groupID, Valid: true},
 	})
