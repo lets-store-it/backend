@@ -148,13 +148,13 @@ func decodeDeleteOrganizationUnitParams(args [1]string, argsEscaped bool, r *htt
 	return params, nil
 }
 
-// DeleteStorageSpaceParams is parameters of deleteStorageSpace operation.
-type DeleteStorageSpaceParams struct {
+// DeleteStorageGroupParams is parameters of deleteStorageGroup operation.
+type DeleteStorageGroupParams struct {
 	// Storage Space ID.
 	ID uuid.UUID
 }
 
-func unpackDeleteStorageSpaceParams(packed middleware.Parameters) (params DeleteStorageSpaceParams) {
+func unpackDeleteStorageGroupParams(packed middleware.Parameters) (params DeleteStorageGroupParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -165,7 +165,7 @@ func unpackDeleteStorageSpaceParams(packed middleware.Parameters) (params Delete
 	return params
 }
 
-func decodeDeleteStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteStorageSpaceParams, _ error) {
+func decodeDeleteStorageGroupParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteStorageGroupParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -346,13 +346,13 @@ func decodeGetOrganizationUnitByIdParams(args [1]string, argsEscaped bool, r *ht
 	return params, nil
 }
 
-// GetStorageSpaceByIdParams is parameters of getStorageSpaceById operation.
-type GetStorageSpaceByIdParams struct {
+// GetStorageGroupByIdParams is parameters of getStorageGroupById operation.
+type GetStorageGroupByIdParams struct {
 	// Storage Space ID.
 	ID uuid.UUID
 }
 
-func unpackGetStorageSpaceByIdParams(packed middleware.Parameters) (params GetStorageSpaceByIdParams) {
+func unpackGetStorageGroupByIdParams(packed middleware.Parameters) (params GetStorageGroupByIdParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -363,7 +363,7 @@ func unpackGetStorageSpaceByIdParams(packed middleware.Parameters) (params GetSt
 	return params
 }
 
-func decodeGetStorageSpaceByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetStorageSpaceByIdParams, _ error) {
+func decodeGetStorageGroupByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetStorageGroupByIdParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -544,13 +544,13 @@ func decodePatchOrganizationUnitParams(args [1]string, argsEscaped bool, r *http
 	return params, nil
 }
 
-// PatchStorageSpaceParams is parameters of patchStorageSpace operation.
-type PatchStorageSpaceParams struct {
+// PatchStorageGroupParams is parameters of patchStorageGroup operation.
+type PatchStorageGroupParams struct {
 	// Storage Space ID.
 	ID uuid.UUID
 }
 
-func unpackPatchStorageSpaceParams(packed middleware.Parameters) (params PatchStorageSpaceParams) {
+func unpackPatchStorageGroupParams(packed middleware.Parameters) (params PatchStorageGroupParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -561,7 +561,7 @@ func unpackPatchStorageSpaceParams(packed middleware.Parameters) (params PatchSt
 	return params
 }
 
-func decodePatchStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchStorageSpaceParams, _ error) {
+func decodePatchStorageGroupParams(args [1]string, argsEscaped bool, r *http.Request) (params PatchStorageGroupParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -742,13 +742,13 @@ func decodeUpdateOrganizationUnitParams(args [1]string, argsEscaped bool, r *htt
 	return params, nil
 }
 
-// UpdateStorageSpaceParams is parameters of updateStorageSpace operation.
-type UpdateStorageSpaceParams struct {
+// UpdateStorageGroupParams is parameters of updateStorageGroup operation.
+type UpdateStorageGroupParams struct {
 	// Storage Space ID.
 	ID uuid.UUID
 }
 
-func unpackUpdateStorageSpaceParams(packed middleware.Parameters) (params UpdateStorageSpaceParams) {
+func unpackUpdateStorageGroupParams(packed middleware.Parameters) (params UpdateStorageGroupParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -759,7 +759,7 @@ func unpackUpdateStorageSpaceParams(packed middleware.Parameters) (params Update
 	return params
 }
 
-func decodeUpdateStorageSpaceParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateStorageSpaceParams, _ error) {
+func decodeUpdateStorageGroupParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateStorageGroupParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]

@@ -27,12 +27,12 @@ type Invoker interface {
 	//
 	// POST /orgs
 	CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
-	// CreateStorageSpace invokes createStorageSpace operation.
+	// CreateStorageGroup invokes createStorageGroup operation.
 	//
 	// Create Storage Space.
 	//
-	// POST /storage-spaces
-	CreateStorageSpace(ctx context.Context, request *CreateStorageSpaceRequest) (*CreateStorageSpaceResponse, error)
+	// POST /storage-groups
+	CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
 	// CreateUnit invokes createUnit operation.
 	//
 	// Create Organization Unit.
@@ -51,12 +51,12 @@ type Invoker interface {
 	//
 	// DELETE /units/{id}
 	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
-	// DeleteStorageSpace invokes deleteStorageSpace operation.
+	// DeleteStorageGroup invokes deleteStorageGroup operation.
 	//
 	// Delete Storage Space.
 	//
-	// DELETE /storage-spaces/{id}
-	DeleteStorageSpace(ctx context.Context, params DeleteStorageSpaceParams) error
+	// DELETE /storage-groups/{id}
+	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
 	// GetOrganizationById invokes getOrganizationById operation.
 	//
 	// Get Organization by ID.
@@ -81,18 +81,18 @@ type Invoker interface {
 	//
 	// GET /orgs
 	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
-	// GetStorageSpaceById invokes getStorageSpaceById operation.
+	// GetStorageGroupById invokes getStorageGroupById operation.
 	//
 	// Get Storage Space by ID.
 	//
-	// GET /storage-spaces/{id}
-	GetStorageSpaceById(ctx context.Context, params GetStorageSpaceByIdParams) (*GetStorageSpaceByIdResponse, error)
-	// GetStorageSpaces invokes getStorageSpaces operation.
+	// GET /storage-groups/{id}
+	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
+	// GetStorageGroups invokes getStorageGroups operation.
 	//
 	// Get list of Storage Spaces.
 	//
-	// GET /storage-spaces
-	GetStorageSpaces(ctx context.Context) (*GetStorageSpacesResponse, error)
+	// GET /storage-groups
+	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
 	// PatchOrganization invokes patchOrganization operation.
 	//
 	// Update Organization.
@@ -105,12 +105,12 @@ type Invoker interface {
 	//
 	// PATCH /units/{id}
 	PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
-	// PatchStorageSpace invokes patchStorageSpace operation.
+	// PatchStorageGroup invokes patchStorageGroup operation.
 	//
 	// Patch Storage Space.
 	//
-	// PATCH /storage-spaces/{id}
-	PatchStorageSpace(ctx context.Context, request *PatchStorageSpaceRequest, params PatchStorageSpaceParams) (*PatchStorageSpaceResponse, error)
+	// PATCH /storage-groups/{id}
+	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
 	// UpdateOrganization invokes updateOrganization operation.
 	//
 	// Update Organization.
@@ -123,12 +123,12 @@ type Invoker interface {
 	//
 	// PUT /units/{id}
 	UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
-	// UpdateStorageSpace invokes updateStorageSpace operation.
+	// UpdateStorageGroup invokes updateStorageGroup operation.
 	//
 	// Update Storage Space.
 	//
-	// PUT /storage-spaces/{id}
-	UpdateStorageSpace(ctx context.Context, request *UpdateStorageSpaceRequest, params UpdateStorageSpaceParams) (*UpdateStorageSpaceResponse, error)
+	// PUT /storage-groups/{id}
+	UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
 }
 
 // Client implements OAS client.
@@ -217,28 +217,28 @@ func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrga
 	return result, nil
 }
 
-// CreateStorageSpace invokes createStorageSpace operation.
+// CreateStorageGroup invokes createStorageGroup operation.
 //
 // Create Storage Space.
 //
-// POST /storage-spaces
-func (c *Client) CreateStorageSpace(ctx context.Context, request *CreateStorageSpaceRequest) (*CreateStorageSpaceResponse, error) {
-	res, err := c.sendCreateStorageSpace(ctx, request)
+// POST /storage-groups
+func (c *Client) CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error) {
+	res, err := c.sendCreateStorageGroup(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateStorageSpace(ctx context.Context, request *CreateStorageSpaceRequest) (res *CreateStorageSpaceResponse, err error) {
+func (c *Client) sendCreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (res *CreateStorageGroupResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/storage-spaces"
+	pathParts[0] = "/storage-groups"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeCreateStorageSpaceRequest(request, r); err != nil {
+	if err := encodeCreateStorageGroupRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -248,7 +248,7 @@ func (c *Client) sendCreateStorageSpace(ctx context.Context, request *CreateStor
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeCreateStorageSpaceResponse(resp)
+	result, err := decodeCreateStorageGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -403,21 +403,21 @@ func (c *Client) sendDeleteOrganizationUnit(ctx context.Context, params DeleteOr
 	return result, nil
 }
 
-// DeleteStorageSpace invokes deleteStorageSpace operation.
+// DeleteStorageGroup invokes deleteStorageGroup operation.
 //
 // Delete Storage Space.
 //
-// DELETE /storage-spaces/{id}
-func (c *Client) DeleteStorageSpace(ctx context.Context, params DeleteStorageSpaceParams) error {
-	_, err := c.sendDeleteStorageSpace(ctx, params)
+// DELETE /storage-groups/{id}
+func (c *Client) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
+	_, err := c.sendDeleteStorageGroup(ctx, params)
 	return err
 }
 
-func (c *Client) sendDeleteStorageSpace(ctx context.Context, params DeleteStorageSpaceParams) (res *DeleteStorageSpaceOK, err error) {
+func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (res *DeleteStorageGroupOK, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/storage-spaces/"
+	pathParts[0] = "/storage-groups/"
 	{
 		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -449,7 +449,7 @@ func (c *Client) sendDeleteStorageSpace(ctx context.Context, params DeleteStorag
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeDeleteStorageSpaceResponse(resp)
+	result, err := decodeDeleteStorageGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -637,21 +637,21 @@ func (c *Client) sendGetOrganizations(ctx context.Context) (res *GetOrganization
 	return result, nil
 }
 
-// GetStorageSpaceById invokes getStorageSpaceById operation.
+// GetStorageGroupById invokes getStorageGroupById operation.
 //
 // Get Storage Space by ID.
 //
-// GET /storage-spaces/{id}
-func (c *Client) GetStorageSpaceById(ctx context.Context, params GetStorageSpaceByIdParams) (*GetStorageSpaceByIdResponse, error) {
-	res, err := c.sendGetStorageSpaceById(ctx, params)
+// GET /storage-groups/{id}
+func (c *Client) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error) {
+	res, err := c.sendGetStorageGroupById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetStorageSpaceById(ctx context.Context, params GetStorageSpaceByIdParams) (res *GetStorageSpaceByIdResponse, err error) {
+func (c *Client) sendGetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (res *GetStorageGroupByIdResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/storage-spaces/"
+	pathParts[0] = "/storage-groups/"
 	{
 		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -683,7 +683,7 @@ func (c *Client) sendGetStorageSpaceById(ctx context.Context, params GetStorageS
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetStorageSpaceByIdResponse(resp)
+	result, err := decodeGetStorageGroupByIdResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -691,21 +691,21 @@ func (c *Client) sendGetStorageSpaceById(ctx context.Context, params GetStorageS
 	return result, nil
 }
 
-// GetStorageSpaces invokes getStorageSpaces operation.
+// GetStorageGroups invokes getStorageGroups operation.
 //
 // Get list of Storage Spaces.
 //
-// GET /storage-spaces
-func (c *Client) GetStorageSpaces(ctx context.Context) (*GetStorageSpacesResponse, error) {
-	res, err := c.sendGetStorageSpaces(ctx)
+// GET /storage-groups
+func (c *Client) GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error) {
+	res, err := c.sendGetStorageGroups(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetStorageSpaces(ctx context.Context) (res *GetStorageSpacesResponse, err error) {
+func (c *Client) sendGetStorageGroups(ctx context.Context) (res *GetStorageGroupsResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/storage-spaces"
+	pathParts[0] = "/storage-groups"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -719,7 +719,7 @@ func (c *Client) sendGetStorageSpaces(ctx context.Context) (res *GetStorageSpace
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetStorageSpacesResponse(resp)
+	result, err := decodeGetStorageGroupsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -841,21 +841,21 @@ func (c *Client) sendPatchOrganizationUnit(ctx context.Context, request *PatchOr
 	return result, nil
 }
 
-// PatchStorageSpace invokes patchStorageSpace operation.
+// PatchStorageGroup invokes patchStorageGroup operation.
 //
 // Patch Storage Space.
 //
-// PATCH /storage-spaces/{id}
-func (c *Client) PatchStorageSpace(ctx context.Context, request *PatchStorageSpaceRequest, params PatchStorageSpaceParams) (*PatchStorageSpaceResponse, error) {
-	res, err := c.sendPatchStorageSpace(ctx, request, params)
+// PATCH /storage-groups/{id}
+func (c *Client) PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error) {
+	res, err := c.sendPatchStorageGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchStorageSpace(ctx context.Context, request *PatchStorageSpaceRequest, params PatchStorageSpaceParams) (res *PatchStorageSpaceResponse, err error) {
+func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (res *PatchStorageGroupResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/storage-spaces/"
+	pathParts[0] = "/storage-groups/"
 	{
 		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -880,7 +880,7 @@ func (c *Client) sendPatchStorageSpace(ctx context.Context, request *PatchStorag
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodePatchStorageSpaceRequest(request, r); err != nil {
+	if err := encodePatchStorageGroupRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -890,7 +890,7 @@ func (c *Client) sendPatchStorageSpace(ctx context.Context, request *PatchStorag
 	}
 	defer resp.Body.Close()
 
-	result, err := decodePatchStorageSpaceResponse(resp)
+	result, err := decodePatchStorageGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1012,21 +1012,21 @@ func (c *Client) sendUpdateOrganizationUnit(ctx context.Context, request *Update
 	return result, nil
 }
 
-// UpdateStorageSpace invokes updateStorageSpace operation.
+// UpdateStorageGroup invokes updateStorageGroup operation.
 //
 // Update Storage Space.
 //
-// PUT /storage-spaces/{id}
-func (c *Client) UpdateStorageSpace(ctx context.Context, request *UpdateStorageSpaceRequest, params UpdateStorageSpaceParams) (*UpdateStorageSpaceResponse, error) {
-	res, err := c.sendUpdateStorageSpace(ctx, request, params)
+// PUT /storage-groups/{id}
+func (c *Client) UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error) {
+	res, err := c.sendUpdateStorageGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateStorageSpace(ctx context.Context, request *UpdateStorageSpaceRequest, params UpdateStorageSpaceParams) (res *UpdateStorageSpaceResponse, err error) {
+func (c *Client) sendUpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (res *UpdateStorageGroupResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/storage-spaces/"
+	pathParts[0] = "/storage-groups/"
 	{
 		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -1051,7 +1051,7 @@ func (c *Client) sendUpdateStorageSpace(ctx context.Context, request *UpdateStor
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeUpdateStorageSpaceRequest(request, r); err != nil {
+	if err := encodeUpdateStorageGroupRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -1061,7 +1061,7 @@ func (c *Client) sendUpdateStorageSpace(ctx context.Context, request *UpdateStor
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeUpdateStorageSpaceResponse(resp)
+	result, err := decodeUpdateStorageGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

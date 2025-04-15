@@ -238,7 +238,7 @@ paths:
                       spaces:
                         type: array
                         items:
-                          $ref: "#/components/schemas/StorageSpace"
+                          $ref: "#/components/schemas/StorageGroup"
         default:
           description: General Error
           content:
@@ -281,25 +281,25 @@ paths:
   #             schema:
   #               type: array
   #               items:
-  #                 $ref: "#/components/schemas/StorageSpace"
+  #                 $ref: "#/components/schemas/StorageGroup"
   #   post:
   #     tags:
   #       - storage_space
   #     summary: Create Storage Space
-  #     operationId: createStorageSpace
+  #     operationId: createStorageGroup
   #     requestBody:
   #       required: true
   #       content:
   #         application/json:
   #           schema:
-  #             $ref: "#/components/schemas/StorageSpace"
+  #             $ref: "#/components/schemas/StorageGroup"
   #     responses:
   #       "200":
   #         description: Successful operation
   #         content:
   #           application/json:
   #             schema:
-  #               $ref: "#/components/schemas/StorageSpace"
+  #               $ref: "#/components/schemas/StorageGroup"
   # /units/{unitId}/spaces/{spaceId}:
   #   parameters:
   #     - name: unitId
@@ -328,7 +328,7 @@ paths:
   #           application/json:
   #             schema:
   #               allOf:
-  #                 - $ref: "#/components/schemas/StorageSpace"
+  #                 - $ref: "#/components/schemas/StorageGroup"
   #                 - type: object
   #                   properties:
   #                     groups:
@@ -339,25 +339,25 @@ paths:
   #     tags:
   #       - storage_space
   #     summary: Update Storage Space
-  #     operationId: updateStorageSpace
+  #     operationId: updateStorageGroup
   #     requestBody:
   #       required: true
   #       content:
   #         application/json:
   #           schema:
-  #             $ref: "#/components/schemas/StorageSpace"
+  #             $ref: "#/components/schemas/StorageGroup"
   #     responses:
   #       "200":
   #         description: Successful operation
   #         content:
   #           application/json:
   #             schema:
-  #               $ref: "#/components/schemas/StorageSpace"
+  #               $ref: "#/components/schemas/StorageGroup"
   #   delete:
   #     tags:
   #       - storage_space
   #     summary: Delete Storage Space
-  #     operationId: deleteStorageSpace
+  #     operationId: deleteStorageGroup
   #     responses:
   #       "200":
   #         description: Successful operation
@@ -1157,7 +1157,7 @@ components:
           nullable: true
           maxLength: 200
           example: Amurskaya St. 3
-    StorageSpace:
+    StorageGroup:
       type: object
       allOf:
         - $ref: "#/components/schemas/AuditFields"

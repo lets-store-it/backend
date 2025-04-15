@@ -296,7 +296,7 @@ func (s *GetOrganizationsResponse) Validate() error {
 	return nil
 }
 
-func (s *GetStorageSpacesResponse) Validate() error {
+func (s *GetStorageGroupsResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -465,7 +465,7 @@ func (s *PatchOrganizationUnitResponse) Validate() error {
 	return nil
 }
 
-func (s *PatchStorageSpaceResponse) Validate() error {
+func (s *PatchStorageGroupResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -751,7 +751,7 @@ func (s *UpdateOrganizationUnitResponse) Validate() error {
 	return nil
 }
 
-func (s *UpdateStorageSpaceResponse) Validate() error {
+func (s *UpdateStorageGroupResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}

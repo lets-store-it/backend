@@ -279,19 +279,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /storage-spaces:
+  /storage-groups:
     get:
       tags:
-        - storage-space
+        - storage-group
       summary: Get list of Storage Spaces
-      operationId: getStorageSpaces
+      operationId: getStorageGroups
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetStorageSpacesResponse"
+                $ref: "#/components/schemas/GetStorageGroupsResponse"
         default:
           description: General Error
           content:
@@ -300,29 +300,29 @@ paths:
                 $ref: "#/components/schemas/Error"
     post:
       tags:
-        - storage-space
+        - storage-group
       summary: Create Storage Space
-      operationId: createStorageSpace
+      operationId: createStorageGroup
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateStorageSpaceRequest"
+              $ref: "#/components/schemas/CreateStorageGroupRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateStorageSpaceResponse"
+                $ref: "#/components/schemas/CreateStorageGroupResponse"
         default:
           description: General Error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /storage-spaces/{id}:
+  /storage-groups/{id}:
     parameters:
       - name: id
         in: path
@@ -333,16 +333,16 @@ paths:
           format: uuid
     get:
       tags:
-        - storage-space
+        - storage-group
       summary: Get Storage Space by ID
-      operationId: getStorageSpaceById
+      operationId: getStorageGroupById
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetStorageSpaceByIdResponse"
+                $ref: "#/components/schemas/GetStorageGroupByIdResponse"
         default:
           description: General Error
           content:
@@ -351,9 +351,9 @@ paths:
                 $ref: "#/components/schemas/Error"
     delete:
       tags:
-        - storage-space
+        - storage-group
       summary: Delete Storage Space
-      operationId: deleteStorageSpace
+      operationId: deleteStorageGroup
       responses:
         "200":
           description: Successful operation
@@ -365,22 +365,22 @@ paths:
                 $ref: "#/components/schemas/Error"
     patch:
       tags:
-        - storage-space
+        - storage-group
       summary: Patch Storage Space
-      operationId: patchStorageSpace
+      operationId: patchStorageGroup
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PatchStorageSpaceRequest"
+              $ref: "#/components/schemas/PatchStorageGroupRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PatchStorageSpaceResponse"
+                $ref: "#/components/schemas/PatchStorageGroupResponse"
         default:
           description: General Error
           content:
@@ -389,22 +389,22 @@ paths:
                 $ref: "#/components/schemas/Error"
     put:
       tags:
-        - storage-space
+        - storage-group
       summary: Update Storage Space
-      operationId: updateStorageSpace
+      operationId: updateStorageGroup
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateStorageSpaceRequest"
+              $ref: "#/components/schemas/UpdateStorageGroupRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UpdateStorageSpaceResponse"
+                $ref: "#/components/schemas/UpdateStorageGroupResponse"
         default:
           description: General Error
           content:
@@ -674,7 +674,7 @@ components:
           required:
             - data
     # Storage Space
-    StorageSpace:
+    StorageGroup:
       type: object
       properties:
         id:
@@ -701,21 +701,21 @@ components:
         - name
         - alias
         - unitId
-    CreateStorageSpaceRequest:
+    CreateStorageGroupRequest:
       type: object
       allOf:
-        - $ref: "#/components/schemas/StorageSpace"
-    CreateStorageSpaceResponse:
+        - $ref: "#/components/schemas/StorageGroup"
+    CreateStorageGroupResponse:
       type: object
       allOf:
         - type: object
           properties:
             data:
               type: object
-              $ref: "#/components/schemas/StorageSpace"
+              $ref: "#/components/schemas/StorageGroup"
           required:
             - data
-    GetStorageSpacesResponse:
+    GetStorageGroupsResponse:
       type: object
       allOf:
         - type: object
@@ -723,24 +723,24 @@ components:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/StorageSpace"
+                $ref: "#/components/schemas/StorageGroup"
           required:
             - data
-    GetStorageSpaceByIdResponse:
+    GetStorageGroupByIdResponse:
       type: object
       allOf:
         - type: object
           properties:
             data:
               type: object
-              $ref: "#/components/schemas/StorageSpace"
+              $ref: "#/components/schemas/StorageGroup"
           required:
             - data
-    UpdateStorageSpaceRequest:
+    UpdateStorageGroupRequest:
       type: object
       allOf:
-        - $ref: "#/components/schemas/StorageSpace"
-    UpdateStorageSpaceResponse:
+        - $ref: "#/components/schemas/StorageGroup"
+    UpdateStorageGroupResponse:
       type: object
       allOf:
         - type: object
@@ -748,10 +748,10 @@ components:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/StorageSpace"
+                $ref: "#/components/schemas/StorageGroup"
           required:
             - data
-    PatchStorageSpaceRequest:
+    PatchStorageGroupRequest:
       type: object
       properties:
         name:
@@ -769,7 +769,7 @@ components:
           type: string
           format: uuid
           example: def3df1a-7b8f-4552-b437-a1eab851403f
-    PatchStorageSpaceResponse:
+    PatchStorageGroupResponse:
       type: object
       allOf:
         - type: object
@@ -777,7 +777,7 @@ components:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/StorageSpace"
+                $ref: "#/components/schemas/StorageGroup"
           required:
             - data
 

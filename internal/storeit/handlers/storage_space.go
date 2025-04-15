@@ -7,33 +7,33 @@ import (
 	"github.com/let-store-it/backend/generated/api"
 )
 
-// CreateStorageSpace implements api.Handler.
-func (h *RestApiImplementation) CreateStorageSpace(ctx context.Context, req *api.CreateStorageSpaceRequest) (*api.CreateStorageSpaceResponse, error) {
+// CreateStorageGroup implements api.Handler.
+func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.CreateStorageGroupRequest) (*api.CreateStorageGroupResponse, error) {
 	panic("unimplemented")
 }
 
-// DeleteStorageSpace implements api.Handler.
-func (h *RestApiImplementation) DeleteStorageSpace(ctx context.Context, params api.DeleteStorageSpaceParams) error {
+// DeleteStorageGroup implements api.Handler.
+func (h *RestApiImplementation) DeleteStorageGroup(ctx context.Context, params api.DeleteStorageGroupParams) error {
 	panic("unimplemented")
 }
 
-// GetStorageSpaceById implements api.Handler.
-func (h *RestApiImplementation) GetStorageSpaceById(ctx context.Context, params api.GetStorageSpaceByIdParams) (*api.GetStorageSpaceByIdResponse, error) {
+// GetStorageGroupById implements api.Handler.
+func (h *RestApiImplementation) GetStorageGroupById(ctx context.Context, params api.GetStorageGroupByIdParams) (*api.GetStorageGroupByIdResponse, error) {
 	panic("unimplemented")
 }
 
-// GetStorageSpaces implements api.Handler.
-func (h *RestApiImplementation) GetStorageSpaces(ctx context.Context) (*api.GetStorageSpacesResponse, error) {
+// GetStorageGroups implements api.Handler.
+func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (*api.GetStorageGroupsResponse, error) {
 	panic("unimplemented")
 }
 
-// PatchStorageSpace implements api.Handler.
-func (h *RestApiImplementation) PatchStorageSpace(ctx context.Context, req *api.PatchStorageSpaceRequest, params api.PatchStorageSpaceParams) (*api.PatchStorageSpaceResponse, error) {
+// PatchStorageGroup implements api.Handler.
+func (h *RestApiImplementation) PatchStorageGroup(ctx context.Context, req *api.PatchStorageGroupRequest, params api.PatchStorageGroupParams) (*api.PatchStorageGroupResponse, error) {
 	panic("unimplemented")
 }
 
-// UpdateStorageSpace implements api.Handler.
-func (h *RestApiImplementation) UpdateStorageSpace(ctx context.Context, req *api.UpdateStorageSpaceRequest, params api.UpdateStorageSpaceParams) (*api.UpdateStorageSpaceResponse, error) {
+// UpdateStorageGroup implements api.Handler.
+func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api.UpdateStorageGroupRequest, params api.UpdateStorageGroupParams) (*api.UpdateStorageGroupResponse, error) {
 	panic("unimplemented")
 }
 

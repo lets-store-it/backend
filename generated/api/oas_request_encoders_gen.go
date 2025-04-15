@@ -25,8 +25,8 @@ func encodeCreateOrganizationRequest(
 	return nil
 }
 
-func encodeCreateStorageSpaceRequest(
-	req *CreateStorageSpaceRequest,
+func encodeCreateStorageGroupRequest(
+	req *CreateStorageGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -81,8 +81,8 @@ func encodePatchOrganizationUnitRequest(
 	return nil
 }
 
-func encodePatchStorageSpaceRequest(
-	req *PatchStorageSpaceRequest,
+func encodePatchStorageGroupRequest(
+	req *PatchStorageGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -123,8 +123,8 @@ func encodeUpdateOrganizationUnitRequest(
 	return nil
 }
 
-func encodeUpdateStorageSpaceRequest(
-	req *UpdateStorageSpaceRequest,
+func encodeUpdateStorageGroupRequest(
+	req *UpdateStorageGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

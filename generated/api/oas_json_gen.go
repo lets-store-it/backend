@@ -449,14 +449,14 @@ func (s *CreateOrganizationUnitResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *CreateStorageSpaceRequest) Encode(e *jx.Encoder) {
+func (s *CreateStorageGroupRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *CreateStorageSpaceRequest) encodeFields(e *jx.Encoder) {
+func (s *CreateStorageGroupRequest) encodeFields(e *jx.Encoder) {
 	{
 		if s.ID.Set {
 			e.FieldStart("id")
@@ -483,7 +483,7 @@ func (s *CreateStorageSpaceRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateStorageSpaceRequest = [5]string{
+var jsonFieldsNameOfCreateStorageGroupRequest = [5]string{
 	0: "id",
 	1: "parentId",
 	2: "name",
@@ -491,10 +491,10 @@ var jsonFieldsNameOfCreateStorageSpaceRequest = [5]string{
 	4: "unitId",
 }
 
-// Decode decodes CreateStorageSpaceRequest from json.
-func (s *CreateStorageSpaceRequest) Decode(d *jx.Decoder) error {
+// Decode decodes CreateStorageGroupRequest from json.
+func (s *CreateStorageGroupRequest) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CreateStorageSpaceRequest to nil")
+		return errors.New("invalid: unable to decode CreateStorageGroupRequest to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -561,7 +561,7 @@ func (s *CreateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CreateStorageSpaceRequest")
+		return errors.Wrap(err, "decode CreateStorageGroupRequest")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -578,8 +578,8 @@ func (s *CreateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfCreateStorageSpaceRequest) {
-					name = jsonFieldsNameOfCreateStorageSpaceRequest[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfCreateStorageGroupRequest) {
+					name = jsonFieldsNameOfCreateStorageGroupRequest[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -600,41 +600,41 @@ func (s *CreateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *CreateStorageSpaceRequest) MarshalJSON() ([]byte, error) {
+func (s *CreateStorageGroupRequest) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateStorageSpaceRequest) UnmarshalJSON(data []byte) error {
+func (s *CreateStorageGroupRequest) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *CreateStorageSpaceResponse) Encode(e *jx.Encoder) {
+func (s *CreateStorageGroupResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *CreateStorageSpaceResponse) encodeFields(e *jx.Encoder) {
+func (s *CreateStorageGroupResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
 		s.Data.Encode(e)
 	}
 }
 
-var jsonFieldsNameOfCreateStorageSpaceResponse = [1]string{
+var jsonFieldsNameOfCreateStorageGroupResponse = [1]string{
 	0: "data",
 }
 
-// Decode decodes CreateStorageSpaceResponse from json.
-func (s *CreateStorageSpaceResponse) Decode(d *jx.Decoder) error {
+// Decode decodes CreateStorageGroupResponse from json.
+func (s *CreateStorageGroupResponse) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CreateStorageSpaceResponse to nil")
+		return errors.New("invalid: unable to decode CreateStorageGroupResponse to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -655,7 +655,7 @@ func (s *CreateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CreateStorageSpaceResponse")
+		return errors.Wrap(err, "decode CreateStorageGroupResponse")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -672,8 +672,8 @@ func (s *CreateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfCreateStorageSpaceResponse) {
-					name = jsonFieldsNameOfCreateStorageSpaceResponse[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfCreateStorageGroupResponse) {
+					name = jsonFieldsNameOfCreateStorageGroupResponse[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -694,14 +694,14 @@ func (s *CreateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *CreateStorageSpaceResponse) MarshalJSON() ([]byte, error) {
+func (s *CreateStorageGroupResponse) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateStorageSpaceResponse) UnmarshalJSON(data []byte) error {
+func (s *CreateStorageGroupResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -1220,28 +1220,28 @@ func (s *GetOrganizationsResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *GetStorageSpaceByIdResponse) Encode(e *jx.Encoder) {
+func (s *GetStorageGroupByIdResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *GetStorageSpaceByIdResponse) encodeFields(e *jx.Encoder) {
+func (s *GetStorageGroupByIdResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
 		s.Data.Encode(e)
 	}
 }
 
-var jsonFieldsNameOfGetStorageSpaceByIdResponse = [1]string{
+var jsonFieldsNameOfGetStorageGroupByIdResponse = [1]string{
 	0: "data",
 }
 
-// Decode decodes GetStorageSpaceByIdResponse from json.
-func (s *GetStorageSpaceByIdResponse) Decode(d *jx.Decoder) error {
+// Decode decodes GetStorageGroupByIdResponse from json.
+func (s *GetStorageGroupByIdResponse) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode GetStorageSpaceByIdResponse to nil")
+		return errors.New("invalid: unable to decode GetStorageGroupByIdResponse to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -1262,7 +1262,7 @@ func (s *GetStorageSpaceByIdResponse) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode GetStorageSpaceByIdResponse")
+		return errors.Wrap(err, "decode GetStorageGroupByIdResponse")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -1279,8 +1279,8 @@ func (s *GetStorageSpaceByIdResponse) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfGetStorageSpaceByIdResponse) {
-					name = jsonFieldsNameOfGetStorageSpaceByIdResponse[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfGetStorageGroupByIdResponse) {
+					name = jsonFieldsNameOfGetStorageGroupByIdResponse[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1301,27 +1301,27 @@ func (s *GetStorageSpaceByIdResponse) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *GetStorageSpaceByIdResponse) MarshalJSON() ([]byte, error) {
+func (s *GetStorageGroupByIdResponse) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetStorageSpaceByIdResponse) UnmarshalJSON(data []byte) error {
+func (s *GetStorageGroupByIdResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *GetStorageSpacesResponse) Encode(e *jx.Encoder) {
+func (s *GetStorageGroupsResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *GetStorageSpacesResponse) encodeFields(e *jx.Encoder) {
+func (s *GetStorageGroupsResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
 		e.ArrStart()
@@ -1332,14 +1332,14 @@ func (s *GetStorageSpacesResponse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGetStorageSpacesResponse = [1]string{
+var jsonFieldsNameOfGetStorageGroupsResponse = [1]string{
 	0: "data",
 }
 
-// Decode decodes GetStorageSpacesResponse from json.
-func (s *GetStorageSpacesResponse) Decode(d *jx.Decoder) error {
+// Decode decodes GetStorageGroupsResponse from json.
+func (s *GetStorageGroupsResponse) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode GetStorageSpacesResponse to nil")
+		return errors.New("invalid: unable to decode GetStorageGroupsResponse to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -1348,9 +1348,9 @@ func (s *GetStorageSpacesResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]StorageSpace, 0)
+				s.Data = make([]StorageGroup, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem StorageSpace
+					var elem StorageGroup
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -1368,7 +1368,7 @@ func (s *GetStorageSpacesResponse) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode GetStorageSpacesResponse")
+		return errors.Wrap(err, "decode GetStorageGroupsResponse")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -1385,8 +1385,8 @@ func (s *GetStorageSpacesResponse) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfGetStorageSpacesResponse) {
-					name = jsonFieldsNameOfGetStorageSpacesResponse[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfGetStorageGroupsResponse) {
+					name = jsonFieldsNameOfGetStorageGroupsResponse[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1407,14 +1407,14 @@ func (s *GetStorageSpacesResponse) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *GetStorageSpacesResponse) MarshalJSON() ([]byte, error) {
+func (s *GetStorageGroupsResponse) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetStorageSpacesResponse) UnmarshalJSON(data []byte) error {
+func (s *GetStorageGroupsResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -2112,14 +2112,14 @@ func (s *PatchOrganizationUnitResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *PatchStorageSpaceRequest) Encode(e *jx.Encoder) {
+func (s *PatchStorageGroupRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *PatchStorageSpaceRequest) encodeFields(e *jx.Encoder) {
+func (s *PatchStorageGroupRequest) encodeFields(e *jx.Encoder) {
 	{
 		if s.Name.Set {
 			e.FieldStart("name")
@@ -2146,17 +2146,17 @@ func (s *PatchStorageSpaceRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPatchStorageSpaceRequest = [4]string{
+var jsonFieldsNameOfPatchStorageGroupRequest = [4]string{
 	0: "name",
 	1: "alias",
 	2: "unitId",
 	3: "parentId",
 }
 
-// Decode decodes PatchStorageSpaceRequest from json.
-func (s *PatchStorageSpaceRequest) Decode(d *jx.Decoder) error {
+// Decode decodes PatchStorageGroupRequest from json.
+func (s *PatchStorageGroupRequest) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode PatchStorageSpaceRequest to nil")
+		return errors.New("invalid: unable to decode PatchStorageGroupRequest to nil")
 	}
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
@@ -2206,34 +2206,34 @@ func (s *PatchStorageSpaceRequest) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode PatchStorageSpaceRequest")
+		return errors.Wrap(err, "decode PatchStorageGroupRequest")
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *PatchStorageSpaceRequest) MarshalJSON() ([]byte, error) {
+func (s *PatchStorageGroupRequest) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *PatchStorageSpaceRequest) UnmarshalJSON(data []byte) error {
+func (s *PatchStorageGroupRequest) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *PatchStorageSpaceResponse) Encode(e *jx.Encoder) {
+func (s *PatchStorageGroupResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *PatchStorageSpaceResponse) encodeFields(e *jx.Encoder) {
+func (s *PatchStorageGroupResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
 		e.ArrStart()
@@ -2244,14 +2244,14 @@ func (s *PatchStorageSpaceResponse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPatchStorageSpaceResponse = [1]string{
+var jsonFieldsNameOfPatchStorageGroupResponse = [1]string{
 	0: "data",
 }
 
-// Decode decodes PatchStorageSpaceResponse from json.
-func (s *PatchStorageSpaceResponse) Decode(d *jx.Decoder) error {
+// Decode decodes PatchStorageGroupResponse from json.
+func (s *PatchStorageGroupResponse) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode PatchStorageSpaceResponse to nil")
+		return errors.New("invalid: unable to decode PatchStorageGroupResponse to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -2260,9 +2260,9 @@ func (s *PatchStorageSpaceResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]StorageSpace, 0)
+				s.Data = make([]StorageGroup, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem StorageSpace
+					var elem StorageGroup
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -2280,7 +2280,7 @@ func (s *PatchStorageSpaceResponse) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode PatchStorageSpaceResponse")
+		return errors.Wrap(err, "decode PatchStorageGroupResponse")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -2297,8 +2297,8 @@ func (s *PatchStorageSpaceResponse) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfPatchStorageSpaceResponse) {
-					name = jsonFieldsNameOfPatchStorageSpaceResponse[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfPatchStorageGroupResponse) {
+					name = jsonFieldsNameOfPatchStorageGroupResponse[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -2319,27 +2319,27 @@ func (s *PatchStorageSpaceResponse) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *PatchStorageSpaceResponse) MarshalJSON() ([]byte, error) {
+func (s *PatchStorageGroupResponse) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *PatchStorageSpaceResponse) UnmarshalJSON(data []byte) error {
+func (s *PatchStorageGroupResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *StorageSpace) Encode(e *jx.Encoder) {
+func (s *StorageGroup) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *StorageSpace) encodeFields(e *jx.Encoder) {
+func (s *StorageGroup) encodeFields(e *jx.Encoder) {
 	{
 		if s.ID.Set {
 			e.FieldStart("id")
@@ -2366,7 +2366,7 @@ func (s *StorageSpace) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfStorageSpace = [5]string{
+var jsonFieldsNameOfStorageGroup = [5]string{
 	0: "id",
 	1: "parentId",
 	2: "name",
@@ -2374,10 +2374,10 @@ var jsonFieldsNameOfStorageSpace = [5]string{
 	4: "unitId",
 }
 
-// Decode decodes StorageSpace from json.
-func (s *StorageSpace) Decode(d *jx.Decoder) error {
+// Decode decodes StorageGroup from json.
+func (s *StorageGroup) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode StorageSpace to nil")
+		return errors.New("invalid: unable to decode StorageGroup to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -2444,7 +2444,7 @@ func (s *StorageSpace) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode StorageSpace")
+		return errors.Wrap(err, "decode StorageGroup")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -2461,8 +2461,8 @@ func (s *StorageSpace) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfStorageSpace) {
-					name = jsonFieldsNameOfStorageSpace[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfStorageGroup) {
+					name = jsonFieldsNameOfStorageGroup[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -2483,14 +2483,14 @@ func (s *StorageSpace) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *StorageSpace) MarshalJSON() ([]byte, error) {
+func (s *StorageGroup) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *StorageSpace) UnmarshalJSON(data []byte) error {
+func (s *StorageGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -3132,14 +3132,14 @@ func (s *UpdateOrganizationUnitResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *UpdateStorageSpaceRequest) Encode(e *jx.Encoder) {
+func (s *UpdateStorageGroupRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *UpdateStorageSpaceRequest) encodeFields(e *jx.Encoder) {
+func (s *UpdateStorageGroupRequest) encodeFields(e *jx.Encoder) {
 	{
 		if s.ID.Set {
 			e.FieldStart("id")
@@ -3166,7 +3166,7 @@ func (s *UpdateStorageSpaceRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateStorageSpaceRequest = [5]string{
+var jsonFieldsNameOfUpdateStorageGroupRequest = [5]string{
 	0: "id",
 	1: "parentId",
 	2: "name",
@@ -3174,10 +3174,10 @@ var jsonFieldsNameOfUpdateStorageSpaceRequest = [5]string{
 	4: "unitId",
 }
 
-// Decode decodes UpdateStorageSpaceRequest from json.
-func (s *UpdateStorageSpaceRequest) Decode(d *jx.Decoder) error {
+// Decode decodes UpdateStorageGroupRequest from json.
+func (s *UpdateStorageGroupRequest) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode UpdateStorageSpaceRequest to nil")
+		return errors.New("invalid: unable to decode UpdateStorageGroupRequest to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -3244,7 +3244,7 @@ func (s *UpdateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode UpdateStorageSpaceRequest")
+		return errors.Wrap(err, "decode UpdateStorageGroupRequest")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -3261,8 +3261,8 @@ func (s *UpdateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfUpdateStorageSpaceRequest) {
-					name = jsonFieldsNameOfUpdateStorageSpaceRequest[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfUpdateStorageGroupRequest) {
+					name = jsonFieldsNameOfUpdateStorageGroupRequest[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -3283,27 +3283,27 @@ func (s *UpdateStorageSpaceRequest) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateStorageSpaceRequest) MarshalJSON() ([]byte, error) {
+func (s *UpdateStorageGroupRequest) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateStorageSpaceRequest) UnmarshalJSON(data []byte) error {
+func (s *UpdateStorageGroupRequest) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *UpdateStorageSpaceResponse) Encode(e *jx.Encoder) {
+func (s *UpdateStorageGroupResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *UpdateStorageSpaceResponse) encodeFields(e *jx.Encoder) {
+func (s *UpdateStorageGroupResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
 		e.ArrStart()
@@ -3314,14 +3314,14 @@ func (s *UpdateStorageSpaceResponse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateStorageSpaceResponse = [1]string{
+var jsonFieldsNameOfUpdateStorageGroupResponse = [1]string{
 	0: "data",
 }
 
-// Decode decodes UpdateStorageSpaceResponse from json.
-func (s *UpdateStorageSpaceResponse) Decode(d *jx.Decoder) error {
+// Decode decodes UpdateStorageGroupResponse from json.
+func (s *UpdateStorageGroupResponse) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode UpdateStorageSpaceResponse to nil")
+		return errors.New("invalid: unable to decode UpdateStorageGroupResponse to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -3330,9 +3330,9 @@ func (s *UpdateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]StorageSpace, 0)
+				s.Data = make([]StorageGroup, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem StorageSpace
+					var elem StorageGroup
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -3350,7 +3350,7 @@ func (s *UpdateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode UpdateStorageSpaceResponse")
+		return errors.Wrap(err, "decode UpdateStorageGroupResponse")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -3367,8 +3367,8 @@ func (s *UpdateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfUpdateStorageSpaceResponse) {
-					name = jsonFieldsNameOfUpdateStorageSpaceResponse[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfUpdateStorageGroupResponse) {
+					name = jsonFieldsNameOfUpdateStorageGroupResponse[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -3389,14 +3389,14 @@ func (s *UpdateStorageSpaceResponse) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateStorageSpaceResponse) MarshalJSON() ([]byte, error) {
+func (s *UpdateStorageGroupResponse) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateStorageSpaceResponse) UnmarshalJSON(data []byte) error {
+func (s *UpdateStorageGroupResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

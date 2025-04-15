@@ -27,11 +27,11 @@ type OrganizationUnit struct {
 }
 
 type StorageGroup struct {
-	ID         uuid.UUID
-	UnitID     uuid.UUID
-	ParentID   uuid.UUID
-	Name       string
-	ShortAlias string
+	ID       uuid.UUID
+	UnitID   uuid.UUID
+	ParentID uuid.UUID
+	Name     string
+	Alias    string
 
 	CreatedAt time.Time
 	DeletedAt *time.Time

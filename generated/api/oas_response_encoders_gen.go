@@ -24,7 +24,7 @@ func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w ht
 	return nil
 }
 
-func encodeCreateStorageSpaceResponse(response *CreateStorageSpaceResponse, w http.ResponseWriter) error {
+func encodeCreateStorageGroupResponse(response *CreateStorageGroupResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -62,7 +62,7 @@ func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w 
 	return nil
 }
 
-func encodeDeleteStorageSpaceResponse(response *DeleteStorageSpaceOK, w http.ResponseWriter) error {
+func encodeDeleteStorageGroupResponse(response *DeleteStorageGroupOK, w http.ResponseWriter) error {
 	w.WriteHeader(200)
 
 	return nil
@@ -120,7 +120,7 @@ func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.R
 	return nil
 }
 
-func encodeGetStorageSpaceByIdResponse(response *GetStorageSpaceByIdResponse, w http.ResponseWriter) error {
+func encodeGetStorageGroupByIdResponse(response *GetStorageGroupByIdResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -133,7 +133,7 @@ func encodeGetStorageSpaceByIdResponse(response *GetStorageSpaceByIdResponse, w 
 	return nil
 }
 
-func encodeGetStorageSpacesResponse(response *GetStorageSpacesResponse, w http.ResponseWriter) error {
+func encodeGetStorageGroupsResponse(response *GetStorageGroupsResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -172,7 +172,7 @@ func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse
 	return nil
 }
 
-func encodePatchStorageSpaceResponse(response *PatchStorageSpaceResponse, w http.ResponseWriter) error {
+func encodePatchStorageGroupResponse(response *PatchStorageGroupResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
@@ -211,7 +211,7 @@ func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitRespon
 	return nil
 }
 
-func encodeUpdateStorageSpaceResponse(response *UpdateStorageSpaceResponse, w http.ResponseWriter) error {
+func encodeUpdateStorageGroupResponse(response *UpdateStorageGroupResponse, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 
