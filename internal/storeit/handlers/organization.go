@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/evevseev/storeit/backend/generated/api"
-	"github.com/evevseev/storeit/backend/models"
+	"github.com/evevseev/storeit/backend/internal/storeit/models"
 )
 
 func convertToModel(org *api.Organization) *models.Organization {

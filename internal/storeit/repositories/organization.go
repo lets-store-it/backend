@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/evevseev/storeit/backend/generated/database"
-	"github.com/evevseev/storeit/backend/models"
+	"github.com/evevseev/storeit/backend/internal/storeit/models"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
