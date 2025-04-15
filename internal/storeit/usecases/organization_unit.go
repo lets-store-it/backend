@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/evevseev/storeit/backend/models"
-	"github.com/evevseev/storeit/backend/services"
+	"github.com/evevseev/storeit/backend/internal/storeit/models"
+	"github.com/evevseev/storeit/backend/internal/storeit/services"
 	"github.com/google/uuid"
 )
 
