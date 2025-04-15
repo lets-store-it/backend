@@ -11,6 +11,9 @@ servers:
   #     orgName:
   #       default: demo
   #       description: Organization name
+
+security: []
+
 tags:
   - name: org
   - name: unit
@@ -411,6 +414,129 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  # Custom Field
+  /custom-fields:
+    get:
+      tags:
+        - custom-field
+      summary: Get list of Custom Fields
+      operationId: getCustomFields
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCustomFieldsResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - custom-field
+      summary: Create Custom Field
+      operationId: createCustomField
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomFieldRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCustomFieldResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /custom-fields/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Custom Field ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - custom-field
+      summary: Get Custom Field by ID
+      operationId: getCustomFieldById
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCustomFieldByIdResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - custom-field
+      summary: Delete Custom Field
+      operationId: deleteCustomField
+      responses:
+        "200":
+          description: Successful operation
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - custom-field
+      summary: Patch Custom Field
+      operationId: patchCustomField
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchCustomFieldRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatchCustomFieldResponse"
+        default:
+          description: General Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags:
+        - custom-field
+      summary: Update Custom Field
+      operationId: updateCustomField
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCustomFieldRequest"
+      responses:
+        "200":
+          description: Successful operation
 
 components:
   # parameters:
@@ -594,8 +720,7 @@ components:
           example: MWS
           pattern: "^[A-Z-]+$"
         address:
-          type: string
-          nullable: true
+          type: [string, "null"]
           maxLength: 200
           example: Amurskaya St. 3
       required:
@@ -683,9 +808,8 @@ components:
           readOnly: true
           example: def3df1a-7b8f-4552-b437-a1eab851403f
         parentId:
-          type: string
+          type: [string, "null"]
           format: uuid
-          nullable: true
           example: def3df1a-7b8f-4552-b437-a1eab851403f
         name:
           type: string
@@ -694,7 +818,7 @@ components:
           type: string
           example: MW
         unitId:
-          type: string
+          type: [string, "null"]
           format: uuid
           example: def3df1a-7b8f-4552-b437-a1eab851403f
       required:
@@ -761,9 +885,8 @@ components:
           type: string
           example: MW
         unitId:
-          type: string
+          type: [string, "null"]
           format: uuid
-          nullable: true
           example: def3df1a-7b8f-4552-b437-a1eab851403f
         parentId:
           type: string
@@ -780,34 +903,138 @@ components:
                 $ref: "#/components/schemas/StorageGroup"
           required:
             - data
-
-    # PaginationMetadata:
-    #   type: object
-    #   properties:
-    #     offset:
-    #       type: integer
-    #       format: int32
-    #       example: 0
-    #     limit:
-    #       type: integer
-    #       format: int32
-    #       example: 20
-    #     total:
-    #       type: integer
-    #       format: int32
-    #       example: 50
-    #   required:
-    #     - offset
-    #     - limit
-    #     - total
-    # PagedResponse:
-    #   type: object
-    #   properties:
-    #     items:
-    #       type: array
-    #       items:
-    #         type: object
-    #     metadata:
-    #       $ref: "#/components/schemas/PaginationMetadata"
-    #   required:
-    #     - metadata
+    # custom field
+    CustomField:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
+        name:
+          type: string
+          example: Name
+        label:
+          type: [string, "null"]
+          example: Name
+        description:
+          type: string
+          example: Description
+        groupName:
+          type: string
+          example: Group
+        type:
+          type: string
+          example: string
+          enum:
+            - string
+            - number
+            - decimal
+            - boolean
+        objectTypes:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: def3df1a-7b8f-4552-b437-a1eab851403f
+      required:
+        - name
+        - label
+        - type
+        - objectTypes
+    CreateCustomFieldRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CustomField"
+    CreateCustomFieldResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/CustomField"
+          required:
+            - data
+    GetCustomFieldsResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/CustomField"
+          required:
+            - data
+    GetCustomFieldByIdResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/CustomField"
+          required:
+            - data
+    PatchCustomFieldRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Name
+        label:
+          type: string
+          example: Name
+        groupName:
+          type: string
+          example: group
+        objectTypes:
+          type: array
+          items:
+            type: string
+            format: uuid
+    PatchCustomFieldResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/CustomField"
+          required:
+            - data
+    UpdateCustomFieldRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Name
+        label:
+          type: string
+          example: Name
+        groupName:
+          type: string
+          example: group
+        objectTypes:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - name
+        - label
+        - type
+        - objectTypes
+        - groupName
+    UpdateCustomFieldResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: "#/components/schemas/CustomField"
+          required:
+            - data
