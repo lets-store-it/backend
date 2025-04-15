@@ -752,7 +752,7 @@ type PatchStorageGroupRequest struct {
 	Name     OptString  `json:"name"`
 	Alias    OptString  `json:"alias"`
 	UnitId   OptNilUUID `json:"unitId"`
-	ParentId OptUUID    `json:"parentId"`
+	ParentId OptNilUUID `json:"parentId"`
 }
 
 // GetName returns the value of Name.
@@ -771,7 +771,7 @@ func (s *PatchStorageGroupRequest) GetUnitId() OptNilUUID {
 }
 
 // GetParentId returns the value of ParentId.
-func (s *PatchStorageGroupRequest) GetParentId() OptUUID {
+func (s *PatchStorageGroupRequest) GetParentId() OptNilUUID {
 	return s.ParentId
 }
 
@@ -791,7 +791,7 @@ func (s *PatchStorageGroupRequest) SetUnitId(val OptNilUUID) {
 }
 
 // SetParentId sets the value of ParentId.
-func (s *PatchStorageGroupRequest) SetParentId(val OptUUID) {
+func (s *PatchStorageGroupRequest) SetParentId(val OptNilUUID) {
 	s.ParentId = val
 }
 
