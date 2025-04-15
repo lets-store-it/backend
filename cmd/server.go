@@ -49,8 +49,15 @@ func main() {
 	orgUnitService := services.NewOrganizationUnitService(orgUnitRepo)
 	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgUnitService, orgService)
 
+	// Initialize storage group layers
+	storageGroupRepo := &repositories.StorageGroupRepository{
+		Queries: queries,
+	}
+	storageGroupService := services.NewStorageGroupService(storageGroupRepo)
+	storageGroupUseCase := usecases.NewStorageGroupUseCase(storageGroupService, orgService)
+
 	// Initialize handlers
-	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase)
+	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase)
 
 	server, err := api.NewServer(handler)
 	if err != nil {

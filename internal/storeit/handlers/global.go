@@ -5,13 +5,19 @@ import (
 )
 
 type RestApiImplementation struct {
-	orgUseCase     *usecases.OrganizationUseCase
-	orgUnitUseCase *usecases.OrganizationUnitUseCase
+	orgUseCase          *usecases.OrganizationUseCase
+	orgUnitUseCase      *usecases.OrganizationUnitUseCase
+	storageGroupUseCase *usecases.StorageGroupUseCase
 }
 
-func NewRestApiImplementation(orgUseCase *usecases.OrganizationUseCase, orgUnitUseCase *usecases.OrganizationUnitUseCase) *RestApiImplementation {
+func NewRestApiImplementation(
+	orgUseCase *usecases.OrganizationUseCase,
+	orgUnitUseCase *usecases.OrganizationUnitUseCase,
+	storageGroupUseCase *usecases.StorageGroupUseCase,
+) *RestApiImplementation {
 	return &RestApiImplementation{
-		orgUseCase:     orgUseCase,
-		orgUnitUseCase: orgUnitUseCase,
+		orgUseCase:          orgUseCase,
+		orgUnitUseCase:      orgUnitUseCase,
+		storageGroupUseCase: storageGroupUseCase,
 	}
 }
