@@ -5,6 +5,6 @@ allOf:
       data:
         type: array
         items:
-          $ref: ./StorageGroup.yaml
+          $ref: ./models/StorageGroup.yaml
     required:
       - data

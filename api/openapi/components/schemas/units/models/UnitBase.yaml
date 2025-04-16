@@ -1,10 +1,5 @@
 type: object
 properties:
-  id:
-    type: string
-    format: uuid
-    readOnly: true
-    example: def3df1a-7b8f-4552-b437-a1eab851403f
   name:
     type: string
     minLength: 1
@@ -16,11 +11,6 @@ properties:
     maxLength: 100
     example: MWS
     pattern: ^[A-Z-]+$
-  address:
-    type: string
-    nullable: true
-    maxLength: 200
-    example: Amurskaya St. 3
 required:
   - name
   - alias

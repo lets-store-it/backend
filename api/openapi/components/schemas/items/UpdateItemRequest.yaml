@@ -7,3 +7,5 @@ allOf:
         type: array
         items:
           $ref: ./ItemVariantEdit.yaml
+    required:
+      - variants

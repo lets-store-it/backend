@@ -1,0 +1,13 @@
+allOf:
+  - $ref: ./ItemBase.yaml
+  - type: object
+    properties:
+      variants:
+        type: array
+        items:
+          $ref: ./ItemVariantCreate.yaml
+    uniqueItems: true
+    minItems: 1
+
+required:
+  - variants

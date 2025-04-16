@@ -4,4 +4,6 @@ allOf:
     properties:
       data:
         type: object
-        $ref: ./Unit.yaml
+        $ref: ./models/Unit.yaml
+    required:
+      - data

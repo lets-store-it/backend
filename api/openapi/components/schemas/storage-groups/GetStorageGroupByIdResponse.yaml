@@ -4,6 +4,6 @@ allOf:
     properties:
       data:
         type: object
-        $ref: ./StorageGroup.yaml
+        $ref: ./models/StorageGroup.yaml
     required:
       - data

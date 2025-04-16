@@ -9,7 +9,7 @@ parameters:
 get:
   tags:
     - unit
-  summary: Get Unit by ID with Spaces
+  summary: Get Unit by ID
   operationId: getOrganizationUnitById
   responses:
     "200":
