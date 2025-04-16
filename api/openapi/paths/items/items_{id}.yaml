@@ -1,0 +1,73 @@
+parameters:
+  - name: id
+    in: path
+    description: Item ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - item
+  summary: Get Item by ID
+  operationId: getItemById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/GetItemByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+
+delete:
+  tags:
+    - item
+  summary: Delete Item
+  operationId: deleteItem
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - item
+  summary: Patch Item
+  operationId: patchItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/items/PatchItemRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/PatchItemResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - item
+  summary: Update Item
+  operationId: updateItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/items/UpdateItemRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/UpdateItemResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

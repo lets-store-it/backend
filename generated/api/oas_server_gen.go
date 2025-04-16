@@ -152,10 +152,10 @@ type Handler interface {
 	//
 	// PUT /storage-groups/{id}
 	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
-	// NewError creates *ErrorStatusCode from error returned by handler.
+	// NewError creates *DefaultErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
-	NewError(ctx context.Context, err error) *ErrorStatusCode
+	NewError(ctx context.Context, err error) *DefaultErrorStatusCode
 }
 
 // Server implements http server based on OpenAPI v3 specification and

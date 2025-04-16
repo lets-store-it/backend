@@ -92,7 +92,7 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 		response, err = s.h.CreateItem(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -184,7 +184,7 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 		response, err = s.h.CreateOrganization(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -276,7 +276,7 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 		response, err = s.h.CreateStorageGroup(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -368,7 +368,7 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 		response, err = s.h.CreateUnit(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -460,7 +460,7 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 		err = s.h.DeleteItem(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -552,7 +552,7 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 		err = s.h.DeleteOrganization(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -644,7 +644,7 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 		err = s.h.DeleteOrganizationUnit(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -736,7 +736,7 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 		err = s.h.DeleteStorageGroup(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -828,7 +828,7 @@ func (s *Server) handleGetItemByIdRequest(args [1]string, argsEscaped bool, w ht
 		response, err = s.h.GetItemById(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -901,7 +901,7 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 		response, err = s.h.GetItems(ctx)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -993,7 +993,7 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 		response, err = s.h.GetOrganizationById(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1085,7 +1085,7 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 		response, err = s.h.GetOrganizationUnitById(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1158,7 +1158,7 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 		response, err = s.h.GetOrganizationUnits(ctx)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1231,7 +1231,7 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 		response, err = s.h.GetOrganizations(ctx)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1323,7 +1323,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 		response, err = s.h.GetStorageGroupById(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1396,7 +1396,7 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 		response, err = s.h.GetStorageGroups(ctx)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1503,7 +1503,7 @@ func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http
 		response, err = s.h.PatchItem(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1610,7 +1610,7 @@ func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool
 		response, err = s.h.PatchOrganization(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1717,7 +1717,7 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 		response, err = s.h.PatchOrganizationUnit(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1824,7 +1824,7 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 		response, err = s.h.PatchStorageGroup(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -1931,7 +1931,7 @@ func (s *Server) handleUpdateItemRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.UpdateItem(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -2038,7 +2038,7 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 		response, err = s.h.UpdateOrganization(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -2145,7 +2145,7 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 		response, err = s.h.UpdateOrganizationUnit(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}
@@ -2252,7 +2252,7 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 		response, err = s.h.UpdateStorageGroup(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
 			if err := encodeErrorResponse(errRes, w); err != nil {
 				defer recordError("Internal", err)
 			}

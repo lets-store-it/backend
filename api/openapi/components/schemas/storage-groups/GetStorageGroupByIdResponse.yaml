@@ -1,0 +1,9 @@
+type: object
+allOf:
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: ./StorageGroup.yaml
+    required:
+      - data

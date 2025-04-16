@@ -1,0 +1,34 @@
+get:
+  tags:
+    - org
+  summary: Get list of Organizations
+  operationId: getOrganizations
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/orgs/GetOrganizationsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - org
+  summary: Create Organization
+  operationId: createOrganization
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/orgs/CreateOrganizationRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/orgs/CreateOrganizationResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

@@ -1,0 +1,9 @@
+type: object
+allOf:
+  - $ref: ./Item.yaml
+  - type: object
+    properties:
+      variants:
+        type: array
+        items:
+          $ref: ./ItemVariantEditable.yaml

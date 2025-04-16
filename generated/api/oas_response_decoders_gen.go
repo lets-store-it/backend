@@ -62,7 +62,7 @@ func decodeCreateItemResponse(resp *http.Response) (res *CreateItemResponse, _ e
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -92,7 +92,7 @@ func decodeCreateItemResponse(resp *http.Response) (res *CreateItemResponse, _ e
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -154,7 +154,7 @@ func decodeCreateOrganizationResponse(resp *http.Response) (res *CreateOrganizat
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -184,7 +184,7 @@ func decodeCreateOrganizationResponse(resp *http.Response) (res *CreateOrganizat
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -237,7 +237,7 @@ func decodeCreateStorageGroupResponse(resp *http.Response) (res *CreateStorageGr
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -267,7 +267,7 @@ func decodeCreateStorageGroupResponse(resp *http.Response) (res *CreateStorageGr
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -329,7 +329,7 @@ func decodeCreateUnitResponse(resp *http.Response) (res *CreateOrganizationUnitR
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -359,7 +359,7 @@ func decodeCreateUnitResponse(resp *http.Response) (res *CreateOrganizationUnitR
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -380,7 +380,7 @@ func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemOK, _ error) 
 		return &DeleteItemOK{}, nil
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -410,7 +410,7 @@ func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemOK, _ error) 
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -431,7 +431,7 @@ func decodeDeleteOrganizationResponse(resp *http.Response) (res *DeleteOrganizat
 		return &DeleteOrganizationOK{}, nil
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -461,7 +461,7 @@ func decodeDeleteOrganizationResponse(resp *http.Response) (res *DeleteOrganizat
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -482,7 +482,7 @@ func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res *DeleteOrgan
 		return &DeleteOrganizationUnitOK{}, nil
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -512,7 +512,7 @@ func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res *DeleteOrgan
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -533,7 +533,7 @@ func decodeDeleteStorageGroupResponse(resp *http.Response) (res *DeleteStorageGr
 		return &DeleteStorageGroupOK{}, nil
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -563,7 +563,7 @@ func decodeDeleteStorageGroupResponse(resp *http.Response) (res *DeleteStorageGr
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -625,7 +625,7 @@ func decodeGetItemByIdResponse(resp *http.Response) (res *GetItemByIdResponse, _
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -655,7 +655,7 @@ func decodeGetItemByIdResponse(resp *http.Response) (res *GetItemByIdResponse, _
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -717,7 +717,7 @@ func decodeGetItemsResponse(resp *http.Response) (res *GetItemsResponse, _ error
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -747,7 +747,7 @@ func decodeGetItemsResponse(resp *http.Response) (res *GetItemsResponse, _ error
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -809,7 +809,7 @@ func decodeGetOrganizationByIdResponse(resp *http.Response) (res *GetOrganizatio
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -839,7 +839,7 @@ func decodeGetOrganizationByIdResponse(resp *http.Response) (res *GetOrganizatio
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -901,7 +901,7 @@ func decodeGetOrganizationUnitByIdResponse(resp *http.Response) (res *GetOrganiz
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -931,7 +931,7 @@ func decodeGetOrganizationUnitByIdResponse(resp *http.Response) (res *GetOrganiz
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -993,7 +993,7 @@ func decodeGetOrganizationUnitsResponse(resp *http.Response) (res *GetOrganizati
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1023,7 +1023,7 @@ func decodeGetOrganizationUnitsResponse(resp *http.Response) (res *GetOrganizati
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1085,7 +1085,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *GetOrganizationsR
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1115,7 +1115,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *GetOrganizationsR
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1168,7 +1168,7 @@ func decodeGetStorageGroupByIdResponse(resp *http.Response) (res *GetStorageGrou
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1198,7 +1198,7 @@ func decodeGetStorageGroupByIdResponse(resp *http.Response) (res *GetStorageGrou
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1260,7 +1260,7 @@ func decodeGetStorageGroupsResponse(resp *http.Response) (res *GetStorageGroupsR
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1290,7 +1290,7 @@ func decodeGetStorageGroupsResponse(resp *http.Response) (res *GetStorageGroupsR
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1352,7 +1352,7 @@ func decodePatchItemResponse(resp *http.Response) (res *PatchItemResponse, _ err
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1382,7 +1382,7 @@ func decodePatchItemResponse(resp *http.Response) (res *PatchItemResponse, _ err
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1444,7 +1444,7 @@ func decodePatchOrganizationResponse(resp *http.Response) (res *PatchOrganizatio
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1474,7 +1474,7 @@ func decodePatchOrganizationResponse(resp *http.Response) (res *PatchOrganizatio
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1536,7 +1536,7 @@ func decodePatchOrganizationUnitResponse(resp *http.Response) (res *PatchOrganiz
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1566,7 +1566,7 @@ func decodePatchOrganizationUnitResponse(resp *http.Response) (res *PatchOrganiz
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1628,7 +1628,7 @@ func decodePatchStorageGroupResponse(resp *http.Response) (res *PatchStorageGrou
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1658,7 +1658,7 @@ func decodePatchStorageGroupResponse(resp *http.Response) (res *PatchStorageGrou
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1720,7 +1720,7 @@ func decodeUpdateItemResponse(resp *http.Response) (res *UpdateItemResponse, _ e
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1750,7 +1750,7 @@ func decodeUpdateItemResponse(resp *http.Response) (res *UpdateItemResponse, _ e
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1812,7 +1812,7 @@ func decodeUpdateOrganizationResponse(resp *http.Response) (res *UpdateOrganizat
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1842,7 +1842,7 @@ func decodeUpdateOrganizationResponse(resp *http.Response) (res *UpdateOrganizat
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1904,7 +1904,7 @@ func decodeUpdateOrganizationUnitResponse(resp *http.Response) (res *UpdateOrgan
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -1934,7 +1934,7 @@ func decodeUpdateOrganizationUnitResponse(resp *http.Response) (res *UpdateOrgan
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil
@@ -1996,7 +1996,7 @@ func decodeUpdateStorageGroupResponse(resp *http.Response) (res *UpdateStorageGr
 		}
 	}
 	// Convenient error response.
-	defRes, err := func() (res *ErrorStatusCode, err error) {
+	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 		if err != nil {
 			return res, errors.Wrap(err, "parse media type")
@@ -2026,7 +2026,7 @@ func decodeUpdateStorageGroupResponse(resp *http.Response) (res *UpdateStorageGr
 				}
 				return res, err
 			}
-			return &ErrorStatusCode{
+			return &DefaultErrorStatusCode{
 				StatusCode: resp.StatusCode,
 				Response:   response,
 			}, nil

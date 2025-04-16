@@ -295,7 +295,7 @@ func encodeUpdateStorageGroupResponse(response *UpdateStorageGroupResponse, w ht
 	return nil
 }
 
-func encodeErrorResponse(response *ErrorStatusCode, w http.ResponseWriter) error {
+func encodeErrorResponse(response *DefaultErrorStatusCode, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	code := response.StatusCode
 	if code == 0 {
