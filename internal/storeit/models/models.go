@@ -29,7 +29,7 @@ type OrganizationUnit struct {
 type StorageGroup struct {
 	ID       uuid.UUID
 	UnitID   uuid.UUID
-	ParentID uuid.UUID
+	ParentID *uuid.UUID
 	Name     string
 	Alias    string
 
@@ -39,6 +39,7 @@ type StorageGroup struct {
 
 type Item struct {
 	ID          uuid.UUID
+	OrgID       uuid.UUID
 	Name        string
 	Description *string
 
@@ -50,11 +51,12 @@ type Item struct {
 type ItemVariant struct {
 	ID     uuid.UUID
 	ItemID uuid.UUID
+	OrgID  uuid.UUID
 
 	Name string
 
 	Article *string
-	EAN13   *int64
+	EAN13   *int
 
 	CreatedAt time.Time
 	DeletedAt *time.Time

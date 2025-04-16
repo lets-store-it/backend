@@ -8,7 +8,7 @@ import (
 )
 
 func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
-	var address api.OptNilString
+	var address api.NilString
 	if unit.Address == nil {
 		address.SetToNull()
 	} else {
@@ -16,7 +16,7 @@ func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
 	}
 
 	return api.Unit{
-		ID:      api.NewOptUUID(unit.ID),
+		ID:      unit.ID,
 		Name:    unit.Name,
 		Alias:   unit.Alias,
 		Address: address,
@@ -49,7 +49,7 @@ func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateO
 
 	unitDTO := convertUnitToDTO(unit)
 	return &api.CreateOrganizationUnitResponse{
-		Data: api.NewOptUnit(unitDTO),
+		Data: unitDTO,
 	}, nil
 }
 

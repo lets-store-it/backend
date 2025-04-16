@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/api"
@@ -10,15 +9,15 @@ import (
 )
 
 func convertGroupToDTO(group *models.StorageGroup) api.StorageGroup {
-	var parentID api.OptNilUUID
-	if group.ParentID == uuid.Nil {
+	var parentID api.NilUUID
+	if group.ParentID == nil {
 		parentID.SetToNull()
 	} else {
-		parentID.SetTo(group.ParentID)
+		parentID.SetTo(*group.ParentID)
 	}
 
 	return api.StorageGroup{
-		ID:       api.NewOptUUID(group.ID),
+		ID:       group.ID,
 		ParentId: parentID,
 		Name:     group.Name,
 		Alias:    group.Alias,
@@ -104,11 +103,10 @@ func (h *RestApiImplementation) PatchStorageGroup(ctx context.Context, req *api.
 
 // UpdateStorageGroup implements api.Handler.
 func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api.UpdateStorageGroupRequest, params api.UpdateStorageGroupParams) (*api.UpdateStorageGroupResponse, error) {
-	var parentID uuid.UUID
+	var parentID *uuid.UUID
 	if req.ParentId.IsSet() {
-		parentID = req.ParentId.Value
+		parentID = &req.ParentId.Value
 	}
-
 	group := &models.StorageGroup{
 		ID:       params.ID,
 		ParentID: parentID,
@@ -125,8 +123,4 @@ func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api
 	return &api.UpdateStorageGroupResponse{
 		Data: []api.StorageGroup{convertGroupToDTO(updatedGroup)},
 	}, nil
-}
-
-func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
-	return createErrorResponse(http.StatusInternalServerError, err.Error())
 }

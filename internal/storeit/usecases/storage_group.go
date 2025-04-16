@@ -109,7 +109,7 @@ func (uc *StorageGroupUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		group.Alias = alias
 	}
 	if parentID, ok := updates["parent_id"].(uuid.UUID); ok {
-		group.ParentID = parentID
+		group.ParentID = &parentID
 	}
 
 	return uc.service.Update(ctx, group)

@@ -14,7 +14,7 @@ type StorageGroupRepository struct {
 	Queries *database.Queries
 }
 
-func toStorageGroup(group database.StorageSpace) (*models.StorageGroup, error) {
+func toStorageGroup(group database.StorageGroup) (*models.StorageGroup, error) {
 	id := uuidFromPgx(group.ID)
 	if id == nil {
 		return nil, errors.New("id is nil")
@@ -27,7 +27,7 @@ func toStorageGroup(group database.StorageSpace) (*models.StorageGroup, error) {
 	return &models.StorageGroup{
 		ID:       *id,
 		UnitID:   *unitID,
-		ParentID: *uuidFromPgx(group.ParentID),
+		ParentID: uuidFromPgx(group.ParentID),
 		Name:     group.Name,
 		Alias:    group.Alias,
 	}, nil
@@ -65,6 +65,8 @@ func (r *StorageGroupRepository) CreateStorageGroup(ctx context.Context, orgID u
 	var parentIDPgx pgtype.UUID
 	if parentID != nil {
 		parentIDPgx = pgtype.UUID{Bytes: *parentID, Valid: true}
+	} else {
+		parentIDPgx = pgtype.UUID{Valid: false}
 	}
 
 	group, err := r.Queries.CreateStorageGroup(ctx, database.CreateStorageGroupParams{
