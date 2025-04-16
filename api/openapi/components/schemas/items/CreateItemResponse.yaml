@@ -4,6 +4,6 @@ allOf:
     properties:
       data:
         type: object
-        $ref: ./ItemFull.yaml
+        $ref: ./models/ItemFull.yaml
     required:
       - data

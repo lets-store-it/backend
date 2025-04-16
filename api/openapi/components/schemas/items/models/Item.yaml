@@ -1,0 +1,11 @@
+allOf:
+  - $ref: ./ItemBase.yaml
+    required:
+      - id
+  - type: object
+    properties:
+      description:
+        type: string
+        nullable: true
+    required:
+      - description

@@ -11,6 +11,11 @@ properties:
     maxLength: 100
     example: MWS
     pattern: ^[A-Z-]+$
+  address:
+    type: string
+    nullable: true
+    example: 123 Main St, Moscow, Russia
 required:
   - name
   - alias
+  - address
