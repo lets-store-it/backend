@@ -611,7 +611,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					switch method {
 					case "GET":
 						r.name = GetStorageGroupsOperation
-						r.summary = "Get list of Storage Spaces"
+						r.summary = "Get list of Storage Groups"
 						r.operationID = "getStorageGroups"
 						r.pathPattern = "/storage-groups"
 						r.args = args
@@ -619,7 +619,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						return r, true
 					case "POST":
 						r.name = CreateStorageGroupOperation
-						r.summary = "Create Storage Space"
+						r.summary = "Create Storage Group"
 						r.operationID = "createStorageGroup"
 						r.pathPattern = "/storage-groups"
 						r.args = args
@@ -652,7 +652,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "DELETE":
 							r.name = DeleteStorageGroupOperation
-							r.summary = "Delete Storage Space"
+							r.summary = "Delete Storage Group"
 							r.operationID = "deleteStorageGroup"
 							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
@@ -660,7 +660,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "GET":
 							r.name = GetStorageGroupByIdOperation
-							r.summary = "Get Storage Space by ID"
+							r.summary = "Get Storage Group by ID"
 							r.operationID = "getStorageGroupById"
 							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
@@ -668,7 +668,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "PATCH":
 							r.name = PatchStorageGroupOperation
-							r.summary = "Patch Storage Space"
+							r.summary = "Patch Storage Group"
 							r.operationID = "patchStorageGroup"
 							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
@@ -676,7 +676,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "PUT":
 							r.name = UpdateStorageGroupOperation
-							r.summary = "Update Storage Space"
+							r.summary = "Update Storage Group"
 							r.operationID = "updateStorageGroup"
 							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
@@ -750,7 +750,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "GET":
 							r.name = GetOrganizationUnitByIdOperation
-							r.summary = "Get Unit by ID with Spaces"
+							r.summary = "Get Unit by ID"
 							r.operationID = "getOrganizationUnitById"
 							r.pathPattern = "/units/{id}"
 							r.args = args

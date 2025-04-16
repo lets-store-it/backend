@@ -211,7 +211,7 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 
 // handleCreateStorageGroupRequest handles createStorageGroup operation.
 //
-// Create Storage Space.
+// Create Storage Group.
 //
 // POST /storage-groups
 func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -247,7 +247,7 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CreateStorageGroupOperation,
-			OperationSummary: "Create Storage Space",
+			OperationSummary: "Create Storage Group",
 			OperationID:      "createStorageGroup",
 			Body:             request,
 			Params:           middleware.Parameters{},
@@ -671,7 +671,7 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 
 // handleDeleteStorageGroupRequest handles deleteStorageGroup operation.
 //
-// Delete Storage Space.
+// Delete Storage Group.
 //
 // DELETE /storage-groups/{id}
 func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -702,7 +702,7 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    DeleteStorageGroupOperation,
-			OperationSummary: "Delete Storage Space",
+			OperationSummary: "Delete Storage Group",
 			OperationID:      "deleteStorageGroup",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1020,7 +1020,7 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 
 // handleGetOrganizationUnitByIdRequest handles getOrganizationUnitById operation.
 //
-// Get Unit by ID with Spaces.
+// Get Unit by ID.
 //
 // GET /units/{id}
 func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1051,7 +1051,7 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetOrganizationUnitByIdOperation,
-			OperationSummary: "Get Unit by ID with Spaces",
+			OperationSummary: "Get Unit by ID",
 			OperationID:      "getOrganizationUnitById",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1258,7 +1258,7 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 
 // handleGetStorageGroupByIdRequest handles getStorageGroupById operation.
 //
-// Get Storage Space by ID.
+// Get Storage Group by ID.
 //
 // GET /storage-groups/{id}
 func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1289,7 +1289,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetStorageGroupByIdOperation,
-			OperationSummary: "Get Storage Space by ID",
+			OperationSummary: "Get Storage Group by ID",
 			OperationID:      "getStorageGroupById",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1350,7 +1350,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 
 // handleGetStorageGroupsRequest handles getStorageGroups operation.
 //
-// Get list of Storage Spaces.
+// Get list of Storage Groups.
 //
 // GET /storage-groups
 func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1367,7 +1367,7 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetStorageGroupsOperation,
-			OperationSummary: "Get list of Storage Spaces",
+			OperationSummary: "Get list of Storage Groups",
 			OperationID:      "getStorageGroups",
 			Body:             nil,
 			Params:           middleware.Parameters{},
@@ -1744,7 +1744,7 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 
 // handlePatchStorageGroupRequest handles patchStorageGroup operation.
 //
-// Patch Storage Space.
+// Patch Storage Group.
 //
 // PATCH /storage-groups/{id}
 func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1790,7 +1790,7 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    PatchStorageGroupOperation,
-			OperationSummary: "Patch Storage Space",
+			OperationSummary: "Patch Storage Group",
 			OperationID:      "patchStorageGroup",
 			Body:             request,
 			Params: middleware.Parameters{
@@ -2172,7 +2172,7 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 
 // handleUpdateStorageGroupRequest handles updateStorageGroup operation.
 //
-// Update Storage Space.
+// Update Storage Group.
 //
 // PUT /storage-groups/{id}
 func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -2218,7 +2218,7 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    UpdateStorageGroupOperation,
-			OperationSummary: "Update Storage Space",
+			OperationSummary: "Update Storage Group",
 			OperationID:      "updateStorageGroup",
 			Body:             request,
 			Params: middleware.Parameters{

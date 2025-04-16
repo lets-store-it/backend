@@ -22,7 +22,7 @@ type Handler interface {
 	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
 	// CreateStorageGroup implements createStorageGroup operation.
 	//
-	// Create Storage Space.
+	// Create Storage Group.
 	//
 	// POST /storage-groups
 	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
@@ -52,7 +52,7 @@ type Handler interface {
 	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
 	// DeleteStorageGroup implements deleteStorageGroup operation.
 	//
-	// Delete Storage Space.
+	// Delete Storage Group.
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
@@ -76,7 +76,7 @@ type Handler interface {
 	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
 	// GetOrganizationUnitById implements getOrganizationUnitById operation.
 	//
-	// Get Unit by ID with Spaces.
+	// Get Unit by ID.
 	//
 	// GET /units/{id}
 	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error)
@@ -94,13 +94,13 @@ type Handler interface {
 	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
 	// GetStorageGroupById implements getStorageGroupById operation.
 	//
-	// Get Storage Space by ID.
+	// Get Storage Group by ID.
 	//
 	// GET /storage-groups/{id}
 	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
 	// GetStorageGroups implements getStorageGroups operation.
 	//
-	// Get list of Storage Spaces.
+	// Get list of Storage Groups.
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
@@ -124,7 +124,7 @@ type Handler interface {
 	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
 	// PatchStorageGroup implements patchStorageGroup operation.
 	//
-	// Patch Storage Space.
+	// Patch Storage Group.
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
@@ -148,7 +148,7 @@ type Handler interface {
 	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
 	// UpdateStorageGroup implements updateStorageGroup operation.
 	//
-	// Update Storage Space.
+	// Update Storage Group.
 	//
 	// PUT /storage-groups/{id}
 	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)

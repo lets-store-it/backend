@@ -35,7 +35,7 @@ type Invoker interface {
 	CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
 	// CreateStorageGroup invokes createStorageGroup operation.
 	//
-	// Create Storage Space.
+	// Create Storage Group.
 	//
 	// POST /storage-groups
 	CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
@@ -65,7 +65,7 @@ type Invoker interface {
 	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
 	// DeleteStorageGroup invokes deleteStorageGroup operation.
 	//
-	// Delete Storage Space.
+	// Delete Storage Group.
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
@@ -89,7 +89,7 @@ type Invoker interface {
 	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
 	// GetOrganizationUnitById invokes getOrganizationUnitById operation.
 	//
-	// Get Unit by ID with Spaces.
+	// Get Unit by ID.
 	//
 	// GET /units/{id}
 	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error)
@@ -107,13 +107,13 @@ type Invoker interface {
 	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
 	// GetStorageGroupById invokes getStorageGroupById operation.
 	//
-	// Get Storage Space by ID.
+	// Get Storage Group by ID.
 	//
 	// GET /storage-groups/{id}
 	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
 	// GetStorageGroups invokes getStorageGroups operation.
 	//
-	// Get list of Storage Spaces.
+	// Get list of Storage Groups.
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
@@ -137,7 +137,7 @@ type Invoker interface {
 	PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
 	// PatchStorageGroup invokes patchStorageGroup operation.
 	//
-	// Patch Storage Space.
+	// Patch Storage Group.
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
@@ -161,7 +161,7 @@ type Invoker interface {
 	UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
 	// UpdateStorageGroup invokes updateStorageGroup operation.
 	//
-	// Update Storage Space.
+	// Update Storage Group.
 	//
 	// PUT /storage-groups/{id}
 	UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
@@ -294,7 +294,7 @@ func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrga
 
 // CreateStorageGroup invokes createStorageGroup operation.
 //
-// Create Storage Space.
+// Create Storage Group.
 //
 // POST /storage-groups
 func (c *Client) CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error) {
@@ -534,7 +534,7 @@ func (c *Client) sendDeleteOrganizationUnit(ctx context.Context, params DeleteOr
 
 // DeleteStorageGroup invokes deleteStorageGroup operation.
 //
-// Delete Storage Space.
+// Delete Storage Group.
 //
 // DELETE /storage-groups/{id}
 func (c *Client) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
@@ -732,7 +732,7 @@ func (c *Client) sendGetOrganizationById(ctx context.Context, params GetOrganiza
 
 // GetOrganizationUnitById invokes getOrganizationUnitById operation.
 //
-// Get Unit by ID with Spaces.
+// Get Unit by ID.
 //
 // GET /units/{id}
 func (c *Client) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error) {
@@ -858,7 +858,7 @@ func (c *Client) sendGetOrganizations(ctx context.Context) (res *GetOrganization
 
 // GetStorageGroupById invokes getStorageGroupById operation.
 //
-// Get Storage Space by ID.
+// Get Storage Group by ID.
 //
 // GET /storage-groups/{id}
 func (c *Client) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error) {
@@ -912,7 +912,7 @@ func (c *Client) sendGetStorageGroupById(ctx context.Context, params GetStorageG
 
 // GetStorageGroups invokes getStorageGroups operation.
 //
-// Get list of Storage Spaces.
+// Get list of Storage Groups.
 //
 // GET /storage-groups
 func (c *Client) GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error) {
@@ -1119,7 +1119,7 @@ func (c *Client) sendPatchOrganizationUnit(ctx context.Context, request *PatchOr
 
 // PatchStorageGroup invokes patchStorageGroup operation.
 //
-// Patch Storage Space.
+// Patch Storage Group.
 //
 // PATCH /storage-groups/{id}
 func (c *Client) PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error) {
@@ -1347,7 +1347,7 @@ func (c *Client) sendUpdateOrganizationUnit(ctx context.Context, request *Update
 
 // UpdateStorageGroup invokes updateStorageGroup operation.
 //
-// Update Storage Space.
+// Update Storage Group.
 //
 // PUT /storage-groups/{id}
 func (c *Client) UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error) {

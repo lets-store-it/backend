@@ -33,7 +33,7 @@ func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateO
 
 // CreateStorageGroup implements createStorageGroup operation.
 //
-// Create Storage Space.
+// Create Storage Group.
 //
 // POST /storage-groups
 func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (r *CreateStorageGroupResponse, _ error) {
@@ -78,7 +78,7 @@ func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params D
 
 // DeleteStorageGroup implements deleteStorageGroup operation.
 //
-// Delete Storage Space.
+// Delete Storage Group.
 //
 // DELETE /storage-groups/{id}
 func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
@@ -114,7 +114,7 @@ func (UnimplementedHandler) GetOrganizationById(ctx context.Context, params GetO
 
 // GetOrganizationUnitById implements getOrganizationUnitById operation.
 //
-// Get Unit by ID with Spaces.
+// Get Unit by ID.
 //
 // GET /units/{id}
 func (UnimplementedHandler) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (r *GetOrganizationUnitByIdResponse, _ error) {
@@ -141,7 +141,7 @@ func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r *GetOrganiz
 
 // GetStorageGroupById implements getStorageGroupById operation.
 //
-// Get Storage Space by ID.
+// Get Storage Group by ID.
 //
 // GET /storage-groups/{id}
 func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (r *GetStorageGroupByIdResponse, _ error) {
@@ -150,7 +150,7 @@ func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetS
 
 // GetStorageGroups implements getStorageGroups operation.
 //
-// Get list of Storage Spaces.
+// Get list of Storage Groups.
 //
 // GET /storage-groups
 func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorageGroupsResponse, _ error) {
@@ -186,7 +186,7 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 
 // PatchStorageGroup implements patchStorageGroup operation.
 //
-// Patch Storage Space.
+// Patch Storage Group.
 //
 // PATCH /storage-groups/{id}
 func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
@@ -222,7 +222,7 @@ func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *Upd
 
 // UpdateStorageGroup implements updateStorageGroup operation.
 //
-// Update Storage Space.
+// Update Storage Group.
 //
 // PUT /storage-groups/{id}
 func (UnimplementedHandler) UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (r *UpdateStorageGroupResponse, _ error) {

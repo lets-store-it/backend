@@ -3,5 +3,13 @@ properties:
   name:
     type: string
     example: Variant 1
+  article:
+    type: string
+    nullable: true
+    example: 123456789012
+  ean13:
+    type: integer
+    nullable: true
+    example: 1234567890123
 required:
   - name

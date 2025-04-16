@@ -15,10 +15,10 @@ func (s *DefaultErrorStatusCode) Error() string {
 // Merged schema.
 // Ref: #/components/schemas/CreateItemRequest
 type CreateItemRequest struct {
-	ID          OptUUID               `json:"id"`
-	Name        string                `json:"name"`
-	Description string                `json:"description"`
-	Variants    []ItemVariantEditable `json:"variants"`
+	ID          OptUUID           `json:"id"`
+	Name        string            `json:"name"`
+	Description OptNilString      `json:"description"`
+	Variants    []ItemVariantBase `json:"variants"`
 }
 
 // GetID returns the value of ID.
@@ -32,12 +32,12 @@ func (s *CreateItemRequest) GetName() string {
 }
 
 // GetDescription returns the value of Description.
-func (s *CreateItemRequest) GetDescription() string {
+func (s *CreateItemRequest) GetDescription() OptNilString {
 	return s.Description
 }
 
 // GetVariants returns the value of Variants.
-func (s *CreateItemRequest) GetVariants() []ItemVariantEditable {
+func (s *CreateItemRequest) GetVariants() []ItemVariantBase {
 	return s.Variants
 }
 
@@ -52,12 +52,12 @@ func (s *CreateItemRequest) SetName(val string) {
 }
 
 // SetDescription sets the value of Description.
-func (s *CreateItemRequest) SetDescription(val string) {
+func (s *CreateItemRequest) SetDescription(val OptNilString) {
 	s.Description = val
 }
 
 // SetVariants sets the value of Variants.
-func (s *CreateItemRequest) SetVariants(val []ItemVariantEditable) {
+func (s *CreateItemRequest) SetVariants(val []ItemVariantBase) {
 	s.Variants = val
 }
 
@@ -78,13 +78,13 @@ func (s *CreateItemResponse) SetData(val ItemFull) {
 
 // Ref: #/components/schemas/CreateOrganizationRequest
 type CreateOrganizationRequest struct {
-	ID        OptUUID `json:"id"`
-	Name      string  `json:"name"`
-	Subdomain string  `json:"subdomain"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Subdomain string    `json:"subdomain"`
 }
 
 // GetID returns the value of ID.
-func (s *CreateOrganizationRequest) GetID() OptUUID {
+func (s *CreateOrganizationRequest) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -99,7 +99,7 @@ func (s *CreateOrganizationRequest) GetSubdomain() string {
 }
 
 // SetID sets the value of ID.
-func (s *CreateOrganizationRequest) SetID(val OptUUID) {
+func (s *CreateOrganizationRequest) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -130,15 +130,9 @@ func (s *CreateOrganizationResponse) SetData(val Organization) {
 
 // Ref: #/components/schemas/CreateOrganizationUnitRequest
 type CreateOrganizationUnitRequest struct {
-	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
 	Alias   string       `json:"alias"`
 	Address OptNilString `json:"address"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateOrganizationUnitRequest) GetID() OptUUID {
-	return s.ID
 }
 
 // GetName returns the value of Name.
@@ -154,11 +148,6 @@ func (s *CreateOrganizationUnitRequest) GetAlias() string {
 // GetAddress returns the value of Address.
 func (s *CreateOrganizationUnitRequest) GetAddress() OptNilString {
 	return s.Address
-}
-
-// SetID sets the value of ID.
-func (s *CreateOrganizationUnitRequest) SetID(val OptUUID) {
-	s.ID = val
 }
 
 // SetName sets the value of Name.
@@ -178,31 +167,25 @@ func (s *CreateOrganizationUnitRequest) SetAddress(val OptNilString) {
 
 // Ref: #/components/schemas/CreateOrganizationUnitResponse
 type CreateOrganizationUnitResponse struct {
-	Data OptUnit `json:"data"`
+	Data Unit `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *CreateOrganizationUnitResponse) GetData() OptUnit {
+func (s *CreateOrganizationUnitResponse) GetData() Unit {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *CreateOrganizationUnitResponse) SetData(val OptUnit) {
+func (s *CreateOrganizationUnitResponse) SetData(val Unit) {
 	s.Data = val
 }
 
 // Ref: #/components/schemas/CreateStorageGroupRequest
 type CreateStorageGroupRequest struct {
-	ID       OptUUID    `json:"id"`
 	ParentId OptNilUUID `json:"parentId"`
 	Name     string     `json:"name"`
 	Alias    string     `json:"alias"`
 	UnitId   uuid.UUID  `json:"unitId"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateStorageGroupRequest) GetID() OptUUID {
-	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
@@ -223,11 +206,6 @@ func (s *CreateStorageGroupRequest) GetAlias() string {
 // GetUnitId returns the value of UnitId.
 func (s *CreateStorageGroupRequest) GetUnitId() uuid.UUID {
 	return s.UnitId
-}
-
-// SetID sets the value of ID.
-func (s *CreateStorageGroupRequest) SetID(val OptUUID) {
-	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.
@@ -450,15 +428,18 @@ func (s *GetStorageGroupsResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
 
+// Merged schema.
 // Ref: #/components/schemas/Item
 type Item struct {
-	ID          OptUUID `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
+	// Merged property.
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	// Merged property.
+	Description NilString `json:"description"`
 }
 
 // GetID returns the value of ID.
-func (s *Item) GetID() OptUUID {
+func (s *Item) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -468,12 +449,12 @@ func (s *Item) GetName() string {
 }
 
 // GetDescription returns the value of Description.
-func (s *Item) GetDescription() string {
+func (s *Item) GetDescription() NilString {
 	return s.Description
 }
 
 // SetID sets the value of ID.
-func (s *Item) SetID(val OptUUID) {
+func (s *Item) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -483,21 +464,23 @@ func (s *Item) SetName(val string) {
 }
 
 // SetDescription sets the value of Description.
-func (s *Item) SetDescription(val string) {
+func (s *Item) SetDescription(val NilString) {
 	s.Description = val
 }
 
 // Merged schema.
 // Ref: #/components/schemas/ItemFull
 type ItemFull struct {
-	ID          OptUUID               `json:"id"`
-	Name        string                `json:"name"`
-	Description string                `json:"description"`
-	Variants    []ItemVariantEditable `json:"variants"`
+	// Merged property.
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	// Merged property.
+	Description NilString     `json:"description"`
+	Variants    []ItemVariant `json:"variants"`
 }
 
 // GetID returns the value of ID.
-func (s *ItemFull) GetID() OptUUID {
+func (s *ItemFull) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -507,17 +490,17 @@ func (s *ItemFull) GetName() string {
 }
 
 // GetDescription returns the value of Description.
-func (s *ItemFull) GetDescription() string {
+func (s *ItemFull) GetDescription() NilString {
 	return s.Description
 }
 
 // GetVariants returns the value of Variants.
-func (s *ItemFull) GetVariants() []ItemVariantEditable {
+func (s *ItemFull) GetVariants() []ItemVariant {
 	return s.Variants
 }
 
 // SetID sets the value of ID.
-func (s *ItemFull) SetID(val OptUUID) {
+func (s *ItemFull) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -527,61 +510,284 @@ func (s *ItemFull) SetName(val string) {
 }
 
 // SetDescription sets the value of Description.
-func (s *ItemFull) SetDescription(val string) {
+func (s *ItemFull) SetDescription(val NilString) {
 	s.Description = val
 }
 
 // SetVariants sets the value of Variants.
-func (s *ItemFull) SetVariants(val []ItemVariantEditable) {
+func (s *ItemFull) SetVariants(val []ItemVariant) {
 	s.Variants = val
 }
 
-// Ref: #/components/schemas/ItemVariantEditable
-type ItemVariantEditable struct {
-	ID      OptUUID      `json:"id"`
+// Merged schema.
+// Ref: #/components/schemas/ItemVariant
+type ItemVariant struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	// Merged property.
+	Article NilString `json:"article"`
+	// Merged property.
+	Ean13 NilInt `json:"ean13"`
+}
+
+// GetID returns the value of ID.
+func (s *ItemVariant) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ItemVariant) GetName() string {
+	return s.Name
+}
+
+// GetArticle returns the value of Article.
+func (s *ItemVariant) GetArticle() NilString {
+	return s.Article
+}
+
+// GetEan13 returns the value of Ean13.
+func (s *ItemVariant) GetEan13() NilInt {
+	return s.Ean13
+}
+
+// SetID sets the value of ID.
+func (s *ItemVariant) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ItemVariant) SetName(val string) {
+	s.Name = val
+}
+
+// SetArticle sets the value of Article.
+func (s *ItemVariant) SetArticle(val NilString) {
+	s.Article = val
+}
+
+// SetEan13 sets the value of Ean13.
+func (s *ItemVariant) SetEan13(val NilInt) {
+	s.Ean13 = val
+}
+
+// Ref: #/components/schemas/ItemVariantBase
+type ItemVariantBase struct {
 	Name    string       `json:"name"`
 	Article OptNilString `json:"article"`
 	Ean13   OptNilInt    `json:"ean13"`
 }
 
-// GetID returns the value of ID.
-func (s *ItemVariantEditable) GetID() OptUUID {
-	return s.ID
-}
-
 // GetName returns the value of Name.
-func (s *ItemVariantEditable) GetName() string {
+func (s *ItemVariantBase) GetName() string {
 	return s.Name
 }
 
 // GetArticle returns the value of Article.
-func (s *ItemVariantEditable) GetArticle() OptNilString {
+func (s *ItemVariantBase) GetArticle() OptNilString {
 	return s.Article
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *ItemVariantEditable) GetEan13() OptNilInt {
+func (s *ItemVariantBase) GetEan13() OptNilInt {
 	return s.Ean13
 }
 
-// SetID sets the value of ID.
-func (s *ItemVariantEditable) SetID(val OptUUID) {
-	s.ID = val
-}
-
 // SetName sets the value of Name.
-func (s *ItemVariantEditable) SetName(val string) {
+func (s *ItemVariantBase) SetName(val string) {
 	s.Name = val
 }
 
 // SetArticle sets the value of Article.
-func (s *ItemVariantEditable) SetArticle(val OptNilString) {
+func (s *ItemVariantBase) SetArticle(val OptNilString) {
 	s.Article = val
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *ItemVariantEditable) SetEan13(val OptNilInt) {
+func (s *ItemVariantBase) SetEan13(val OptNilInt) {
 	s.Ean13 = val
+}
+
+// Ref: #/components/schemas/ItemVariantPatchInItem
+type ItemVariantPatchInItem struct {
+	ID      uuid.UUID    `json:"id"`
+	Name    OptString    `json:"name"`
+	Article OptNilString `json:"article"`
+	Ean13   OptNilInt    `json:"ean13"`
+}
+
+// GetID returns the value of ID.
+func (s *ItemVariantPatchInItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ItemVariantPatchInItem) GetName() OptString {
+	return s.Name
+}
+
+// GetArticle returns the value of Article.
+func (s *ItemVariantPatchInItem) GetArticle() OptNilString {
+	return s.Article
+}
+
+// GetEan13 returns the value of Ean13.
+func (s *ItemVariantPatchInItem) GetEan13() OptNilInt {
+	return s.Ean13
+}
+
+// SetID sets the value of ID.
+func (s *ItemVariantPatchInItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ItemVariantPatchInItem) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetArticle sets the value of Article.
+func (s *ItemVariantPatchInItem) SetArticle(val OptNilString) {
+	s.Article = val
+}
+
+// SetEan13 sets the value of Ean13.
+func (s *ItemVariantPatchInItem) SetEan13(val OptNilInt) {
+	s.Ean13 = val
+}
+
+// NewNilInt returns new NilInt with value set to v.
+func NewNilInt(v int) NilInt {
+	return NilInt{
+		Value: v,
+	}
+}
+
+// NilInt is nullable int.
+type NilInt struct {
+	Value int
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilInt) SetTo(v int) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilInt) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilInt) SetToNull() {
+	o.Null = true
+	var v int
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilInt) Get() (v int, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilString returns new NilString with value set to v.
+func NewNilString(v string) NilString {
+	return NilString{
+		Value: v,
+	}
+}
+
+// NilString is nullable string.
+type NilString struct {
+	Value string
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilString) SetTo(v string) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilString) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilString) SetToNull() {
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilUUID returns new NilUUID with value set to v.
+func NewNilUUID(v uuid.UUID) NilUUID {
+	return NilUUID{
+		Value: v,
+	}
+}
+
+// NilUUID is nullable uuid.UUID.
+type NilUUID struct {
+	Value uuid.UUID
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilUUID) SetTo(v uuid.UUID) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilUUID) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilUUID) SetToNull() {
+	o.Null = true
+	var v uuid.UUID
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilUUID) Get() (v uuid.UUID, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilUUID) Or(d uuid.UUID) uuid.UUID {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // NewOptNilInt returns new OptNilInt with value set to v.
@@ -865,61 +1071,15 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// NewOptUnit returns new OptUnit with value set to v.
-func NewOptUnit(v Unit) OptUnit {
-	return OptUnit{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUnit is optional Unit.
-type OptUnit struct {
-	Value Unit
-	Set   bool
-}
-
-// IsSet returns true if OptUnit was set.
-func (o OptUnit) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUnit) Reset() {
-	var v Unit
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUnit) SetTo(v Unit) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUnit) Get() (v Unit, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUnit) Or(d Unit) Unit {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // Ref: #/components/schemas/Organization
 type Organization struct {
-	ID        OptUUID `json:"id"`
-	Name      string  `json:"name"`
-	Subdomain string  `json:"subdomain"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Subdomain string    `json:"subdomain"`
 }
 
 // GetID returns the value of ID.
-func (s *Organization) GetID() OptUUID {
+func (s *Organization) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -934,7 +1094,7 @@ func (s *Organization) GetSubdomain() string {
 }
 
 // SetID sets the value of ID.
-func (s *Organization) SetID(val OptUUID) {
+func (s *Organization) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -948,52 +1108,40 @@ func (s *Organization) SetSubdomain(val string) {
 	s.Subdomain = val
 }
 
-// Merged schema.
 // Ref: #/components/schemas/PatchItemRequest
 type PatchItemRequest struct {
-	ID          OptUUID               `json:"id"`
-	Name        string                `json:"name"`
-	Description string                `json:"description"`
-	Variants    []ItemVariantEditable `json:"variants"`
-}
-
-// GetID returns the value of ID.
-func (s *PatchItemRequest) GetID() OptUUID {
-	return s.ID
+	Name        OptString                `json:"name"`
+	Description OptNilString             `json:"description"`
+	Variants    []ItemVariantPatchInItem `json:"variants"`
 }
 
 // GetName returns the value of Name.
-func (s *PatchItemRequest) GetName() string {
+func (s *PatchItemRequest) GetName() OptString {
 	return s.Name
 }
 
 // GetDescription returns the value of Description.
-func (s *PatchItemRequest) GetDescription() string {
+func (s *PatchItemRequest) GetDescription() OptNilString {
 	return s.Description
 }
 
 // GetVariants returns the value of Variants.
-func (s *PatchItemRequest) GetVariants() []ItemVariantEditable {
+func (s *PatchItemRequest) GetVariants() []ItemVariantPatchInItem {
 	return s.Variants
 }
 
-// SetID sets the value of ID.
-func (s *PatchItemRequest) SetID(val OptUUID) {
-	s.ID = val
-}
-
 // SetName sets the value of Name.
-func (s *PatchItemRequest) SetName(val string) {
+func (s *PatchItemRequest) SetName(val OptString) {
 	s.Name = val
 }
 
 // SetDescription sets the value of Description.
-func (s *PatchItemRequest) SetDescription(val string) {
+func (s *PatchItemRequest) SetDescription(val OptNilString) {
 	s.Description = val
 }
 
 // SetVariants sets the value of Variants.
-func (s *PatchItemRequest) SetVariants(val []ItemVariantEditable) {
+func (s *PatchItemRequest) SetVariants(val []ItemVariantPatchInItem) {
 	s.Variants = val
 }
 
@@ -1055,9 +1203,9 @@ func (s *PatchOrganizationResponse) SetData(val []Organization) {
 
 // Ref: #/components/schemas/PatchOrganizationUnitRequest
 type PatchOrganizationUnitRequest struct {
-	Name    OptString `json:"name"`
-	Alias   OptString `json:"alias"`
-	Address OptString `json:"address"`
+	Name    OptString    `json:"name"`
+	Alias   OptString    `json:"alias"`
+	Address OptNilString `json:"address"`
 }
 
 // GetName returns the value of Name.
@@ -1071,7 +1219,7 @@ func (s *PatchOrganizationUnitRequest) GetAlias() OptString {
 }
 
 // GetAddress returns the value of Address.
-func (s *PatchOrganizationUnitRequest) GetAddress() OptString {
+func (s *PatchOrganizationUnitRequest) GetAddress() OptNilString {
 	return s.Address
 }
 
@@ -1086,7 +1234,7 @@ func (s *PatchOrganizationUnitRequest) SetAlias(val OptString) {
 }
 
 // SetAddress sets the value of Address.
-func (s *PatchOrganizationUnitRequest) SetAddress(val OptString) {
+func (s *PatchOrganizationUnitRequest) SetAddress(val OptNilString) {
 	s.Address = val
 }
 
@@ -1107,10 +1255,15 @@ func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
 
 // Ref: #/components/schemas/PatchStorageGroupRequest
 type PatchStorageGroupRequest struct {
+	ParentId OptNilUUID `json:"parentId"`
 	Name     OptString  `json:"name"`
 	Alias    OptString  `json:"alias"`
-	UnitId   OptNilUUID `json:"unitId"`
-	ParentId OptNilUUID `json:"parentId"`
+	UnitId   OptUUID    `json:"unitId"`
+}
+
+// GetParentId returns the value of ParentId.
+func (s *PatchStorageGroupRequest) GetParentId() OptNilUUID {
+	return s.ParentId
 }
 
 // GetName returns the value of Name.
@@ -1124,13 +1277,13 @@ func (s *PatchStorageGroupRequest) GetAlias() OptString {
 }
 
 // GetUnitId returns the value of UnitId.
-func (s *PatchStorageGroupRequest) GetUnitId() OptNilUUID {
+func (s *PatchStorageGroupRequest) GetUnitId() OptUUID {
 	return s.UnitId
 }
 
-// GetParentId returns the value of ParentId.
-func (s *PatchStorageGroupRequest) GetParentId() OptNilUUID {
-	return s.ParentId
+// SetParentId sets the value of ParentId.
+func (s *PatchStorageGroupRequest) SetParentId(val OptNilUUID) {
+	s.ParentId = val
 }
 
 // SetName sets the value of Name.
@@ -1144,13 +1297,8 @@ func (s *PatchStorageGroupRequest) SetAlias(val OptString) {
 }
 
 // SetUnitId sets the value of UnitId.
-func (s *PatchStorageGroupRequest) SetUnitId(val OptNilUUID) {
+func (s *PatchStorageGroupRequest) SetUnitId(val OptUUID) {
 	s.UnitId = val
-}
-
-// SetParentId sets the value of ParentId.
-func (s *PatchStorageGroupRequest) SetParentId(val OptNilUUID) {
-	s.ParentId = val
 }
 
 // Ref: #/components/schemas/PatchStorageGroupResponse
@@ -1168,22 +1316,24 @@ func (s *PatchStorageGroupResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
 
+// Merged schema.
 // Ref: #/components/schemas/StorageGroup
 type StorageGroup struct {
-	ID       OptUUID    `json:"id"`
-	ParentId OptNilUUID `json:"parentId"`
-	Name     string     `json:"name"`
-	Alias    string     `json:"alias"`
-	UnitId   uuid.UUID  `json:"unitId"`
+	ID uuid.UUID `json:"id"`
+	// Merged property.
+	ParentId NilUUID   `json:"parentId"`
+	Name     string    `json:"name"`
+	Alias    string    `json:"alias"`
+	UnitId   uuid.UUID `json:"unitId"`
 }
 
 // GetID returns the value of ID.
-func (s *StorageGroup) GetID() OptUUID {
+func (s *StorageGroup) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
-func (s *StorageGroup) GetParentId() OptNilUUID {
+func (s *StorageGroup) GetParentId() NilUUID {
 	return s.ParentId
 }
 
@@ -1203,12 +1353,12 @@ func (s *StorageGroup) GetUnitId() uuid.UUID {
 }
 
 // SetID sets the value of ID.
-func (s *StorageGroup) SetID(val OptUUID) {
+func (s *StorageGroup) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.
-func (s *StorageGroup) SetParentId(val OptNilUUID) {
+func (s *StorageGroup) SetParentId(val NilUUID) {
 	s.ParentId = val
 }
 
@@ -1227,16 +1377,18 @@ func (s *StorageGroup) SetUnitId(val uuid.UUID) {
 	s.UnitId = val
 }
 
+// Merged schema.
 // Ref: #/components/schemas/Unit
 type Unit struct {
-	ID      OptUUID      `json:"id"`
-	Name    string       `json:"name"`
-	Alias   string       `json:"alias"`
-	Address OptNilString `json:"address"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Alias string    `json:"alias"`
+	// Merged property.
+	Address NilString `json:"address"`
 }
 
 // GetID returns the value of ID.
-func (s *Unit) GetID() OptUUID {
+func (s *Unit) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -1251,12 +1403,12 @@ func (s *Unit) GetAlias() string {
 }
 
 // GetAddress returns the value of Address.
-func (s *Unit) GetAddress() OptNilString {
+func (s *Unit) GetAddress() NilString {
 	return s.Address
 }
 
 // SetID sets the value of ID.
-func (s *Unit) SetID(val OptUUID) {
+func (s *Unit) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -1271,17 +1423,18 @@ func (s *Unit) SetAlias(val string) {
 }
 
 // SetAddress sets the value of Address.
-func (s *Unit) SetAddress(val OptNilString) {
+func (s *Unit) SetAddress(val NilString) {
 	s.Address = val
 }
 
 // Merged schema.
 // Ref: #/components/schemas/UpdateItemRequest
 type UpdateItemRequest struct {
-	ID          OptUUID               `json:"id"`
-	Name        string                `json:"name"`
-	Description string                `json:"description"`
-	Variants    []ItemVariantEditable `json:"variants"`
+	ID          OptUUID      `json:"id"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
+	// Merged property.
+	Variants []UpdateItemRequestVariantsItem `json:"variants"`
 }
 
 // GetID returns the value of ID.
@@ -1295,12 +1448,12 @@ func (s *UpdateItemRequest) GetName() string {
 }
 
 // GetDescription returns the value of Description.
-func (s *UpdateItemRequest) GetDescription() string {
+func (s *UpdateItemRequest) GetDescription() OptNilString {
 	return s.Description
 }
 
 // GetVariants returns the value of Variants.
-func (s *UpdateItemRequest) GetVariants() []ItemVariantEditable {
+func (s *UpdateItemRequest) GetVariants() []UpdateItemRequestVariantsItem {
 	return s.Variants
 }
 
@@ -1315,13 +1468,64 @@ func (s *UpdateItemRequest) SetName(val string) {
 }
 
 // SetDescription sets the value of Description.
-func (s *UpdateItemRequest) SetDescription(val string) {
+func (s *UpdateItemRequest) SetDescription(val OptNilString) {
 	s.Description = val
 }
 
 // SetVariants sets the value of Variants.
-func (s *UpdateItemRequest) SetVariants(val []ItemVariantEditable) {
+func (s *UpdateItemRequest) SetVariants(val []UpdateItemRequestVariantsItem) {
 	s.Variants = val
+}
+
+// Merged schema.
+type UpdateItemRequestVariantsItem struct {
+	ID uuid.UUID `json:"id"`
+	// Merged property.
+	Name string `json:"name"`
+	// Merged property.
+	Article OptNilString `json:"article"`
+	// Merged property.
+	Ean13 OptNilInt `json:"ean13"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateItemRequestVariantsItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *UpdateItemRequestVariantsItem) GetName() string {
+	return s.Name
+}
+
+// GetArticle returns the value of Article.
+func (s *UpdateItemRequestVariantsItem) GetArticle() OptNilString {
+	return s.Article
+}
+
+// GetEan13 returns the value of Ean13.
+func (s *UpdateItemRequestVariantsItem) GetEan13() OptNilInt {
+	return s.Ean13
+}
+
+// SetID sets the value of ID.
+func (s *UpdateItemRequestVariantsItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateItemRequestVariantsItem) SetName(val string) {
+	s.Name = val
+}
+
+// SetArticle sets the value of Article.
+func (s *UpdateItemRequestVariantsItem) SetArticle(val OptNilString) {
+	s.Article = val
+}
+
+// SetEan13 sets the value of Ean13.
+func (s *UpdateItemRequestVariantsItem) SetEan13(val OptNilInt) {
+	s.Ean13 = val
 }
 
 // Ref: #/components/schemas/UpdateItemResponse
@@ -1341,13 +1545,13 @@ func (s *UpdateItemResponse) SetData(val ItemFull) {
 
 // Ref: #/components/schemas/UpdateOrganizationRequest
 type UpdateOrganizationRequest struct {
-	ID        OptUUID `json:"id"`
-	Name      string  `json:"name"`
-	Subdomain string  `json:"subdomain"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Subdomain string    `json:"subdomain"`
 }
 
 // GetID returns the value of ID.
-func (s *UpdateOrganizationRequest) GetID() OptUUID {
+func (s *UpdateOrganizationRequest) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -1362,7 +1566,7 @@ func (s *UpdateOrganizationRequest) GetSubdomain() string {
 }
 
 // SetID sets the value of ID.
-func (s *UpdateOrganizationRequest) SetID(val OptUUID) {
+func (s *UpdateOrganizationRequest) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -1393,15 +1597,9 @@ func (s *UpdateOrganizationResponse) SetData(val []Organization) {
 
 // Ref: #/components/schemas/UpdateOrganizationUnitRequest
 type UpdateOrganizationUnitRequest struct {
-	ID      OptUUID      `json:"id"`
 	Name    string       `json:"name"`
 	Alias   string       `json:"alias"`
 	Address OptNilString `json:"address"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateOrganizationUnitRequest) GetID() OptUUID {
-	return s.ID
 }
 
 // GetName returns the value of Name.
@@ -1417,11 +1615,6 @@ func (s *UpdateOrganizationUnitRequest) GetAlias() string {
 // GetAddress returns the value of Address.
 func (s *UpdateOrganizationUnitRequest) GetAddress() OptNilString {
 	return s.Address
-}
-
-// SetID sets the value of ID.
-func (s *UpdateOrganizationUnitRequest) SetID(val OptUUID) {
-	s.ID = val
 }
 
 // SetName sets the value of Name.
@@ -1456,16 +1649,10 @@ func (s *UpdateOrganizationUnitResponse) SetData(val []Unit) {
 
 // Ref: #/components/schemas/UpdateStorageGroupRequest
 type UpdateStorageGroupRequest struct {
-	ID       OptUUID    `json:"id"`
 	ParentId OptNilUUID `json:"parentId"`
 	Name     string     `json:"name"`
 	Alias    string     `json:"alias"`
 	UnitId   uuid.UUID  `json:"unitId"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateStorageGroupRequest) GetID() OptUUID {
-	return s.ID
 }
 
 // GetParentId returns the value of ParentId.
@@ -1486,11 +1673,6 @@ func (s *UpdateStorageGroupRequest) GetAlias() string {
 // GetUnitId returns the value of UnitId.
 func (s *UpdateStorageGroupRequest) GetUnitId() uuid.UUID {
 	return s.UnitId
-}
-
-// SetID sets the value of ID.
-func (s *UpdateStorageGroupRequest) SetID(val OptUUID) {
-	s.ID = val
 }
 
 // SetParentId sets the value of ParentId.

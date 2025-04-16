@@ -175,7 +175,7 @@ paths:
     get:
       tags:
         - unit
-      summary: Get Unit by ID with Spaces
+      summary: Get Unit by ID
       operationId: getOrganizationUnitById
       responses:
         '200':
@@ -240,7 +240,7 @@ paths:
     get:
       tags:
         - storage-group
-      summary: Get list of Storage Spaces
+      summary: Get list of Storage Groups
       operationId: getStorageGroups
       responses:
         '200':
@@ -254,7 +254,7 @@ paths:
     post:
       tags:
         - storage-group
-      summary: Create Storage Space
+      summary: Create Storage Group
       operationId: createStorageGroup
       requestBody:
         required: true
@@ -275,7 +275,7 @@ paths:
     parameters:
       - name: id
         in: path
-        description: Storage Space ID
+        description: Storage Group ID
         required: true
         schema:
           type: string
@@ -283,7 +283,7 @@ paths:
     get:
       tags:
         - storage-group
-      summary: Get Storage Space by ID
+      summary: Get Storage Group by ID
       operationId: getStorageGroupById
       responses:
         '200':
@@ -297,7 +297,7 @@ paths:
     delete:
       tags:
         - storage-group
-      summary: Delete Storage Space
+      summary: Delete Storage Group
       operationId: deleteStorageGroup
       responses:
         '200':
@@ -307,7 +307,7 @@ paths:
     patch:
       tags:
         - storage-group
-      summary: Patch Storage Space
+      summary: Patch Storage Group
       operationId: patchStorageGroup
       requestBody:
         required: true
@@ -327,7 +327,7 @@ paths:
     put:
       tags:
         - storage-group
-      summary: Update Storage Space
+      summary: Update Storage Group
       operationId: updateStorageGroup
       requestBody:
         required: true
@@ -483,6 +483,7 @@ components:
           maxLength: 255
           pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
       required:
+        - id
         - name
         - subdomain
     GetOrganizationsResponse:
@@ -535,7 +536,7 @@ components:
                 $ref: '#/components/schemas/Organization'
           required:
             - data
-    PatchOrganizationRequest:
+    OrganizationPatch:
       type: object
       properties:
         name:
@@ -547,6 +548,9 @@ components:
           minLength: 1
           maxLength: 255
           pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+    PatchOrganizationRequest:
+      allOf:
+        - $ref: '#/components/schemas/OrganizationPatch'
     PatchOrganizationResponse:
       type: object
       allOf:
@@ -556,14 +560,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Organization'
-    Unit:
+    UnitBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
         name:
           type: string
           minLength: 1
@@ -578,11 +577,29 @@ components:
         address:
           type: string
           nullable: true
-          maxLength: 200
-          example: Amurskaya St. 3
+          example: 123 Main St, Moscow, Russia
       required:
         - name
         - alias
+    Unit:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+              example: def3df1a-7b8f-4552-b437-a1eab851403f
+          required:
+            - id
+        - $ref: '#/components/schemas/UnitBase'
+        - type: object
+          properties:
+            address:
+              type: string
+              nullable: true
+          required:
+            - address
     GetOrganizationUnitsResponse:
       type: object
       allOf:
@@ -597,7 +614,7 @@ components:
     CreateOrganizationUnitRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Unit'
+        - $ref: '#/components/schemas/UnitBase'
     CreateOrganizationUnitResponse:
       type: object
       allOf:
@@ -606,6 +623,8 @@ components:
             data:
               type: object
               $ref: '#/components/schemas/Unit'
+          required:
+            - data
     GetOrganizationUnitByIdResponse:
       type: object
       allOf:
@@ -619,7 +638,7 @@ components:
     UpdateOrganizationUnitRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Unit'
+        - $ref: '#/components/schemas/UnitBase'
     UpdateOrganizationUnitResponse:
       type: object
       allOf:
@@ -631,19 +650,26 @@ components:
                 $ref: '#/components/schemas/Unit'
           required:
             - data
-    PatchOrganizationUnitRequest:
+    UnitPatch:
       type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Moscow
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: MWS
+          pattern: ^[A-Z-]+$
+        address:
+          type: string
+          nullable: true
+    PatchOrganizationUnitRequest:
       allOf:
-        - type: object
-          properties:
-            name:
-              type: string
-              example: Moscow
-            alias:
-              type: string
-              example: MWS
-            address:
-              type: string
+        - $ref: '#/components/schemas/UnitPatch'
     PatchOrganizationUnitResponse:
       type: object
       allOf:
@@ -655,14 +681,9 @@ components:
                 $ref: '#/components/schemas/Unit'
           required:
             - data
-    StorageGroup:
+    StorageGroupBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
         parentId:
           type: string
           format: uuid
@@ -682,6 +703,24 @@ components:
         - name
         - alias
         - unitId
+    StorageGroup:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+              example: def3df1a-7b8f-4552-b437-a1eab851403f
+            parentId:
+              type: string
+              format: uuid
+              nullable: true
+              example: def3df1a-7b8f-4552-b437-a1eab851403f
+          required:
+            - id
+            - parentId
+        - $ref: '#/components/schemas/StorageGroupBase'
     GetStorageGroupsResponse:
       type: object
       allOf:
@@ -696,7 +735,7 @@ components:
     CreateStorageGroupRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/StorageGroup'
+        - $ref: '#/components/schemas/StorageGroupBase'
     CreateStorageGroupResponse:
       type: object
       allOf:
@@ -720,7 +759,7 @@ components:
     UpdateStorageGroupRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/StorageGroup'
+        - $ref: '#/components/schemas/StorageGroupBase'
     UpdateStorageGroupResponse:
       type: object
       allOf:
@@ -732,9 +771,14 @@ components:
                 $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    PatchStorageGroupRequest:
+    StorageGroupPatch:
       type: object
       properties:
+        parentId:
+          type: string
+          format: uuid
+          nullable: true
+          example: def3df1a-7b8f-4552-b437-a1eab851403f
         name:
           type: string
           example: Main Warehouse
@@ -744,13 +788,10 @@ components:
         unitId:
           type: string
           format: uuid
-          nullable: true
           example: def3df1a-7b8f-4552-b437-a1eab851403f
-        parentId:
-          type: string
-          format: uuid
-          nullable: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
+    PatchStorageGroupRequest:
+      allOf:
+        - $ref: '#/components/schemas/StorageGroupPatch'
     PatchStorageGroupResponse:
       type: object
       allOf:
@@ -762,7 +803,7 @@ components:
                 $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    Item:
+    ItemBase:
       type: object
       properties:
         id:
@@ -775,9 +816,24 @@ components:
         description:
           type: string
           example: Description
+          nullable: true
       required:
         - name
-        - description
+    Item:
+      allOf:
+        - $ref: '#/components/schemas/ItemBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+            description:
+              type: string
+              nullable: true
+          required:
+            - description
+            - id
     GetItemsResponse:
       type: object
       allOf:
@@ -789,13 +845,9 @@ components:
                 $ref: '#/components/schemas/Item'
           required:
             - data
-    ItemVariantEditable:
+    ItemVariantBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
         name:
           type: string
           example: Variant 1
@@ -809,16 +861,47 @@ components:
           example: 1234567890123
       required:
         - name
-    CreateItemRequest:
-      type: object
+    ItemCreate:
       allOf:
-        - $ref: '#/components/schemas/Item'
+        - $ref: '#/components/schemas/ItemBase'
         - type: object
           properties:
             variants:
               type: array
+              minItems: 1
               items:
-                $ref: '#/components/schemas/ItemVariantEditable'
+                $ref: '#/components/schemas/ItemVariantBase'
+      required:
+        - variants
+    CreateItemRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ItemCreate'
+    ItemVariant:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/ItemVariantBase'
+        - type: object
+          properties:
+            article:
+              type: string
+              nullable: true
+              example: 123456789012
+            ean13:
+              type: integer
+              nullable: true
+              example: 1234567890123
+          required:
+            - article
+            - ean13
     ItemFull:
       type: object
       allOf:
@@ -828,7 +911,7 @@ components:
             variants:
               type: array
               items:
-                $ref: '#/components/schemas/ItemVariantEditable'
+                $ref: '#/components/schemas/ItemVariant'
           required:
             - variants
     CreateItemResponse:
@@ -851,16 +934,29 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
+    ItemVariantEdit:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          required:
+            - id
+        - $ref: '#/components/schemas/ItemVariantBase'
     UpdateItemRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Item'
+        - $ref: '#/components/schemas/ItemCreate'
         - type: object
           properties:
             variants:
               type: array
               items:
-                $ref: '#/components/schemas/ItemVariantEditable'
+                $ref: '#/components/schemas/ItemVariantEdit'
+          required:
+            - variants
     UpdateItemResponse:
       type: object
       allOf:
@@ -871,16 +967,46 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
-    PatchItemRequest:
+    ItemVariantPatchInItem:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Item'
         - type: object
           properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+              example: Variant 1
+            article:
+              type: string
+              nullable: true
+              example: 123456789012
+            ean13:
+              type: integer
+              nullable: true
+              example: 1234567890123
+          required:
+            - id
+    ItemPatch:
+      allOf:
+        - type: object
+          properties:
+            name:
+              type: string
+              example: Item 1
+            description:
+              type: string
+              example: Description
+              nullable: true
             variants:
               type: array
               items:
-                $ref: '#/components/schemas/ItemVariantEditable'
+                $ref: '#/components/schemas/ItemVariantPatchInItem'
+    PatchItemRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ItemPatch'
     PatchItemResponse:
       type: object
       allOf:

@@ -216,7 +216,7 @@ func decodeDeleteOrganizationUnitParams(args [1]string, argsEscaped bool, r *htt
 
 // DeleteStorageGroupParams is parameters of deleteStorageGroup operation.
 type DeleteStorageGroupParams struct {
-	// Storage Space ID.
+	// Storage Group ID.
 	ID uuid.UUID
 }
 
@@ -480,7 +480,7 @@ func decodeGetOrganizationUnitByIdParams(args [1]string, argsEscaped bool, r *ht
 
 // GetStorageGroupByIdParams is parameters of getStorageGroupById operation.
 type GetStorageGroupByIdParams struct {
-	// Storage Space ID.
+	// Storage Group ID.
 	ID uuid.UUID
 }
 
@@ -744,7 +744,7 @@ func decodePatchOrganizationUnitParams(args [1]string, argsEscaped bool, r *http
 
 // PatchStorageGroupParams is parameters of patchStorageGroup operation.
 type PatchStorageGroupParams struct {
-	// Storage Space ID.
+	// Storage Group ID.
 	ID uuid.UUID
 }
 
@@ -1008,7 +1008,7 @@ func decodeUpdateOrganizationUnitParams(args [1]string, argsEscaped bool, r *htt
 
 // UpdateStorageGroupParams is parameters of updateStorageGroup operation.
 type UpdateStorageGroupParams struct {
-	// Storage Space ID.
+	// Storage Group ID.
 	ID uuid.UUID
 }
 

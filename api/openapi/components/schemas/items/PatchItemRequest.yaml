@@ -1,9 +1,3 @@
 type: object
 allOf:
-  - $ref: ./models/Item.yaml
-  - type: object
-    properties:
-      variants:
-        type: array
-        items:
-          $ref: ./models/ItemVariantPatch.yaml
+  - $ref: ./models/ItemPatch.yaml
