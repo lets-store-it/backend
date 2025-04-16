@@ -8,6 +8,5 @@ allOf:
           $ref: ./ItemVariantCreate.yaml
     uniqueItems: true
     minItems: 1
-
 required:
   - variants

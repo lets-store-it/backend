@@ -1,7 +1,7 @@
 get:
   tags:
     - storage-group
-  summary: Get list of Storage Spaces
+  summary: Get list of Storage Groups
   operationId: getStorageGroups
   responses:
     "200":
@@ -15,7 +15,7 @@ get:
 post:
   tags:
     - storage-group
-  summary: Create Storage Space
+  summary: Create Storage Group
   operationId: createStorageGroup
   requestBody:
     required: true

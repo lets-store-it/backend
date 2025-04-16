@@ -1,7 +1,0 @@
-allOf:
-  - $ref: ./UnitBase.yaml
-  - type: object
-    properties:
-      address:
-        type: string
-        nullable: true

@@ -1,9 +1,9 @@
 type: object
 allOf:
-  - $ref: ./Item.yaml
+  - $ref: ./models/Item.yaml
   - type: object
     properties:
       variants:
         type: array
         items:
-          $ref: ./ItemVariantPatch.yaml
+          $ref: ./models/ItemVariantPatch.yaml

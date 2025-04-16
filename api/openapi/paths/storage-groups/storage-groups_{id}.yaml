@@ -1,7 +1,7 @@
 parameters:
   - name: id
     in: path
-    description: Storage Space ID
+    description: Storage Group ID
     required: true
     schema:
       type: string
@@ -9,7 +9,7 @@ parameters:
 get:
   tags:
     - storage-group
-  summary: Get Storage Space by ID
+  summary: Get Storage Group by ID
   operationId: getStorageGroupById
   responses:
     "200":
@@ -23,7 +23,7 @@ get:
 delete:
   tags:
     - storage-group
-  summary: Delete Storage Space
+  summary: Delete Storage Group
   operationId: deleteStorageGroup
   responses:
     "200":
@@ -33,7 +33,7 @@ delete:
 patch:
   tags:
     - storage-group
-  summary: Patch Storage Space
+  summary: Patch Storage Group
   operationId: patchStorageGroup
   requestBody:
     required: true
@@ -53,7 +53,7 @@ patch:
 put:
   tags:
     - storage-group
-  summary: Update Storage Space
+  summary: Update Storage Group
   operationId: updateStorageGroup
   requestBody:
     required: true

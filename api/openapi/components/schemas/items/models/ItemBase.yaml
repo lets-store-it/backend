@@ -1,12 +1,16 @@
 type: object
 properties:
+  id:
+    type: string
+    format: uuid
+    readOnly: true
   name:
     type: string
     example: Item 1
   description:
     type: string
     example: Description
-
+    nullable: true
 required:
+  - id
   - name
-  - description
