@@ -1,12 +1,2 @@
-type: object
 allOf:
-  - type: object
-    properties:
-      name:
-        type: string
-        example: Moscow
-      alias:
-        type: string
-        example: MWS
-      address:
-        type: string
+  - $ref: ./models/UnitPatch.yaml

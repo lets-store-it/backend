@@ -1,0 +1,21 @@
+type: object
+properties:
+  parentId:
+    type: string
+    format: uuid
+    nullable: true
+    example: def3df1a-7b8f-4552-b437-a1eab851403f
+  name:
+    type: string
+    example: Main Warehouse
+  alias:
+    type: string
+    example: MW
+  unitId:
+    type: string
+    format: uuid
+    example: def3df1a-7b8f-4552-b437-a1eab851403f
+required:
+  - name
+  - alias
+  - unitId
