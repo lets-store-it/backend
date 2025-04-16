@@ -22,7 +22,7 @@ CREATE TABLE org_unit (
 CREATE INDEX org_unit_org_id_idx ON org_unit(org_id, id);
 CREATE INDEX org_unit_alias_idx ON org_unit(org_id, alias);
 
-CREATE TABLE storage_space (
+CREATE TABLE storage_group (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
@@ -33,11 +33,11 @@ CREATE TABLE storage_space (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
     UNIQUE (org_id, alias),
-    FOREIGN KEY (parent_id) REFERENCES storage_space(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES storage_group(id) ON DELETE CASCADE,
     CHECK (parent_id != id)
 );
-CREATE INDEX storage_space_org_id_idx ON storage_space(org_id, id);
-CREATE INDEX storage_space_unit_id_idx ON storage_space(org_id, unit_id);
+CREATE INDEX storage_group_org_id_idx ON storage_group(org_id, id);
+CREATE INDEX storage_group_unit_id_idx ON storage_group(org_id, unit_id);
 
 CREATE TABLE item (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -135,7 +135,7 @@ CREATE TABLE item_instance (
 
 -- CREATE TABLE cell_group (
 --     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     space_id UUID NOT NULL REFERENCES storage_space(id),
+--     space_id UUID NOT NULL REFERENCES storage_group(id),
 --     name VARCHAR(255) NOT NULL,
 --     short_name VARCHAR(255),
 --     UNIQUE (space_id, name)

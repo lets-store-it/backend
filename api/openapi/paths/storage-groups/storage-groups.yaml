@@ -1,0 +1,34 @@
+get:
+  tags:
+    - storage-group
+  summary: Get list of Storage Spaces
+  operationId: getStorageGroups
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/storage-groups/GetStorageGroupsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - storage-group
+  summary: Create Storage Space
+  operationId: createStorageGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/storage-groups/CreateStorageGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/storage-groups/CreateStorageGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

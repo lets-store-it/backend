@@ -61,16 +61,20 @@ SELECT * FROM item WHERE org_id = $1 AND deleted_at IS NULL;
 -- name: GetItem :one
 SELECT * FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 
--- name: GetItemFull :one
-SELECT * FROM item 
-JOIN item_variant ON item.id = item_variant.item_id
-WHERE item.org_id = $1 AND item.id = $2 AND item.deleted_at IS NULL;
+-- -- name: GetActiveItemWithVariants :many
+-- SELECT * FROM item 
+-- JOIN item_variant ON item.id = item_variant.item_id
+-- WHERE item.org_id = $1 AND item.deleted_at IS NULL
+-- GROUP BY item.id;
+
+-- name: GetItemVariants :many
+SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
 
 -- name: CreateItem :one
 INSERT INTO item (org_id, name, description) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: UpdateItem :one
-UPDATE item SET name = $2, description = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE item SET name = $3, description = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteItem :exec
 UPDATE item SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
@@ -83,6 +87,9 @@ UPDATE item_variant SET name = $2, article = $3, ean13 = $4 WHERE item_id = $1 A
 
 -- name: DeleteItemVariant :exec
 UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE item_id = $1 AND id = $2;
+
+-- name: IsItemExists :one
+SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;

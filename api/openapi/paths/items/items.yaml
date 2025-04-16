@@ -1,0 +1,34 @@
+get:
+  tags:
+    - item
+  summary: Get list of Items
+  operationId: getItems
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/GetItemsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - item
+  summary: Create Item
+  operationId: createItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/items/CreateItemRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/CreateItemResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

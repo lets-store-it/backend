@@ -1,0 +1,72 @@
+parameters:
+  - name: id
+    in: path
+    description: Storage Space ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - storage-group
+  summary: Get Storage Space by ID
+  operationId: getStorageGroupById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/storage-groups/GetStorageGroupByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - storage-group
+  summary: Delete Storage Space
+  operationId: deleteStorageGroup
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - storage-group
+  summary: Patch Storage Space
+  operationId: patchStorageGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/storage-groups/PatchStorageGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/storage-groups/PatchStorageGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - storage-group
+  summary: Update Storage Space
+  operationId: updateStorageGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/storage-groups/UpdateStorageGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/storage-groups/UpdateStorageGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

@@ -370,52 +370,42 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 	return i, err
 }
 
-const getItemFull = `-- name: GetItemFull :one
-SELECT item.id, org_id, item.name, description, item.created_at, item.deleted_at, item_variant.id, item_id, item_variant.name, article, ean13, item_variant.created_at, item_variant.deleted_at FROM item 
-JOIN item_variant ON item.id = item_variant.item_id
-WHERE item.org_id = $1 AND item.id = $2 AND item.deleted_at IS NULL
+const getItemVariants = `-- name: GetItemVariants :many
+
+SELECT id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL
 `
 
-type GetItemFullParams struct {
-	OrgID pgtype.UUID
-	ID    pgtype.UUID
-}
-
-type GetItemFullRow struct {
-	ID          pgtype.UUID
-	OrgID       pgtype.UUID
-	Name        string
-	Description pgtype.Text
-	CreatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
-	ID_2        pgtype.UUID
-	ItemID      pgtype.UUID
-	Name_2      string
-	Article     pgtype.Text
-	Ean13       pgtype.Int4
-	CreatedAt_2 pgtype.Timestamp
-	DeletedAt_2 pgtype.Timestamp
-}
-
-func (q *Queries) GetItemFull(ctx context.Context, arg GetItemFullParams) (GetItemFullRow, error) {
-	row := q.db.QueryRow(ctx, getItemFull, arg.OrgID, arg.ID)
-	var i GetItemFullRow
-	err := row.Scan(
-		&i.ID,
-		&i.OrgID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.DeletedAt,
-		&i.ID_2,
-		&i.ItemID,
-		&i.Name_2,
-		&i.Article,
-		&i.Ean13,
-		&i.CreatedAt_2,
-		&i.DeletedAt_2,
-	)
-	return i, err
+// -- name: GetActiveItemWithVariants :many
+// SELECT * FROM item
+// JOIN item_variant ON item.id = item_variant.item_id
+// WHERE item.org_id = $1 AND item.deleted_at IS NULL
+// GROUP BY item.id;
+func (q *Queries) GetItemVariants(ctx context.Context, itemID pgtype.UUID) ([]ItemVariant, error) {
+	rows, err := q.db.Query(ctx, getItemVariants, itemID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemVariant
+	for rows.Next() {
+		var i ItemVariant
+		if err := rows.Scan(
+			&i.ID,
+			&i.ItemID,
+			&i.Name,
+			&i.Article,
+			&i.Ean13,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrg = `-- name: GetOrg :one
@@ -484,6 +474,22 @@ func (q *Queries) GetStorageGroup(ctx context.Context, arg GetStorageGroupParams
 	return i, err
 }
 
+const isItemExists = `-- name: IsItemExists :one
+SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL)
+`
+
+type IsItemExistsParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) IsItemExists(ctx context.Context, arg IsItemExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isItemExists, arg.OrgID, arg.ID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const isOrgExists = `-- name: IsOrgExists :one
 SELECT EXISTS (SELECT 1 FROM org WHERE id = $1 AND deleted_at IS NULL)
 `
@@ -528,17 +534,23 @@ func (q *Queries) IsStorageGroupExists(ctx context.Context, arg IsStorageGroupEx
 }
 
 const updateItem = `-- name: UpdateItem :one
-UPDATE item SET name = $2, description = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, name, description, created_at, deleted_at
+UPDATE item SET name = $3, description = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, name, description, created_at, deleted_at
 `
 
 type UpdateItemParams struct {
 	OrgID       pgtype.UUID
+	ID          pgtype.UUID
 	Name        string
 	Description pgtype.Text
 }
 
 func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, error) {
-	row := q.db.QueryRow(ctx, updateItem, arg.OrgID, arg.Name, arg.Description)
+	row := q.db.QueryRow(ctx, updateItem,
+		arg.OrgID,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+	)
 	var i Item
 	err := row.Scan(
 		&i.ID,

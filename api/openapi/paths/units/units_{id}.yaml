@@ -1,0 +1,72 @@
+parameters:
+  - name: id
+    in: path
+    description: Unit ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - unit
+  summary: Get Unit by ID with Spaces
+  operationId: getOrganizationUnitById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/units/GetOrganizationUnitByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - unit
+  summary: Delete Organization Unit
+  operationId: deleteOrganizationUnit
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - unit
+  summary: Update Organization Unit
+  operationId: updateOrganizationUnit
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/units/UpdateOrganizationUnitRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/units/UpdateOrganizationUnitResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - unit
+  summary: Patch Organization Unit
+  operationId: patchOrganizationUnit
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/units/PatchOrganizationUnitRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/units/PatchOrganizationUnitResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

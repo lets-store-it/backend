@@ -1,0 +1,72 @@
+parameters:
+  - name: id
+    in: path
+    description: Organization ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - org
+  summary: Get Organization by ID
+  operationId: getOrganizationById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/orgs/GetOrganizationByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - org
+  summary: Delete Organization
+  operationId: deleteOrganization
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - org
+  summary: Update Organization
+  operationId: updateOrganization
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/orgs/UpdateOrganizationRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/orgs/UpdateOrganizationResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - org
+  summary: Update Organization
+  operationId: patchOrganization
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/orgs/PatchOrganizationRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/orgs/PatchOrganizationResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

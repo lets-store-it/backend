@@ -1,0 +1,11 @@
+type: object
+allOf:
+  - $ref: ./ItemVariant.yaml
+  - type: object
+    properties:
+      item_id:
+        type: string
+        format: uuid
+        readOnly: true
+    required:
+      - item_id

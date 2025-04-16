@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *ErrorStatusCode) Error() string {
+func (s *DefaultErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
@@ -265,6 +265,32 @@ func (s *CreateStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
+// DefaultErrorStatusCode wraps Error with StatusCode.
+type DefaultErrorStatusCode struct {
+	StatusCode int
+	Response   Error
+}
+
+// GetStatusCode returns the value of StatusCode.
+func (s *DefaultErrorStatusCode) GetStatusCode() int {
+	return s.StatusCode
+}
+
+// GetResponse returns the value of Response.
+func (s *DefaultErrorStatusCode) GetResponse() Error {
+	return s.Response
+}
+
+// SetStatusCode sets the value of StatusCode.
+func (s *DefaultErrorStatusCode) SetStatusCode(val int) {
+	s.StatusCode = val
+}
+
+// SetResponse sets the value of Response.
+func (s *DefaultErrorStatusCode) SetResponse(val Error) {
+	s.Response = val
+}
+
 // DeleteItemOK is response for DeleteItem operation.
 type DeleteItemOK struct{}
 
@@ -302,32 +328,6 @@ func (s *Error) SetErrorID(val string) {
 // SetMessage sets the value of Message.
 func (s *Error) SetMessage(val string) {
 	s.Message = val
-}
-
-// ErrorStatusCode wraps Error with StatusCode.
-type ErrorStatusCode struct {
-	StatusCode int
-	Response   Error
-}
-
-// GetStatusCode returns the value of StatusCode.
-func (s *ErrorStatusCode) GetStatusCode() int {
-	return s.StatusCode
-}
-
-// GetResponse returns the value of Response.
-func (s *ErrorStatusCode) GetResponse() Error {
-	return s.Response
-}
-
-// SetStatusCode sets the value of StatusCode.
-func (s *ErrorStatusCode) SetStatusCode(val int) {
-	s.StatusCode = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ErrorStatusCode) SetResponse(val Error) {
-	s.Response = val
 }
 
 // Ref: #/components/schemas/GetItemByIdResponse

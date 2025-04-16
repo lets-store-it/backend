@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: storeit — backend
+  contact:
+    email: evgeny@evseevs.ru
+  version: 0.0.1
+  license:
+    name: PRIVATE
+    url: https://store-it.ru
+servers:
+  - url: http://localhost:8080/api/v0
+security: []
+tags:
+  - name: org
+    description: Organization management
+  - name: unit
+    description: Unit management
+  - name: storage-group
+    description: Storage group management
+  - name: item
+    description: Item management
+paths:
+  /orgs:
+    $ref: paths/orgs/orgs.yaml
+  /orgs/{id}:
+    $ref: paths/orgs/orgs_{id}.yaml
+
+  /units:
+    $ref: paths/units/units.yaml
+  /units/{id}:
+    $ref: paths/units/units_{id}.yaml
+
+  /storage-groups:
+    $ref: paths/storage-groups/storage-groups.yaml
+  /storage-groups/{id}:
+    $ref: paths/storage-groups/storage-groups_{id}.yaml
+
+  /items:
+    $ref: paths/items/items.yaml
+  /items/{id}:
+    $ref: paths/items/items_{id}.yaml

@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -28,12 +29,20 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 	if unit.Address.Valid {
 		address = &unit.Address.String
 	}
+
+	var deletedAt *time.Time
+	if unit.DeletedAt.Valid {
+		deletedAt = &unit.DeletedAt.Time
+	}
+
 	return &models.OrganizationUnit{
-		ID:      *id,
-		OrgID:   *orgID,
-		Name:    unit.Name,
-		Alias:   unit.Alias,
-		Address: address,
+		ID:        *id,
+		OrgID:     *orgID,
+		Name:      unit.Name,
+		Alias:     unit.Alias,
+		Address:   address,
+		CreatedAt: unit.CreatedAt.Time,
+		DeletedAt: deletedAt,
 	}, nil
 }
 
@@ -70,7 +79,7 @@ func (r *OrganizationUnitRepository) CreateOrganizationUnit(ctx context.Context,
 		OrgID:   pgtype.UUID{Bytes: orgID, Valid: true},
 		Name:    name,
 		Alias:   alias,
-		Address: pgtype.Text{String: address, Valid: true},
+		Address: pgtype.Text{String: address, Valid: address != ""},
 	})
 	if err != nil {
 		return nil, err

@@ -36,3 +36,26 @@ type StorageGroup struct {
 	CreatedAt time.Time
 	DeletedAt *time.Time
 }
+
+type Item struct {
+	ID          uuid.UUID
+	Name        string
+	Description *string
+
+	Variants  *[]ItemVariant
+	CreatedAt time.Time
+	DeletedAt *time.Time
+}
+
+type ItemVariant struct {
+	ID     uuid.UUID
+	ItemID uuid.UUID
+
+	Name string
+
+	Article *string
+	EAN13   *int64
+
+	CreatedAt time.Time
+	DeletedAt *time.Time
+}

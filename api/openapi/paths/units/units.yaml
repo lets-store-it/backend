@@ -1,0 +1,34 @@
+get:
+  tags:
+    - unit
+  summary: Get list of Organization Units
+  operationId: getOrganizationUnits
+  responses:
+    '200':
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/units/GetOrganizationUnitsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - unit
+  summary: Create Organization Unit
+  operationId: createUnit
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/units/CreateOrganizationUnitRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/units/CreateOrganizationUnitResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

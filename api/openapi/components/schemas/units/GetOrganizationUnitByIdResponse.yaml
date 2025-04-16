@@ -1,0 +1,9 @@
+type: object
+allOf:
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: ./Unit.yaml
+    required:
+      - data
