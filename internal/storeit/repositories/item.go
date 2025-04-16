@@ -8,19 +8,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/storeit/models"
 )
 
 type ItemRepository struct {
 	queries *database.Queries
-	dbConn  *pgx.Conn
+	dbPool  *pgxpool.Pool
 }
 
-func NewItemRepository(queries *database.Queries, dbConn *pgx.Conn) *ItemRepository {
+func NewItemRepository(queries *database.Queries, dbConn *pgxpool.Pool) *ItemRepository {
 	return &ItemRepository{
 		queries: queries,
-		dbConn:  dbConn,
+		dbPool:  dbConn,
 	}
 }
 
@@ -57,9 +58,9 @@ func toItemVariant(variant database.ItemVariant) (*models.ItemVariant, error) {
 		article = &variant.Article.String
 	}
 
-	var ean13 *int64
+	var ean13 *int
 	if variant.Ean13.Valid {
-		inInt64 := int64(variant.Ean13.Int32)
+		inInt64 := int(variant.Ean13.Int32)
 		ean13 = &inInt64
 	}
 
@@ -80,7 +81,7 @@ func toItemVariant(variant database.ItemVariant) (*models.ItemVariant, error) {
 }
 
 func (r *ItemRepository) CreateItemWithVariants(ctx context.Context, item *models.Item) (*models.Item, error) {
-	tx, err := r.dbConn.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := r.dbPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +213,7 @@ func (r *ItemRepository) GetItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 }
 
 func (r *ItemRepository) UpdateItem(ctx context.Context, item *models.Item) (*models.Item, error) {
-	tx, err := r.dbConn.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := r.dbPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return nil, err
 	}

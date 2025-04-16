@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"context"
+	"net/http"
+
+	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/storeit/usecases"
 )
 
@@ -22,5 +26,15 @@ func NewRestApiImplementation(
 		orgUnitUseCase:      orgUnitUseCase,
 		storageGroupUseCase: storageGroupUseCase,
 		itemUseCase:         itemUseCase,
+	}
+}
+
+func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
+	return &api.DefaultErrorStatusCode{
+		StatusCode: http.StatusInternalServerError,
+		Response: api.Error{
+			ErrorID: "internal_server_error",
+			Message: err.Error(),
+		},
 	}
 }

@@ -28,7 +28,6 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	queries := database.New(conn)
-	defer conn.Close(dbCtx)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

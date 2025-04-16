@@ -8,8 +8,7 @@ INSERT INTO org_unit (id, org_id, name, alias) VALUES
 
     ('3b6e1ac8-66c2-4315-94f5-f6276eaefed9', 'a4da775e-dbd4-4e1c-a254-232a4686dcde', 'ГимН3', 'MOF');
 
-INSERT INTO storage_group (id, org_id, unit_id, parent_id, name, alias) VALUES
-    ('73717d25-ba60-459a-bf8e-736ba9fa3e60', '453f0e17-c8f4-4c99-9d20-f0e13572550e', 'ba548db7-ceae-4ff6-bc30-653f45a53ddd', NULL, 'Входная зона', 'EN1'),
+brbr    ('73717d25-ba60-459a-bf8e-736ba9fa3e60', '453f0e17-c8f4-4c99-9d20-f0e13572550e', 'ba548db7-ceae-4ff6-bc30-653f45a53ddd', NULL, 'Входная зона', 'EN1'),
     ('3fa3f6a0-5c9b-4360-bf2d-110a7acd6745', 'a4da775e-dbd4-4e1c-a254-232a4686dcde', '3b6e1ac8-66c2-4315-94f5-f6276eaefed9', NULL, 'Основная группа', 'PS'),
     ('3726e287-b6a5-47b3-b178-11f99f860fe3', 'a4da775e-dbd4-4e1c-a254-232a4686dcde', '3b6e1ac8-66c2-4315-94f5-f6276eaefed9', '3fa3f6a0-5c9b-4360-bf2d-110a7acd6745', 'Зона А', 'ZA');
 

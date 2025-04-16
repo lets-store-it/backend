@@ -9,18 +9,9 @@ import (
 
 func convertToDTO(org *models.Organization) *api.Organization {
 	return &api.Organization{
-		ID:        api.NewOptUUID(org.ID),
+		ID:        org.ID,
 		Name:      org.Name,
 		Subdomain: org.Subdomain,
-	}
-}
-
-func createErrorResponse(statusCode int, message string) *api.ErrorStatusCode {
-	return &api.ErrorStatusCode{
-		StatusCode: statusCode,
-		Response: api.Error{
-			Message: message,
-		},
 	}
 }
 

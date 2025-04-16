@@ -122,9 +122,9 @@ func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID,
 
 			name, _ := variant["name"].(string)
 			article, _ := variant["article"].(*string)
-			var ean13 *int64
+			var ean13 *int
 			if e, ok := variant["ean13"].(float64); ok {
-				e64 := int64(e)
+				e64 := int(e)
 				ean13 = &e64
 			}
 
