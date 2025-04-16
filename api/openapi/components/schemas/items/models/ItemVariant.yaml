@@ -20,5 +20,5 @@ allOf:
         nullable: true
         example: 1234567890123
     required:
-      - name
       - article
+      - ean13

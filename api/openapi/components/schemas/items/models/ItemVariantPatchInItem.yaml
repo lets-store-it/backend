@@ -1,7 +1,13 @@
+type: object
 allOf:
-  - $ref: ./ItemVariantBase.yaml
   - type: object
     properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+        example: Variant 1
       article:
         type: string
         nullable: true
@@ -10,3 +16,5 @@ allOf:
         type: integer
         nullable: true
         example: 1234567890123
+    required:
+      - id

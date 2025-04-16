@@ -18,4 +18,3 @@ properties:
 required:
   - name
   - alias
-  - address

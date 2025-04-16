@@ -1,11 +1,14 @@
 allOf:
   - $ref: ./ItemBase.yaml
-    required:
-      - id
   - type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        readOnly: true
       description:
         type: string
         nullable: true
     required:
       - description
+      - id

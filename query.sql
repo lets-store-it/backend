@@ -37,22 +37,22 @@ UPDATE org_unit SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 
 -- Storage spaces
 -- name: GetActiveStorageGroups :many
-SELECT * FROM storage_space WHERE org_id = $1 AND deleted_at IS NULL;
+SELECT * FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- name: IsStorageGroupExists :one
-SELECT EXISTS (SELECT 1 FROM storage_space WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
+SELECT EXISTS (SELECT 1 FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
 -- name: GetStorageGroup :one
-SELECT * FROM storage_space WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 
 -- name: CreateStorageGroup :one
-INSERT INTO storage_space (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: UpdateStorageGroup :one
-UPDATE storage_space SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteStorageGroup :exec
-UPDATE storage_space SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
+UPDATE storage_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- Items
 -- name: GetActiveItems :many

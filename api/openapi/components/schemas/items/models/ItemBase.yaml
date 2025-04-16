@@ -12,5 +12,4 @@ properties:
     example: Description
     nullable: true
 required:
-  - id
   - name

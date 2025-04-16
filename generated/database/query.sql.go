@@ -120,7 +120,7 @@ func (q *Queries) CreateOrgUnit(ctx context.Context, arg CreateOrgUnitParams) (O
 }
 
 const createStorageGroup = `-- name: CreateStorageGroup :one
-INSERT INTO storage_space (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
+INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
 `
 
 type CreateStorageGroupParams struct {
@@ -131,7 +131,7 @@ type CreateStorageGroupParams struct {
 	Alias    string
 }
 
-func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroupParams) (StorageSpace, error) {
+func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroupParams) (StorageGroup, error) {
 	row := q.db.QueryRow(ctx, createStorageGroup,
 		arg.OrgID,
 		arg.UnitID,
@@ -139,7 +139,7 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 		arg.Name,
 		arg.Alias,
 	)
-	var i StorageSpace
+	var i StorageGroup
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
@@ -205,7 +205,7 @@ func (q *Queries) DeleteOrgUnit(ctx context.Context, arg DeleteOrgUnitParams) er
 }
 
 const deleteStorageGroup = `-- name: DeleteStorageGroup :exec
-UPDATE storage_space SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
+UPDATE storage_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 `
 
 type DeleteStorageGroupParams struct {
@@ -314,19 +314,19 @@ func (q *Queries) GetActiveOrgs(ctx context.Context) ([]Org, error) {
 }
 
 const getActiveStorageGroups = `-- name: GetActiveStorageGroups :many
-SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_space WHERE org_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL
 `
 
 // Storage spaces
-func (q *Queries) GetActiveStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]StorageSpace, error) {
+func (q *Queries) GetActiveStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]StorageGroup, error) {
 	rows, err := q.db.Query(ctx, getActiveStorageGroups, orgID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []StorageSpace
+	var items []StorageGroup
 	for rows.Next() {
-		var i StorageSpace
+		var i StorageGroup
 		if err := rows.Scan(
 			&i.ID,
 			&i.OrgID,
@@ -450,7 +450,7 @@ func (q *Queries) GetOrgUnit(ctx context.Context, arg GetOrgUnitParams) (OrgUnit
 }
 
 const getStorageGroup = `-- name: GetStorageGroup :one
-SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_space WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetStorageGroupParams struct {
@@ -458,9 +458,9 @@ type GetStorageGroupParams struct {
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetStorageGroup(ctx context.Context, arg GetStorageGroupParams) (StorageSpace, error) {
+func (q *Queries) GetStorageGroup(ctx context.Context, arg GetStorageGroupParams) (StorageGroup, error) {
 	row := q.db.QueryRow(ctx, getStorageGroup, arg.OrgID, arg.ID)
-	var i StorageSpace
+	var i StorageGroup
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
@@ -518,7 +518,7 @@ func (q *Queries) IsOrgUnitExists(ctx context.Context, arg IsOrgUnitExistsParams
 }
 
 const isStorageGroupExists = `-- name: IsStorageGroupExists :one
-SELECT EXISTS (SELECT 1 FROM storage_space WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL)
+SELECT EXISTS (SELECT 1 FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL)
 `
 
 type IsStorageGroupExistsParams struct {
@@ -651,7 +651,7 @@ func (q *Queries) UpdateOrgUnit(ctx context.Context, arg UpdateOrgUnitParams) (O
 }
 
 const updateStorageGroup = `-- name: UpdateStorageGroup :one
-UPDATE storage_space SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
+UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
 `
 
 type UpdateStorageGroupParams struct {
@@ -661,14 +661,14 @@ type UpdateStorageGroupParams struct {
 	Alias string
 }
 
-func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroupParams) (StorageSpace, error) {
+func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroupParams) (StorageGroup, error) {
 	row := q.db.QueryRow(ctx, updateStorageGroup,
 		arg.OrgID,
 		arg.ID,
 		arg.Name,
 		arg.Alias,
 	)
-	var i StorageSpace
+	var i StorageGroup
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,

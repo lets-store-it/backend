@@ -1,0 +1,14 @@
+allOf:
+  - type: object
+    properties:
+      name:
+        type: string
+        example: Item 1
+      description:
+        type: string
+        example: Description
+        nullable: true
+      variants:
+        type: array
+        items:
+          $ref: ./ItemVariantPatchInItem.yaml

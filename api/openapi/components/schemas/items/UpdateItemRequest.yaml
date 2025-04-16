@@ -1,6 +1,6 @@
 type: object
 allOf:
-  - $ref: ./models/Item.yaml
+  - $ref: ./models/ItemCreate.yaml
   - type: object
     properties:
       variants:

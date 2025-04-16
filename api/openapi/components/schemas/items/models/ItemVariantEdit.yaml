@@ -7,4 +7,4 @@ allOf:
         format: uuid
     required:
       - id
-  - $ref: ./ItemVariantCreate.yaml
+  - $ref: ./ItemVariantBase.yaml
