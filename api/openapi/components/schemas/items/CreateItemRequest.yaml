@@ -6,4 +6,4 @@ allOf:
       variants:
         type: array
         items:
-          $ref: ./ItemVariantEditable.yaml
+          $ref: ./ItemVariantCreate.yaml

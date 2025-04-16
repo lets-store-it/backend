@@ -1,9 +1,5 @@
 type: object
 properties:
-  id:
-    type: string
-    format: uuid
-    readOnly: true
   name:
     type: string
     example: Variant 1
