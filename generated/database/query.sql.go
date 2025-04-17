@@ -11,6 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const assignRoleToUser = `-- name: AssignRoleToUser :exec
+INSERT INTO app_role_binding (role_id, user_id, org_id) VALUES ($1, $2, $3)
+`
+
+type AssignRoleToUserParams struct {
+	RoleID int32
+	UserID pgtype.UUID
+	OrgID  pgtype.UUID
+}
+
+// Role Bindings
+func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserParams) error {
+	_, err := q.db.Exec(ctx, assignRoleToUser, arg.RoleID, arg.UserID, arg.OrgID)
+	return err
+}
+
 const createItem = `-- name: CreateItem :one
 INSERT INTO item (org_id, name, description) VALUES ($1, $2, $3) RETURNING id, org_id, name, description, created_at, deleted_at
 `
@@ -609,6 +625,70 @@ func (q *Queries) GetUserBySessionSecret(ctx context.Context, token string) (App
 	return i, err
 }
 
+const getUserOrgs = `-- name: GetUserOrgs :many
+SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1)
+`
+
+func (q *Queries) GetUserOrgs(ctx context.Context, userID pgtype.UUID) ([]Org, error) {
+	rows, err := q.db.Query(ctx, getUserOrgs, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Org
+	for rows.Next() {
+		var i Org
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Subdomain,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserRolesInOrg = `-- name: GetUserRolesInOrg :many
+SELECT id, role_id, user_id, org_id FROM app_role_binding WHERE user_id = $1 AND org_id = $2
+`
+
+type GetUserRolesInOrgParams struct {
+	UserID pgtype.UUID
+	OrgID  pgtype.UUID
+}
+
+func (q *Queries) GetUserRolesInOrg(ctx context.Context, arg GetUserRolesInOrgParams) ([]AppRoleBinding, error) {
+	rows, err := q.db.Query(ctx, getUserRolesInOrg, arg.UserID, arg.OrgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AppRoleBinding
+	for rows.Next() {
+		var i AppRoleBinding
+		if err := rows.Scan(
+			&i.ID,
+			&i.RoleID,
+			&i.UserID,
+			&i.OrgID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const isItemExists = `-- name: IsItemExists :one
 SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL)
 `
@@ -666,6 +746,21 @@ func (q *Queries) IsStorageGroupExists(ctx context.Context, arg IsStorageGroupEx
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const unassignRoleFromUser = `-- name: UnassignRoleFromUser :exec
+DELETE FROM app_role_binding WHERE role_id = $1 AND user_id = $2 AND org_id = $3
+`
+
+type UnassignRoleFromUserParams struct {
+	RoleID int32
+	UserID pgtype.UUID
+	OrgID  pgtype.UUID
+}
+
+func (q *Queries) UnassignRoleFromUser(ctx context.Context, arg UnassignRoleFromUserParams) error {
+	_, err := q.db.Exec(ctx, unassignRoleFromUser, arg.RoleID, arg.UserID, arg.OrgID)
+	return err
 }
 
 const updateItem = `-- name: UpdateItem :one

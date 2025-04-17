@@ -21,6 +21,7 @@ func (h *RestApiImplementation) GetAuthCookieByEmail(ctx context.Context, req *a
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
+		
 	}
 
 	return &api.GetAuthCookieByEmailOK{

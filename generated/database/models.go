@@ -8,6 +8,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppRole struct {
+	ID          int32
+	Name        string
+	DisplayName string
+	Description pgtype.Text
+}
+
+type AppRoleBinding struct {
+	ID     pgtype.UUID
+	RoleID int32
+	UserID pgtype.UUID
+	OrgID  pgtype.UUID
+}
+
 type AppUser struct {
 	ID         pgtype.UUID
 	Email      string

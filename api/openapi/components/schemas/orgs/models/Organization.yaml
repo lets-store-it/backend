@@ -1,20 +1,13 @@
 type: object
-properties:
-  id:
-    type: string
-    format: uuid
-    readOnly: true
-    example: def3df1a-7b8f-4552-b437-a1eab851403f
-  name:
-    type: string
-    example: Exotic
-  subdomain:
-    type: string
-    example: exotic
-    minLength: 1
-    maxLength: 255
-    pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
-required:
-  - id
-  - name
-  - subdomain
+allOf:
+  - type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        readOnly: true
+        example: def3df1a-7b8f-4552-b437-a1eab851403f
+    required:
+      - id
+  - $ref: ./OrganizationBase.yaml
+

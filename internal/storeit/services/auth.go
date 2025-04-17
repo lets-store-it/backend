@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/storeit/models"
 )
@@ -18,10 +19,11 @@ var (
 
 type AuthService struct {
 	queries *database.Queries
+	pgxPool *pgxpool.Pool
 }
 
-func NewAuthService(queries *database.Queries) *AuthService {
-	return &AuthService{queries: queries}
+func NewAuthService(queries *database.Queries, pgxPool *pgxpool.Pool) *AuthService {
+	return &AuthService{queries: queries, pgxPool: pgxPool}
 }
 
 func (s *AuthService) GetSessionByUserId(ctx context.Context, userId uuid.UUID) (*models.Session, error) {
@@ -155,4 +157,40 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 		MiddleName: user.MiddleName,
 		YandexID:   user.YandexID,
 	}, nil
+}
+
+type Role int
+
+const (
+	RoleOwner   Role = 1
+	RoleAdmin   Role = 2
+	RoleManager Role = 3
+	RoleWorker  Role = 4
+)
+
+func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, role Role) error {
+	slog.Info("service:AssignRoleToUser", "orgID", orgID, "userID", userID, "role", role)
+	slog.Info("service:AssignRoleToUser", "queries", s.queries)
+	return s.queries.AssignRoleToUser(ctx, database.AssignRoleToUserParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+		RoleID: int32(role),
+	})
+}
+
+func (s *AuthService) GetUserRoles(ctx context.Context, userID uuid.UUID, orgID uuid.UUID) (map[Role]struct{}, error) {
+	dbRoles, err := s.queries.GetUserRolesInOrg(ctx, database.GetUserRolesInOrgParams{
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	roles := make(map[Role]struct{}, len(dbRoles))
+	for _, role := range dbRoles {
+		roles[Role(role.RoleID)] = struct{}{}
+	}
+
+	return roles, nil
 }
