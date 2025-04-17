@@ -12,6 +12,21 @@ func (s *DefaultErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+// Ref: #/components/responses/AuthResponse
+type AuthResponse struct {
+	SetCookie string
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *AuthResponse) GetSetCookie() string {
+	return s.SetCookie
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *AuthResponse) SetSetCookie(val string) {
+	s.SetCookie = val
+}
+
 // Merged schema.
 // Ref: #/components/schemas/CreateItemRequest
 type CreateItemRequest struct {
@@ -306,6 +321,110 @@ func (s *Error) SetErrorID(val string) {
 // SetMessage sets the value of Message.
 func (s *Error) SetMessage(val string) {
 	s.Message = val
+}
+
+type ExchangeYandexAccessTokenReq struct {
+	// Yandex Access token.
+	AccessToken string `json:"access_token"`
+}
+
+// GetAccessToken returns the value of AccessToken.
+func (s *ExchangeYandexAccessTokenReq) GetAccessToken() string {
+	return s.AccessToken
+}
+
+// SetAccessToken sets the value of AccessToken.
+func (s *ExchangeYandexAccessTokenReq) SetAccessToken(val string) {
+	s.AccessToken = val
+}
+
+// GetAuthCookieByEmailOK is response for GetAuthCookieByEmail operation.
+type GetAuthCookieByEmailOK struct {
+	SetCookie string
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *GetAuthCookieByEmailOK) GetSetCookie() string {
+	return s.SetCookie
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *GetAuthCookieByEmailOK) SetSetCookie(val string) {
+	s.SetCookie = val
+}
+
+// Ref: #/components/schemas/GetAuthCookieByEmailRequest
+type GetAuthCookieByEmailRequest struct {
+	Email string `json:"email"`
+}
+
+// GetEmail returns the value of Email.
+func (s *GetAuthCookieByEmailRequest) GetEmail() string {
+	return s.Email
+}
+
+// SetEmail sets the value of Email.
+func (s *GetAuthCookieByEmailRequest) SetEmail(val string) {
+	s.Email = val
+}
+
+// Ref: #/components/schemas/GetCurrentUserResponse
+type GetCurrentUserResponse struct {
+	ID         uuid.UUID `json:"id"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	MiddleName NilString `json:"middle_name"`
+	Email      string    `json:"email"`
+}
+
+// GetID returns the value of ID.
+func (s *GetCurrentUserResponse) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *GetCurrentUserResponse) GetFirstName() string {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *GetCurrentUserResponse) GetLastName() string {
+	return s.LastName
+}
+
+// GetMiddleName returns the value of MiddleName.
+func (s *GetCurrentUserResponse) GetMiddleName() NilString {
+	return s.MiddleName
+}
+
+// GetEmail returns the value of Email.
+func (s *GetCurrentUserResponse) GetEmail() string {
+	return s.Email
+}
+
+// SetID sets the value of ID.
+func (s *GetCurrentUserResponse) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *GetCurrentUserResponse) SetFirstName(val string) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *GetCurrentUserResponse) SetLastName(val string) {
+	s.LastName = val
+}
+
+// SetMiddleName sets the value of MiddleName.
+func (s *GetCurrentUserResponse) SetMiddleName(val NilString) {
+	s.MiddleName = val
+}
+
+// SetEmail sets the value of Email.
+func (s *GetCurrentUserResponse) SetEmail(val string) {
+	s.Email = val
 }
 
 // Ref: #/components/schemas/GetItemByIdResponse
@@ -609,14 +728,14 @@ func (s *ItemVariantBase) SetEan13(val OptNilInt) {
 
 // Ref: #/components/schemas/ItemVariantPatchInItem
 type ItemVariantPatchInItem struct {
-	ID      uuid.UUID    `json:"id"`
+	ID      OptUUID      `json:"id"`
 	Name    OptString    `json:"name"`
 	Article OptNilString `json:"article"`
 	Ean13   OptNilInt    `json:"ean13"`
 }
 
 // GetID returns the value of ID.
-func (s *ItemVariantPatchInItem) GetID() uuid.UUID {
+func (s *ItemVariantPatchInItem) GetID() OptUUID {
 	return s.ID
 }
 
@@ -636,7 +755,7 @@ func (s *ItemVariantPatchInItem) GetEan13() OptNilInt {
 }
 
 // SetID sets the value of ID.
-func (s *ItemVariantPatchInItem) SetID(val uuid.UUID) {
+func (s *ItemVariantPatchInItem) SetID(val OptUUID) {
 	s.ID = val
 }
 

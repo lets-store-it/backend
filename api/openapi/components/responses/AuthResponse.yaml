@@ -1,0 +1,7 @@
+description: Auth response
+headers:
+  Set-Cookie:
+    schema:
+      type: string
+      description: Auth cookie
+    required: true

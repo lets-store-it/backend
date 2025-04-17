@@ -1,0 +1,22 @@
+post:
+  tags:
+    - auth
+  summary: Exchange Yandex Access token for Session token
+  operationId: exchangeYandexAccessToken
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+              description: Yandex Access token
+          required:
+            - access_token
+  responses:
+    "200":
+      $ref: ../../components/responses/AuthResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

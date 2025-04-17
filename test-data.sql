@@ -23,3 +23,6 @@ INSERT INTO item_variant (id, item_id, name, article, ean13) VALUES
     ('7513a498-9e6f-48fc-9787-e6395df65a85', '97e4d2cf-8519-4cf9-aff3-ca8368506fd2', 'Белая', 'TM02', NULL),
 
     ('99921684-433c-4ebe-a461-d5a9d19519b3', '97e4d2cf-8519-4cf9-aff3-ca8368506fd2', 'Основной', NULL, NULL)
+
+INSERT INTO app_user (id, email, first_name, last_name, middle_name) VALUES
+    ('99921684-433c-4ebe-a461-d5a9d19519b3', 'evgeny@evseevs.ru', 'Евгений', 'Евсеев', 'Васильевич');

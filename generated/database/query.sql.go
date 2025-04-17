@@ -120,7 +120,7 @@ func (q *Queries) CreateOrgUnit(ctx context.Context, arg CreateOrgUnitParams) (O
 }
 
 const createStorageGroup = `-- name: CreateStorageGroup :one
-INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
+INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at
 `
 
 type CreateStorageGroupParams struct {
@@ -147,8 +147,65 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 		&i.ParentID,
 		&i.Name,
 		&i.Alias,
+		&i.Description,
 		&i.CreatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, middle_name, yandex_id, created_at
+`
+
+type CreateUserParams struct {
+	Email      string
+	FirstName  string
+	LastName   string
+	MiddleName pgtype.Text
+	YandexID   pgtype.Text
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (AppUser, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.MiddleName,
+		arg.YandexID,
+	)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.YandexID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const createUserSession = `-- name: CreateUserSession :one
+INSERT INTO app_user_session (user_id, token) VALUES ($1, $2) RETURNING id, user_id, token, created_at, expires_at, revoked_at
+`
+
+type CreateUserSessionParams struct {
+	UserID pgtype.UUID
+	Token  string
+}
+
+func (q *Queries) CreateUserSession(ctx context.Context, arg CreateUserSessionParams) (AppUserSession, error) {
+	row := q.db.QueryRow(ctx, createUserSession, arg.UserID, arg.Token)
+	var i AppUserSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
 	)
 	return i, err
 }
@@ -314,7 +371,7 @@ func (q *Queries) GetActiveOrgs(ctx context.Context) ([]Org, error) {
 }
 
 const getActiveStorageGroups = `-- name: GetActiveStorageGroups :many
-SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL
 `
 
 // Storage spaces
@@ -334,6 +391,7 @@ func (q *Queries) GetActiveStorageGroups(ctx context.Context, orgID pgtype.UUID)
 			&i.ParentID,
 			&i.Name,
 			&i.Alias,
+			&i.Description,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -449,8 +507,27 @@ func (q *Queries) GetOrgUnit(ctx context.Context, arg GetOrgUnitParams) (OrgUnit
 	return i, err
 }
 
+const getSessionByUserId = `-- name: GetSessionByUserId :one
+SELECT id, user_id, token, created_at, expires_at, revoked_at FROM app_user_session WHERE user_id = $1 LIMIT 1
+`
+
+// Auth
+func (q *Queries) GetSessionByUserId(ctx context.Context, userID pgtype.UUID) (AppUserSession, error) {
+	row := q.db.QueryRow(ctx, getSessionByUserId, userID)
+	var i AppUserSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+	)
+	return i, err
+}
+
 const getStorageGroup = `-- name: GetStorageGroup :one
-SELECT id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetStorageGroupParams struct {
@@ -468,8 +545,66 @@ func (q *Queries) GetStorageGroup(ctx context.Context, arg GetStorageGroupParams
 		&i.ParentID,
 		&i.Name,
 		&i.Alias,
+		&i.Description,
 		&i.CreatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (AppUser, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.YandexID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserById = `-- name: GetUserById :one
+SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (AppUser, error) {
+	row := q.db.QueryRow(ctx, getUserById, id)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.YandexID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserBySessionSecret = `-- name: GetUserBySessionSecret :one
+SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 LIMIT 1)
+`
+
+func (q *Queries) GetUserBySessionSecret(ctx context.Context, token string) (AppUser, error) {
+	row := q.db.QueryRow(ctx, getUserBySessionSecret, token)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.YandexID,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -651,7 +786,7 @@ func (q *Queries) UpdateOrgUnit(ctx context.Context, arg UpdateOrgUnitParams) (O
 }
 
 const updateStorageGroup = `-- name: UpdateStorageGroup :one
-UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, created_at, deleted_at
+UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at
 `
 
 type UpdateStorageGroupParams struct {
@@ -676,6 +811,7 @@ func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroup
 		&i.ParentID,
 		&i.Name,
 		&i.Alias,
+		&i.Description,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)

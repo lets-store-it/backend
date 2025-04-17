@@ -91,6 +91,25 @@ UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE item_id = $1 AND id
 -- name: IsItemExists :one
 SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
+-- Auth
+-- name: GetSessionByUserId :one
+SELECT * FROM app_user_session WHERE user_id = $1 LIMIT 1;
+
+-- name: GetUserBySessionSecret :one
+SELECT * FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 LIMIT 1);
+
+-- name: GetUserByEmail :one
+SELECT * FROM app_user WHERE email = $1 LIMIT 1;
+
+-- name: CreateUserSession :one
+INSERT INTO app_user_session (user_id, token) VALUES ($1, $2) RETURNING *;
+
+-- name: GetUserById :one
+SELECT * FROM app_user WHERE id = $1 LIMIT 1;
+
+-- name: CreateUser :one
+INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
 

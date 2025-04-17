@@ -18,9 +18,15 @@ type DatabaseConfig struct {
 	Password string `yaml:"password" env:"DB_PASSWORD" env-default:"storeit"`
 }
 
+type YandexOAuthConfig struct {
+	ClientID     string `yaml:"client_id" env:"YANDEX_OAUTH_CLIENT_ID" env-default:"712925a705b34f5399ba6f067347266b"`
+	ClientSecret string `yaml:"client_secret" env:"YANDEX_OAUTH_CLIENT_SECRET" env-default:"331b7a0292044e958989397a28c56bc7"`
+}
+
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
+	Server      ServerConfig
+	Database    DatabaseConfig
+	YandexOAuth YandexOAuthConfig
 }
 
 func GetConfigOrDie() *Config {
