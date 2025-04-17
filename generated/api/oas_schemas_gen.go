@@ -93,14 +93,8 @@ func (s *CreateItemResponse) SetData(val ItemFull) {
 
 // Ref: #/components/schemas/CreateOrganizationRequest
 type CreateOrganizationRequest struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Subdomain string    `json:"subdomain"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateOrganizationRequest) GetID() uuid.UUID {
-	return s.ID
+	Name      string `json:"name"`
+	Subdomain string `json:"subdomain"`
 }
 
 // GetName returns the value of Name.
@@ -111,11 +105,6 @@ func (s *CreateOrganizationRequest) GetName() string {
 // GetSubdomain returns the value of Subdomain.
 func (s *CreateOrganizationRequest) GetSubdomain() string {
 	return s.Subdomain
-}
-
-// SetID sets the value of ID.
-func (s *CreateOrganizationRequest) SetID(val uuid.UUID) {
-	s.ID = val
 }
 
 // SetName sets the value of Name.
@@ -1190,6 +1179,7 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// Merged schema.
 // Ref: #/components/schemas/Organization
 type Organization struct {
 	ID        uuid.UUID `json:"id"`
@@ -1662,6 +1652,7 @@ func (s *UpdateItemResponse) SetData(val ItemFull) {
 	s.Data = val
 }
 
+// Merged schema.
 // Ref: #/components/schemas/UpdateOrganizationRequest
 type UpdateOrganizationRequest struct {
 	ID        uuid.UUID `json:"id"`

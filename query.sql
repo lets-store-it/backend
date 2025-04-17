@@ -110,6 +110,20 @@ SELECT * FROM app_user WHERE id = $1 LIMIT 1;
 -- name: CreateUser :one
 INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
+
+-- Role Bindings
+-- name: AssignRoleToUser :exec
+INSERT INTO app_role_binding (role_id, user_id, org_id) VALUES ($1, $2, $3);
+
+-- name: UnassignRoleFromUser :exec
+DELETE FROM app_role_binding WHERE role_id = $1 AND user_id = $2 AND org_id = $3;
+
+-- name: GetUserRolesInOrg :many
+SELECT * FROM app_role_binding WHERE user_id = $1 AND org_id = $2;
+
+-- name: GetUserOrgs :many
+SELECT * FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1);
+
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
 

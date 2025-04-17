@@ -19,3 +19,11 @@ func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	}
 	return orgID, nil
 }
+
+func GetUserIdFromContext(ctx context.Context) (uuid.UUID, error) {
+	userID := ctx.Value(UserIDKey).(uuid.UUID)
+	if userID == uuid.Nil {
+		return uuid.Nil, fmt.Errorf("user ID not found in context")
+	}
+	return userID, nil
+}

@@ -29,7 +29,7 @@ func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api
 
 // GetOrganizations implements api.Handler.
 func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetOrganizationsResponse, error) {
-	orgs, err := h.orgUseCase.GetAll(ctx)
+	orgs, err := h.orgUseCase.GetUsersOrgs(ctx)
 	if err != nil {
 		return nil, err
 	}

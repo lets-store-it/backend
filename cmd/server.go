@@ -32,25 +32,28 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-
-	// Initialize organization layers
-	orgService := services.NewOrganizationService(queries)
-	orgUseCase := usecases.NewOrganizationUseCase(orgService)
-
-	// Initialize storage group layers
-	storageGroupService := services.NewStorageGroupService(queries)
-	storageGroupUseCase := usecases.NewStorageGroupUseCase(storageGroupService, orgService)
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	// Initialize item layers
 	itemService := services.NewItemService(queries, conn)
 	itemUseCase := usecases.NewItemUseCase(itemService)
 
 	// Initialize auth layers
-	authService := services.NewAuthService(queries)
+	authService := services.NewAuthService(queries, conn)
 	yandexOAuthService := yandex.NewYandexOAuthService(config.YandexOAuth.ClientID, config.YandexOAuth.ClientSecret)
 	authUseCase := usecases.NewAuthUseCase(authService, yandexOAuthService)
 
+	// Initialize organization layers
+	orgService := services.NewOrganizationService(queries, conn)
+	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService)
+
+	// Initialize storage group layers
+	storageGroupService := services.NewStorageGroupService(queries)
+	storageGroupUseCase := usecases.NewStorageGroupUseCase(storageGroupService, orgService)
 	// Initialize handlers
 	handler := handlers.NewRestApiImplementation(orgUseCase, storageGroupUseCase, itemUseCase, authUseCase)
 

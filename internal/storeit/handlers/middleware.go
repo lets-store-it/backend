@@ -26,15 +26,11 @@ func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Ha
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Skip organization header check for /orgs paths
 
-		if strings.HasPrefix(r.URL.Path, "/orgs") {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		if strings.HasPrefix(r.URL.Path, "/auth") {
 			next.ServeHTTP(w, r)
 			return
 		}
+
 		cookie, err := r.Cookie("storeit_session")
 		if err != nil {
 			http.Error(w, "storeit_session cookie is required", http.StatusBadRequest)
@@ -47,6 +43,11 @@ func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Ha
 		}
 
 		if strings.HasPrefix(r.URL.Path, "/me") {
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), usecases.UserIDKey, userID)))
+			return
+		}
+
+		if strings.HasPrefix(r.URL.Path, "/orgs") {
 			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), usecases.UserIDKey, userID)))
 			return
 		}
@@ -75,6 +76,7 @@ func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Ha
 		}
 
 		ctx := context.WithValue(r.Context(), usecases.UserIDKey, userID)
+		ctx = context.WithValue(ctx, usecases.OrganizationIDKey, orgID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

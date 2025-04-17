@@ -83,16 +83,6 @@ CREATE TABLE item_instance (
     UNIQUE (item_id, variant_id)
 );
 
-CREATE TABLE app_user_session (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES app_user(id),
-    token VARCHAR(255) NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP + INTERVAL '7 days',
-    revoked_at TIMESTAMP
-);
-CREATE INDEX app_user_session_user_id_idx ON app_user_session(user_id);
-
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -106,7 +96,37 @@ CREATE TABLE app_user (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CREATE TABLE object_type (
+CREATE TABLE app_user_session (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES app_user(id),
+    token VARCHAR(255) NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP + INTERVAL '7 days',
+    revoked_at TIMESTAMP
+);
+CREATE INDEX app_user_session_user_id_idx ON app_user_session(user_id);
+
+CREATE TABLE app_role (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    display_name VARCHAR(255) NOT NULL,
+    description VARCHAR(255)
+);
+
+INSERT INTO app_role (id, name, display_name) VALUES
+    (1, 'org_owner', 'Владелец', 'Имеет полный доступ к Организации, может назначать Управляющих организацией'),
+    (2, 'org_admin', 'Управляющий', 'Имеет полный доступ к Организации, может назначать Менеджеров организации'),
+    (3, 'org_manager', 'Менеджер', 'Имеет доступ к управлению объектами Организации, может назначать Сотрудников склада'),
+    (4, 'org_worker', 'Сотрудник', 'Имеет доступ к складким операциям');
+
+CREATE TABLE app_role_binding (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    role_id INTEGER NOT NULL REFERENCES app_role(id),
+    user_id UUID NOT NULL REFERENCES app_user(id),
+    org_id UUID NOT NULL REFERENCES org(id),
+    UNIQUE (role_id, user_id, org_id)
+);
+
 --     id INTEGER PRIMARY KEY,
 --     group VARCHAR(100) NOT NULL,
 --     name VARCHAR(100) NOT NULL,
@@ -121,25 +141,8 @@ CREATE TABLE app_user (
 --     (4, 'items', 'item'),
 --     (5, 'items', 'instance');
 
--- CREATE TABLE app_role (
---     id INTEGER PRIMARY KEY,
---     name VARCHAR(255) NOT NULL,
---     display_name VARCHAR(255) NOT NULL,
---     description VARCHAR(255)
--- );
 
--- INSERT INTO app_role (id, name, display_name) VALUES
---     (1, 'org_owner', 'Владелец', 'Имеет полный доступ к Организации, может назначать Управляющих организацией'),
---     (2, 'org_admin', 'Управляющий', 'Имеет полный доступ к Организации, может назначать Менеджеров организации'),
---     (3, 'org_manager', 'Менеджер', 'Имеет доступ к управлению объектами Организации, может назначать Сотрудников склада'),
---     (4, 'org_worker', 'Сотрудник', 'Имеет доступ к складким операциям'),
 
--- CREATE TABLE app_role_binding (
---     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     role_id UUID NOT NULL REFERENCES app_role(id),
---     user_id UUID NOT NULL REFERENCES app_user(id),
---     UNIQUE (role_id, employee_id)
--- );
  
 -- CREATE TABLE app_role_permission (
 --     id INTEGER PRIMARY KEY,

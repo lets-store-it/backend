@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/storeit/models"
 )
@@ -40,11 +41,13 @@ func toOrganization(org database.Org) (*models.Organization, error) {
 
 type OrganizationService struct {
 	queries *database.Queries
+	pgxPool *pgxpool.Pool
 }
 
-func NewOrganizationService(queries *database.Queries) *OrganizationService {
+func NewOrganizationService(queries *database.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
 	return &OrganizationService{
 		queries: queries,
+		pgxPool: pgxPool,
 	}
 }
 
@@ -82,6 +85,23 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 	}
 
 	return toOrganization(org)
+}
+
+func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID) ([]*models.Organization, error) {
+	res, err := s.queries.GetUserOrgs(ctx, pgtype.UUID{Bytes: userID, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	orgs := make([]*models.Organization, len(res))
+	for i, org := range res {
+		orgs[i], err = toOrganization(org)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return orgs, nil
 }
 
 func (s *OrganizationService) GetAll(ctx context.Context) ([]*models.Organization, error) {
