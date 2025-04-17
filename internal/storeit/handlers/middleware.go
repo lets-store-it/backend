@@ -11,20 +11,43 @@ import (
 )
 
 type OrganizationIDMiddleware struct {
-	orgUseCase *usecases.OrganizationUseCase
+	orgUseCase  *usecases.OrganizationUseCase
+	authUseCase *usecases.AuthUseCase
 }
 
-func NewOrganizationIDMiddleware(orgUseCase *usecases.OrganizationUseCase) *OrganizationIDMiddleware {
+func NewOrganizationIDMiddleware(orgUseCase *usecases.OrganizationUseCase, authUseCase *usecases.AuthUseCase) *OrganizationIDMiddleware {
 	return &OrganizationIDMiddleware{
-		orgUseCase: orgUseCase,
+		orgUseCase:  orgUseCase,
+		authUseCase: authUseCase,
 	}
 }
 
 func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Skip organization header check for /orgs paths
+
 		if strings.HasPrefix(r.URL.Path, "/orgs") {
 			next.ServeHTTP(w, r)
+			return
+		}
+
+		if strings.HasPrefix(r.URL.Path, "/auth") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		cookie, err := r.Cookie("storeit_session")
+		if err != nil {
+			http.Error(w, "storeit_session cookie is required", http.StatusBadRequest)
+			return
+		}
+		userID, err := m.authUseCase.GetUserIdFromSession(r.Context(), cookie.Value)
+		if err != nil {
+			http.Error(w, "invalid session", http.StatusBadRequest)
+			return
+		}
+
+		if strings.HasPrefix(r.URL.Path, "/me") {
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), usecases.UserIDKey, userID)))
 			return
 		}
 
@@ -51,7 +74,7 @@ func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Ha
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), usecases.OrganizationIDKey, orgID)
+		ctx := context.WithValue(r.Context(), usecases.UserIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

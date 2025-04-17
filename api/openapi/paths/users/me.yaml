@@ -1,0 +1,14 @@
+get:
+  tags:
+    - unit
+  summary: Get Current User
+  operationId: getCurrentUser
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

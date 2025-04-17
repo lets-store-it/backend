@@ -1,0 +1,20 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+  first_name:
+    type: string
+  last_name:
+    type: string
+  middle_name:
+    type: string
+    nullable: true
+  email:
+    type: string
+required:
+  - id
+  - email
+  - first_name
+  - last_name
+  - middle_name

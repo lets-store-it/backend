@@ -14,8 +14,8 @@ import (
 	"github.com/let-store-it/backend/generated/database"
 	db "github.com/let-store-it/backend/internal/storeit/database"
 	"github.com/let-store-it/backend/internal/storeit/handlers"
-	"github.com/let-store-it/backend/internal/storeit/repositories"
 	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/storeit/services/yandex"
 	"github.com/let-store-it/backend/internal/storeit/usecases"
 )
 
@@ -31,37 +31,28 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
 	// Initialize organization layers
-	orgRepo := &repositories.OrganizationRepository{
-		Queries: queries,
-	}
-	orgService := services.NewOrganizationService(orgRepo)
+	orgService := services.NewOrganizationService(queries)
 	orgUseCase := usecases.NewOrganizationUseCase(orgService)
 
-	// Initialize organization unit layers
-	orgUnitRepo := &repositories.OrganizationUnitRepository{
-		Queries: queries,
-	}
-	orgUnitService := services.NewOrganizationUnitService(orgUnitRepo)
-	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgUnitService, orgService)
-
 	// Initialize storage group layers
-	storageGroupRepo := &repositories.StorageGroupRepository{
-		Queries: queries,
-	}
-	storageGroupService := services.NewStorageGroupService(storageGroupRepo)
+	storageGroupService := services.NewStorageGroupService(queries)
 	storageGroupUseCase := usecases.NewStorageGroupUseCase(storageGroupService, orgService)
 
 	// Initialize item layers
-	itemRepo := repositories.NewItemRepository(queries, conn)
-	itemService := services.NewItemService(itemRepo)
+	itemService := services.NewItemService(queries, conn)
 	itemUseCase := usecases.NewItemUseCase(itemService)
 
+	// Initialize auth layers
+	authService := services.NewAuthService(queries)
+	yandexOAuthService := yandex.NewYandexOAuthService(config.YandexOAuth.ClientID, config.YandexOAuth.ClientSecret)
+	authUseCase := usecases.NewAuthUseCase(authService, yandexOAuthService)
+
 	// Initialize handlers
-	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase, itemUseCase)
+	handler := handlers.NewRestApiImplementation(orgUseCase, storageGroupUseCase, itemUseCase, authUseCase)
 
 	server, err := api.NewServer(handler)
 	if err != nil {
@@ -69,7 +60,7 @@ func main() {
 	}
 
 	// Add organization ID middleware
-	orgIDMiddleware := handlers.NewOrganizationIDMiddleware(orgUseCase)
+	orgIDMiddleware := handlers.NewOrganizationIDMiddleware(orgUseCase, authUseCase)
 	e.Any("/*", echo.WrapHandler(orgIDMiddleware.WithOrganizationID(server)))
 
 	go func() {

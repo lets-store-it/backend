@@ -10,6 +10,7 @@ import (
 type contextKey string
 
 const OrganizationIDKey contextKey = "organization_id"
+const UserIDKey contextKey = "user_id"
 
 func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	orgID := ctx.Value(OrganizationIDKey).(uuid.UUID)

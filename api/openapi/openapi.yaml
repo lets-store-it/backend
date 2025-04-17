@@ -39,3 +39,12 @@ paths:
     $ref: paths/items/items.yaml
   /items/{id}:
     $ref: paths/items/items_{id}.yaml
+
+  /auth/oauth2/yandex:
+    $ref: paths/auth/yandex.yaml
+
+  /auth/testing:
+    $ref: paths/auth/testing.yaml
+
+  /me:
+    $ref: paths/users/me.yaml

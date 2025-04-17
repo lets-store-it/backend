@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/repositories"
 )
 
 var (
@@ -17,13 +18,32 @@ var (
 )
 
 type StorageGroupService struct {
-	repo *repositories.StorageGroupRepository
+	queries *database.Queries
 }
 
-func NewStorageGroupService(repo *repositories.StorageGroupRepository) *StorageGroupService {
+func NewStorageGroupService(queries *database.Queries) *StorageGroupService {
 	return &StorageGroupService{
-		repo: repo,
+		queries: queries,
 	}
+}
+
+func toStorageGroup(group database.StorageGroup) (*models.StorageGroup, error) {
+	id := uuidFromPgx(group.ID)
+	if id == nil {
+		return nil, errors.New("id is nil")
+	}
+	unitID := uuidFromPgx(group.UnitID)
+	if unitID == nil {
+		return nil, errors.New("unit_id is nil")
+	}
+
+	return &models.StorageGroup{
+		ID:       *id,
+		UnitID:   *unitID,
+		ParentID: uuidFromPgx(group.ParentID),
+		Name:     group.Name,
+		Alias:    group.Alias,
+	}, nil
 }
 
 func (s *StorageGroupService) validateStorageGroupData(name string, alias string) error {
@@ -48,38 +68,85 @@ func (s *StorageGroupService) validateStorageGroupData(name string, alias string
 }
 
 func (s *StorageGroupService) Create(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
-	if err := s.validateStorageGroupData(name, alias); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	var parentIDPgx pgtype.UUID
+	if parentID != nil {
+		parentIDPgx = pgtype.UUID{Bytes: *parentID, Valid: true}
+	} else {
+		parentIDPgx = pgtype.UUID{Valid: false}
 	}
-	return s.repo.CreateStorageGroup(ctx, orgID, unitID, parentID, name, alias)
-}
 
-func (s *StorageGroupService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
-	return s.repo.GetStorageGroups(ctx, orgID)
-}
-
-func (s *StorageGroupService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.StorageGroup, error) {
-	group, err := s.repo.GetStorageGroup(ctx, orgID, id)
+	group, err := s.queries.CreateStorageGroup(ctx, database.CreateStorageGroupParams{
+		OrgID:    pgtype.UUID{Bytes: orgID, Valid: true},
+		UnitID:   pgtype.UUID{Bytes: unitID, Valid: true},
+		ParentID: parentIDPgx,
+		Name:     name,
+		Alias:    alias,
+	})
 	if err != nil {
 		return nil, err
 	}
-	if group == nil {
+
+	return toStorageGroup(group)
+}
+
+func (s *StorageGroupService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
+	groups, err := s.queries.GetActiveStorageGroups(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*models.StorageGroup, len(groups))
+	for i, group := range groups {
+		result[i], err = toStorageGroup(group)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+func (s *StorageGroupService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.StorageGroup, error) {
+	group, err := s.queries.GetStorageGroup(ctx, database.GetStorageGroupParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	model, err := toStorageGroup(group)
+
+	if err != nil {
+		return nil, err
+	}
+	if model == nil {
 		return nil, ErrStorageGroupNotFound
 	}
-	return group, nil
+	return model, nil
 }
 
 func (s *StorageGroupService) Delete(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
-	return s.repo.DeleteStorageGroup(ctx, orgID, id)
+	return s.queries.DeleteStorageGroup(ctx, database.DeleteStorageGroupParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
+	})
 }
 
 func (s *StorageGroupService) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
-	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	updatedGroup, err := s.queries.UpdateStorageGroup(ctx, database.UpdateStorageGroupParams{
+		ID:    pgtype.UUID{Bytes: group.ID, Valid: true},
+		Name:  group.Name,
+		Alias: group.Alias,
+	})
+	if err != nil {
+		return nil, err
 	}
-	return s.repo.UpdateStorageGroup(ctx, group)
+	return toStorageGroup(updatedGroup)
 }
 
 func (s *StorageGroupService) IsStorageGroupExists(ctx context.Context, orgID uuid.UUID, groupID uuid.UUID) (bool, error) {
-	return s.repo.IsStorageGroupExists(ctx, orgID, groupID)
+	return s.queries.IsStorageGroupExists(ctx, database.IsStorageGroupExistsParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: groupID, Valid: true},
+	})
 }

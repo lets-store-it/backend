@@ -8,6 +8,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppUser struct {
+	ID         pgtype.UUID
+	Email      string
+	FirstName  string
+	LastName   string
+	MiddleName pgtype.Text
+	YandexID   pgtype.Text
+	CreatedAt  pgtype.Timestamp
+}
+
+type AppUserSession struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	Token     string
+	CreatedAt pgtype.Timestamp
+	ExpiresAt pgtype.Timestamp
+	RevokedAt pgtype.Timestamp
+}
+
 type Item struct {
 	ID          pgtype.UUID
 	OrgID       pgtype.UUID
@@ -54,12 +73,13 @@ type OrgUnit struct {
 }
 
 type StorageGroup struct {
-	ID        pgtype.UUID
-	OrgID     pgtype.UUID
-	UnitID    pgtype.UUID
-	ParentID  pgtype.UUID
-	Name      string
-	Alias     string
-	CreatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	ID          pgtype.UUID
+	OrgID       pgtype.UUID
+	UnitID      pgtype.UUID
+	ParentID    pgtype.UUID
+	Name        string
+	Alias       string
+	Description pgtype.Text
+	CreatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
 }

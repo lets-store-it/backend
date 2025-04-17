@@ -10,13 +10,11 @@ import (
 )
 
 type OrganizationUnitUseCase struct {
-	service    *services.OrganizationUnitService
 	orgService *services.OrganizationService
 }
 
-func NewOrganizationUnitUseCase(service *services.OrganizationUnitService, orgService *services.OrganizationService) *OrganizationUnitUseCase {
+func NewOrganizationUnitUseCase(orgService *services.OrganizationService) *OrganizationUnitUseCase {
 	return &OrganizationUnitUseCase{
-		service:    service,
 		orgService: orgService,
 	}
 }
@@ -28,7 +26,7 @@ func (uc *OrganizationUnitUseCase) validateOrganizationAccess(ctx context.Contex
 	}
 
 	if unitID != uuid.Nil {
-		exists, err := uc.service.IsOrganizationUnitExists(ctx, orgID, unitID)
+		exists, err := uc.orgService.IsOrganizationUnitExists(ctx, orgID, unitID)
 		if err != nil {
 			return uuid.Nil, fmt.Errorf("failed to check unit ownership: %w", err)
 		}
@@ -46,7 +44,7 @@ func (uc *OrganizationUnitUseCase) Create(ctx context.Context, name string, alia
 		return nil, err
 	}
 
-	return uc.service.Create(ctx, orgID, name, alias, address)
+	return uc.orgService.CreateUnit(ctx, orgID, name, alias, address)
 }
 
 func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context) ([]*models.OrganizationUnit, error) {
@@ -55,7 +53,7 @@ func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context) ([]*models.Organi
 		return nil, err
 	}
 
-	return uc.service.GetAll(ctx, orgID)
+	return uc.orgService.GetAllUnits(ctx, orgID)
 }
 
 func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
@@ -64,7 +62,7 @@ func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*
 		return nil, err
 	}
 
-	unit, err := uc.service.GetByID(ctx, orgID, id)
+	unit, err := uc.orgService.GetUnitByID(ctx, orgID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
 	}
@@ -78,7 +76,7 @@ func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 
-	return uc.service.Delete(ctx, orgID, id)
+	return uc.orgService.DeleteUnit(ctx, orgID, id)
 }
 
 func (uc *OrganizationUnitUseCase) Update(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
@@ -87,7 +85,7 @@ func (uc *OrganizationUnitUseCase) Update(ctx context.Context, unit *models.Orga
 		return nil, err
 	}
 
-	return uc.service.Update(ctx, unit)
+	return uc.orgService.UpdateUnit(ctx, unit)
 }
 
 func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
@@ -96,7 +94,7 @@ func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, upda
 		return nil, err
 	}
 
-	unit, err := uc.service.GetByID(ctx, orgID, id)
+	unit, err := uc.orgService.GetUnitByID(ctx, orgID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
 	}
@@ -112,5 +110,5 @@ func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, upda
 		unit.Address = &address
 	}
 
-	return uc.service.Update(ctx, unit)
+	return uc.orgService.UpdateUnit(ctx, unit)
 }

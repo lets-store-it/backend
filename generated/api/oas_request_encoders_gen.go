@@ -67,6 +67,34 @@ func encodeCreateUnitRequest(
 	return nil
 }
 
+func encodeExchangeYandexAccessTokenRequest(
+	req *ExchangeYandexAccessTokenReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeGetAuthCookieByEmailRequest(
+	req *GetAuthCookieByEmailRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodePatchItemRequest(
 	req *PatchItemRequest,
 	r *http.Request,

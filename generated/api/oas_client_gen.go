@@ -69,6 +69,24 @@ type Invoker interface {
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	// ExchangeYandexAccessToken invokes exchangeYandexAccessToken operation.
+	//
+	// Exchange Yandex Access token for Session token.
+	//
+	// POST /auth/oauth2/yandex
+	ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
+	// GetAuthCookieByEmail invokes getAuthCookieByEmail operation.
+	//
+	// Get Auth Cookie by email.
+	//
+	// POST /auth/testing
+	GetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error)
+	// GetCurrentUser invokes getCurrentUser operation.
+	//
+	// Get Current User.
+	//
+	// GET /me
+	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
 	// GetItemById invokes getItemById operation.
 	//
 	// Get Item by ID.
@@ -579,6 +597,120 @@ func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorag
 	defer resp.Body.Close()
 
 	result, err := decodeDeleteStorageGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ExchangeYandexAccessToken invokes exchangeYandexAccessToken operation.
+//
+// Exchange Yandex Access token for Session token.
+//
+// POST /auth/oauth2/yandex
+func (c *Client) ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (*AuthResponse, error) {
+	res, err := c.sendExchangeYandexAccessToken(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (res *AuthResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/auth/oauth2/yandex"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeExchangeYandexAccessTokenRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeExchangeYandexAccessTokenResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetAuthCookieByEmail invokes getAuthCookieByEmail operation.
+//
+// Get Auth Cookie by email.
+//
+// POST /auth/testing
+func (c *Client) GetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error) {
+	res, err := c.sendGetAuthCookieByEmail(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendGetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (res *GetAuthCookieByEmailOK, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/auth/testing"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeGetAuthCookieByEmailRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetAuthCookieByEmailResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetCurrentUser invokes getCurrentUser operation.
+//
+// Get Current User.
+//
+// GET /me
+func (c *Client) GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error) {
+	res, err := c.sendGetCurrentUser(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetCurrentUser(ctx context.Context) (res *GetCurrentUserResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/me"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetCurrentUserResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

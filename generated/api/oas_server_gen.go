@@ -56,6 +56,24 @@ type Handler interface {
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	// ExchangeYandexAccessToken implements exchangeYandexAccessToken operation.
+	//
+	// Exchange Yandex Access token for Session token.
+	//
+	// POST /auth/oauth2/yandex
+	ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
+	// GetAuthCookieByEmail implements getAuthCookieByEmail operation.
+	//
+	// Get Auth Cookie by email.
+	//
+	// POST /auth/testing
+	GetAuthCookieByEmail(ctx context.Context, req *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error)
+	// GetCurrentUser implements getCurrentUser operation.
+	//
+	// Get Current User.
+	//
+	// GET /me
+	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
 	// GetItemById implements getItemById operation.
 	//
 	// Get Item by ID.

@@ -1,0 +1,17 @@
+meta {
+  name: Exchange Yandex ID
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/auth/testing
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "evgeny@evseevs.ru"
+  }
+}
