@@ -28,8 +28,8 @@ func convertGroupToDTO(group *models.StorageGroup) api.StorageGroup {
 // CreateStorageGroup implements api.Handler.
 func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.CreateStorageGroupRequest) (*api.CreateStorageGroupResponse, error) {
 	var parentID *uuid.UUID
-	if req.ParentId.IsSet() {
-		parentID = &req.ParentId.Value
+	if val, ok := req.ParentId.Get(); ok {
+		parentID = &val
 	}
 
 	group, err := h.storageGroupUseCase.Create(ctx, req.UnitId, parentID, req.Name, req.Alias)
