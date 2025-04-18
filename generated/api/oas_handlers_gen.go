@@ -5,12 +5,19 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/go-faster/errors"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/trace"
 
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/ogen-go/ogen/otelogen"
 )
 
 type codeRecorder struct {
@@ -23,8 +30,6 @@ func (c *codeRecorder) WriteHeader(status int) {
 	c.ResponseWriter.WriteHeader(status)
 }
 
-func recordError(string, error) {}
-
 // handleCreateCellRequest handles createCell operation.
 //
 // Create Cells.
@@ -33,9 +38,66 @@ func recordError(string, error) {}
 func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createCell"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateCellOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateCellOperation,
@@ -108,7 +170,7 @@ func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -117,13 +179,13 @@ func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateCellResponse(response, w); err != nil {
+	if err := encodeCreateCellResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -140,9 +202,66 @@ func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w htt
 func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createCellsGroup"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/cells-groups"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateCellsGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateCellsGroupOperation,
@@ -200,7 +319,7 @@ func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool,
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -209,13 +328,13 @@ func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool,
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateCellsGroupResponse(response, w); err != nil {
+	if err := encodeCreateCellsGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -232,9 +351,66 @@ func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool,
 func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createItem"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/items"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateItemOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateItemOperation,
@@ -292,7 +468,7 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -301,13 +477,13 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateItemResponse(response, w); err != nil {
+	if err := encodeCreateItemResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -324,9 +500,66 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createOrganization"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/orgs"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateOrganizationOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateOrganizationOperation,
@@ -384,7 +617,7 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -393,13 +626,13 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateOrganizationResponse(response, w); err != nil {
+	if err := encodeCreateOrganizationResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -416,9 +649,66 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createStorageGroup"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/storage-groups"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateStorageGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateStorageGroupOperation,
@@ -476,7 +766,7 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -485,13 +775,13 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateStorageGroupResponse(response, w); err != nil {
+	if err := encodeCreateStorageGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -508,9 +798,66 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createUnit"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/units"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), CreateUnitOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: CreateUnitOperation,
@@ -568,7 +915,7 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -577,13 +924,13 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeCreateUnitResponse(response, w); err != nil {
+	if err := encodeCreateUnitResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -600,9 +947,66 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteCell"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteCellOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteCellOperation,
@@ -664,7 +1068,7 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -673,13 +1077,13 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteCellResponse(response, w); err != nil {
+	if err := encodeDeleteCellResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -696,9 +1100,66 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteCellsGroup"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteCellsGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteCellsGroupOperation,
@@ -756,7 +1217,7 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -765,13 +1226,13 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteCellsGroupResponse(response, w); err != nil {
+	if err := encodeDeleteCellsGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -788,9 +1249,66 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteItem"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/items/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteItemOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteItemOperation,
@@ -848,7 +1366,7 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -857,13 +1375,13 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteItemResponse(response, w); err != nil {
+	if err := encodeDeleteItemResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -880,9 +1398,66 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteOrganization"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/orgs/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteOrganizationOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteOrganizationOperation,
@@ -940,7 +1515,7 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -949,13 +1524,13 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteOrganizationResponse(response, w); err != nil {
+	if err := encodeDeleteOrganizationResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -972,9 +1547,66 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteOrganizationUnit"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/units/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteOrganizationUnitOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteOrganizationUnitOperation,
@@ -1032,7 +1664,7 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1041,13 +1673,13 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteOrganizationUnitResponse(response, w); err != nil {
+	if err := encodeDeleteOrganizationUnitResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1064,9 +1696,66 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteStorageGroup"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/storage-groups/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), DeleteStorageGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: DeleteStorageGroupOperation,
@@ -1124,7 +1813,7 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1133,13 +1822,13 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeDeleteStorageGroupResponse(response, w); err != nil {
+	if err := encodeDeleteStorageGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1156,9 +1845,66 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("exchangeYandexAccessToken"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/auth/oauth2/yandex"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), ExchangeYandexAccessTokenOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: ExchangeYandexAccessTokenOperation,
@@ -1216,7 +1962,7 @@ func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEsca
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1225,13 +1971,13 @@ func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEsca
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeExchangeYandexAccessTokenResponse(response, w); err != nil {
+	if err := encodeExchangeYandexAccessTokenResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1248,9 +1994,66 @@ func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEsca
 func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getCellById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetCellByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetCellByIdOperation,
@@ -1312,7 +2115,7 @@ func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w ht
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1321,13 +2124,13 @@ func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w ht
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetCellByIdResponse(response, w); err != nil {
+	if err := encodeGetCellByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1344,9 +2147,66 @@ func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w ht
 func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getCells"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetCellsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetCellsOperation,
@@ -1404,7 +2264,7 @@ func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1413,13 +2273,13 @@ func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetCellsResponse(response, w); err != nil {
+	if err := encodeGetCellsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1436,9 +2296,66 @@ func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.
 func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getCellsGroupById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetCellsGroupByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetCellsGroupByIdOperation,
@@ -1496,7 +2413,7 @@ func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1505,13 +2422,13 @@ func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetCellsGroupByIdResponse(response, w); err != nil {
+	if err := encodeGetCellsGroupByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1528,9 +2445,66 @@ func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool
 func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getCellsGroups"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/cells-groups"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetCellsGroupsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -1569,7 +2543,7 @@ func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1578,13 +2552,13 @@ func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetCellsGroupsResponse(response, w); err != nil {
+	if err := encodeGetCellsGroupsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1601,9 +2575,66 @@ func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w
 func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getCurrentUser"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/me"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetCurrentUserOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -1642,7 +2673,7 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1651,13 +2682,13 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetCurrentUserResponse(response, w); err != nil {
+	if err := encodeGetCurrentUserResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1674,9 +2705,66 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 func (s *Server) handleGetItemByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getItemById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/items/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetItemByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetItemByIdOperation,
@@ -1734,7 +2822,7 @@ func (s *Server) handleGetItemByIdRequest(args [1]string, argsEscaped bool, w ht
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1743,13 +2831,13 @@ func (s *Server) handleGetItemByIdRequest(args [1]string, argsEscaped bool, w ht
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetItemByIdResponse(response, w); err != nil {
+	if err := encodeGetItemByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1766,9 +2854,66 @@ func (s *Server) handleGetItemByIdRequest(args [1]string, argsEscaped bool, w ht
 func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getItems"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/items"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetItemsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -1807,7 +2952,7 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1816,13 +2961,13 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetItemsResponse(response, w); err != nil {
+	if err := encodeGetItemsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1839,9 +2984,66 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/orgs/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetOrganizationByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetOrganizationByIdOperation,
@@ -1899,7 +3101,7 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -1908,13 +3110,13 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetOrganizationByIdResponse(response, w); err != nil {
+	if err := encodeGetOrganizationByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1931,9 +3133,66 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationUnitById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/units/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetOrganizationUnitByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetOrganizationUnitByIdOperation,
@@ -1991,7 +3250,7 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2000,13 +3259,13 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetOrganizationUnitByIdResponse(response, w); err != nil {
+	if err := encodeGetOrganizationUnitByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2023,9 +3282,66 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationUnits"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/units"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetOrganizationUnitsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -2064,7 +3380,7 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2073,13 +3389,13 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetOrganizationUnitsResponse(response, w); err != nil {
+	if err := encodeGetOrganizationUnitsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2096,9 +3412,66 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizations"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/orgs"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetOrganizationsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -2137,7 +3510,7 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2146,13 +3519,13 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetOrganizationsResponse(response, w); err != nil {
+	if err := encodeGetOrganizationsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2169,9 +3542,66 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getStorageGroupById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/storage-groups/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetStorageGroupByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: GetStorageGroupByIdOperation,
@@ -2229,7 +3659,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2238,13 +3668,13 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetStorageGroupByIdResponse(response, w); err != nil {
+	if err := encodeGetStorageGroupByIdResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2261,9 +3691,66 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getStorageGroups"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/storage-groups"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetStorageGroupsOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err error
 	)
 
@@ -2302,7 +3789,7 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2311,13 +3798,13 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeGetStorageGroupsResponse(response, w); err != nil {
+	if err := encodeGetStorageGroupsResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2334,9 +3821,66 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchCell"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchCellOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchCellOperation,
@@ -2413,7 +3957,7 @@ func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2422,13 +3966,13 @@ func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchCellResponse(response, w); err != nil {
+	if err := encodePatchCellResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2445,9 +3989,66 @@ func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http
 func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchCellsGroup"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchCellsGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchCellsGroupOperation,
@@ -2520,7 +4121,7 @@ func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, 
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2529,13 +4130,13 @@ func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, 
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchCellsGroupResponse(response, w); err != nil {
+	if err := encodePatchCellsGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2552,9 +4153,66 @@ func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, 
 func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchItem"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/items/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchItemOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchItemOperation,
@@ -2627,7 +4285,7 @@ func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2636,13 +4294,13 @@ func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchItemResponse(response, w); err != nil {
+	if err := encodePatchItemResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2659,9 +4317,66 @@ func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http
 func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchOrganization"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/orgs/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchOrganizationOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchOrganizationOperation,
@@ -2734,7 +4449,7 @@ func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2743,13 +4458,13 @@ func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchOrganizationResponse(response, w); err != nil {
+	if err := encodePatchOrganizationResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2766,9 +4481,66 @@ func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool
 func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchOrganizationUnit"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/units/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchOrganizationUnitOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchOrganizationUnitOperation,
@@ -2841,7 +4613,7 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2850,13 +4622,13 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchOrganizationUnitResponse(response, w); err != nil {
+	if err := encodePatchOrganizationUnitResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2873,9 +4645,66 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("patchStorageGroup"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/storage-groups/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchStorageGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: PatchStorageGroupOperation,
@@ -2948,7 +4777,7 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -2957,13 +4786,13 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodePatchStorageGroupResponse(response, w); err != nil {
+	if err := encodePatchStorageGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -2980,9 +4809,66 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateCell"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateCellOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateCellOperation,
@@ -3059,7 +4945,7 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3068,13 +4954,13 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateCellResponse(response, w); err != nil {
+	if err := encodeUpdateCellResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -3091,9 +4977,66 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateCellsGroup"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/cells-groups/{groupId}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateCellsGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateCellsGroupOperation,
@@ -3166,7 +5109,7 @@ func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool,
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3175,13 +5118,13 @@ func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool,
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateCellsGroupResponse(response, w); err != nil {
+	if err := encodeUpdateCellsGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -3198,9 +5141,66 @@ func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool,
 func (s *Server) handleUpdateItemRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateItem"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/items/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateItemOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateItemOperation,
@@ -3273,7 +5273,7 @@ func (s *Server) handleUpdateItemRequest(args [1]string, argsEscaped bool, w htt
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3282,13 +5282,13 @@ func (s *Server) handleUpdateItemRequest(args [1]string, argsEscaped bool, w htt
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateItemResponse(response, w); err != nil {
+	if err := encodeUpdateItemResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -3305,9 +5305,66 @@ func (s *Server) handleUpdateItemRequest(args [1]string, argsEscaped bool, w htt
 func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateOrganization"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/orgs/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateOrganizationOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateOrganizationOperation,
@@ -3380,7 +5437,7 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3389,13 +5446,13 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateOrganizationResponse(response, w); err != nil {
+	if err := encodeUpdateOrganizationResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -3412,9 +5469,66 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateOrganizationUnit"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/units/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateOrganizationUnitOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateOrganizationUnitOperation,
@@ -3487,7 +5601,7 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3496,13 +5610,13 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateOrganizationUnitResponse(response, w); err != nil {
+	if err := encodeUpdateOrganizationUnitResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -3519,9 +5633,66 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
-	ctx := r.Context()
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateStorageGroup"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/storage-groups/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), UpdateStorageGroupOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
 
 	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: UpdateStorageGroupOperation,
@@ -3594,7 +5765,7 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w); err != nil {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
 				defer recordError("Internal", err)
 			}
 			return
@@ -3603,13 +5774,13 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w); err != nil {
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
 			defer recordError("Internal", err)
 		}
 		return
 	}
 
-	if err := encodeUpdateStorageGroupResponse(response, w); err != nil {
+	if err := encodeUpdateStorageGroupResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
