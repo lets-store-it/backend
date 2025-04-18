@@ -45,3 +45,16 @@ paths:
 
   /me:
     $ref: paths/users/me.yaml
+
+  /cells-groups:
+    $ref: paths/cells-groups/cells-groups.yaml
+
+  /cells-groups/{groupId}:
+    $ref: paths/cells-groups/cells-groups_{id}.yaml
+    
+  /cells-groups/{groupId}/cells:
+    $ref: paths/cells-groups/cells-groups_{id}_cells.yaml
+
+  /cells-groups/{groupId}/cells/{cellId}:
+    $ref: paths/cells-groups/cells-groups_{id}_cells_{cellId}.yaml
+

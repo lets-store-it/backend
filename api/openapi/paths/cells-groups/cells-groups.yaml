@@ -1,0 +1,34 @@
+get:
+  tags:
+    - cells-group
+  summary: Get list of Cells Groups
+  operationId: getCellsGroups
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/GetCellsGroupsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - cells-group
+  summary: Create Cells Group
+  operationId: createCellsGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/CreateCellsGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/CreateCellsGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
