@@ -20,12 +20,14 @@ type RestApiImplementation struct {
 
 func NewRestApiImplementation(
 	orgUseCase *usecases.OrganizationUseCase,
+	orgUnitUseCase *usecases.OrganizationUnitUseCase,
 	storageGroupUseCase *usecases.StorageGroupUseCase,
 	itemUseCase *usecases.ItemUseCase,
 	authUseCase *usecases.AuthUseCase,
 ) *RestApiImplementation {
 	return &RestApiImplementation{
 		orgUseCase:          orgUseCase,
+		orgUnitUseCase:      orgUnitUseCase,
 		storageGroupUseCase: storageGroupUseCase,
 		itemUseCase:         itemUseCase,
 		authUseCase:         authUseCase,

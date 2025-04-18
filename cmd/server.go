@@ -31,12 +31,8 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.Logger())
-	// e.Use(middleware.Recover())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	}))
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	// Initialize item layers
 	itemService := services.NewItemService(queries, conn)
@@ -50,12 +46,13 @@ func main() {
 	// Initialize organization layers
 	orgService := services.NewOrganizationService(queries, conn)
 	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService)
+	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService)
 
 	// Initialize storage group layers
 	storageGroupService := services.NewStorageGroupService(queries)
 	storageGroupUseCase := usecases.NewStorageGroupUseCase(storageGroupService, orgService)
 	// Initialize handlers
-	handler := handlers.NewRestApiImplementation(orgUseCase, storageGroupUseCase, itemUseCase, authUseCase)
+	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase, itemUseCase, authUseCase)
 
 	server, err := api.NewServer(handler)
 	if err != nil {
