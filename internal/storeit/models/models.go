@@ -76,3 +76,21 @@ type ItemVariant struct {
 	CreatedAt time.Time
 	DeletedAt *time.Time
 }
+
+type CellsGroup struct {
+	ID             uuid.UUID
+	OrgID          uuid.UUID
+	StorageGroupID uuid.UUID
+	Name           string
+	Alias          string
+}
+
+type Cell struct {
+	ID           uuid.UUID
+	OrgID        uuid.UUID
+	CellsGroupID uuid.UUID
+	Alias        string
+	Row          int
+	Level        int
+	Position     int
+}

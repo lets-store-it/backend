@@ -142,19 +142,19 @@ UPDATE cells_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id =
 
 -- Cells
 -- name: GetCells :many
-SELECT * FROM cell WHERE cells_group_id = $1 AND deleted_at IS NULL;
+SELECT * FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND deleted_at IS NULL;
 
 -- name: GetCell :one
-SELECT * FROM cell WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL;
 
 -- name: CreateCell :one
-INSERT INTO cell (cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+INSERT INTO cell (org_id, cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
 
 -- name: UpdateCell :one
-UPDATE cell SET alias = $2, row = $3, level = $4, position = $5 WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteCell :exec
-UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE cells_group_id = $1 AND id = $2;
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3;
 
 
 -- -- name: GetActiveItemVariants :many

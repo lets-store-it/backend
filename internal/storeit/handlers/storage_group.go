@@ -125,23 +125,90 @@ func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api
 	}, nil
 }
 
-// CreateCell implements api.Handler.
-func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateCellRequest, params api.CreateCellParams) (*api.CreateCellResponse, error) {
-	panic("unimplemented")
+func toCellsGroupDTO(group *models.CellsGroup) *api.CellGroupBase {
+	return &api.CellGroupBase{
+		ID:             group.ID,
+		Name:           group.Name,
+		Alias:          group.Alias,
+		StorageGroupID: group.StorageGroupID,
+	}
+}
+
+// GetCellsGroups implements api.Handler.
+func (h *RestApiImplementation) GetCellsGroups(ctx context.Context) (*api.GetCellsGroupsResponse, error) {
+	cellsGroups, err := h.storageGroupUseCase.GetCellsGroups(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]api.CellGroupBase, 0, len(cellsGroups))
+	for _, group := range cellsGroups {
+		items = append(items, *toCellsGroupDTO(group))
+	}
+
+	return &api.GetCellsGroupsResponse{
+		Data: items,
+	}, nil
 }
 
 // CreateCellsGroup implements api.Handler.
 func (h *RestApiImplementation) CreateCellsGroup(ctx context.Context, req *api.CreateCellsGroupRequest) (*api.CreateCellsGroupResponse, error) {
-	panic("unimplemented")
+	cellGroup, err := h.storageGroupUseCase.CreateCellsGroup(ctx, req.StorageGroupID, req.Name, req.Alias)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateCellsGroupResponse{
+		Data: *toCellsGroupDTO(cellGroup),
+	}, nil
 }
 
-// DeleteCell implements api.Handler.
-func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
-	panic("unimplemented")
+// GetCellsGroupById implements api.Handler.
+func (h *RestApiImplementation) GetCellsGroupById(ctx context.Context, params api.GetCellsGroupByIdParams) (*api.GetCellsGroupByIdResponse, error) {
+	cellGroup, err := h.storageGroupUseCase.GetCellsGroupByID(ctx, params.GroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetCellsGroupByIdResponse{
+		Data: *toCellsGroupDTO(cellGroup),
+	}, nil
 }
 
 // DeleteCellsGroup implements api.Handler.
 func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api.DeleteCellsGroupParams) error {
+	return h.storageGroupUseCase.DeleteCellsGroup(ctx, params.GroupId)
+}
+
+// UpdateCell implements api.Handler.
+func (h *RestApiImplementation) UpdateCellGroup(ctx context.Context, req *api.UpdateCellsGroupRequest, params api.UpdateCellsGroupParams) (*api.UpdateCellsGroupResponse, error) {
+	model := &models.CellsGroup{
+		ID:    params.GroupId,
+		Name:  req.Name,
+		Alias: req.Alias,
+	}
+	cellGroup, err := h.storageGroupUseCase.UpdateCellsGroup(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateCellsGroupResponse{
+		Data: *toCellsGroupDTO(cellGroup),
+	}, nil
+}
+
+// PatchCellsGroup implements api.Handler.
+func (h *RestApiImplementation) PatchCellsGroup(ctx context.Context, req *api.PatchCellsGroupRequest, params api.PatchCellsGroupParams) (*api.PatchCellsGroupResponse, error) {
+	// implemntati
+}
+
+// CreateCell implements api.Handler.
+func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateCellRequest, params api.CreateCellParams) (*api.CreateCellResponse, error) {
+	
+}
+
+// DeleteCell implements api.Handler.
+func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
 	panic("unimplemented")
 }
 
@@ -155,32 +222,12 @@ func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCell
 	panic("unimplemented")
 }
 
-// GetCellsGroupById implements api.Handler.
-func (h *RestApiImplementation) GetCellsGroupById(ctx context.Context, params api.GetCellsGroupByIdParams) (*api.GetCellsGroupByIdResponse, error) {
-	panic("unimplemented")
-}
-
-// GetCellsGroups implements api.Handler.
-func (h *RestApiImplementation) GetCellsGroups(ctx context.Context) (*api.GetCellsGroupsResponse, error) {
-	panic("unimplemented")
-}
-
 // PatchCell implements api.Handler.
 func (h *RestApiImplementation) PatchCell(ctx context.Context, req *api.PatchCellRequest, params api.PatchCellParams) (*api.PatchCellResponse, error) {
 	panic("unimplemented")
 }
 
-// PatchCellsGroup implements api.Handler.
-func (h *RestApiImplementation) PatchCellsGroup(ctx context.Context, req *api.PatchCellsGroupRequest, params api.PatchCellsGroupParams) (*api.PatchCellsGroupResponse, error) {
-	panic("unimplemented")
-}
-
-// UpdateCell implements api.Handler.
-func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateCellRequest, params api.UpdateCellParams) (*api.UpdateCellResponse, error) {
-	panic("unimplemented")
-}
-
 // UpdateCellsGroup implements api.Handler.
-func (h *RestApiImplementation) UpdateCellsGroup(ctx context.Context, req *api.UpdateCellsGroupRequest, params api.UpdateCellsGroupParams) (*api.UpdateCellsGroupResponse, error) {
+func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateCellRequest, params api.UpdateCellParams) (*api.UpdateCellResponse, error) {
 	panic("unimplemented")
 }
