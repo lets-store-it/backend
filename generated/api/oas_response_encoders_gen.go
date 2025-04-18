@@ -7,15 +7,18 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/uri"
 )
 
-func encodeCreateCellResponse(response *CreateCellResponse, w http.ResponseWriter) error {
+func encodeCreateCellResponse(response *CreateCellResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -26,9 +29,10 @@ func encodeCreateCellResponse(response *CreateCellResponse, w http.ResponseWrite
 	return nil
 }
 
-func encodeCreateCellsGroupResponse(response *CreateCellsGroupResponse, w http.ResponseWriter) error {
+func encodeCreateCellsGroupResponse(response *CreateCellsGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -39,9 +43,10 @@ func encodeCreateCellsGroupResponse(response *CreateCellsGroupResponse, w http.R
 	return nil
 }
 
-func encodeCreateItemResponse(response *CreateItemResponse, w http.ResponseWriter) error {
+func encodeCreateItemResponse(response *CreateItemResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -52,9 +57,10 @@ func encodeCreateItemResponse(response *CreateItemResponse, w http.ResponseWrite
 	return nil
 }
 
-func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w http.ResponseWriter) error {
+func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -65,9 +71,10 @@ func encodeCreateOrganizationResponse(response *CreateOrganizationResponse, w ht
 	return nil
 }
 
-func encodeCreateStorageGroupResponse(response *CreateStorageGroupResponse, w http.ResponseWriter) error {
+func encodeCreateStorageGroupResponse(response *CreateStorageGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -78,9 +85,10 @@ func encodeCreateStorageGroupResponse(response *CreateStorageGroupResponse, w ht
 	return nil
 }
 
-func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.ResponseWriter) error {
+func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -91,43 +99,49 @@ func encodeCreateUnitResponse(response *CreateOrganizationUnitResponse, w http.R
 	return nil
 }
 
-func encodeDeleteCellResponse(response *DeleteCellOK, w http.ResponseWriter) error {
+func encodeDeleteCellResponse(response *DeleteCellOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeDeleteCellsGroupResponse(response *DeleteCellsGroupOK, w http.ResponseWriter) error {
+func encodeDeleteCellsGroupResponse(response *DeleteCellsGroupOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeDeleteItemResponse(response *DeleteItemOK, w http.ResponseWriter) error {
+func encodeDeleteItemResponse(response *DeleteItemOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.ResponseWriter) error {
+func encodeDeleteOrganizationResponse(response *DeleteOrganizationOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w http.ResponseWriter) error {
+func encodeDeleteOrganizationUnitResponse(response *DeleteOrganizationUnitOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeDeleteStorageGroupResponse(response *DeleteStorageGroupOK, w http.ResponseWriter) error {
+func encodeDeleteStorageGroupResponse(response *DeleteStorageGroupOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeExchangeYandexAccessTokenResponse(response *AuthResponse, w http.ResponseWriter) error {
+func encodeExchangeYandexAccessTokenResponse(response *AuthResponse, w http.ResponseWriter, span trace.Span) error {
 	// Encoding response headers.
 	{
 		h := uri.NewHeaderEncoder(w.Header())
@@ -145,13 +159,15 @@ func encodeExchangeYandexAccessTokenResponse(response *AuthResponse, w http.Resp
 		}
 	}
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	return nil
 }
 
-func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWriter) error {
+func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -162,9 +178,10 @@ func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWri
 	return nil
 }
 
-func encodeGetCellsResponse(response *GetCellsResponse, w http.ResponseWriter) error {
+func encodeGetCellsResponse(response *GetCellsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -175,9 +192,10 @@ func encodeGetCellsResponse(response *GetCellsResponse, w http.ResponseWriter) e
 	return nil
 }
 
-func encodeGetCellsGroupByIdResponse(response *GetCellsGroupByIdResponse, w http.ResponseWriter) error {
+func encodeGetCellsGroupByIdResponse(response *GetCellsGroupByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -188,9 +206,10 @@ func encodeGetCellsGroupByIdResponse(response *GetCellsGroupByIdResponse, w http
 	return nil
 }
 
-func encodeGetCellsGroupsResponse(response *GetCellsGroupsResponse, w http.ResponseWriter) error {
+func encodeGetCellsGroupsResponse(response *GetCellsGroupsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -201,9 +220,10 @@ func encodeGetCellsGroupsResponse(response *GetCellsGroupsResponse, w http.Respo
 	return nil
 }
 
-func encodeGetCurrentUserResponse(response *GetCurrentUserResponse, w http.ResponseWriter) error {
+func encodeGetCurrentUserResponse(response *GetCurrentUserResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -214,9 +234,10 @@ func encodeGetCurrentUserResponse(response *GetCurrentUserResponse, w http.Respo
 	return nil
 }
 
-func encodeGetItemByIdResponse(response *GetItemByIdResponse, w http.ResponseWriter) error {
+func encodeGetItemByIdResponse(response *GetItemByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -227,9 +248,10 @@ func encodeGetItemByIdResponse(response *GetItemByIdResponse, w http.ResponseWri
 	return nil
 }
 
-func encodeGetItemsResponse(response *GetItemsResponse, w http.ResponseWriter) error {
+func encodeGetItemsResponse(response *GetItemsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -240,9 +262,10 @@ func encodeGetItemsResponse(response *GetItemsResponse, w http.ResponseWriter) e
 	return nil
 }
 
-func encodeGetOrganizationByIdResponse(response *GetOrganizationByIdResponse, w http.ResponseWriter) error {
+func encodeGetOrganizationByIdResponse(response *GetOrganizationByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -253,9 +276,10 @@ func encodeGetOrganizationByIdResponse(response *GetOrganizationByIdResponse, w 
 	return nil
 }
 
-func encodeGetOrganizationUnitByIdResponse(response *GetOrganizationUnitByIdResponse, w http.ResponseWriter) error {
+func encodeGetOrganizationUnitByIdResponse(response *GetOrganizationUnitByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -266,9 +290,10 @@ func encodeGetOrganizationUnitByIdResponse(response *GetOrganizationUnitByIdResp
 	return nil
 }
 
-func encodeGetOrganizationUnitsResponse(response *GetOrganizationUnitsResponse, w http.ResponseWriter) error {
+func encodeGetOrganizationUnitsResponse(response *GetOrganizationUnitsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -279,9 +304,10 @@ func encodeGetOrganizationUnitsResponse(response *GetOrganizationUnitsResponse, 
 	return nil
 }
 
-func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.ResponseWriter) error {
+func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -292,9 +318,10 @@ func encodeGetOrganizationsResponse(response *GetOrganizationsResponse, w http.R
 	return nil
 }
 
-func encodeGetStorageGroupByIdResponse(response *GetStorageGroupByIdResponse, w http.ResponseWriter) error {
+func encodeGetStorageGroupByIdResponse(response *GetStorageGroupByIdResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -305,9 +332,10 @@ func encodeGetStorageGroupByIdResponse(response *GetStorageGroupByIdResponse, w 
 	return nil
 }
 
-func encodeGetStorageGroupsResponse(response *GetStorageGroupsResponse, w http.ResponseWriter) error {
+func encodeGetStorageGroupsResponse(response *GetStorageGroupsResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -318,9 +346,10 @@ func encodeGetStorageGroupsResponse(response *GetStorageGroupsResponse, w http.R
 	return nil
 }
 
-func encodePatchCellResponse(response *PatchCellResponse, w http.ResponseWriter) error {
+func encodePatchCellResponse(response *PatchCellResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -331,9 +360,10 @@ func encodePatchCellResponse(response *PatchCellResponse, w http.ResponseWriter)
 	return nil
 }
 
-func encodePatchCellsGroupResponse(response *PatchCellsGroupResponse, w http.ResponseWriter) error {
+func encodePatchCellsGroupResponse(response *PatchCellsGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -344,9 +374,10 @@ func encodePatchCellsGroupResponse(response *PatchCellsGroupResponse, w http.Res
 	return nil
 }
 
-func encodePatchItemResponse(response *PatchItemResponse, w http.ResponseWriter) error {
+func encodePatchItemResponse(response *PatchItemResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -357,9 +388,10 @@ func encodePatchItemResponse(response *PatchItemResponse, w http.ResponseWriter)
 	return nil
 }
 
-func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http.ResponseWriter) error {
+func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -370,9 +402,10 @@ func encodePatchOrganizationResponse(response *PatchOrganizationResponse, w http
 	return nil
 }
 
-func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse, w http.ResponseWriter) error {
+func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -383,9 +416,10 @@ func encodePatchOrganizationUnitResponse(response *PatchOrganizationUnitResponse
 	return nil
 }
 
-func encodePatchStorageGroupResponse(response *PatchStorageGroupResponse, w http.ResponseWriter) error {
+func encodePatchStorageGroupResponse(response *PatchStorageGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -396,9 +430,10 @@ func encodePatchStorageGroupResponse(response *PatchStorageGroupResponse, w http
 	return nil
 }
 
-func encodeUpdateCellResponse(response *UpdateCellResponse, w http.ResponseWriter) error {
+func encodeUpdateCellResponse(response *UpdateCellResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -409,9 +444,10 @@ func encodeUpdateCellResponse(response *UpdateCellResponse, w http.ResponseWrite
 	return nil
 }
 
-func encodeUpdateCellsGroupResponse(response *UpdateCellsGroupResponse, w http.ResponseWriter) error {
+func encodeUpdateCellsGroupResponse(response *UpdateCellsGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -422,9 +458,10 @@ func encodeUpdateCellsGroupResponse(response *UpdateCellsGroupResponse, w http.R
 	return nil
 }
 
-func encodeUpdateItemResponse(response *UpdateItemResponse, w http.ResponseWriter) error {
+func encodeUpdateItemResponse(response *UpdateItemResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -435,9 +472,10 @@ func encodeUpdateItemResponse(response *UpdateItemResponse, w http.ResponseWrite
 	return nil
 }
 
-func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w http.ResponseWriter) error {
+func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -448,9 +486,10 @@ func encodeUpdateOrganizationResponse(response *UpdateOrganizationResponse, w ht
 	return nil
 }
 
-func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitResponse, w http.ResponseWriter) error {
+func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -461,9 +500,10 @@ func encodeUpdateOrganizationUnitResponse(response *UpdateOrganizationUnitRespon
 	return nil
 }
 
-func encodeUpdateStorageGroupResponse(response *UpdateStorageGroupResponse, w http.ResponseWriter) error {
+func encodeUpdateStorageGroupResponse(response *UpdateStorageGroupResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
 	e := new(jx.Encoder)
 	response.Encode(e)
@@ -474,7 +514,7 @@ func encodeUpdateStorageGroupResponse(response *UpdateStorageGroupResponse, w ht
 	return nil
 }
 
-func encodeErrorResponse(response *DefaultErrorStatusCode, w http.ResponseWriter) error {
+func encodeErrorResponse(response *DefaultErrorStatusCode, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	code := response.StatusCode
 	if code == 0 {
@@ -482,6 +522,11 @@ func encodeErrorResponse(response *DefaultErrorStatusCode, w http.ResponseWriter
 		code = http.StatusOK
 	}
 	w.WriteHeader(code)
+	if st := http.StatusText(code); code >= http.StatusBadRequest {
+		span.SetStatus(codes.Error, st)
+	} else {
+		span.SetStatus(codes.Ok, st)
+	}
 
 	e := new(jx.Encoder)
 	response.Response.Encode(e)

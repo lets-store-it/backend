@@ -52,16 +52,18 @@ func main() {
 	storageGroupService := services.NewStorageService(queries)
 	storageGroupUseCase := usecases.NewStorageUseCase(storageGroupService, orgService, authService)
 	// Initialize handlers
-	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase, itemUseCase, authUseCase)
 
+	// Add organization ID middleware
+	authMiddleware := handlers.NewAuthMiddleware(authUseCase, "storeit_session", []string{"/auth", "/metrics"})
+	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
+	e.Use(echo.WrapMiddleware(authMiddleware.Process))
+
+	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase, itemUseCase, authUseCase)
 	server, err := api.NewServer(handler)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}
-
-	// Add organization ID middleware
-	orgIDMiddleware := handlers.NewOrganizationIDMiddleware(orgUseCase, authUseCase)
-	e.Any("/*", echo.WrapHandler(orgIDMiddleware.WithOrganizationID(server)))
+	e.Any("/*", echo.WrapHandler(server))
 
 	go func() {
 		if err := e.Start(config.Server.ListenAddress); err != nil {
