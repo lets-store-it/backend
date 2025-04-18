@@ -6,17 +6,43 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/config"
+	"github.com/let-store-it/backend/generated/database"
 )
 
-func InitDatabaseOrDie(ctx context.Context, config *config.Config) (*pgxpool.Pool, error) {
-	pgxConfig, err := pgxpool.ParseConfig(fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s",
-		config.Database.User, config.Database.Password, config.Database.Name, config.Database.Host, config.Database.Port))
-	if err != nil {
-		return nil, err
+// Connection wraps database connection and queries
+type Connection struct {
+	Pool    *pgxpool.Pool
+	Queries *database.Queries
+}
+
+// Close closes the database connection
+func (c *Connection) Close() {
+	if c.Pool != nil {
+		c.Pool.Close()
 	}
-	pool, err := pgxpool.NewWithConfig(ctx, pgxConfig)
+}
+
+// InitDatabaseOrDie initializes database connection and queries
+func InitDatabaseOrDie(ctx context.Context, cfg *config.Config) (*Connection, error) {
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.Name)
+
+	pool, err := pgxpool.New(ctx, connString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create connection pool: %v", err)
 	}
-	return pool, nil
+
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("unable to ping database: %v", err)
+	}
+
+	return &Connection{
+		Pool:    pool,
+		Queries: database.New(pool),
+	}, nil
 }
