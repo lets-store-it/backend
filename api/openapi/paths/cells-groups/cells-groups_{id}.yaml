@@ -1,0 +1,72 @@
+parameters:
+  - name: groupId
+    in: path
+    description: Cells Group ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - cells-group
+  summary: Get Cells Group by ID
+  operationId: getCellsGroupById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/GetCellsGroupByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - cells-group
+  summary: Delete Cells Group
+  operationId: deleteCellsGroup
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - storage-group
+  summary: Patch Cells Group
+  operationId: patchCellsGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/PatchCellsGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/PatchCellsGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - cells-group
+  summary: Update Cells Group
+  operationId: updateCellsGroup
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/UpdateCellsGroupRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/UpdateCellsGroupResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

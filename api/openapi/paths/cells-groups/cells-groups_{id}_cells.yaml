@@ -1,0 +1,41 @@
+parameters:
+  - name: groupId
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - cells-group
+  summary: Get list of Cells
+  operationId: getCells
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/GetCellsResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - cells-group
+  summary: Create Cells
+  operationId: createCell
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/CreateCellRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/CreateCellResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

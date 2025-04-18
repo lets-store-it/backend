@@ -47,6 +47,11 @@ CREATE TABLE item (
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
 
+    width INTEGER, -- in mm
+    depth INTEGER, -- in mm
+    height INTEGER, -- in mm
+    weight INTEGER, -- in g
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
@@ -54,12 +59,13 @@ CREATE INDEX item_org_id_idx ON item(org_id, id);
 
 CREATE TABLE item_variant (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
     item_id UUID NOT NULL REFERENCES item(id),
 
     name VARCHAR(255) NOT NULL,
 
     article VARCHAR(255),
-    ean13 INTEGER,    
+    ean13 INTEGER CHECK (ean13 IS NULL OR ean13 ~ '^[0-9]{13}$'),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -71,17 +77,48 @@ CREATE INDEX item_variant_article_idx ON item_variant(article);
 
 CREATE TABLE item_instance (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
     item_id UUID NOT NULL REFERENCES item(id),
     variant_id UUID NOT NULL REFERENCES item_variant(id),
 
     -- cell_id UUID REFERENCES cell(id),
     -- status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
-    -- affected_by_operation_id UUID REFERENCES operation(id)
+    -- affected_by_operation_id UUID REFERENCES operation(id),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
     UNIQUE (item_id, variant_id)
 );
+
+CREATE TABLE cells_group (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+    storage_group_id UUID NOT NULL REFERENCES storage_group(id),
+    name VARCHAR(255) NOT NULL,
+    alias VARCHAR(255) NOT NULL,
+    UNIQUE (org_id, alias)
+);
+CREATE INDEX cells_group_org_id_idx ON cells_group(org_id, id);
+
+CREATE TABLE cell (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+
+    cells_group_id UUID NOT NULL REFERENCES cells_group(id),
+    
+    alias VARCHAR(255) NOT NULL,
+
+    row INTEGER NOT NULL,
+    level INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    
+    UNIQUE (cells_group_id, alias),
+    UNIQUE (cells_group_id, row, level, position)
+);
+CREATE INDEX cell_cells_group_id_idx ON cell(cells_group_id, id);
 
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -121,9 +158,9 @@ INSERT INTO app_role (id, name, display_name) VALUES
 
 CREATE TABLE app_role_binding (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
     role_id INTEGER NOT NULL REFERENCES app_role(id),
     user_id UUID NOT NULL REFERENCES app_user(id),
-    org_id UUID NOT NULL REFERENCES org(id),
     UNIQUE (role_id, user_id, org_id)
 );
 

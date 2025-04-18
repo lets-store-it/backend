@@ -1,0 +1,77 @@
+parameters:
+  - name: groupId
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+  - name: cellId
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - cells-group
+  summary: Get Cell by ID
+  operationId: getCellById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/GetCellByIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - cells-group
+  summary: Delete Cell
+  operationId: deleteCell
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - cells-group
+  summary: Patch Cell
+  operationId: patchCell
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/PatchCellRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/PatchCellResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - cells-group
+  summary: Update Cell
+  operationId: updateCell
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/cells-groups/UpdateCellRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/cells-groups/UpdateCellResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

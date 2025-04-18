@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    readOnly: true
+  name:
+    type: string
+  alias:
+    type: string
+  storage_group_id:
+    type: string
+    format: uuid
+required:
+  - id
+  - name
+  - alias
+  - storage_group_id

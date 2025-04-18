@@ -1,0 +1,9 @@
+type: object
+properties:
+  name:
+    type: string
+  alias:
+    type: string
+  storage_group_id:
+    type: string
+    format: uuid

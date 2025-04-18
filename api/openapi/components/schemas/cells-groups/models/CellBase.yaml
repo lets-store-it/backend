@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    readOnly: true
+  alias:
+    type: string
+  row:
+    type: integer
+    minimum: 1
+  level:
+    type: integer
+    minimum: 1
+  position:
+    type: integer
+    minimum: 1
+required:
+  - id
+  - alias
+  - row
+  - level
+  - position
