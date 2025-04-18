@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/config"
 	"github.com/let-store-it/backend/generated/database"
@@ -31,7 +32,15 @@ func InitDatabaseOrDie(ctx context.Context, cfg *config.Config) (*Connection, er
 		cfg.Database.Port,
 		cfg.Database.Name)
 
-	pool, err := pgxpool.New(ctx, connString)
+	poolConfig, err := pgxpool.ParseConfig(connString)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse connection string: %v", err)
+	}
+
+	// Add OpenTelemetry instrumentation
+	poolConfig.ConnConfig.Tracer = otelpgx.NewTracer()
+
+	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create connection pool: %v", err)
 	}
@@ -39,6 +48,12 @@ func InitDatabaseOrDie(ctx context.Context, cfg *config.Config) (*Connection, er
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("unable to ping database: %v", err)
+	}
+
+	// Record database stats with OpenTelemetry
+	if err := otelpgx.RecordStats(pool); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("unable to record database stats: %v", err)
 	}
 
 	return &Connection{
