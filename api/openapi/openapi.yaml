@@ -43,8 +43,5 @@ paths:
   /auth/oauth2/yandex:
     $ref: paths/auth/yandex.yaml
 
-  /auth/testing:
-    $ref: paths/auth/testing.yaml
-
   /me:
     $ref: paths/users/me.yaml

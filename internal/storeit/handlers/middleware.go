@@ -24,8 +24,6 @@ func NewOrganizationIDMiddleware(orgUseCase *usecases.OrganizationUseCase, authU
 
 func (m *OrganizationIDMiddleware) WithOrganizationID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Skip organization header check for /orgs paths
-
 		if strings.HasPrefix(r.URL.Path, "/auth") {
 			next.ServeHTTP(w, r)
 			return
