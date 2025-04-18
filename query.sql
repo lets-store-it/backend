@@ -1,6 +1,3 @@
--- name: GetActiveOrgs :many
-SELECT * FROM org WHERE deleted_at IS NULL;
-
 -- name: IsOrgExists :one
 SELECT EXISTS (SELECT 1 FROM org WHERE id = $1 AND deleted_at IS NULL);
 
@@ -123,6 +120,42 @@ SELECT * FROM app_role_binding WHERE user_id = $1 AND org_id = $2;
 
 -- name: GetUserOrgs :many
 SELECT * FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1);
+
+
+-- CellsGroups
+
+-- name: GetCellsGroups :many
+SELECT * FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL;
+
+-- name: GetCellsGroup :one
+SELECT * FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
+
+-- name: CreateCellsGroup :one
+INSERT INTO cells_group (org_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4) RETURNING *;
+
+-- name: UpdateCellsGroup :one
+UPDATE cells_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+
+-- name: DeleteCellsGroup :exec
+UPDATE cells_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
+
+
+-- Cells
+-- name: GetCells :many
+SELECT * FROM cell WHERE cells_group_id = $1 AND deleted_at IS NULL;
+
+-- name: GetCell :one
+SELECT * FROM cell WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL;
+
+-- name: CreateCell :one
+INSERT INTO cell (cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+
+-- name: UpdateCell :one
+UPDATE cell SET alias = $2, row = $3, level = $4, position = $5 WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+
+-- name: DeleteCell :exec
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE cells_group_id = $1 AND id = $2;
+
 
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;

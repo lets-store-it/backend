@@ -21,6 +21,18 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
+	// CreateCell invokes createCell operation.
+	//
+	// Create Cells.
+	//
+	// POST /cells-groups/{groupId}/cells
+	CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error)
+	// CreateCellsGroup invokes createCellsGroup operation.
+	//
+	// Create Cells Group.
+	//
+	// POST /cells-groups
+	CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error)
 	// CreateItem invokes createItem operation.
 	//
 	// Create Item.
@@ -45,6 +57,18 @@ type Invoker interface {
 	//
 	// POST /units
 	CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	// DeleteCell invokes deleteCell operation.
+	//
+	// Delete Cell.
+	//
+	// DELETE /cells-groups/{groupId}/cells/{cellId}
+	DeleteCell(ctx context.Context, params DeleteCellParams) error
+	// DeleteCellsGroup invokes deleteCellsGroup operation.
+	//
+	// Delete Cells Group.
+	//
+	// DELETE /cells-groups/{groupId}
+	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
 	// DeleteItem invokes deleteItem operation.
 	//
 	// Delete Item.
@@ -75,12 +99,30 @@ type Invoker interface {
 	//
 	// POST /auth/oauth2/yandex
 	ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
-	// GetAuthCookieByEmail invokes getAuthCookieByEmail operation.
+	// GetCellById invokes getCellById operation.
 	//
-	// Get Auth Cookie by email.
+	// Get Cell by ID.
 	//
-	// POST /auth/testing
-	GetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error)
+	// GET /cells-groups/{groupId}/cells/{cellId}
+	GetCellById(ctx context.Context, params GetCellByIdParams) (*GetCellByIdResponse, error)
+	// GetCells invokes getCells operation.
+	//
+	// Get list of Cells.
+	//
+	// GET /cells-groups/{groupId}/cells
+	GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error)
+	// GetCellsGroupById invokes getCellsGroupById operation.
+	//
+	// Get Cells Group by ID.
+	//
+	// GET /cells-groups/{groupId}
+	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error)
+	// GetCellsGroups invokes getCellsGroups operation.
+	//
+	// Get list of Cells Groups.
+	//
+	// GET /cells-groups
+	GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error)
 	// GetCurrentUser invokes getCurrentUser operation.
 	//
 	// Get Current User.
@@ -135,6 +177,18 @@ type Invoker interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// PatchCell invokes patchCell operation.
+	//
+	// Patch Cell.
+	//
+	// PATCH /cells-groups/{groupId}/cells/{cellId}
+	PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error)
+	// PatchCellsGroup invokes patchCellsGroup operation.
+	//
+	// Patch Cells Group.
+	//
+	// PATCH /cells-groups/{groupId}
+	PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error)
 	// PatchItem invokes patchItem operation.
 	//
 	// Patch Item.
@@ -159,6 +213,18 @@ type Invoker interface {
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	// UpdateCell invokes updateCell operation.
+	//
+	// Update Cell.
+	//
+	// PUT /cells-groups/{groupId}/cells/{cellId}
+	UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error)
+	// UpdateCellsGroup invokes updateCellsGroup operation.
+	//
+	// Update Cells Group.
+	//
+	// PUT /cells-groups/{groupId}
+	UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error)
 	// UpdateItem invokes updateItem operation.
 	//
 	// Update Item.
@@ -230,6 +296,103 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 		return c.serverURL
 	}
 	return u
+}
+
+// CreateCell invokes createCell operation.
+//
+// Create Cells.
+//
+// POST /cells-groups/{groupId}/cells
+func (c *Client) CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error) {
+	res, err := c.sendCreateCell(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (res *CreateCellResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateCellRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeCreateCellResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateCellsGroup invokes createCellsGroup operation.
+//
+// Create Cells Group.
+//
+// POST /cells-groups
+func (c *Client) CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error) {
+	res, err := c.sendCreateCellsGroup(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (res *CreateCellsGroupResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/cells-groups"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateCellsGroupRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeCreateCellsGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
 }
 
 // CreateItem invokes createItem operation.
@@ -381,6 +544,133 @@ func (c *Client) sendCreateUnit(ctx context.Context, request *CreateOrganization
 	defer resp.Body.Close()
 
 	result, err := decodeCreateUnitResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteCell invokes deleteCell operation.
+//
+// Delete Cell.
+//
+// DELETE /cells-groups/{groupId}/cells/{cellId}
+func (c *Client) DeleteCell(ctx context.Context, params DeleteCellParams) error {
+	_, err := c.sendDeleteCell(ctx, params)
+	return err
+}
+
+func (c *Client) sendDeleteCell(ctx context.Context, params DeleteCellParams) (res *DeleteCellOK, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells/"
+	{
+		// Encode "cellId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "cellId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.CellId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeDeleteCellResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteCellsGroup invokes deleteCellsGroup operation.
+//
+// Delete Cells Group.
+//
+// DELETE /cells-groups/{groupId}
+func (c *Client) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error {
+	_, err := c.sendDeleteCellsGroup(ctx, params)
+	return err
+}
+
+func (c *Client) sendDeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (res *DeleteCellsGroupOK, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeDeleteCellsGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -643,29 +933,63 @@ func (c *Client) sendExchangeYandexAccessToken(ctx context.Context, request *Exc
 	return result, nil
 }
 
-// GetAuthCookieByEmail invokes getAuthCookieByEmail operation.
+// GetCellById invokes getCellById operation.
 //
-// Get Auth Cookie by email.
+// Get Cell by ID.
 //
-// POST /auth/testing
-func (c *Client) GetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error) {
-	res, err := c.sendGetAuthCookieByEmail(ctx, request)
+// GET /cells-groups/{groupId}/cells/{cellId}
+func (c *Client) GetCellById(ctx context.Context, params GetCellByIdParams) (*GetCellByIdResponse, error) {
+	res, err := c.sendGetCellById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetAuthCookieByEmail(ctx context.Context, request *GetAuthCookieByEmailRequest) (res *GetAuthCookieByEmailOK, err error) {
+func (c *Client) sendGetCellById(ctx context.Context, params GetCellByIdParams) (res *GetCellByIdResponse, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/auth/testing"
+	var pathParts [4]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells/"
+	{
+		// Encode "cellId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "cellId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.CellId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
 	uri.AddPathParts(u, pathParts[:]...)
 
-	r, err := ht.NewRequest(ctx, "POST", u)
+	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeGetAuthCookieByEmailRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
 	}
 
 	resp, err := c.cfg.Client.Do(r)
@@ -674,7 +998,152 @@ func (c *Client) sendGetAuthCookieByEmail(ctx context.Context, request *GetAuthC
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetAuthCookieByEmailResponse(resp)
+	result, err := decodeGetCellByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetCells invokes getCells operation.
+//
+// Get list of Cells.
+//
+// GET /cells-groups/{groupId}/cells
+func (c *Client) GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error) {
+	res, err := c.sendGetCells(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetCells(ctx context.Context, params GetCellsParams) (res *GetCellsResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetCellsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetCellsGroupById invokes getCellsGroupById operation.
+//
+// Get Cells Group by ID.
+//
+// GET /cells-groups/{groupId}
+func (c *Client) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error) {
+	res, err := c.sendGetCellsGroupById(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (res *GetCellsGroupByIdResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetCellsGroupByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetCellsGroups invokes getCellsGroups operation.
+//
+// Get list of Cells Groups.
+//
+// GET /cells-groups
+func (c *Client) GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error) {
+	res, err := c.sendGetCellsGroups(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetCellsGroups(ctx context.Context) (res *GetCellsGroupsResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/cells-groups"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetCellsGroupsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1078,6 +1547,139 @@ func (c *Client) sendGetStorageGroups(ctx context.Context) (res *GetStorageGroup
 	return result, nil
 }
 
+// PatchCell invokes patchCell operation.
+//
+// Patch Cell.
+//
+// PATCH /cells-groups/{groupId}/cells/{cellId}
+func (c *Client) PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error) {
+	res, err := c.sendPatchCell(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendPatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (res *PatchCellResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells/"
+	{
+		// Encode "cellId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "cellId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.CellId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodePatchCellRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodePatchCellResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// PatchCellsGroup invokes patchCellsGroup operation.
+//
+// Patch Cells Group.
+//
+// PATCH /cells-groups/{groupId}
+func (c *Client) PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error) {
+	res, err := c.sendPatchCellsGroup(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendPatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (res *PatchCellsGroupResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodePatchCellsGroupRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodePatchCellsGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // PatchItem invokes patchItem operation.
 //
 // Patch Item.
@@ -1299,6 +1901,139 @@ func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorag
 	defer resp.Body.Close()
 
 	result, err := decodePatchStorageGroupResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateCell invokes updateCell operation.
+//
+// Update Cell.
+//
+// PUT /cells-groups/{groupId}/cells/{cellId}
+func (c *Client) UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error) {
+	res, err := c.sendUpdateCell(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (res *UpdateCellResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cells/"
+	{
+		// Encode "cellId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "cellId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.CellId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateCellRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeUpdateCellResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateCellsGroup invokes updateCellsGroup operation.
+//
+// Update Cells Group.
+//
+// PUT /cells-groups/{groupId}
+func (c *Client) UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error) {
+	res, err := c.sendUpdateCellsGroup(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (res *UpdateCellsGroupResponse, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/cells-groups/"
+	{
+		// Encode "groupId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "groupId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.GroupId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateCellsGroupRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeUpdateCellsGroupResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

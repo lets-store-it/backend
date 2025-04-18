@@ -81,7 +81,7 @@ CREATE TABLE item_instance (
     item_id UUID NOT NULL REFERENCES item(id),
     variant_id UUID NOT NULL REFERENCES item_variant(id),
 
-    -- cell_id UUID REFERENCES cell(id),
+    cell_id UUID REFERENCES cell(id),
     -- status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
     -- affected_by_operation_id UUID REFERENCES operation(id),
 
@@ -96,6 +96,10 @@ CREATE TABLE cells_group (
     storage_group_id UUID NOT NULL REFERENCES storage_group(id),
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+
     UNIQUE (org_id, alias)
 );
 CREATE INDEX cells_group_org_id_idx ON cells_group(org_id, id);

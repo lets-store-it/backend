@@ -17,7 +17,6 @@ type RestApiImplementation struct {
 }
 
 
-
 func NewRestApiImplementation(
 	orgUseCase *usecases.OrganizationUseCase,
 	orgUnitUseCase *usecases.OrganizationUnitUseCase,

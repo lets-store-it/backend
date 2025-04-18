@@ -40,7 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.notFound(w, r)
 		return
 	}
-	args := [1]string{}
+	args := [2]string{}
 
 	// Static code generated router with unwrapped path search.
 	switch {
@@ -61,56 +61,163 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "auth/"
+			case 'a': // Prefix: "auth/oauth2/yandex"
 
-				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
+				if l := len("auth/oauth2/yandex"); len(elem) >= l && elem[0:l] == "auth/oauth2/yandex" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "POST":
+						s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+
+			case 'c': // Prefix: "cells-groups"
+
+				if l := len("cells-groups"); len(elem) >= l && elem[0:l] == "cells-groups" {
+					elem = elem[l:]
+				} else {
 					break
 				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetCellsGroupsRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateCellsGroupRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
 				switch elem[0] {
-				case 'o': // Prefix: "oauth2/yandex"
+				case '/': // Prefix: "/"
 
-					if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "groupId"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
 					if len(elem) == 0 {
-						// Leaf node.
 						switch r.Method {
-						case "POST":
-							s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
+						case "DELETE":
+							s.handleDeleteCellsGroupRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetCellsGroupByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handlePatchCellsGroupRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateCellsGroupRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "POST")
+							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
 						}
 
 						return
 					}
+					switch elem[0] {
+					case '/': // Prefix: "/cells"
 
-				case 't': // Prefix: "testing"
-
-					if l := len("testing"); len(elem) >= l && elem[0:l] == "testing" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "POST":
-							s.handleGetAuthCookieByEmailRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "POST")
+						if l := len("/cells"); len(elem) >= l && elem[0:l] == "/cells" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							switch r.Method {
+							case "GET":
+								s.handleGetCellsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "POST":
+								s.handleCreateCellRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET,POST")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "cellId"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[1] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "DELETE":
+									s.handleDeleteCellRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "GET":
+									s.handleGetCellByIdRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "PATCH":
+									s.handlePatchCellRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "PUT":
+									s.handleUpdateCellRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+								}
+
+								return
+							}
+
+						}
+
 					}
 
 				}
@@ -413,7 +520,7 @@ type Route struct {
 	operationID string
 	pathPattern string
 	count       int
-	args        [1]string
+	args        [2]string
 }
 
 // Name returns ogen operation name.
@@ -493,64 +600,207 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "auth/"
+			case 'a': // Prefix: "auth/oauth2/yandex"
 
-				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
+				if l := len("auth/oauth2/yandex"); len(elem) >= l && elem[0:l] == "auth/oauth2/yandex" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "POST":
+						r.name = ExchangeYandexAccessTokenOperation
+						r.summary = "Exchange Yandex Access token for Session token"
+						r.operationID = "exchangeYandexAccessToken"
+						r.pathPattern = "/auth/oauth2/yandex"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+
+			case 'c': // Prefix: "cells-groups"
+
+				if l := len("cells-groups"); len(elem) >= l && elem[0:l] == "cells-groups" {
+					elem = elem[l:]
+				} else {
 					break
 				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = GetCellsGroupsOperation
+						r.summary = "Get list of Cells Groups"
+						r.operationID = "getCellsGroups"
+						r.pathPattern = "/cells-groups"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateCellsGroupOperation
+						r.summary = "Create Cells Group"
+						r.operationID = "createCellsGroup"
+						r.pathPattern = "/cells-groups"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
 				switch elem[0] {
-				case 'o': // Prefix: "oauth2/yandex"
+				case '/': // Prefix: "/"
 
-					if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "groupId"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
 					if len(elem) == 0 {
-						// Leaf node.
 						switch method {
-						case "POST":
-							r.name = ExchangeYandexAccessTokenOperation
-							r.summary = "Exchange Yandex Access token for Session token"
-							r.operationID = "exchangeYandexAccessToken"
-							r.pathPattern = "/auth/oauth2/yandex"
+						case "DELETE":
+							r.name = DeleteCellsGroupOperation
+							r.summary = "Delete Cells Group"
+							r.operationID = "deleteCellsGroup"
+							r.pathPattern = "/cells-groups/{groupId}"
 							r.args = args
-							r.count = 0
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetCellsGroupByIdOperation
+							r.summary = "Get Cells Group by ID"
+							r.operationID = "getCellsGroupById"
+							r.pathPattern = "/cells-groups/{groupId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = PatchCellsGroupOperation
+							r.summary = "Patch Cells Group"
+							r.operationID = "patchCellsGroup"
+							r.pathPattern = "/cells-groups/{groupId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateCellsGroupOperation
+							r.summary = "Update Cells Group"
+							r.operationID = "updateCellsGroup"
+							r.pathPattern = "/cells-groups/{groupId}"
+							r.args = args
+							r.count = 1
 							return r, true
 						default:
 							return
 						}
 					}
+					switch elem[0] {
+					case '/': // Prefix: "/cells"
 
-				case 't': // Prefix: "testing"
-
-					if l := len("testing"); len(elem) >= l && elem[0:l] == "testing" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "POST":
-							r.name = GetAuthCookieByEmailOperation
-							r.summary = "Get Auth Cookie by email"
-							r.operationID = "getAuthCookieByEmail"
-							r.pathPattern = "/auth/testing"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
+						if l := len("/cells"); len(elem) >= l && elem[0:l] == "/cells" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							switch method {
+							case "GET":
+								r.name = GetCellsOperation
+								r.summary = "Get list of Cells"
+								r.operationID = "getCells"
+								r.pathPattern = "/cells-groups/{groupId}/cells"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "POST":
+								r.name = CreateCellOperation
+								r.summary = "Create Cells"
+								r.operationID = "createCell"
+								r.pathPattern = "/cells-groups/{groupId}/cells"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "cellId"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[1] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "DELETE":
+									r.name = DeleteCellOperation
+									r.summary = "Delete Cell"
+									r.operationID = "deleteCell"
+									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
+									r.args = args
+									r.count = 2
+									return r, true
+								case "GET":
+									r.name = GetCellByIdOperation
+									r.summary = "Get Cell by ID"
+									r.operationID = "getCellById"
+									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
+									r.args = args
+									r.count = 2
+									return r, true
+								case "PATCH":
+									r.name = PatchCellOperation
+									r.summary = "Patch Cell"
+									r.operationID = "patchCell"
+									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
+									r.args = args
+									r.count = 2
+									return r, true
+								case "PUT":
+									r.name = UpdateCellOperation
+									r.summary = "Update Cell"
+									r.operationID = "updateCell"
+									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
+									r.args = args
+									r.count = 2
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
 					}
 
 				}

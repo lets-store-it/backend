@@ -11,6 +11,34 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
+func encodeCreateCellRequest(
+	req *CreateCellRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCreateCellsGroupRequest(
+	req *CreateCellsGroupRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateItemRequest(
 	req *CreateItemRequest,
 	r *http.Request,
@@ -81,8 +109,22 @@ func encodeExchangeYandexAccessTokenRequest(
 	return nil
 }
 
-func encodeGetAuthCookieByEmailRequest(
-	req *GetAuthCookieByEmailRequest,
+func encodePatchCellRequest(
+	req *PatchCellRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodePatchCellsGroupRequest(
+	req *PatchCellsGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -139,6 +181,34 @@ func encodePatchOrganizationUnitRequest(
 
 func encodePatchStorageGroupRequest(
 	req *PatchStorageGroupRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateCellRequest(
+	req *UpdateCellRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateCellsGroupRequest(
+	req *UpdateCellsGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

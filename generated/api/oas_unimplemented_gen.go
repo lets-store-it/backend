@@ -13,6 +13,24 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateCell implements createCell operation.
+//
+// Create Cells.
+//
+// POST /cells-groups/{groupId}/cells
+func (UnimplementedHandler) CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (r *CreateCellResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateCellsGroup implements createCellsGroup operation.
+//
+// Create Cells Group.
+//
+// POST /cells-groups
+func (UnimplementedHandler) CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (r *CreateCellsGroupResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateItem implements createItem operation.
 //
 // Create Item.
@@ -47,6 +65,24 @@ func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateS
 // POST /units
 func (UnimplementedHandler) CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (r *CreateOrganizationUnitResponse, _ error) {
 	return r, ht.ErrNotImplemented
+}
+
+// DeleteCell implements deleteCell operation.
+//
+// Delete Cell.
+//
+// DELETE /cells-groups/{groupId}/cells/{cellId}
+func (UnimplementedHandler) DeleteCell(ctx context.Context, params DeleteCellParams) error {
+	return ht.ErrNotImplemented
+}
+
+// DeleteCellsGroup implements deleteCellsGroup operation.
+//
+// Delete Cells Group.
+//
+// DELETE /cells-groups/{groupId}
+func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error {
+	return ht.ErrNotImplemented
 }
 
 // DeleteItem implements deleteItem operation.
@@ -94,12 +130,39 @@ func (UnimplementedHandler) ExchangeYandexAccessToken(ctx context.Context, req *
 	return r, ht.ErrNotImplemented
 }
 
-// GetAuthCookieByEmail implements getAuthCookieByEmail operation.
+// GetCellById implements getCellById operation.
 //
-// Get Auth Cookie by email.
+// Get Cell by ID.
 //
-// POST /auth/testing
-func (UnimplementedHandler) GetAuthCookieByEmail(ctx context.Context, req *GetAuthCookieByEmailRequest) (r *GetAuthCookieByEmailOK, _ error) {
+// GET /cells-groups/{groupId}/cells/{cellId}
+func (UnimplementedHandler) GetCellById(ctx context.Context, params GetCellByIdParams) (r *GetCellByIdResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCells implements getCells operation.
+//
+// Get list of Cells.
+//
+// GET /cells-groups/{groupId}/cells
+func (UnimplementedHandler) GetCells(ctx context.Context, params GetCellsParams) (r *GetCellsResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCellsGroupById implements getCellsGroupById operation.
+//
+// Get Cells Group by ID.
+//
+// GET /cells-groups/{groupId}
+func (UnimplementedHandler) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (r *GetCellsGroupByIdResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCellsGroups implements getCellsGroups operation.
+//
+// Get list of Cells Groups.
+//
+// GET /cells-groups
+func (UnimplementedHandler) GetCellsGroups(ctx context.Context) (r *GetCellsGroupsResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -184,6 +247,24 @@ func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorage
 	return r, ht.ErrNotImplemented
 }
 
+// PatchCell implements patchCell operation.
+//
+// Patch Cell.
+//
+// PATCH /cells-groups/{groupId}/cells/{cellId}
+func (UnimplementedHandler) PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (r *PatchCellResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// PatchCellsGroup implements patchCellsGroup operation.
+//
+// Patch Cells Group.
+//
+// PATCH /cells-groups/{groupId}
+func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (r *PatchCellsGroupResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // PatchItem implements patchItem operation.
 //
 // Patch Item.
@@ -217,6 +298,24 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 //
 // PATCH /storage-groups/{id}
 func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateCell implements updateCell operation.
+//
+// Update Cell.
+//
+// PUT /cells-groups/{groupId}/cells/{cellId}
+func (UnimplementedHandler) UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (r *UpdateCellResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateCellsGroup implements updateCellsGroup operation.
+//
+// Update Cells Group.
+//
+// PUT /cells-groups/{groupId}
+func (UnimplementedHandler) UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (r *UpdateCellsGroupResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

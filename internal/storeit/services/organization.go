@@ -104,23 +104,6 @@ func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID
 	return orgs, nil
 }
 
-func (s *OrganizationService) GetAll(ctx context.Context) ([]*models.Organization, error) {
-	res, err := s.queries.GetActiveOrgs(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	orgs := make([]*models.Organization, len(res))
-	for i, org := range res {
-		orgs[i], err = toOrganization(org)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return orgs, nil
-}
-
 func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
 	org, err := s.queries.GetOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
 	if err != nil {

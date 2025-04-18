@@ -27,6 +27,250 @@ func (s *AuthResponse) SetSetCookie(val string) {
 	s.SetCookie = val
 }
 
+// Ref: #/components/schemas/CellBase
+type CellBase struct {
+	ID       uuid.UUID `json:"id"`
+	Alias    string    `json:"alias"`
+	Row      int       `json:"row"`
+	Level    int       `json:"level"`
+	Position int       `json:"position"`
+}
+
+// GetID returns the value of ID.
+func (s *CellBase) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetAlias returns the value of Alias.
+func (s *CellBase) GetAlias() string {
+	return s.Alias
+}
+
+// GetRow returns the value of Row.
+func (s *CellBase) GetRow() int {
+	return s.Row
+}
+
+// GetLevel returns the value of Level.
+func (s *CellBase) GetLevel() int {
+	return s.Level
+}
+
+// GetPosition returns the value of Position.
+func (s *CellBase) GetPosition() int {
+	return s.Position
+}
+
+// SetID sets the value of ID.
+func (s *CellBase) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CellBase) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *CellBase) SetRow(val int) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *CellBase) SetLevel(val int) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *CellBase) SetPosition(val int) {
+	s.Position = val
+}
+
+// Ref: #/components/schemas/CellGroupBase
+type CellGroupBase struct {
+	ID             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	Alias          string    `json:"alias"`
+	StorageGroupID uuid.UUID `json:"storage_group_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CellGroupBase) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CellGroupBase) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *CellGroupBase) GetAlias() string {
+	return s.Alias
+}
+
+// GetStorageGroupID returns the value of StorageGroupID.
+func (s *CellGroupBase) GetStorageGroupID() uuid.UUID {
+	return s.StorageGroupID
+}
+
+// SetID sets the value of ID.
+func (s *CellGroupBase) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CellGroupBase) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CellGroupBase) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetStorageGroupID sets the value of StorageGroupID.
+func (s *CellGroupBase) SetStorageGroupID(val uuid.UUID) {
+	s.StorageGroupID = val
+}
+
+// Ref: #/components/schemas/CreateCellRequest
+type CreateCellRequest struct {
+	ID       uuid.UUID `json:"id"`
+	Alias    string    `json:"alias"`
+	Row      int       `json:"row"`
+	Level    int       `json:"level"`
+	Position int       `json:"position"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateCellRequest) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetAlias returns the value of Alias.
+func (s *CreateCellRequest) GetAlias() string {
+	return s.Alias
+}
+
+// GetRow returns the value of Row.
+func (s *CreateCellRequest) GetRow() int {
+	return s.Row
+}
+
+// GetLevel returns the value of Level.
+func (s *CreateCellRequest) GetLevel() int {
+	return s.Level
+}
+
+// GetPosition returns the value of Position.
+func (s *CreateCellRequest) GetPosition() int {
+	return s.Position
+}
+
+// SetID sets the value of ID.
+func (s *CreateCellRequest) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CreateCellRequest) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *CreateCellRequest) SetRow(val int) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *CreateCellRequest) SetLevel(val int) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *CreateCellRequest) SetPosition(val int) {
+	s.Position = val
+}
+
+// Ref: #/components/schemas/CreateCellResponse
+type CreateCellResponse struct {
+	Data CellBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateCellResponse) GetData() CellBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateCellResponse) SetData(val CellBase) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/CreateCellsGroupRequest
+type CreateCellsGroupRequest struct {
+	ID             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	Alias          string    `json:"alias"`
+	StorageGroupID uuid.UUID `json:"storage_group_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateCellsGroupRequest) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CreateCellsGroupRequest) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *CreateCellsGroupRequest) GetAlias() string {
+	return s.Alias
+}
+
+// GetStorageGroupID returns the value of StorageGroupID.
+func (s *CreateCellsGroupRequest) GetStorageGroupID() uuid.UUID {
+	return s.StorageGroupID
+}
+
+// SetID sets the value of ID.
+func (s *CreateCellsGroupRequest) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateCellsGroupRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CreateCellsGroupRequest) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetStorageGroupID sets the value of StorageGroupID.
+func (s *CreateCellsGroupRequest) SetStorageGroupID(val uuid.UUID) {
+	s.StorageGroupID = val
+}
+
+// Ref: #/components/schemas/CreateCellsGroupResponse
+type CreateCellsGroupResponse struct {
+	Data CellGroupBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateCellsGroupResponse) GetData() CellGroupBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateCellsGroupResponse) SetData(val CellGroupBase) {
+	s.Data = val
+}
+
 // Merged schema.
 // Ref: #/components/schemas/CreateItemRequest
 type CreateItemRequest struct {
@@ -273,6 +517,12 @@ func (s *DefaultErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+// DeleteCellOK is response for DeleteCell operation.
+type DeleteCellOK struct{}
+
+// DeleteCellsGroupOK is response for DeleteCellsGroup operation.
+type DeleteCellsGroupOK struct{}
+
 // DeleteItemOK is response for DeleteItem operation.
 type DeleteItemOK struct{}
 
@@ -327,34 +577,108 @@ func (s *ExchangeYandexAccessTokenReq) SetAccessToken(val string) {
 	s.AccessToken = val
 }
 
-// GetAuthCookieByEmailOK is response for GetAuthCookieByEmail operation.
-type GetAuthCookieByEmailOK struct {
-	SetCookie string
+// Ref: #/components/schemas/GetCellByIdResponse
+type GetCellByIdResponse struct {
+	ID       uuid.UUID `json:"id"`
+	Alias    string    `json:"alias"`
+	Row      int       `json:"row"`
+	Level    int       `json:"level"`
+	Position int       `json:"position"`
 }
 
-// GetSetCookie returns the value of SetCookie.
-func (s *GetAuthCookieByEmailOK) GetSetCookie() string {
-	return s.SetCookie
+// GetID returns the value of ID.
+func (s *GetCellByIdResponse) GetID() uuid.UUID {
+	return s.ID
 }
 
-// SetSetCookie sets the value of SetCookie.
-func (s *GetAuthCookieByEmailOK) SetSetCookie(val string) {
-	s.SetCookie = val
+// GetAlias returns the value of Alias.
+func (s *GetCellByIdResponse) GetAlias() string {
+	return s.Alias
 }
 
-// Ref: #/components/schemas/GetAuthCookieByEmailRequest
-type GetAuthCookieByEmailRequest struct {
-	Email string `json:"email"`
+// GetRow returns the value of Row.
+func (s *GetCellByIdResponse) GetRow() int {
+	return s.Row
 }
 
-// GetEmail returns the value of Email.
-func (s *GetAuthCookieByEmailRequest) GetEmail() string {
-	return s.Email
+// GetLevel returns the value of Level.
+func (s *GetCellByIdResponse) GetLevel() int {
+	return s.Level
 }
 
-// SetEmail sets the value of Email.
-func (s *GetAuthCookieByEmailRequest) SetEmail(val string) {
-	s.Email = val
+// GetPosition returns the value of Position.
+func (s *GetCellByIdResponse) GetPosition() int {
+	return s.Position
+}
+
+// SetID sets the value of ID.
+func (s *GetCellByIdResponse) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *GetCellByIdResponse) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *GetCellByIdResponse) SetRow(val int) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *GetCellByIdResponse) SetLevel(val int) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *GetCellByIdResponse) SetPosition(val int) {
+	s.Position = val
+}
+
+// Ref: #/components/schemas/GetCellsGroupByIdResponse
+type GetCellsGroupByIdResponse struct {
+	Data CellGroupBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetCellsGroupByIdResponse) GetData() CellGroupBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetCellsGroupByIdResponse) SetData(val CellGroupBase) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/GetCellsGroupsResponse
+type GetCellsGroupsResponse struct {
+	Data []CellGroupBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetCellsGroupsResponse) GetData() []CellGroupBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetCellsGroupsResponse) SetData(val []CellGroupBase) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/GetCellsResponse
+type GetCellsResponse struct {
+	Data []CellBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetCellsResponse) GetData() []CellBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetCellsResponse) SetData(val []CellBase) {
+	s.Data = val
 }
 
 // Ref: #/components/schemas/GetCurrentUserResponse
@@ -898,6 +1222,52 @@ func (o NilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptInt returns new OptInt with value set to v.
+func NewOptInt(v int) OptInt {
+	return OptInt{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt is optional int.
+type OptInt struct {
+	Value int
+	Set   bool
+}
+
+// IsSet returns true if OptInt was set.
+func (o OptInt) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt) Reset() {
+	var v int
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt) SetTo(v int) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt) Get() (v int, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilInt returns new OptNilInt with value set to v.
 func NewOptNilInt(v int) OptNilInt {
 	return OptNilInt{
@@ -1217,6 +1587,121 @@ func (s *Organization) SetSubdomain(val string) {
 	s.Subdomain = val
 }
 
+// Ref: #/components/schemas/PatchCellRequest
+type PatchCellRequest struct {
+	Alias    OptString `json:"alias"`
+	Row      OptInt    `json:"row"`
+	Level    OptInt    `json:"level"`
+	Position OptInt    `json:"position"`
+}
+
+// GetAlias returns the value of Alias.
+func (s *PatchCellRequest) GetAlias() OptString {
+	return s.Alias
+}
+
+// GetRow returns the value of Row.
+func (s *PatchCellRequest) GetRow() OptInt {
+	return s.Row
+}
+
+// GetLevel returns the value of Level.
+func (s *PatchCellRequest) GetLevel() OptInt {
+	return s.Level
+}
+
+// GetPosition returns the value of Position.
+func (s *PatchCellRequest) GetPosition() OptInt {
+	return s.Position
+}
+
+// SetAlias sets the value of Alias.
+func (s *PatchCellRequest) SetAlias(val OptString) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *PatchCellRequest) SetRow(val OptInt) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *PatchCellRequest) SetLevel(val OptInt) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *PatchCellRequest) SetPosition(val OptInt) {
+	s.Position = val
+}
+
+// Ref: #/components/schemas/PatchCellResponse
+type PatchCellResponse struct {
+	Data CellBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *PatchCellResponse) GetData() CellBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *PatchCellResponse) SetData(val CellBase) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/PatchCellsGroupRequest
+type PatchCellsGroupRequest struct {
+	Name           OptString `json:"name"`
+	Alias          OptString `json:"alias"`
+	StorageGroupID OptUUID   `json:"storage_group_id"`
+}
+
+// GetName returns the value of Name.
+func (s *PatchCellsGroupRequest) GetName() OptString {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *PatchCellsGroupRequest) GetAlias() OptString {
+	return s.Alias
+}
+
+// GetStorageGroupID returns the value of StorageGroupID.
+func (s *PatchCellsGroupRequest) GetStorageGroupID() OptUUID {
+	return s.StorageGroupID
+}
+
+// SetName sets the value of Name.
+func (s *PatchCellsGroupRequest) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *PatchCellsGroupRequest) SetAlias(val OptString) {
+	s.Alias = val
+}
+
+// SetStorageGroupID sets the value of StorageGroupID.
+func (s *PatchCellsGroupRequest) SetStorageGroupID(val OptUUID) {
+	s.StorageGroupID = val
+}
+
+// Ref: #/components/schemas/PatchCellsGroupResponse
+type PatchCellsGroupResponse struct {
+	Data CellGroupBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *PatchCellsGroupResponse) GetData() CellGroupBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *PatchCellsGroupResponse) SetData(val CellGroupBase) {
+	s.Data = val
+}
+
 // Ref: #/components/schemas/PatchItemRequest
 type PatchItemRequest struct {
 	Name        OptString                `json:"name"`
@@ -1534,6 +2019,143 @@ func (s *Unit) SetAlias(val string) {
 // SetAddress sets the value of Address.
 func (s *Unit) SetAddress(val NilString) {
 	s.Address = val
+}
+
+// Ref: #/components/schemas/UpdateCellRequest
+type UpdateCellRequest struct {
+	ID       uuid.UUID `json:"id"`
+	Alias    string    `json:"alias"`
+	Row      int       `json:"row"`
+	Level    int       `json:"level"`
+	Position int       `json:"position"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateCellRequest) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetAlias returns the value of Alias.
+func (s *UpdateCellRequest) GetAlias() string {
+	return s.Alias
+}
+
+// GetRow returns the value of Row.
+func (s *UpdateCellRequest) GetRow() int {
+	return s.Row
+}
+
+// GetLevel returns the value of Level.
+func (s *UpdateCellRequest) GetLevel() int {
+	return s.Level
+}
+
+// GetPosition returns the value of Position.
+func (s *UpdateCellRequest) GetPosition() int {
+	return s.Position
+}
+
+// SetID sets the value of ID.
+func (s *UpdateCellRequest) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *UpdateCellRequest) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *UpdateCellRequest) SetRow(val int) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *UpdateCellRequest) SetLevel(val int) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *UpdateCellRequest) SetPosition(val int) {
+	s.Position = val
+}
+
+// Ref: #/components/schemas/UpdateCellResponse
+type UpdateCellResponse struct {
+	Data CellBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UpdateCellResponse) GetData() CellBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UpdateCellResponse) SetData(val CellBase) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/UpdateCellsGroupRequest
+type UpdateCellsGroupRequest struct {
+	ID             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	Alias          string    `json:"alias"`
+	StorageGroupID uuid.UUID `json:"storage_group_id"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateCellsGroupRequest) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *UpdateCellsGroupRequest) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *UpdateCellsGroupRequest) GetAlias() string {
+	return s.Alias
+}
+
+// GetStorageGroupID returns the value of StorageGroupID.
+func (s *UpdateCellsGroupRequest) GetStorageGroupID() uuid.UUID {
+	return s.StorageGroupID
+}
+
+// SetID sets the value of ID.
+func (s *UpdateCellsGroupRequest) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateCellsGroupRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *UpdateCellsGroupRequest) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetStorageGroupID sets the value of StorageGroupID.
+func (s *UpdateCellsGroupRequest) SetStorageGroupID(val uuid.UUID) {
+	s.StorageGroupID = val
+}
+
+// Ref: #/components/schemas/UpdateCellsGroupResponse
+type UpdateCellsGroupResponse struct {
+	Data CellGroupBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UpdateCellsGroupResponse) GetData() CellGroupBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UpdateCellsGroupResponse) SetData(val CellGroupBase) {
+	s.Data = val
 }
 
 // Merged schema.

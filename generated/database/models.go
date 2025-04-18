@@ -17,9 +17,9 @@ type AppRole struct {
 
 type AppRoleBinding struct {
 	ID     pgtype.UUID
+	OrgID  pgtype.UUID
 	RoleID int32
 	UserID pgtype.UUID
-	OrgID  pgtype.UUID
 }
 
 type AppUser struct {
@@ -41,25 +41,54 @@ type AppUserSession struct {
 	RevokedAt pgtype.Timestamp
 }
 
+type Cell struct {
+	ID           pgtype.UUID
+	OrgID        pgtype.UUID
+	CellsGroupID pgtype.UUID
+	Alias        string
+	Row          int32
+	Level        int32
+	Position     int32
+	CreatedAt    pgtype.Timestamp
+	DeletedAt    pgtype.Timestamp
+}
+
+type CellsGroup struct {
+	ID             pgtype.UUID
+	OrgID          pgtype.UUID
+	StorageGroupID pgtype.UUID
+	Name           string
+	Alias          string
+	CreatedAt      pgtype.Timestamp
+	DeletedAt      pgtype.Timestamp
+}
+
 type Item struct {
 	ID          pgtype.UUID
 	OrgID       pgtype.UUID
 	Name        string
 	Description pgtype.Text
+	Width       pgtype.Int4
+	Depth       pgtype.Int4
+	Height      pgtype.Int4
+	Weight      pgtype.Int4
 	CreatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
 }
 
 type ItemInstance struct {
 	ID        pgtype.UUID
+	OrgID     pgtype.UUID
 	ItemID    pgtype.UUID
 	VariantID pgtype.UUID
+	CellID    pgtype.UUID
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }
 
 type ItemVariant struct {
 	ID        pgtype.UUID
+	OrgID     pgtype.UUID
 	ItemID    pgtype.UUID
 	Name      string
 	Article   pgtype.Text

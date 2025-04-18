@@ -8,6 +8,18 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateCell implements createCell operation.
+	//
+	// Create Cells.
+	//
+	// POST /cells-groups/{groupId}/cells
+	CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error)
+	// CreateCellsGroup implements createCellsGroup operation.
+	//
+	// Create Cells Group.
+	//
+	// POST /cells-groups
+	CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error)
 	// CreateItem implements createItem operation.
 	//
 	// Create Item.
@@ -32,6 +44,18 @@ type Handler interface {
 	//
 	// POST /units
 	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	// DeleteCell implements deleteCell operation.
+	//
+	// Delete Cell.
+	//
+	// DELETE /cells-groups/{groupId}/cells/{cellId}
+	DeleteCell(ctx context.Context, params DeleteCellParams) error
+	// DeleteCellsGroup implements deleteCellsGroup operation.
+	//
+	// Delete Cells Group.
+	//
+	// DELETE /cells-groups/{groupId}
+	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
 	// DeleteItem implements deleteItem operation.
 	//
 	// Delete Item.
@@ -62,12 +86,30 @@ type Handler interface {
 	//
 	// POST /auth/oauth2/yandex
 	ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
-	// GetAuthCookieByEmail implements getAuthCookieByEmail operation.
+	// GetCellById implements getCellById operation.
 	//
-	// Get Auth Cookie by email.
+	// Get Cell by ID.
 	//
-	// POST /auth/testing
-	GetAuthCookieByEmail(ctx context.Context, req *GetAuthCookieByEmailRequest) (*GetAuthCookieByEmailOK, error)
+	// GET /cells-groups/{groupId}/cells/{cellId}
+	GetCellById(ctx context.Context, params GetCellByIdParams) (*GetCellByIdResponse, error)
+	// GetCells implements getCells operation.
+	//
+	// Get list of Cells.
+	//
+	// GET /cells-groups/{groupId}/cells
+	GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error)
+	// GetCellsGroupById implements getCellsGroupById operation.
+	//
+	// Get Cells Group by ID.
+	//
+	// GET /cells-groups/{groupId}
+	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error)
+	// GetCellsGroups implements getCellsGroups operation.
+	//
+	// Get list of Cells Groups.
+	//
+	// GET /cells-groups
+	GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error)
 	// GetCurrentUser implements getCurrentUser operation.
 	//
 	// Get Current User.
@@ -122,6 +164,18 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// PatchCell implements patchCell operation.
+	//
+	// Patch Cell.
+	//
+	// PATCH /cells-groups/{groupId}/cells/{cellId}
+	PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error)
+	// PatchCellsGroup implements patchCellsGroup operation.
+	//
+	// Patch Cells Group.
+	//
+	// PATCH /cells-groups/{groupId}
+	PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error)
 	// PatchItem implements patchItem operation.
 	//
 	// Patch Item.
@@ -146,6 +200,18 @@ type Handler interface {
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	// UpdateCell implements updateCell operation.
+	//
+	// Update Cell.
+	//
+	// PUT /cells-groups/{groupId}/cells/{cellId}
+	UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error)
+	// UpdateCellsGroup implements updateCellsGroup operation.
+	//
+	// Update Cells Group.
+	//
+	// PUT /cells-groups/{groupId}
+	UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error)
 	// UpdateItem implements updateItem operation.
 	//
 	// Update Item.

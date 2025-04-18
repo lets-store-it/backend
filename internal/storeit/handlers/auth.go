@@ -7,28 +7,6 @@ import (
 	"github.com/let-store-it/backend/generated/api"
 )
 
-func (h *RestApiImplementation) GetAuthCookieByEmail(ctx context.Context, req *api.GetAuthCookieByEmailRequest) (*api.GetAuthCookieByEmailOK, error) {
-	session, err := h.authUseCase.CreateSessionByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, h.NewError(ctx, err)
-	}
-
-	cookie := &http.Cookie{
-		Name:     "storeit_session",
-		Value:    session.Secret,
-		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 30,
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
-		
-	}
-
-	return &api.GetAuthCookieByEmailOK{
-		SetCookie: cookie.String(),
-	}, nil
-}
-
 // func (h *RestApiImplementation) GetCurrentUserBySessionSecret(ctx context.Context) (*api.GetCurrentUserResponse, error) {
 
 // 	userID := h.authUseCase.GetCurrentUser(ctx)
