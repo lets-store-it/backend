@@ -9,39 +9,43 @@ import (
 	"github.com/let-store-it/backend/internal/storeit/services"
 )
 
-type StorageGroupUseCase struct {
-	service    *services.StorageGroupService
-	orgService *services.OrganizationService
+type StorageUseCase struct {
+	service     *services.StorageService
+	orgService  *services.OrganizationService
+	authService *services.AuthService
 }
 
-func NewStorageGroupUseCase(service *services.StorageGroupService, orgService *services.OrganizationService) *StorageGroupUseCase {
-	return &StorageGroupUseCase{
-		service:    service,
-		orgService: orgService,
+func NewStorageUseCase(service *services.StorageService, orgService *services.OrganizationService, authService *services.AuthService) *StorageUseCase {
+	return &StorageUseCase{
+		authService: authService,
+		service:     service,
+		orgService:  orgService,
 	}
 }
 
-func (uc *StorageGroupUseCase) validateOrganizationAccess(ctx context.Context, groupID uuid.UUID) (uuid.UUID, error) {
+func (uc *StorageUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUID, error) {
 	orgID, err := GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
 	}
+	userID, err := GetUserIdFromContext(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
+	}
 
-	if groupID != uuid.Nil {
-		exists, err := uc.service.IsStorageGroupExists(ctx, orgID, groupID)
-		if err != nil {
-			return uuid.Nil, fmt.Errorf("failed to check group ownership: %w", err)
-		}
-		if !exists {
-			return uuid.Nil, services.ErrStorageGroupNotFound
-		}
+	roles, err := uc.authService.GetUserRoles(ctx, userID, orgID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
+	}
+	if _, ok := roles[services.RoleOwner]; !ok {
+		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
 	}
 
 	return orgID, nil
 }
 
-func (uc *StorageGroupUseCase) Create(ctx context.Context, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+func (uc *StorageUseCase) Create(ctx context.Context, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +53,8 @@ func (uc *StorageGroupUseCase) Create(ctx context.Context, unitID uuid.UUID, par
 	return uc.service.Create(ctx, orgID, unitID, parentID, name, alias)
 }
 
-func (uc *StorageGroupUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+func (uc *StorageUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +62,8 @@ func (uc *StorageGroupUseCase) GetAll(ctx context.Context) ([]*models.StorageGro
 	return uc.service.GetAll(ctx, orgID)
 }
 
-func (uc *StorageGroupUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.StorageGroup, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+func (uc *StorageUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.StorageGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +76,8 @@ func (uc *StorageGroupUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 	return group, nil
 }
 
-func (uc *StorageGroupUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+func (uc *StorageUseCase) Delete(ctx context.Context, id uuid.UUID) error {
+	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return err
 	}
@@ -81,8 +85,8 @@ func (uc *StorageGroupUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	return uc.service.Delete(ctx, orgID, id)
 }
 
-func (uc *StorageGroupUseCase) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
-	_, err := uc.validateOrganizationAccess(ctx, group.ID)
+func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
+	_, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +94,8 @@ func (uc *StorageGroupUseCase) Update(ctx context.Context, group *models.Storage
 	return uc.service.Update(ctx, group)
 }
 
-func (uc *StorageGroupUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.StorageGroup, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+func (uc *StorageUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.StorageGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -113,4 +117,73 @@ func (uc *StorageGroupUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	}
 
 	return uc.service.Update(ctx, group)
+}
+
+// CellsGroups
+
+func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.GetCellsGroups(ctx, orgID)
+}
+
+func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, storageGroupID uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.CreateCellsGroup(ctx, orgID, storageGroupID, name, alias)
+}
+
+func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.GetCellsGroupByID(ctx, orgID, id)
+}
+
+func (uc *StorageUseCase) UpdateCellsGroup(ctx context.Context, cellGroup *models.CellsGroup) (*models.CellsGroup, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cellGroup.OrgID = orgID
+
+	return uc.service.UpdateCellsGroup(ctx, cellGroup)
+}
+
+func (uc *StorageUseCase) DeleteCellsGroup(ctx context.Context, id uuid.UUID) error {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return err
+	}
+
+	return uc.service.DeleteCellsGroup(ctx, orgID, id)
+}
+
+// Cells
+
+func (uc *StorageUseCase) GetCells(ctx context.Context, cellsGroupID uuid.UUID) ([]*models.Cell, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.GetCells(ctx, orgID, cellsGroupID)
+}
+
+func (uc *StorageUseCase) CreateCell(ctx context.Context, cellsGroupID uuid.UUID, alias string, row int, level int, position int) (*models.Cell, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.CreateCell(ctx, orgID, cellsGroupID, alias, row, level, position)
 }

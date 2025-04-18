@@ -28,10 +28,11 @@ func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserPara
 }
 
 const createCell = `-- name: CreateCell :one
-INSERT INTO cell (cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
+INSERT INTO cell (org_id, cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
 `
 
 type CreateCellParams struct {
+	OrgID        pgtype.UUID
 	CellsGroupID pgtype.UUID
 	Alias        string
 	Row          int32
@@ -41,6 +42,7 @@ type CreateCellParams struct {
 
 func (q *Queries) CreateCell(ctx context.Context, arg CreateCellParams) (Cell, error) {
 	row := q.db.QueryRow(ctx, createCell,
+		arg.OrgID,
 		arg.CellsGroupID,
 		arg.Alias,
 		arg.Row,
@@ -298,16 +300,17 @@ func (q *Queries) CreateUserSession(ctx context.Context, arg CreateUserSessionPa
 }
 
 const deleteCell = `-- name: DeleteCell :exec
-UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE cells_group_id = $1 AND id = $2
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3
 `
 
 type DeleteCellParams struct {
+	OrgID        pgtype.UUID
 	CellsGroupID pgtype.UUID
 	ID           pgtype.UUID
 }
 
 func (q *Queries) DeleteCell(ctx context.Context, arg DeleteCellParams) error {
-	_, err := q.db.Exec(ctx, deleteCell, arg.CellsGroupID, arg.ID)
+	_, err := q.db.Exec(ctx, deleteCell, arg.OrgID, arg.CellsGroupID, arg.ID)
 	return err
 }
 
@@ -495,16 +498,17 @@ func (q *Queries) GetActiveStorageGroups(ctx context.Context, orgID pgtype.UUID)
 }
 
 const getCell = `-- name: GetCell :one
-SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL
 `
 
 type GetCellParams struct {
+	OrgID        pgtype.UUID
 	CellsGroupID pgtype.UUID
 	ID           pgtype.UUID
 }
 
 func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) {
-	row := q.db.QueryRow(ctx, getCell, arg.CellsGroupID, arg.ID)
+	row := q.db.QueryRow(ctx, getCell, arg.OrgID, arg.CellsGroupID, arg.ID)
 	var i Cell
 	err := row.Scan(
 		&i.ID,
@@ -521,12 +525,17 @@ func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) 
 }
 
 const getCells = `-- name: GetCells :many
-SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE cells_group_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND deleted_at IS NULL
 `
 
+type GetCellsParams struct {
+	OrgID        pgtype.UUID
+	CellsGroupID pgtype.UUID
+}
+
 // Cells
-func (q *Queries) GetCells(ctx context.Context, cellsGroupID pgtype.UUID) ([]Cell, error) {
-	rows, err := q.db.Query(ctx, getCells, cellsGroupID)
+func (q *Queries) GetCells(ctx context.Context, arg GetCellsParams) ([]Cell, error) {
+	rows, err := q.db.Query(ctx, getCells, arg.OrgID, arg.CellsGroupID)
 	if err != nil {
 		return nil, err
 	}
@@ -961,11 +970,13 @@ func (q *Queries) UnassignRoleFromUser(ctx context.Context, arg UnassignRoleFrom
 }
 
 const updateCell = `-- name: UpdateCell :one
-UPDATE cell SET alias = $2, row = $3, level = $4, position = $5 WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
+UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
 `
 
 type UpdateCellParams struct {
+	OrgID        pgtype.UUID
 	CellsGroupID pgtype.UUID
+	ID           pgtype.UUID
 	Alias        string
 	Row          int32
 	Level        int32
@@ -974,7 +985,9 @@ type UpdateCellParams struct {
 
 func (q *Queries) UpdateCell(ctx context.Context, arg UpdateCellParams) (Cell, error) {
 	row := q.db.QueryRow(ctx, updateCell,
+		arg.OrgID,
 		arg.CellsGroupID,
+		arg.ID,
 		arg.Alias,
 		arg.Row,
 		arg.Level,

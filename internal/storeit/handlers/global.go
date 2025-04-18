@@ -11,16 +11,15 @@ import (
 type RestApiImplementation struct {
 	orgUseCase          *usecases.OrganizationUseCase
 	orgUnitUseCase      *usecases.OrganizationUnitUseCase
-	storageGroupUseCase *usecases.StorageGroupUseCase
+	storageGroupUseCase *usecases.StorageUseCase
 	itemUseCase         *usecases.ItemUseCase
 	authUseCase         *usecases.AuthUseCase
 }
 
-
 func NewRestApiImplementation(
 	orgUseCase *usecases.OrganizationUseCase,
 	orgUnitUseCase *usecases.OrganizationUnitUseCase,
-	storageGroupUseCase *usecases.StorageGroupUseCase,
+	storageGroupUseCase *usecases.StorageUseCase,
 	itemUseCase *usecases.ItemUseCase,
 	authUseCase *usecases.AuthUseCase,
 ) *RestApiImplementation {
