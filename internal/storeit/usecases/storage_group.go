@@ -94,31 +94,6 @@ func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup
 	return uc.service.Update(ctx, group)
 }
 
-func (uc *StorageUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.StorageGroup, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	group, err := uc.service.GetByID(ctx, orgID, id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get storage group: %w", err)
-	}
-
-	// Apply updates
-	if name, ok := updates["name"].(string); ok {
-		group.Name = name
-	}
-	if alias, ok := updates["alias"].(string); ok {
-		group.Alias = alias
-	}
-	if parentID, ok := updates["parent_id"].(uuid.UUID); ok {
-		group.ParentID = &parentID
-	}
-
-	return uc.service.Update(ctx, group)
-}
-
 // CellsGroups
 
 func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGroup, error) {
@@ -186,4 +161,34 @@ func (uc *StorageUseCase) CreateCell(ctx context.Context, cellsGroupID uuid.UUID
 	}
 
 	return uc.service.CreateCell(ctx, orgID, cellsGroupID, alias, row, level, position)
+}
+
+func (uc *StorageUseCase) GetCellByID(ctx context.Context, cellsGroupID uuid.UUID, id uuid.UUID) (*models.Cell, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.service.GetCellByID(ctx, orgID, cellsGroupID, id)
+}
+
+func (uc *StorageUseCase) DeleteCell(ctx context.Context, cellsGroupID uuid.UUID, id uuid.UUID) error {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return err
+	}
+
+	return uc.service.DeleteCell(ctx, orgID, cellsGroupID, id)
+}
+
+func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID, cell *models.Cell) (*models.Cell, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cell.OrgID = orgID
+	cell.CellsGroupID = cellsGroupID
+
+	return uc.service.UpdateCell(ctx, cell)
 }

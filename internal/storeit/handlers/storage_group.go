@@ -79,25 +79,28 @@ func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (*api.GetS
 
 // PatchStorageGroup implements api.Handler.
 func (h *RestApiImplementation) PatchStorageGroup(ctx context.Context, req *api.PatchStorageGroupRequest, params api.PatchStorageGroupParams) (*api.PatchStorageGroupResponse, error) {
-	updates := make(map[string]interface{})
+	group, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	if req.Name.IsSet() {
-		updates["name"] = req.Name.Value
+		group.Name = req.Name.Value
 	}
 	if req.Alias.IsSet() {
-		updates["alias"] = req.Alias.Value
+		group.Alias = req.Alias.Value
 	}
 	if req.ParentId.IsSet() {
-		updates["parent_id"] = req.ParentId.Value
+		group.ParentID = &req.ParentId.Value
 	}
 
-	group, err := h.storageGroupUseCase.Patch(ctx, params.ID, updates)
+	updatedGroup, err := h.storageGroupUseCase.Update(ctx, group)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.PatchStorageGroupResponse{
-		Data: []api.StorageGroup{convertGroupToDTO(group)},
+		Data: []api.StorageGroup{convertGroupToDTO(updatedGroup)},
 	}, nil
 }
 
@@ -199,35 +202,148 @@ func (h *RestApiImplementation) UpdateCellGroup(ctx context.Context, req *api.Up
 
 // PatchCellsGroup implements api.Handler.
 func (h *RestApiImplementation) PatchCellsGroup(ctx context.Context, req *api.PatchCellsGroupRequest, params api.PatchCellsGroupParams) (*api.PatchCellsGroupResponse, error) {
-	// implemntati
+	group, err := h.storageGroupUseCase.GetCellsGroupByID(ctx, params.GroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Name.IsSet() {
+		group.Name = req.Name.Value
+	}
+	if req.Alias.IsSet() {
+		group.Alias = req.Alias.Value
+	}
+
+	updatedGroup, err := h.storageGroupUseCase.UpdateCellsGroup(ctx, group)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.PatchCellsGroupResponse{
+		Data: *toCellsGroupDTO(updatedGroup),
+	}, nil
 }
 
 // CreateCell implements api.Handler.
 func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateCellRequest, params api.CreateCellParams) (*api.CreateCellResponse, error) {
-	
+	cell, err := h.storageGroupUseCase.CreateCell(ctx, params.GroupId, req.Alias, req.Row, req.Level, req.Position)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateCellResponse{
+		Data: api.CellBase{
+			ID:       cell.ID,
+			Alias:    cell.Alias,
+			Row:      cell.Row,
+			Level:    cell.Level,
+			Position: cell.Position,
+		},
+	}, nil
 }
 
 // DeleteCell implements api.Handler.
 func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
-	panic("unimplemented")
+	return h.storageGroupUseCase.DeleteCell(ctx, params.GroupId, params.CellId)
 }
 
 // GetCellById implements api.Handler.
 func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (*api.GetCellByIdResponse, error) {
-	panic("unimplemented")
+	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.GroupId, params.CellId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetCellByIdResponse{
+		ID:       cell.ID,
+		Alias:    cell.Alias,
+		Row:      cell.Row,
+		Level:    cell.Level,
+		Position: cell.Position,
+	}, nil
 }
 
 // GetCells implements api.Handler.
 func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCellsParams) (*api.GetCellsResponse, error) {
-	panic("unimplemented")
+	cells, err := h.storageGroupUseCase.GetCells(ctx, params.GroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]api.CellBase, 0, len(cells))
+	for _, cell := range cells {
+		items = append(items, api.CellBase{
+			ID:       cell.ID,
+			Alias:    cell.Alias,
+			Row:      cell.Row,
+			Level:    cell.Level,
+			Position: cell.Position,
+		})
+	}
+
+	return &api.GetCellsResponse{
+		Data: items,
+	}, nil
 }
 
 // PatchCell implements api.Handler.
 func (h *RestApiImplementation) PatchCell(ctx context.Context, req *api.PatchCellRequest, params api.PatchCellParams) (*api.PatchCellResponse, error) {
-	panic("unimplemented")
+	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.GroupId, params.CellId)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Alias.IsSet() {
+		cell.Alias = req.Alias.Value
+	}
+	if req.Row.IsSet() {
+		cell.Row = req.Row.Value
+	}
+	if req.Level.IsSet() {
+		cell.Level = req.Level.Value
+	}
+	if req.Position.IsSet() {
+		cell.Position = req.Position.Value
+	}
+
+	updatedCell, err := h.storageGroupUseCase.UpdateCell(ctx, params.GroupId, cell)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.PatchCellResponse{
+		Data: api.CellBase{
+			ID:       updatedCell.ID,
+			Alias:    updatedCell.Alias,
+			Row:      updatedCell.Row,
+			Level:    updatedCell.Level,
+			Position: updatedCell.Position,
+		},
+	}, nil
 }
 
-// UpdateCellsGroup implements api.Handler.
+// UpdateCell implements api.Handler.
 func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateCellRequest, params api.UpdateCellParams) (*api.UpdateCellResponse, error) {
-	panic("unimplemented")
+	cell := &models.Cell{
+		ID:       params.CellId,
+		Alias:    req.Alias,
+		Row:      req.Row,
+		Level:    req.Level,
+		Position: req.Position,
+	}
+
+	updatedCell, err := h.storageGroupUseCase.UpdateCell(ctx, params.GroupId, cell)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateCellResponse{
+		Data: api.CellBase{
+			ID:       updatedCell.ID,
+			Alias:    updatedCell.Alias,
+			Row:      updatedCell.Row,
+			Level:    updatedCell.Level,
+			Position: updatedCell.Position,
+		},
+	}, nil
 }
