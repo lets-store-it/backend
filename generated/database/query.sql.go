@@ -27,8 +27,74 @@ func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserPara
 	return err
 }
 
+const createCell = `-- name: CreateCell :one
+INSERT INTO cell (cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
+`
+
+type CreateCellParams struct {
+	CellsGroupID pgtype.UUID
+	Alias        string
+	Row          int32
+	Level        int32
+	Position     int32
+}
+
+func (q *Queries) CreateCell(ctx context.Context, arg CreateCellParams) (Cell, error) {
+	row := q.db.QueryRow(ctx, createCell,
+		arg.CellsGroupID,
+		arg.Alias,
+		arg.Row,
+		arg.Level,
+		arg.Position,
+	)
+	var i Cell
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.CellsGroupID,
+		&i.Alias,
+		&i.Row,
+		&i.Level,
+		&i.Position,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createCellsGroup = `-- name: CreateCellsGroup :one
+INSERT INTO cells_group (org_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4) RETURNING id, org_id, storage_group_id, name, alias, created_at, deleted_at
+`
+
+type CreateCellsGroupParams struct {
+	OrgID          pgtype.UUID
+	StorageGroupID pgtype.UUID
+	Name           string
+	Alias          string
+}
+
+func (q *Queries) CreateCellsGroup(ctx context.Context, arg CreateCellsGroupParams) (CellsGroup, error) {
+	row := q.db.QueryRow(ctx, createCellsGroup,
+		arg.OrgID,
+		arg.StorageGroupID,
+		arg.Name,
+		arg.Alias,
+	)
+	var i CellsGroup
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.StorageGroupID,
+		&i.Name,
+		&i.Alias,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createItem = `-- name: CreateItem :one
-INSERT INTO item (org_id, name, description) VALUES ($1, $2, $3) RETURNING id, org_id, name, description, created_at, deleted_at
+INSERT INTO item (org_id, name, description) VALUES ($1, $2, $3) RETURNING id, org_id, name, description, width, depth, height, weight, created_at, deleted_at
 `
 
 type CreateItemParams struct {
@@ -45,6 +111,10 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 		&i.OrgID,
 		&i.Name,
 		&i.Description,
+		&i.Width,
+		&i.Depth,
+		&i.Height,
+		&i.Weight,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -52,7 +122,7 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 }
 
 const createItemVariant = `-- name: CreateItemVariant :one
-INSERT INTO item_variant (item_id, name, article, ean13) VALUES ($1, $2, $3, $4) RETURNING id, item_id, name, article, ean13, created_at, deleted_at
+INSERT INTO item_variant (item_id, name, article, ean13) VALUES ($1, $2, $3, $4) RETURNING id, org_id, item_id, name, article, ean13, created_at, deleted_at
 `
 
 type CreateItemVariantParams struct {
@@ -72,6 +142,7 @@ func (q *Queries) CreateItemVariant(ctx context.Context, arg CreateItemVariantPa
 	var i ItemVariant
 	err := row.Scan(
 		&i.ID,
+		&i.OrgID,
 		&i.ItemID,
 		&i.Name,
 		&i.Article,
@@ -226,6 +297,34 @@ func (q *Queries) CreateUserSession(ctx context.Context, arg CreateUserSessionPa
 	return i, err
 }
 
+const deleteCell = `-- name: DeleteCell :exec
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE cells_group_id = $1 AND id = $2
+`
+
+type DeleteCellParams struct {
+	CellsGroupID pgtype.UUID
+	ID           pgtype.UUID
+}
+
+func (q *Queries) DeleteCell(ctx context.Context, arg DeleteCellParams) error {
+	_, err := q.db.Exec(ctx, deleteCell, arg.CellsGroupID, arg.ID)
+	return err
+}
+
+const deleteCellsGroup = `-- name: DeleteCellsGroup :exec
+UPDATE cells_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
+`
+
+type DeleteCellsGroupParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) DeleteCellsGroup(ctx context.Context, arg DeleteCellsGroupParams) error {
+	_, err := q.db.Exec(ctx, deleteCellsGroup, arg.OrgID, arg.ID)
+	return err
+}
+
 const deleteItem = `-- name: DeleteItem :exec
 UPDATE item SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 `
@@ -292,7 +391,7 @@ func (q *Queries) DeleteStorageGroup(ctx context.Context, arg DeleteStorageGroup
 }
 
 const getActiveItems = `-- name: GetActiveItems :many
-SELECT id, org_id, name, description, created_at, deleted_at FROM item WHERE org_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, name, description, width, depth, height, weight, created_at, deleted_at FROM item WHERE org_id = $1 AND deleted_at IS NULL
 `
 
 // Items
@@ -310,6 +409,10 @@ func (q *Queries) GetActiveItems(ctx context.Context, orgID pgtype.UUID) ([]Item
 			&i.OrgID,
 			&i.Name,
 			&i.Description,
+			&i.Width,
+			&i.Depth,
+			&i.Height,
+			&i.Weight,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -343,36 +446,6 @@ func (q *Queries) GetActiveOrgUnits(ctx context.Context, orgID pgtype.UUID) ([]O
 			&i.Name,
 			&i.Alias,
 			&i.Address,
-			&i.CreatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getActiveOrgs = `-- name: GetActiveOrgs :many
-SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE deleted_at IS NULL
-`
-
-func (q *Queries) GetActiveOrgs(ctx context.Context) ([]Org, error) {
-	rows, err := q.db.Query(ctx, getActiveOrgs)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Org
-	for rows.Next() {
-		var i Org
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Subdomain,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -421,8 +494,127 @@ func (q *Queries) GetActiveStorageGroups(ctx context.Context, orgID pgtype.UUID)
 	return items, nil
 }
 
+const getCell = `-- name: GetCell :one
+SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL
+`
+
+type GetCellParams struct {
+	CellsGroupID pgtype.UUID
+	ID           pgtype.UUID
+}
+
+func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) {
+	row := q.db.QueryRow(ctx, getCell, arg.CellsGroupID, arg.ID)
+	var i Cell
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.CellsGroupID,
+		&i.Alias,
+		&i.Row,
+		&i.Level,
+		&i.Position,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getCells = `-- name: GetCells :many
+SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE cells_group_id = $1 AND deleted_at IS NULL
+`
+
+// Cells
+func (q *Queries) GetCells(ctx context.Context, cellsGroupID pgtype.UUID) ([]Cell, error) {
+	rows, err := q.db.Query(ctx, getCells, cellsGroupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Cell
+	for rows.Next() {
+		var i Cell
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.CellsGroupID,
+			&i.Alias,
+			&i.Row,
+			&i.Level,
+			&i.Position,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCellsGroup = `-- name: GetCellsGroup :one
+SELECT id, org_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+`
+
+type GetCellsGroupParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) GetCellsGroup(ctx context.Context, arg GetCellsGroupParams) (CellsGroup, error) {
+	row := q.db.QueryRow(ctx, getCellsGroup, arg.OrgID, arg.ID)
+	var i CellsGroup
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.StorageGroupID,
+		&i.Name,
+		&i.Alias,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getCellsGroups = `-- name: GetCellsGroups :many
+
+SELECT id, org_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL
+`
+
+// CellsGroups
+func (q *Queries) GetCellsGroups(ctx context.Context, orgID pgtype.UUID) ([]CellsGroup, error) {
+	rows, err := q.db.Query(ctx, getCellsGroups, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CellsGroup
+	for rows.Next() {
+		var i CellsGroup
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.StorageGroupID,
+			&i.Name,
+			&i.Alias,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getItem = `-- name: GetItem :one
-SELECT id, org_id, name, description, created_at, deleted_at FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, name, description, width, depth, height, weight, created_at, deleted_at FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetItemParams struct {
@@ -438,6 +630,10 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 		&i.OrgID,
 		&i.Name,
 		&i.Description,
+		&i.Width,
+		&i.Depth,
+		&i.Height,
+		&i.Weight,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -446,7 +642,7 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 
 const getItemVariants = `-- name: GetItemVariants :many
 
-SELECT id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL
 `
 
 // -- name: GetActiveItemWithVariants :many
@@ -465,6 +661,7 @@ func (q *Queries) GetItemVariants(ctx context.Context, itemID pgtype.UUID) ([]It
 		var i ItemVariant
 		if err := rows.Scan(
 			&i.ID,
+			&i.OrgID,
 			&i.ItemID,
 			&i.Name,
 			&i.Article,
@@ -656,7 +853,7 @@ func (q *Queries) GetUserOrgs(ctx context.Context, userID pgtype.UUID) ([]Org, e
 }
 
 const getUserRolesInOrg = `-- name: GetUserRolesInOrg :many
-SELECT id, role_id, user_id, org_id FROM app_role_binding WHERE user_id = $1 AND org_id = $2
+SELECT id, org_id, role_id, user_id FROM app_role_binding WHERE user_id = $1 AND org_id = $2
 `
 
 type GetUserRolesInOrgParams struct {
@@ -675,9 +872,9 @@ func (q *Queries) GetUserRolesInOrg(ctx context.Context, arg GetUserRolesInOrgPa
 		var i AppRoleBinding
 		if err := rows.Scan(
 			&i.ID,
+			&i.OrgID,
 			&i.RoleID,
 			&i.UserID,
-			&i.OrgID,
 		); err != nil {
 			return nil, err
 		}
@@ -763,8 +960,74 @@ func (q *Queries) UnassignRoleFromUser(ctx context.Context, arg UnassignRoleFrom
 	return err
 }
 
+const updateCell = `-- name: UpdateCell :one
+UPDATE cell SET alias = $2, row = $3, level = $4, position = $5 WHERE cells_group_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
+`
+
+type UpdateCellParams struct {
+	CellsGroupID pgtype.UUID
+	Alias        string
+	Row          int32
+	Level        int32
+	Position     int32
+}
+
+func (q *Queries) UpdateCell(ctx context.Context, arg UpdateCellParams) (Cell, error) {
+	row := q.db.QueryRow(ctx, updateCell,
+		arg.CellsGroupID,
+		arg.Alias,
+		arg.Row,
+		arg.Level,
+		arg.Position,
+	)
+	var i Cell
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.CellsGroupID,
+		&i.Alias,
+		&i.Row,
+		&i.Level,
+		&i.Position,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateCellsGroup = `-- name: UpdateCellsGroup :one
+UPDATE cells_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, storage_group_id, name, alias, created_at, deleted_at
+`
+
+type UpdateCellsGroupParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+	Name  string
+	Alias string
+}
+
+func (q *Queries) UpdateCellsGroup(ctx context.Context, arg UpdateCellsGroupParams) (CellsGroup, error) {
+	row := q.db.QueryRow(ctx, updateCellsGroup,
+		arg.OrgID,
+		arg.ID,
+		arg.Name,
+		arg.Alias,
+	)
+	var i CellsGroup
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.StorageGroupID,
+		&i.Name,
+		&i.Alias,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const updateItem = `-- name: UpdateItem :one
-UPDATE item SET name = $3, description = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, name, description, created_at, deleted_at
+UPDATE item SET name = $3, description = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, name, description, width, depth, height, weight, created_at, deleted_at
 `
 
 type UpdateItemParams struct {
@@ -787,6 +1050,10 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 		&i.OrgID,
 		&i.Name,
 		&i.Description,
+		&i.Width,
+		&i.Depth,
+		&i.Height,
+		&i.Weight,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -794,7 +1061,7 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 }
 
 const updateItemVariant = `-- name: UpdateItemVariant :one
-UPDATE item_variant SET name = $2, article = $3, ean13 = $4 WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, item_id, name, article, ean13, created_at, deleted_at
+UPDATE item_variant SET name = $2, article = $3, ean13 = $4 WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, item_id, name, article, ean13, created_at, deleted_at
 `
 
 type UpdateItemVariantParams struct {
@@ -814,6 +1081,7 @@ func (q *Queries) UpdateItemVariant(ctx context.Context, arg UpdateItemVariantPa
 	var i ItemVariant
 	err := row.Scan(
 		&i.ID,
+		&i.OrgID,
 		&i.ItemID,
 		&i.Name,
 		&i.Article,
