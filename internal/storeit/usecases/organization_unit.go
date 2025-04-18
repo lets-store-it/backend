@@ -10,36 +10,19 @@ import (
 )
 
 type OrganizationUnitUseCase struct {
-	orgService *services.OrganizationService
+	orgService  *services.OrganizationService
+	authUseCase *AuthUseCase
 }
 
-func NewOrganizationUnitUseCase(orgService *services.OrganizationService) *OrganizationUnitUseCase {
+func NewOrganizationUnitUseCase(orgService *services.OrganizationService, authUseCase *AuthUseCase) *OrganizationUnitUseCase {
 	return &OrganizationUnitUseCase{
-		orgService: orgService,
+		authUseCase: authUseCase,
+		orgService:  orgService,
 	}
-}
-
-func (uc *OrganizationUnitUseCase) validateOrganizationAccess(ctx context.Context, unitID uuid.UUID) (uuid.UUID, error) {
-	orgID, err := GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
-	}
-
-	if unitID != uuid.Nil {
-		exists, err := uc.orgService.IsOrganizationUnitExists(ctx, orgID, unitID)
-		if err != nil {
-			return uuid.Nil, fmt.Errorf("failed to check unit ownership: %w", err)
-		}
-		if !exists {
-			return uuid.Nil, services.ErrOrganizationUnitNotFound
-		}
-	}
-
-	return orgID, nil
 }
 
 func (uc *OrganizationUnitUseCase) Create(ctx context.Context, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +31,7 @@ func (uc *OrganizationUnitUseCase) Create(ctx context.Context, name string, alia
 }
 
 func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context) ([]*models.OrganizationUnit, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +40,7 @@ func (uc *OrganizationUnitUseCase) GetAll(ctx context.Context) ([]*models.Organi
 }
 
 func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +54,7 @@ func (uc *OrganizationUnitUseCase) GetByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return err
 	}
@@ -80,16 +63,17 @@ func (uc *OrganizationUnitUseCase) Delete(ctx context.Context, id uuid.UUID) err
 }
 
 func (uc *OrganizationUnitUseCase) Update(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	_, err := uc.validateOrganizationAccess(ctx, unit.ID)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
+	unit.OrgID = orgID
 
 	return uc.orgService.UpdateUnit(ctx, unit)
 }
 
 func (uc *OrganizationUnitUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+	orgID, err := uc.authUseCase.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}

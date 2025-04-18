@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/storeit/models"
@@ -81,4 +82,25 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 	}
 
 	return session, nil
+}
+
+func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUID, error) {
+	orgID, err := GetOrganizationIDFromContext(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
+	}
+	userID, err := GetUserIdFromContext(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
+	}
+
+	roles, err := uc.authService.GetUserRoles(ctx, userID, orgID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
+	}
+	if _, ok := roles[services.RoleOwner]; !ok {
+		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
+	}
+
+	return orgID, nil
 }

@@ -90,7 +90,7 @@ func (s *StorageService) Create(ctx context.Context, orgID uuid.UUID, unitID uui
 }
 
 func (s *StorageService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
-	groups, err := s.queries.GetActiveStorageGroups(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	groups, err := s.queries.GetStorageGroups(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +142,6 @@ func (s *StorageService) Update(ctx context.Context, group *models.StorageGroup)
 		return nil, err
 	}
 	return toStorageGroup(updatedGroup)
-}
-
-func (s *StorageService) IsStorageGroupExists(ctx context.Context, orgID uuid.UUID, groupID uuid.UUID) (bool, error) {
-	return s.queries.IsStorageGroupExists(ctx, database.IsStorageGroupExistsParams{
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		ID:    pgtype.UUID{Bytes: groupID, Valid: true},
-	})
 }
 
 // CellsGroups
