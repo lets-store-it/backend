@@ -25,6 +25,12 @@ type Server struct {
 
 // New creates and configures a new server instance
 func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Server, error) {
+	// Initialize telemetry
+
+	if err := telemetry.InitTelemetry(context.Background()); err != nil {
+		return nil, err
+	}
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -58,8 +64,11 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 		authUseCase,
 	)
 
-	// Setup telemetry
-	server, err := setupAPI(handler)
+	// Setup API server with global telemetry providers
+	server, err := api.NewServer(handler,
+		api.WithMeterProvider(telemetry.GetMeterProvider()),
+		api.WithTracerProvider(telemetry.GetTracerProvider()),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -81,30 +90,8 @@ func (s *Server) Start() error {
 
 // Shutdown gracefully shuts down the server
 func (s *Server) Shutdown(ctx context.Context) error {
+	if err := telemetry.Shutdown(ctx); err != nil {
+		return err
+	}
 	return s.echo.Shutdown(ctx)
-}
-
-func setupAPI(h api.Handler) (*api.Server, error) {
-	meterProvider, meterShutdown, err := telemetry.NewMeterProvider()
-	if err != nil {
-		return nil, err
-	}
-
-	tracerProvider, tracerShutdown, err := telemetry.NewTracerProvider()
-	if err != nil {
-		meterShutdown(context.Background())
-		return nil, err
-	}
-
-	server, err := api.NewServer(h,
-		api.WithMeterProvider(meterProvider),
-		api.WithTracerProvider(tracerProvider),
-	)
-	if err != nil {
-		meterShutdown(context.Background())
-		tracerShutdown(context.Background())
-		return nil, err
-	}
-
-	return server, nil
 }
