@@ -6,80 +6,53 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/let-store-it/backend/config"
-	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/generated/database"
 	db "github.com/let-store-it/backend/internal/storeit/database"
-	"github.com/let-store-it/backend/internal/storeit/handlers"
-	"github.com/let-store-it/backend/internal/storeit/services"
-	"github.com/let-store-it/backend/internal/storeit/services/yandex"
-	"github.com/let-store-it/backend/internal/storeit/usecases"
+	"github.com/let-store-it/backend/internal/storeit/server"
 )
 
 func main() {
-	config := config.GetConfigOrDie()
+	// Load configuration
+	cfg := config.GetConfigOrDie()
 
+	// Initialize database connection
 	dbCtx := context.Background()
-	conn, err := db.InitDatabaseOrDie(dbCtx, config)
+	conn, err := db.InitDatabaseOrDie(dbCtx, cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	queries := database.New(conn)
+	defer conn.Close()
 
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-
-	// Initialize item layers
-	itemService := services.NewItemService(queries, conn)
-	itemUseCase := usecases.NewItemUseCase(itemService)
-
-	// Initialize auth layers
-	authService := services.NewAuthService(queries, conn)
-	yandexOAuthService := yandex.NewYandexOAuthService(config.YandexOAuth.ClientID, config.YandexOAuth.ClientSecret)
-	authUseCase := usecases.NewAuthUseCase(authService, yandexOAuthService)
-
-	// Initialize organization layers
-	orgService := services.NewOrganizationService(queries, conn)
-	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService)
-	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService, authUseCase)
-
-	// Initialize storage group layers
-	storageGroupService := services.NewStorageService(queries)
-	storageGroupUseCase := usecases.NewStorageUseCase(storageGroupService, orgService, authService)
-	// Initialize handlers
-
-	// Add organization ID middleware
-	authMiddleware := handlers.NewAuthMiddleware(authUseCase, "storeit_session", []string{"/auth", "/metrics"})
-	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
-	e.Use(echo.WrapMiddleware(authMiddleware.Process))
-
-	handler := handlers.NewRestApiImplementation(orgUseCase, orgUnitUseCase, storageGroupUseCase, itemUseCase, authUseCase)
-	server, err := api.NewServer(handler)
+	// Create server instance
+	srv, err := server.New(cfg, conn.Queries, conn.Pool)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}
-	e.Any("/*", echo.WrapHandler(server))
 
+	// Start server in a goroutine
 	go func() {
-		if err := e.Start(config.Server.ListenAddress); err != nil {
+		if err := srv.Start(); err != nil {
 			log.Printf("Server error: %v", err)
 		}
 	}()
 
-	// Graceful shutdown
+	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
 	log.Println("Shutting down server...")
-	ctx, cancel := context.WithTimeout(context.Background(), 10)
+
+	// Create a deadline for graceful shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Printf("Server forced to shutdown: %v", err)
+		os.Exit(1)
 	}
+
+	log.Println("Server shutdown complete")
 }
