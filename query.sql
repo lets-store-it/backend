@@ -14,11 +14,8 @@ UPDATE org SET name = $2, subdomain = $3 WHERE id = $1 RETURNING *;
 UPDATE org SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
 
 -- Units
--- name: GetActiveOrgUnits :many
+-- name: GetOrgUnits :many
 SELECT * FROM org_unit WHERE org_id = $1 AND deleted_at IS NULL;
-
--- name: IsOrgUnitExists :one
-SELECT EXISTS (SELECT 1 FROM org_unit WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
 -- name: GetOrgUnit :one
 SELECT * FROM org_unit WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
@@ -33,11 +30,8 @@ UPDATE org_unit SET name = $3, alias = $4, address = $5 WHERE org_id = $1 AND id
 UPDATE org_unit SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- Storage spaces
--- name: GetActiveStorageGroups :many
+-- name: GetStorageGroups :many
 SELECT * FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL;
-
--- name: IsStorageGroupExists :one
-SELECT EXISTS (SELECT 1 FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
 -- name: GetStorageGroup :one
 SELECT * FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
@@ -52,7 +46,7 @@ UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND
 UPDATE storage_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- Items
--- name: GetActiveItems :many
+-- name: GetItems :many
 SELECT * FROM item WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- name: GetItem :one
@@ -65,7 +59,7 @@ SELECT * FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 -- GROUP BY item.id;
 
 -- name: GetItemVariants :many
-SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
+SELECT * FROM item_variant WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL;
 
 -- name: CreateItem :one
 INSERT INTO item (org_id, name, description) VALUES ($1, $2, $3) RETURNING *;
@@ -77,32 +71,29 @@ UPDATE item SET name = $3, description = $4 WHERE org_id = $1 AND id = $2 AND de
 UPDATE item SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- name: CreateItemVariant :one
-INSERT INTO item_variant (item_id, name, article, ean13) VALUES ($1, $2, $3, $4) RETURNING *;
+INSERT INTO item_variant (org_id, item_id, name, article, ean13) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: UpdateItemVariant :one
-UPDATE item_variant SET name = $2, article = $3, ean13 = $4 WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE item_variant SET name = $3, article = $4, ean13 = $5 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteItemVariant :exec
-UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE item_id = $1 AND id = $2;
+UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND item_id = $2 AND id = $3;
 
 -- name: IsItemExists :one
 SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL);
 
 -- Auth
--- name: GetSessionByUserId :one
-SELECT * FROM app_user_session WHERE user_id = $1 LIMIT 1;
-
 -- name: GetUserBySessionSecret :one
-SELECT * FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 LIMIT 1);
+SELECT * FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at < CURRENT_TIMESTAMP LIMIT 1);
+
+-- name: GetUserById :one
+SELECT * FROM app_user WHERE id = $1 LIMIT 1;
 
 -- name: GetUserByEmail :one
 SELECT * FROM app_user WHERE email = $1 LIMIT 1;
 
 -- name: CreateUserSession :one
 INSERT INTO app_user_session (user_id, token) VALUES ($1, $2) RETURNING *;
-
--- name: GetUserById :one
-SELECT * FROM app_user WHERE id = $1 LIMIT 1;
 
 -- name: CreateUser :one
 INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;
@@ -123,7 +114,6 @@ SELECT * FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id
 
 
 -- CellsGroups
-
 -- name: GetCellsGroups :many
 SELECT * FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL;
 

@@ -218,7 +218,7 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 }
 
 func (s *OrganizationService) GetAllUnits(ctx context.Context, orgID uuid.UUID) ([]*models.OrganizationUnit, error) {
-	units, err := s.queries.GetActiveOrgUnits(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	units, err := s.queries.GetOrgUnits(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -278,9 +278,3 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 	return toOrganizationUnit(updatedUnit)
 }
 
-func (s *OrganizationService) IsOrganizationUnitExists(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID) (bool, error) {
-	return s.queries.IsOrgUnitExists(ctx, database.IsOrgUnitExistsParams{
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		ID:    pgtype.UUID{Bytes: unitID, Valid: true},
-	})
-}

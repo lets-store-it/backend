@@ -26,20 +26,6 @@ func NewAuthService(queries *database.Queries, pgxPool *pgxpool.Pool) *AuthServi
 	return &AuthService{queries: queries, pgxPool: pgxPool}
 }
 
-func (s *AuthService) GetSessionByUserId(ctx context.Context, userId uuid.UUID) (*models.Session, error) {
-	slog.Info("service:GetSessionByUserId", "userId", userId)
-	session, err := s.queries.GetSessionByUserId(ctx, pgtype.UUID{Bytes: userId, Valid: true})
-	if err != nil {
-		return nil, err
-	}
-
-	return &models.Session{
-		ID:     session.ID.Bytes,
-		UserID: session.UserID.Bytes,
-		Secret: session.Token,
-	}, nil
-}
-
 func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	slog.Info("service:GetUserByEmail", "email", email)
 	user, err := s.queries.GetUserByEmail(ctx, email)

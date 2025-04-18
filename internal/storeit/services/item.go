@@ -154,7 +154,7 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 }
 
 func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.Item, error) {
-	results, err := s.queries.GetActiveItems(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	results, err := s.queries.GetItems(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,10 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 	itemsModels := make([]*models.Item, len(results))
 
 	for i, item := range results {
-		variants, err := s.queries.GetItemVariants(ctx, pgtype.UUID{Bytes: item.ID.Bytes, Valid: true})
+		variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
+			OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+			ItemID: pgtype.UUID{Bytes: item.ID.Bytes, Valid: true},
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -193,7 +196,10 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 		return nil, err
 	}
 
-	variants, err := s.queries.GetItemVariants(ctx, pgtype.UUID{Bytes: item.ID.Bytes, Valid: true})
+	variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		ItemID: pgtype.UUID{Bytes: item.ID.Bytes, Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}

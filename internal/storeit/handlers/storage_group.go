@@ -184,7 +184,7 @@ func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api
 }
 
 // UpdateCell implements api.Handler.
-func (h *RestApiImplementation) UpdateCellGroup(ctx context.Context, req *api.UpdateCellsGroupRequest, params api.UpdateCellsGroupParams) (*api.UpdateCellsGroupResponse, error) {
+func (h *RestApiImplementation) UpdateCellsGroup(ctx context.Context, req *api.UpdateCellsGroupRequest, params api.UpdateCellsGroupParams) (*api.UpdateCellsGroupResponse, error) {
 	model := &models.CellsGroup{
 		ID:    params.GroupId,
 		Name:  req.Name,

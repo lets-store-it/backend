@@ -46,7 +46,7 @@ func main() {
 	// Initialize organization layers
 	orgService := services.NewOrganizationService(queries, conn)
 	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService)
-	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService)
+	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService, authUseCase)
 
 	// Initialize storage group layers
 	storageGroupService := services.NewStorageService(queries)
