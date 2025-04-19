@@ -57,3 +57,18 @@ func (h *RestApiImplementation) ExchangeYandexAccessToken(ctx context.Context, r
 		SetCookie: cookie.String(),
 	}, nil
 }
+
+func (h *RestApiImplementation) Logout(ctx context.Context) (*api.LogoutResponse, error) {
+	cookie := &http.Cookie{
+		Name:     "storeit_session",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	}
+	return &api.LogoutResponse{
+		SetCookie: cookie.String(),
+	}, nil
+}

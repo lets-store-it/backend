@@ -84,7 +84,7 @@ SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at I
 
 -- Auth
 -- name: GetUserBySessionSecret :one
-SELECT * FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at < CURRENT_TIMESTAMP LIMIT 1);
+SELECT * FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP LIMIT 1);
 
 -- name: GetUserById :one
 SELECT * FROM app_user WHERE id = $1 LIMIT 1;
@@ -145,6 +145,28 @@ UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $
 
 -- name: DeleteCell :exec
 UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3;
+
+
+-- Audit Log
+-- name: CreateObjectChange :one
+INSERT INTO app_object_changes (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+
+-- name: GetObjectChanges :many
+SELECT * FROM app_object_changes WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL;
+
+
+-- Item Instances
+-- name: CreateItemInstance :one
+INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status, affected_by_operation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+
+-- name: GetItemInstancesForItem :many
+SELECT * FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL;
+
+-- name: GetItemInstancesForCell :many
+SELECT * FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL;
+
+-- name: GetItemInstancesForCellsGroup :many
+SELECT * FROM item_instance WHERE org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL;
 
 
 -- -- name: GetActiveItemVariants :many

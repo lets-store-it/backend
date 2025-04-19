@@ -475,6 +475,17 @@ paths:
           $ref: '#/components/responses/AuthResponse'
         default:
           $ref: '#/components/responses/default-error'
+  /auth/logout:
+    get:
+      tags:
+        - auth
+      summary: Logout user
+      operationId: logout
+      responses:
+        '200':
+          $ref: '#/components/responses/LogoutResponse'
+        default:
+          $ref: '#/components/responses/default-error'
   /me:
     get:
       tags:
@@ -1481,4 +1492,12 @@ components:
           schema:
             type: string
             description: Auth cookie
+          required: true
+    LogoutResponse:
+      description: Logout response
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: Cleared auth cookie
           required: true

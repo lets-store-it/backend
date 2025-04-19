@@ -277,4 +277,3 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 	}
 	return toOrganizationUnit(updatedUnit)
 }
-

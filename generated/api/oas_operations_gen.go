@@ -32,6 +32,7 @@ const (
 	GetOrganizationsOperation          OperationName = "GetOrganizations"
 	GetStorageGroupByIdOperation       OperationName = "GetStorageGroupById"
 	GetStorageGroupsOperation          OperationName = "GetStorageGroups"
+	LogoutOperation                    OperationName = "Logout"
 	PatchCellOperation                 OperationName = "PatchCell"
 	PatchCellsGroupOperation           OperationName = "PatchCellsGroup"
 	PatchItemOperation                 OperationName = "PatchItem"

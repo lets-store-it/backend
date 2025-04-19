@@ -164,6 +164,12 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// Logout implements logout operation.
+	//
+	// Logout user.
+	//
+	// GET /auth/logout
+	Logout(ctx context.Context) (*LogoutResponse, error)
 	// PatchCell implements patchCell operation.
 	//
 	// Patch Cell.

@@ -1087,6 +1087,21 @@ func (s *ItemVariantPatchInItem) SetEan13(val OptNilInt) {
 	s.Ean13 = val
 }
 
+// Ref: #/components/responses/LogoutResponse
+type LogoutResponse struct {
+	SetCookie string
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *LogoutResponse) GetSetCookie() string {
+	return s.SetCookie
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *LogoutResponse) SetSetCookie(val string) {
+	s.SetCookie = val
+}
+
 // NewNilInt returns new NilInt with value set to v.
 func NewNilInt(v int) NilInt {
 	return NilInt{

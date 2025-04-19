@@ -157,6 +157,46 @@ func (q *Queries) CreateItemVariant(ctx context.Context, arg CreateItemVariantPa
 	return i, err
 }
 
+const createObjectChange = `-- name: CreateObjectChange :one
+INSERT INTO app_object_changes (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state
+`
+
+type CreateObjectChangeParams struct {
+	OrgID            pgtype.UUID
+	UserID           pgtype.UUID
+	Action           string
+	TargetObjectType int32
+	TargetObjectID   pgtype.UUID
+	PrechangeState   []byte
+	PostchangeState  []byte
+}
+
+// Audit Log
+func (q *Queries) CreateObjectChange(ctx context.Context, arg CreateObjectChangeParams) (AppObjectChange, error) {
+	row := q.db.QueryRow(ctx, createObjectChange,
+		arg.OrgID,
+		arg.UserID,
+		arg.Action,
+		arg.TargetObjectType,
+		arg.TargetObjectID,
+		arg.PrechangeState,
+		arg.PostchangeState,
+	)
+	var i AppObjectChange
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UserID,
+		&i.Action,
+		&i.Time,
+		&i.TargetObjectType,
+		&i.TargetObjectID,
+		&i.PrechangeState,
+		&i.PostchangeState,
+	)
+	return i, err
+}
+
 const createOrg = `-- name: CreateOrg :one
 INSERT INTO org (name, subdomain) VALUES ($1, $2) RETURNING id, name, subdomain, created_at, deleted_at
 `
@@ -627,6 +667,46 @@ func (q *Queries) GetItems(ctx context.Context, orgID pgtype.UUID) ([]Item, erro
 	return items, nil
 }
 
+const getObjectChanges = `-- name: GetObjectChanges :many
+SELECT id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state FROM app_object_changes WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL
+`
+
+type GetObjectChangesParams struct {
+	OrgID            pgtype.UUID
+	TargetObjectType int32
+	TargetObjectID   pgtype.UUID
+}
+
+func (q *Queries) GetObjectChanges(ctx context.Context, arg GetObjectChangesParams) ([]AppObjectChange, error) {
+	rows, err := q.db.Query(ctx, getObjectChanges, arg.OrgID, arg.TargetObjectType, arg.TargetObjectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AppObjectChange
+	for rows.Next() {
+		var i AppObjectChange
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.UserID,
+			&i.Action,
+			&i.Time,
+			&i.TargetObjectType,
+			&i.TargetObjectID,
+			&i.PrechangeState,
+			&i.PostchangeState,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrg = `-- name: GetOrg :one
 SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id = $1 AND deleted_at IS NULL
 `
@@ -801,7 +881,7 @@ func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (AppUser, err
 }
 
 const getUserBySessionSecret = `-- name: GetUserBySessionSecret :one
-SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at < CURRENT_TIMESTAMP LIMIT 1)
+SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP LIMIT 1)
 `
 
 // Auth
