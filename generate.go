@@ -1,3 +1,3 @@
 package api
 
-//go:generate go run github.com/ogen-go/ogen/cmd/ogen@latest --target generated/api --clean generated/openapi.yaml
+//go:generate go run github.com/ogen-go/ogen/cmd/ogen@v1.10.1 --target generated/api --clean generated/openapi.yaml

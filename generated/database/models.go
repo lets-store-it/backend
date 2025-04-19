@@ -8,6 +8,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppObjectChange struct {
+	ID               pgtype.UUID
+	OrgID            pgtype.UUID
+	UserID           pgtype.UUID
+	Action           string
+	Time             pgtype.Timestamp
+	TargetObjectType int32
+	TargetObjectID   pgtype.UUID
+	PrechangeState   []byte
+	PostchangeState  []byte
+}
+
 type AppRole struct {
 	ID          int32
 	Name        string
@@ -95,6 +107,12 @@ type ItemVariant struct {
 	Ean13     pgtype.Int4
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
+}
+
+type ObjectType struct {
+	ID          int32
+	ObjectGroup string
+	ObjectName  string
 }
 
 type Org struct {

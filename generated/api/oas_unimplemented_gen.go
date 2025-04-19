@@ -247,6 +247,15 @@ func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorage
 	return r, ht.ErrNotImplemented
 }
 
+// Logout implements logout operation.
+//
+// Logout user.
+//
+// GET /auth/logout
+func (UnimplementedHandler) Logout(ctx context.Context) (r *LogoutResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // PatchCell implements patchCell operation.
 //
 // Patch Cell.

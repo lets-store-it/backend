@@ -336,3 +336,7 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 	})
 	return exists, err
 }
+
+func (s *ItemService) CreateInstance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+panic("unimplemented")
+}

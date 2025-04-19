@@ -1,0 +1,7 @@
+description: Logout response
+headers:
+  Set-Cookie:
+    schema:
+      type: string
+      description: Cleared auth cookie
+    required: true

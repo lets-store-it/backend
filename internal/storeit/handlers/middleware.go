@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -41,23 +42,28 @@ func NewAuthMiddleware(authUseCase *usecases.AuthUseCase, cookieName string, ski
 
 func (m *AuthMiddleware) Process(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		cookie, err := r.Cookie(m.cookieName)
-		if err != nil || cookie == nil {
-			for _, path := range m.skipPathsPrefix {
-				if strings.HasPrefix(r.URL.Path, path) {
-					next.ServeHTTP(w, r)
-					return
+		if err != nil {
+			if err == http.ErrNoCookie {
+				for _, path := range m.skipPathsPrefix {
+					if strings.HasPrefix(r.URL.Path, path) {
+						next.ServeHTTP(w, r)
+						return
+					}
 				}
+				slog.Info("cookie not present, user not logged in")
+				http.Error(w, fmt.Sprintf("cookie %s not present, authorize first", m.cookieName), http.StatusUnauthorized)
+				return
 			}
-			http.Error(w, "error getting cookie (can be missing)", http.StatusBadRequest)
+			slog.Error("error getting cookie", "error", err)
+			http.Error(w, "error getting cookie", http.StatusBadRequest)
 			return
 		}
 
 		userID, err := m.authUseCase.GetUserIdFromSession(r.Context(), cookie.Value)
 		if err != nil {
 			http.SetCookie(w, &http.Cookie{Name: m.cookieName, Value: "", Expires: time.Now().Add(-1 * time.Hour)})
-			http.Error(w, "invalid session", http.StatusBadRequest)
+			http.Error(w, "invalid session, cookie was reset", http.StatusBadRequest)
 			return
 		}
 

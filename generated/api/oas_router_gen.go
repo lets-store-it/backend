@@ -61,24 +61,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "auth/oauth2/yandex"
+			case 'a': // Prefix: "auth/"
 
-				if l := len("auth/oauth2/yandex"); len(elem) >= l && elem[0:l] == "auth/oauth2/yandex" {
+				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "POST":
-						s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "POST")
+					break
+				}
+				switch elem[0] {
+				case 'l': // Prefix: "logout"
+
+					if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+						elem = elem[l:]
+					} else {
+						break
 					}
 
-					return
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleLogoutRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				case 'o': // Prefix: "oauth2/yandex"
+
+					if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
 				}
 
 			case 'c': // Prefix: "cells-groups"
@@ -600,28 +634,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "auth/oauth2/yandex"
+			case 'a': // Prefix: "auth/"
 
-				if l := len("auth/oauth2/yandex"); len(elem) >= l && elem[0:l] == "auth/oauth2/yandex" {
+				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "POST":
-						r.name = ExchangeYandexAccessTokenOperation
-						r.summary = "Exchange Yandex Access token for Session token"
-						r.operationID = "exchangeYandexAccessToken"
-						r.pathPattern = "/auth/oauth2/yandex"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
+					break
+				}
+				switch elem[0] {
+				case 'l': // Prefix: "logout"
+
+					if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+						elem = elem[l:]
+					} else {
+						break
 					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = LogoutOperation
+							r.summary = "Logout user"
+							r.operationID = "logout"
+							r.pathPattern = "/auth/logout"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'o': // Prefix: "oauth2/yandex"
+
+					if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = ExchangeYandexAccessTokenOperation
+							r.summary = "Exchange Yandex Access token for Session token"
+							r.operationID = "exchangeYandexAccessToken"
+							r.pathPattern = "/auth/oauth2/yandex"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
 				}
 
 			case 'c': // Prefix: "cells-groups"

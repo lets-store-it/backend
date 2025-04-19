@@ -1,0 +1,10 @@
+get:
+  tags:
+    - auth
+  summary: Logout user
+  operationId: logout
+  responses:
+    "200":
+      $ref: ../../components/responses/LogoutResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

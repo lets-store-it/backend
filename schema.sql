@@ -82,8 +82,8 @@ CREATE TABLE item_instance (
     variant_id UUID NOT NULL REFERENCES item_variant(id),
 
     cell_id UUID REFERENCES cell(id),
-    -- status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
-    -- affected_by_operation_id UUID REFERENCES operation(id),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
+    affected_by_operation_id UUID REFERENCES operation(id),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -168,19 +168,43 @@ CREATE TABLE app_role_binding (
     UNIQUE (role_id, user_id, org_id)
 );
 
+CREATE TABLE object_type (
+    id INTEGER PRIMARY KEY,
+    object_group VARCHAR(100) NOT NULL,
+    object_name VARCHAR(100) NOT NULL,
+    UNIQUE (object_group, object_name)
+);
+CREATE INDEX object_type_id_idx ON object_type(id);
+
+INSERT INTO object_type (id, object_group, object_name) VALUES 
+    (1, 'org', 'organization'),
+    (2, 'org', 'unit'),
+    (3, 'storage', 'group'),
+    (4, 'storage', 'cells-group'),
+    (5, 'storage', 'cell'),
+    (6, 'items', 'item'),
+    (7, 'items', 'instance'),
+    (8, 'rbac', 'user-roles');
+
+
+CREATE TABLE app_object_changes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+    user_id UUID NOT NULL REFERENCES app_user(id),
+    action VARCHAR(255) NOT NULL CHECK (action IN ('create', 'update', 'delete')),
+    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    target_object_type INTEGER NOT NULL REFERENCES app_object_type(id),
+    target_object_id UUID NOT NULL,
+    prechange_state JSONB,
+    postchange_state JSONB
+);
+
 --     id INTEGER PRIMARY KEY,
 --     group VARCHAR(100) NOT NULL,
 --     name VARCHAR(100) NOT NULL,
 --     UNIQUE (group, name)
 -- );
 -- CREATE INDEX object_type_id_idx ON object_type(id);
-
--- INSERT INTO object_type (id, group, name) VALUES 
---     (1, 'storage', 'group'),
---     (2, 'storage', 'cells-group'),
---     (3, 'storage', 'cell'),
---     (4, 'items', 'item'),
---     (5, 'items', 'instance');
 
 
 
@@ -197,13 +221,6 @@ CREATE TABLE app_role_binding (
 --     UNIQUE (role_id, permission)
 -- );
 
--- CREATE TABLE object_type (
---     id INTEGER PRIMARY KEY,
---     group VARCHAR(100) NOT NULL,
---     name VARCHAR(100) NOT NULL,
---     UNIQUE (group, name)
--- );
--- CREATE INDEX object_type_id_idx ON object_type(id);
 
 -- INSERT INTO object_type (id, group, name) VALUES 
 --     (1, 'storage', 'group'),
