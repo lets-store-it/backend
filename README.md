@@ -1,8 +1,7 @@
 # storeit — backend
 
-## Generate OpenAPI schema
+## Generate OpenAPI schema and SQLC client
 
 ```bash
-go generate ./...
+make generate
 ```
-

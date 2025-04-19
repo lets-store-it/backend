@@ -1,0 +1,9 @@
+type: object
+properties:
+  data:
+    type: array
+    items:
+      allOf:
+        - $ref: ./models/InstanceForItem.yaml
+required:
+  - data

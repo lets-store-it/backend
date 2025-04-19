@@ -2,39 +2,38 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/let-store-it/backend/config"
-	db "github.com/let-store-it/backend/internal/storeit/database"
+	dbLayer "github.com/let-store-it/backend/internal/storeit/database"
 	"github.com/let-store-it/backend/internal/storeit/server"
 )
 
 func main() {
-	// Load configuration
 	cfg := config.GetConfigOrDie()
 
-	// Initialize database connection
-	dbCtx := context.Background()
-	conn, err := db.InitDatabaseOrDie(dbCtx, cfg)
+	conn, err := dbLayer.InitDatabaseOrDie(context.Background(), cfg)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		slog.Error("Failed to connect to database", "error", err)
+		os.Exit(1)
 	}
 	defer conn.Close()
 
 	// Create server instance
 	srv, err := server.New(cfg, conn.Queries, conn.Pool)
 	if err != nil {
-		log.Fatalf("Failed to create server: %v", err)
+		slog.Error("Failed to create server", "error", err)
+		os.Exit(1)
 	}
 
 	// Start server in a goroutine
 	go func() {
 		if err := srv.Start(); err != nil {
-			log.Printf("Server error: %v", err)
+			slog.Error("Server error", "error", err)
 		}
 	}()
 
@@ -43,16 +42,16 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("Shutting down server...")
+	slog.Info("Shutting down server...")
 
 	// Create a deadline for graceful shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown: %v", err)
+		slog.Error("Server forced to shutdown", "error", err)
 		os.Exit(1)
 	}
 
-	log.Println("Server shutdown complete")
+	slog.Info("Server shutdown complete")
 }

@@ -27,6 +27,29 @@ func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserPara
 	return err
 }
 
+const createApiToken = `-- name: CreateApiToken :one
+INSERT INTO app_api_token (org_id, token) VALUES ($1, $2) RETURNING id, org_id, name, token, created_at, revoked_at
+`
+
+type CreateApiTokenParams struct {
+	OrgID pgtype.UUID
+	Token string
+}
+
+func (q *Queries) CreateApiToken(ctx context.Context, arg CreateApiTokenParams) (AppApiToken, error) {
+	row := q.db.QueryRow(ctx, createApiToken, arg.OrgID, arg.Token)
+	var i AppApiToken
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.Name,
+		&i.Token,
+		&i.CreatedAt,
+		&i.RevokedAt,
+	)
+	return i, err
+}
+
 const createCell = `-- name: CreateCell :one
 INSERT INTO cell (org_id, cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
 `
@@ -117,6 +140,44 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 		&i.Depth,
 		&i.Height,
 		&i.Weight,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createItemInstance = `-- name: CreateItemInstance :one
+INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status, affected_by_operation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at
+`
+
+type CreateItemInstanceParams struct {
+	OrgID                 pgtype.UUID
+	ItemID                pgtype.UUID
+	VariantID             pgtype.UUID
+	CellID                pgtype.UUID
+	Status                string
+	AffectedByOperationID pgtype.UUID
+}
+
+// Item Instances
+func (q *Queries) CreateItemInstance(ctx context.Context, arg CreateItemInstanceParams) (ItemInstance, error) {
+	row := q.db.QueryRow(ctx, createItemInstance,
+		arg.OrgID,
+		arg.ItemID,
+		arg.VariantID,
+		arg.CellID,
+		arg.Status,
+		arg.AffectedByOperationID,
+	)
+	var i ItemInstance
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.ItemID,
+		&i.VariantID,
+		&i.CellID,
+		&i.Status,
+		&i.AffectedByOperationID,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -436,6 +497,38 @@ func (q *Queries) DeleteStorageGroup(ctx context.Context, arg DeleteStorageGroup
 	return err
 }
 
+const getApiTokens = `-- name: GetApiTokens :many
+SELECT id, org_id, name, token, created_at, revoked_at FROM app_api_token WHERE org_id = $1 AND revoked_at IS NULL
+`
+
+// Api Tokens
+func (q *Queries) GetApiTokens(ctx context.Context, orgID pgtype.UUID) ([]AppApiToken, error) {
+	rows, err := q.db.Query(ctx, getApiTokens, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AppApiToken
+	for rows.Next() {
+		var i AppApiToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.Name,
+			&i.Token,
+			&i.CreatedAt,
+			&i.RevokedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCell = `-- name: GetCell :one
 SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL
 `
@@ -587,6 +680,123 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 	return i, err
 }
 
+const getItemInstancesForCell = `-- name: GetItemInstancesForCell :many
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
+`
+
+type GetItemInstancesForCellParams struct {
+	OrgID  pgtype.UUID
+	CellID pgtype.UUID
+}
+
+func (q *Queries) GetItemInstancesForCell(ctx context.Context, arg GetItemInstancesForCellParams) ([]ItemInstance, error) {
+	rows, err := q.db.Query(ctx, getItemInstancesForCell, arg.OrgID, arg.CellID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemInstance
+	for rows.Next() {
+		var i ItemInstance
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.ItemID,
+			&i.VariantID,
+			&i.CellID,
+			&i.Status,
+			&i.AffectedByOperationID,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getItemInstancesForCellsGroup = `-- name: GetItemInstancesForCellsGroup :many
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL
+`
+
+type GetItemInstancesForCellsGroupParams struct {
+	OrgID        pgtype.UUID
+	CellsGroupID pgtype.UUID
+}
+
+func (q *Queries) GetItemInstancesForCellsGroup(ctx context.Context, arg GetItemInstancesForCellsGroupParams) ([]ItemInstance, error) {
+	rows, err := q.db.Query(ctx, getItemInstancesForCellsGroup, arg.OrgID, arg.CellsGroupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemInstance
+	for rows.Next() {
+		var i ItemInstance
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.ItemID,
+			&i.VariantID,
+			&i.CellID,
+			&i.Status,
+			&i.AffectedByOperationID,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getItemInstancesForItem = `-- name: GetItemInstancesForItem :many
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
+`
+
+type GetItemInstancesForItemParams struct {
+	OrgID  pgtype.UUID
+	ItemID pgtype.UUID
+}
+
+func (q *Queries) GetItemInstancesForItem(ctx context.Context, arg GetItemInstancesForItemParams) ([]ItemInstance, error) {
+	rows, err := q.db.Query(ctx, getItemInstancesForItem, arg.OrgID, arg.ItemID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemInstance
+	for rows.Next() {
+		var i ItemInstance
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.ItemID,
+			&i.VariantID,
+			&i.CellID,
+			&i.Status,
+			&i.AffectedByOperationID,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getItemVariants = `-- name: GetItemVariants :many
 
 SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
@@ -722,6 +932,17 @@ func (q *Queries) GetOrg(ctx context.Context, id pgtype.UUID) (Org, error) {
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getOrgIdByApiToken = `-- name: GetOrgIdByApiToken :one
+SELECT org_id FROM app_api_token WHERE token = $1 AND revoked_at IS NULL
+`
+
+func (q *Queries) GetOrgIdByApiToken(ctx context.Context, token string) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getOrgIdByApiToken, token)
+	var org_id pgtype.UUID
+	err := row.Scan(&org_id)
+	return org_id, err
 }
 
 const getOrgUnit = `-- name: GetOrgUnit :one
@@ -989,6 +1210,20 @@ func (q *Queries) IsOrgExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const revokeApiToken = `-- name: RevokeApiToken :exec
+UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND token = $2
+`
+
+type RevokeApiTokenParams struct {
+	OrgID pgtype.UUID
+	Token string
+}
+
+func (q *Queries) RevokeApiToken(ctx context.Context, arg RevokeApiTokenParams) error {
+	_, err := q.db.Exec(ctx, revokeApiToken, arg.OrgID, arg.Token)
+	return err
 }
 
 const unassignRoleFromUser = `-- name: UnassignRoleFromUser :exec

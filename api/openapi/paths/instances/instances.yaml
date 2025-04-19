@@ -1,0 +1,14 @@
+get:
+  tags:
+    - instance
+  summary: Get list of Instances
+  operationId: getInstances
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instances/GetInstancesResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

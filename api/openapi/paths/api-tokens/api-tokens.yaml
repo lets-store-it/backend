@@ -1,0 +1,34 @@
+get:
+  tags:
+    - auth
+  summary: Get list of Service API Tokens
+  operationId: getApiTokens
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/api-tokens/GetApiTokensResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - auth
+  summary: Create Service API Token
+  operationId: createApiToken
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/api-tokens/CreateApiTokenRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/api-tokens/CreateApiTokenResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

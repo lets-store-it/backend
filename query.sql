@@ -166,8 +166,21 @@ SELECT * FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS
 SELECT * FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL;
 
 -- name: GetItemInstancesForCellsGroup :many
-SELECT * FROM item_instance WHERE org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL;
+SELECT * FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL;
 
+
+-- Api Tokens
+-- name: GetApiTokens :many
+SELECT * FROM app_api_token WHERE org_id = $1 AND revoked_at IS NULL;
+
+-- name: CreateApiToken :one
+INSERT INTO app_api_token (org_id, token) VALUES ($1, $2) RETURNING *;
+
+-- name: RevokeApiToken :exec
+UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND token = $2;
+
+-- name: GetOrgIdByApiToken :one
+SELECT org_id FROM app_api_token WHERE token = $1 AND revoked_at IS NULL;
 
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
