@@ -1,0 +1,17 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+delete:
+  tags:
+    - auth
+  summary: Revoke Service API Token
+  operationId: revokeApiToken
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml

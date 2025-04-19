@@ -145,3 +145,12 @@ type ItemInstance struct {
 	Status                ItemInstanceStatus `json:"status"`
 	AffectedByOperationID uuid.UUID          `json:"affected_by_operation_id"`
 }
+
+type ApiToken struct {
+	ID        uuid.UUID  `json:"id"`
+	OrgID     uuid.UUID  `json:"org_id"`
+	Name      string     `json:"name"`
+	Token     string     `json:"token"`
+	CreatedAt time.Time  `json:"created_at"`
+	RevokedAt *time.Time `json:"revoked_at"`
+}

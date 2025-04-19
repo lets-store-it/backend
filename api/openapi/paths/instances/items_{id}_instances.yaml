@@ -1,0 +1,42 @@
+parameters:
+  - name: itemId
+    in: path
+    description: Item ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - instance
+  summary: Get list of Instances For Item
+  operationId: getInstancesByItemId
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instances/GetInstancesByItemIdResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - instance
+  summary: Create Instance For Item
+  operationId: createInstanceForItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/instances/CreateInstanceForItemRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instances/CreateInstanceForItemResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

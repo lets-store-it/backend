@@ -12,3 +12,41 @@ get:
             $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+patch:
+  tags:
+    - unit
+  summary: Update Current User
+  operationId: patchCurrentUser
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/users/PatchCurrentUserRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - unit
+  summary: Update Current User
+  operationId: putCurrentUser
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/users/UpdateCurrentUserRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml

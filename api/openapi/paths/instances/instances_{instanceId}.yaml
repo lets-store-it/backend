@@ -1,0 +1,18 @@
+parameters:
+  - name: instanceId
+    in: path
+    description: Instance ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+delete:
+  tags:
+    - instance
+  summary: Delete Instance by ID
+  operationId: deleteInstanceById
+  responses:
+    "200":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml

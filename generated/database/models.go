@@ -8,6 +8,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppApiToken struct {
+	ID        pgtype.UUID
+	OrgID     pgtype.UUID
+	Name      string
+	Token     string
+	CreatedAt pgtype.Timestamp
+	RevokedAt pgtype.Timestamp
+}
+
 type AppObjectChange struct {
 	ID               pgtype.UUID
 	OrgID            pgtype.UUID
@@ -89,13 +98,15 @@ type Item struct {
 }
 
 type ItemInstance struct {
-	ID        pgtype.UUID
-	OrgID     pgtype.UUID
-	ItemID    pgtype.UUID
-	VariantID pgtype.UUID
-	CellID    pgtype.UUID
-	CreatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	ID                    pgtype.UUID
+	OrgID                 pgtype.UUID
+	ItemID                pgtype.UUID
+	VariantID             pgtype.UUID
+	CellID                pgtype.UUID
+	Status                string
+	AffectedByOperationID pgtype.UUID
+	CreatedAt             pgtype.Timestamp
+	DeletedAt             pgtype.Timestamp
 }
 
 type ItemVariant struct {

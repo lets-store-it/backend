@@ -199,6 +199,15 @@ CREATE TABLE app_object_changes (
     postchange_state JSONB
 );
 
+CREATE TABLE app_api_token (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+    name VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP
+);
+
 --     id INTEGER PRIMARY KEY,
 --     group VARCHAR(100) NOT NULL,
 --     name VARCHAR(100) NOT NULL,

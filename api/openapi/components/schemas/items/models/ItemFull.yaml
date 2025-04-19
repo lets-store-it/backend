@@ -7,5 +7,27 @@ allOf:
         type: array
         items:
           $ref: ./ItemVariant.yaml
+      instances:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum:
+                - available
+                - reserved
+                - consumed
+            # affectedByOperationId:
+            #   type: string
+            #   format: uuid
+            variant:
+              $ref: ./ItemVariant.yaml
+            cell:
+              $ref: ../../cells-groups/models/CellForInstance.yaml
     required:
       - variants
+      - instances

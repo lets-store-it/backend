@@ -39,7 +39,7 @@ paths:
     $ref: paths/items/items.yaml
   /items/{id}:
     $ref: paths/items/items_{id}.yaml
-  
+
   /auth/oauth2/yandex:
     $ref: paths/auth/yandex.yaml
   /auth/logout:
@@ -53,10 +53,24 @@ paths:
 
   /cells-groups/{groupId}:
     $ref: paths/cells-groups/cells-groups_{id}.yaml
-    
+
   /cells-groups/{groupId}/cells:
     $ref: paths/cells-groups/cells-groups_{id}_cells.yaml
 
   /cells-groups/{groupId}/cells/{cellId}:
     $ref: paths/cells-groups/cells-groups_{id}_cells_{cellId}.yaml
 
+  /instances:
+    $ref: paths/instances/instances.yaml
+
+  /items/{itemId}/instances:
+    $ref: paths/instances/items_{id}_instances.yaml
+
+  /instances/{instanceId}:
+    $ref: paths/instances/instances_{instanceId}.yaml
+
+  /api-tokens:
+    $ref: paths/api-tokens/api-tokens.yaml
+
+  /api-tokens/{id}:
+    $ref: paths/api-tokens/api-tokens_{id}.yaml

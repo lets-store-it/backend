@@ -1,0 +1,20 @@
+allOf:
+  - $ref: ./CellBase.yaml
+  - type: object
+    properties:
+      cellPath:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            alias:
+              type: string
+            objectType:
+              type: string
+              enum:
+                - cell
+                - cells_group
+                - storage_group

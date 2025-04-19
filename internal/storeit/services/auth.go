@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -27,7 +28,7 @@ func NewAuthService(queries *database.Queries, pgxPool *pgxpool.Pool) *AuthServi
 }
 
 func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	slog.Info("service:GetUserByEmail", "email", email)
+	slog.Debug("service:auth:GetUserByEmail", "email", email)
 	user, err := s.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -51,8 +52,8 @@ func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models
 }
 
 func (s *AuthService) CreateUserSession(ctx context.Context, userId uuid.UUID) (*models.Session, error) {
-	slog.Info("service:CreateUserSession", "userId", userId)
-	slog.Info("repository:CreateUserSession", "userId", userId)
+	slog.Debug("service:auth:CreateUserSession", "userId", userId)
+
 	session, err := s.queries.CreateUserSession(ctx, database.CreateUserSessionParams{
 		UserID: pgtype.UUID{Bytes: userId, Valid: true},
 		Token:  uuid.New().String(),
@@ -69,7 +70,8 @@ func (s *AuthService) CreateUserSession(ctx context.Context, userId uuid.UUID) (
 }
 
 func (s *AuthService) GetUserBySessionSecret(ctx context.Context, sessionSecret string) (*models.User, error) {
-	slog.Info("service:GetUserBySessionSecret", "sessionSecret", sessionSecret)
+	slog.Debug("service:auth:GetUserBySessionSecret", "sessionSecret", sessionSecret)
+
 	user, err := s.queries.GetUserBySessionSecret(ctx, sessionSecret)
 	if err != nil {
 		return nil, err
@@ -90,7 +92,8 @@ func (s *AuthService) GetUserBySessionSecret(ctx context.Context, sessionSecret 
 }
 
 func (s *AuthService) GetUserById(ctx context.Context, userID uuid.UUID) (*models.User, error) {
-	slog.Info("service:GetCurrentUser", "userID", userID)
+	slog.Debug("service:auth:GetUserById", "userID", userID)
+
 	user, err := s.queries.GetUserById(ctx, pgtype.UUID{Bytes: userID, Valid: true})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -114,7 +117,8 @@ func (s *AuthService) GetUserById(ctx context.Context, userID uuid.UUID) (*model
 }
 
 func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	slog.Info("service:CreateUser", "user", user)
+	slog.Debug("service:auth:CreateUser", "user", user)
+
 	var middleName pgtype.Text
 	if user.MiddleName != nil {
 		middleName = pgtype.Text{String: *user.MiddleName, Valid: true}
@@ -155,8 +159,7 @@ const (
 )
 
 func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, role Role) error {
-	slog.Info("service:AssignRoleToUser", "orgID", orgID, "userID", userID, "role", role)
-	slog.Info("service:AssignRoleToUser", "queries", s.queries)
+	slog.Debug("service:auth:AssignRoleToUser", "orgID", orgID, "userID", userID, "role", role)
 	return s.queries.AssignRoleToUser(ctx, database.AssignRoleToUserParams{
 		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
 		UserID: pgtype.UUID{Bytes: userID, Valid: true},
@@ -165,6 +168,7 @@ func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, use
 }
 
 func (s *AuthService) GetUserRoles(ctx context.Context, userID uuid.UUID, orgID uuid.UUID) (map[Role]struct{}, error) {
+	slog.Debug("service:auth:GetUserRoles", "userID", userID, "orgID", orgID)
 	dbRoles, err := s.queries.GetUserRolesInOrg(ctx, database.GetUserRolesInOrgParams{
 		UserID: pgtype.UUID{Bytes: userID, Valid: true},
 		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
@@ -179,4 +183,61 @@ func (s *AuthService) GetUserRoles(ctx context.Context, userID uuid.UUID, orgID 
 	}
 
 	return roles, nil
+}
+
+func tokenToModel(token database.AppApiToken) *models.ApiToken {
+	var revokedAt *time.Time
+	if token.RevokedAt.Valid {
+		revokedAt = &token.RevokedAt.Time
+	}
+	return &models.ApiToken{
+		ID:        token.ID.Bytes,
+		OrgID:     token.OrgID.Bytes,
+		Name:      token.Name,
+		Token:     token.Token,
+		CreatedAt: token.CreatedAt.Time,
+		RevokedAt: revokedAt,
+	}
+}
+
+func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uuid.UUID, error) {
+	slog.Debug("service:auth:GetOrgIdByApiToken", "token", token)
+	orgID, err := s.queries.GetOrgIdByApiToken(ctx, token)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return orgID.Bytes, nil
+}
+
+func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name string) (*models.ApiToken, error) {
+	slog.Debug("service:auth:CreateApiToken", "orgID", orgID, "name", name)
+	token, err := s.queries.CreateApiToken(ctx, database.CreateApiTokenParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		Token: uuid.New().String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return tokenToModel(token), nil
+}
+
+func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, token string) error {
+	slog.Debug("service:auth:RevokeApiToken", "orgID", orgID, "token", token)
+	return s.queries.RevokeApiToken(ctx, database.RevokeApiTokenParams{
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		Token: token,
+	})
+}
+
+func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*models.ApiToken, error) {
+	slog.Debug("service:auth:GetApiTokens", "orgID", orgID)
+	tokens, err := s.queries.GetApiTokens(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+	modelsTokens := make([]*models.ApiToken, len(tokens))
+	for i, token := range tokens {
+		modelsTokens[i] = tokenToModel(token)
+	}
+	return modelsTokens, nil
 }
