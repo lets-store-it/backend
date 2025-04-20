@@ -208,14 +208,12 @@ func (s *CellForInstance) encodeFields(e *jx.Encoder) {
 		e.Int(s.Position)
 	}
 	{
-		if s.CellPath != nil {
-			e.FieldStart("cellPath")
-			e.ArrStart()
-			for _, elem := range s.CellPath {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+		e.FieldStart("cellPath")
+		e.ArrStart()
+		for _, elem := range s.CellPath {
+			elem.Encode(e)
 		}
+		e.ArrEnd()
 	}
 }
 
@@ -298,6 +296,7 @@ func (s *CellForInstance) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"position\"")
 			}
 		case "cellPath":
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				s.CellPath = make([]CellForInstanceCellPathItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -324,7 +323,7 @@ func (s *CellForInstance) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -380,29 +379,28 @@ func (s *CellForInstanceCellPathItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CellForInstanceCellPathItem) encodeFields(e *jx.Encoder) {
 	{
-		if s.ID.Set {
-			e.FieldStart("id")
-			s.ID.Encode(e)
-		}
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
 	}
 	{
-		if s.Alias.Set {
-			e.FieldStart("alias")
-			s.Alias.Encode(e)
-		}
+		e.FieldStart("name")
+		e.Str(s.Name)
 	}
 	{
-		if s.ObjectType.Set {
-			e.FieldStart("objectType")
-			s.ObjectType.Encode(e)
-		}
+		e.FieldStart("alias")
+		e.Str(s.Alias)
+	}
+	{
+		e.FieldStart("objectType")
+		s.ObjectType.Encode(e)
 	}
 }
 
-var jsonFieldsNameOfCellForInstanceCellPathItem = [3]string{
+var jsonFieldsNameOfCellForInstanceCellPathItem = [4]string{
 	0: "id",
-	1: "alias",
-	2: "objectType",
+	1: "name",
+	2: "alias",
+	3: "objectType",
 }
 
 // Decode decodes CellForInstanceCellPathItem from json.
@@ -410,23 +408,40 @@ func (s *CellForInstanceCellPathItem) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode CellForInstanceCellPathItem to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "id":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.ID.Reset()
-				if err := s.ID.Decode(d); err != nil {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
-		case "alias":
+		case "name":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Alias.Reset()
-				if err := s.Alias.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "alias":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.Alias = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -434,8 +449,8 @@ func (s *CellForInstanceCellPathItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "objectType":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				s.ObjectType.Reset()
 				if err := s.ObjectType.Decode(d); err != nil {
 					return err
 				}
@@ -449,6 +464,38 @@ func (s *CellForInstanceCellPathItem) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode CellForInstanceCellPathItem")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfCellForInstanceCellPathItem) {
+					name = jsonFieldsNameOfCellForInstanceCellPathItem[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1471,11 +1518,7 @@ func (s *CreateInstanceForItemResponse) encodeFields(e *jx.Encoder) {
 		e.FieldStart("data")
 		e.ArrStart()
 		for _, elem := range s.Data {
-			e.ArrStart()
-			for _, elem := range elem {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+			elem.Encode(e)
 		}
 		e.ArrEnd()
 	}
@@ -1497,18 +1540,10 @@ func (s *CreateInstanceForItemResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([][]CreateInstanceForItemResponseDataItemItem, 0)
+				s.Data = make([]CreateInstanceForItemResponseDataItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem []CreateInstanceForItemResponseDataItemItem
-					elem = make([]CreateInstanceForItemResponseDataItemItem, 0)
-					if err := d.Arr(func(d *jx.Decoder) error {
-						var elemElem CreateInstanceForItemResponseDataItemItem
-						if err := elemElem.Decode(d); err != nil {
-							return err
-						}
-						elem = append(elem, elemElem)
-						return nil
-					}); err != nil {
+					var elem CreateInstanceForItemResponseDataItem
+					if err := elem.Decode(d); err != nil {
 						return err
 					}
 					s.Data = append(s.Data, elem)
@@ -1577,14 +1612,14 @@ func (s *CreateInstanceForItemResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *CreateInstanceForItemResponseDataItemItem) Encode(e *jx.Encoder) {
+func (s *CreateInstanceForItemResponseDataItem) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *CreateInstanceForItemResponseDataItemItem) encodeFields(e *jx.Encoder) {
+func (s *CreateInstanceForItemResponseDataItem) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
 		json.EncodeUUID(e, s.ID)
@@ -1603,17 +1638,17 @@ func (s *CreateInstanceForItemResponseDataItemItem) encodeFields(e *jx.Encoder) 
 	}
 }
 
-var jsonFieldsNameOfCreateInstanceForItemResponseDataItemItem = [4]string{
+var jsonFieldsNameOfCreateInstanceForItemResponseDataItem = [4]string{
 	0: "id",
 	1: "status",
 	2: "variant",
 	3: "cell",
 }
 
-// Decode decodes CreateInstanceForItemResponseDataItemItem from json.
-func (s *CreateInstanceForItemResponseDataItemItem) Decode(d *jx.Decoder) error {
+// Decode decodes CreateInstanceForItemResponseDataItem from json.
+func (s *CreateInstanceForItemResponseDataItem) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CreateInstanceForItemResponseDataItemItem to nil")
+		return errors.New("invalid: unable to decode CreateInstanceForItemResponseDataItem to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -1666,7 +1701,7 @@ func (s *CreateInstanceForItemResponseDataItemItem) Decode(d *jx.Decoder) error 
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CreateInstanceForItemResponseDataItemItem")
+		return errors.Wrap(err, "decode CreateInstanceForItemResponseDataItem")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -1683,8 +1718,8 @@ func (s *CreateInstanceForItemResponseDataItemItem) Decode(d *jx.Decoder) error 
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfCreateInstanceForItemResponseDataItemItem) {
-					name = jsonFieldsNameOfCreateInstanceForItemResponseDataItemItem[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfCreateInstanceForItemResponseDataItem) {
+					name = jsonFieldsNameOfCreateInstanceForItemResponseDataItem[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1705,56 +1740,56 @@ func (s *CreateInstanceForItemResponseDataItemItem) Decode(d *jx.Decoder) error 
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *CreateInstanceForItemResponseDataItemItem) MarshalJSON() ([]byte, error) {
+func (s *CreateInstanceForItemResponseDataItem) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateInstanceForItemResponseDataItemItem) UnmarshalJSON(data []byte) error {
+func (s *CreateInstanceForItemResponseDataItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
-// Encode encodes CreateInstanceForItemResponseDataItemItemStatus as json.
-func (s CreateInstanceForItemResponseDataItemItemStatus) Encode(e *jx.Encoder) {
+// Encode encodes CreateInstanceForItemResponseDataItemStatus as json.
+func (s CreateInstanceForItemResponseDataItemStatus) Encode(e *jx.Encoder) {
 	e.Str(string(s))
 }
 
-// Decode decodes CreateInstanceForItemResponseDataItemItemStatus from json.
-func (s *CreateInstanceForItemResponseDataItemItemStatus) Decode(d *jx.Decoder) error {
+// Decode decodes CreateInstanceForItemResponseDataItemStatus from json.
+func (s *CreateInstanceForItemResponseDataItemStatus) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CreateInstanceForItemResponseDataItemItemStatus to nil")
+		return errors.New("invalid: unable to decode CreateInstanceForItemResponseDataItemStatus to nil")
 	}
 	v, err := d.StrBytes()
 	if err != nil {
 		return err
 	}
 	// Try to use constant string.
-	switch CreateInstanceForItemResponseDataItemItemStatus(v) {
-	case CreateInstanceForItemResponseDataItemItemStatusAvailable:
-		*s = CreateInstanceForItemResponseDataItemItemStatusAvailable
-	case CreateInstanceForItemResponseDataItemItemStatusReserved:
-		*s = CreateInstanceForItemResponseDataItemItemStatusReserved
-	case CreateInstanceForItemResponseDataItemItemStatusConsumed:
-		*s = CreateInstanceForItemResponseDataItemItemStatusConsumed
+	switch CreateInstanceForItemResponseDataItemStatus(v) {
+	case CreateInstanceForItemResponseDataItemStatusAvailable:
+		*s = CreateInstanceForItemResponseDataItemStatusAvailable
+	case CreateInstanceForItemResponseDataItemStatusReserved:
+		*s = CreateInstanceForItemResponseDataItemStatusReserved
+	case CreateInstanceForItemResponseDataItemStatusConsumed:
+		*s = CreateInstanceForItemResponseDataItemStatusConsumed
 	default:
-		*s = CreateInstanceForItemResponseDataItemItemStatus(v)
+		*s = CreateInstanceForItemResponseDataItemStatus(v)
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s CreateInstanceForItemResponseDataItemItemStatus) MarshalJSON() ([]byte, error) {
+func (s CreateInstanceForItemResponseDataItemStatus) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateInstanceForItemResponseDataItemItemStatus) UnmarshalJSON(data []byte) error {
+func (s *CreateInstanceForItemResponseDataItemStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -3643,11 +3678,7 @@ func (s *GetInstancesByItemIdResponse) encodeFields(e *jx.Encoder) {
 		e.FieldStart("data")
 		e.ArrStart()
 		for _, elem := range s.Data {
-			e.ArrStart()
-			for _, elem := range elem {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+			elem.Encode(e)
 		}
 		e.ArrEnd()
 	}
@@ -3669,18 +3700,10 @@ func (s *GetInstancesByItemIdResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([][]GetInstancesByItemIdResponseDataItemItem, 0)
+				s.Data = make([]GetInstancesByItemIdResponseDataItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem []GetInstancesByItemIdResponseDataItemItem
-					elem = make([]GetInstancesByItemIdResponseDataItemItem, 0)
-					if err := d.Arr(func(d *jx.Decoder) error {
-						var elemElem GetInstancesByItemIdResponseDataItemItem
-						if err := elemElem.Decode(d); err != nil {
-							return err
-						}
-						elem = append(elem, elemElem)
-						return nil
-					}); err != nil {
+					var elem GetInstancesByItemIdResponseDataItem
+					if err := elem.Decode(d); err != nil {
 						return err
 					}
 					s.Data = append(s.Data, elem)
@@ -3749,14 +3772,14 @@ func (s *GetInstancesByItemIdResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *GetInstancesByItemIdResponseDataItemItem) Encode(e *jx.Encoder) {
+func (s *GetInstancesByItemIdResponseDataItem) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *GetInstancesByItemIdResponseDataItemItem) encodeFields(e *jx.Encoder) {
+func (s *GetInstancesByItemIdResponseDataItem) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
 		json.EncodeUUID(e, s.ID)
@@ -3775,17 +3798,17 @@ func (s *GetInstancesByItemIdResponseDataItemItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGetInstancesByItemIdResponseDataItemItem = [4]string{
+var jsonFieldsNameOfGetInstancesByItemIdResponseDataItem = [4]string{
 	0: "id",
 	1: "status",
 	2: "variant",
 	3: "cell",
 }
 
-// Decode decodes GetInstancesByItemIdResponseDataItemItem from json.
-func (s *GetInstancesByItemIdResponseDataItemItem) Decode(d *jx.Decoder) error {
+// Decode decodes GetInstancesByItemIdResponseDataItem from json.
+func (s *GetInstancesByItemIdResponseDataItem) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode GetInstancesByItemIdResponseDataItemItem to nil")
+		return errors.New("invalid: unable to decode GetInstancesByItemIdResponseDataItem to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -3838,7 +3861,7 @@ func (s *GetInstancesByItemIdResponseDataItemItem) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode GetInstancesByItemIdResponseDataItemItem")
+		return errors.Wrap(err, "decode GetInstancesByItemIdResponseDataItem")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -3855,8 +3878,8 @@ func (s *GetInstancesByItemIdResponseDataItemItem) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfGetInstancesByItemIdResponseDataItemItem) {
-					name = jsonFieldsNameOfGetInstancesByItemIdResponseDataItemItem[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfGetInstancesByItemIdResponseDataItem) {
+					name = jsonFieldsNameOfGetInstancesByItemIdResponseDataItem[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -3877,56 +3900,56 @@ func (s *GetInstancesByItemIdResponseDataItemItem) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *GetInstancesByItemIdResponseDataItemItem) MarshalJSON() ([]byte, error) {
+func (s *GetInstancesByItemIdResponseDataItem) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetInstancesByItemIdResponseDataItemItem) UnmarshalJSON(data []byte) error {
+func (s *GetInstancesByItemIdResponseDataItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
-// Encode encodes GetInstancesByItemIdResponseDataItemItemStatus as json.
-func (s GetInstancesByItemIdResponseDataItemItemStatus) Encode(e *jx.Encoder) {
+// Encode encodes GetInstancesByItemIdResponseDataItemStatus as json.
+func (s GetInstancesByItemIdResponseDataItemStatus) Encode(e *jx.Encoder) {
 	e.Str(string(s))
 }
 
-// Decode decodes GetInstancesByItemIdResponseDataItemItemStatus from json.
-func (s *GetInstancesByItemIdResponseDataItemItemStatus) Decode(d *jx.Decoder) error {
+// Decode decodes GetInstancesByItemIdResponseDataItemStatus from json.
+func (s *GetInstancesByItemIdResponseDataItemStatus) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode GetInstancesByItemIdResponseDataItemItemStatus to nil")
+		return errors.New("invalid: unable to decode GetInstancesByItemIdResponseDataItemStatus to nil")
 	}
 	v, err := d.StrBytes()
 	if err != nil {
 		return err
 	}
 	// Try to use constant string.
-	switch GetInstancesByItemIdResponseDataItemItemStatus(v) {
-	case GetInstancesByItemIdResponseDataItemItemStatusAvailable:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusAvailable
-	case GetInstancesByItemIdResponseDataItemItemStatusReserved:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusReserved
-	case GetInstancesByItemIdResponseDataItemItemStatusConsumed:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusConsumed
+	switch GetInstancesByItemIdResponseDataItemStatus(v) {
+	case GetInstancesByItemIdResponseDataItemStatusAvailable:
+		*s = GetInstancesByItemIdResponseDataItemStatusAvailable
+	case GetInstancesByItemIdResponseDataItemStatusReserved:
+		*s = GetInstancesByItemIdResponseDataItemStatusReserved
+	case GetInstancesByItemIdResponseDataItemStatusConsumed:
+		*s = GetInstancesByItemIdResponseDataItemStatusConsumed
 	default:
-		*s = GetInstancesByItemIdResponseDataItemItemStatus(v)
+		*s = GetInstancesByItemIdResponseDataItemStatus(v)
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s GetInstancesByItemIdResponseDataItemItemStatus) MarshalJSON() ([]byte, error) {
+func (s GetInstancesByItemIdResponseDataItemStatus) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetInstancesByItemIdResponseDataItemItemStatus) UnmarshalJSON(data []byte) error {
+func (s *GetInstancesByItemIdResponseDataItemStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -4879,6 +4902,189 @@ func (s *GetStorageGroupsResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *InstanceForItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *InstanceForItem) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
+	}
+	{
+		e.FieldStart("status")
+		s.Status.Encode(e)
+	}
+	{
+		e.FieldStart("variant")
+		s.Variant.Encode(e)
+	}
+	{
+		e.FieldStart("cell")
+		s.Cell.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfInstanceForItem = [4]string{
+	0: "id",
+	1: "status",
+	2: "variant",
+	3: "cell",
+}
+
+// Decode decodes InstanceForItem from json.
+func (s *InstanceForItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode InstanceForItem to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "status":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "variant":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Variant.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"variant\"")
+			}
+		case "cell":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.Cell.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"cell\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode InstanceForItem")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfInstanceForItem) {
+					name = jsonFieldsNameOfInstanceForItem[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *InstanceForItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *InstanceForItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes InstanceForItemStatus as json.
+func (s InstanceForItemStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes InstanceForItemStatus from json.
+func (s *InstanceForItemStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode InstanceForItemStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch InstanceForItemStatus(v) {
+	case InstanceForItemStatusAvailable:
+		*s = InstanceForItemStatusAvailable
+	case InstanceForItemStatusReserved:
+		*s = InstanceForItemStatusReserved
+	case InstanceForItemStatusConsumed:
+		*s = InstanceForItemStatusConsumed
+	default:
+		*s = InstanceForItemStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s InstanceForItemStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *InstanceForItemStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes InstanceFull as json.
 func (s InstanceFull) Encode(e *jx.Encoder) {
 	unwrapped := []InstanceFullItem(s)
@@ -5434,24 +5640,20 @@ func (s *ItemFull) encodeFields(e *jx.Encoder) {
 		s.Description.Encode(e)
 	}
 	{
-		if s.Variants != nil {
-			e.FieldStart("variants")
-			e.ArrStart()
-			for _, elem := range s.Variants {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+		e.FieldStart("variants")
+		e.ArrStart()
+		for _, elem := range s.Variants {
+			elem.Encode(e)
 		}
+		e.ArrEnd()
 	}
 	{
-		if s.Instances != nil {
-			e.FieldStart("instances")
-			e.ArrStart()
-			for _, elem := range s.Instances {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+		e.FieldStart("instances")
+		e.ArrStart()
+		for _, elem := range s.Instances {
+			elem.Encode(e)
 		}
+		e.ArrEnd()
 	}
 }
 
@@ -5507,6 +5709,7 @@ func (s *ItemFull) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"description\"")
 			}
 		case "variants":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.Variants = make([]ItemVariant, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -5524,10 +5727,11 @@ func (s *ItemFull) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"variants\"")
 			}
 		case "instances":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				s.Instances = make([]ItemFullInstancesItem, 0)
+				s.Instances = make([]InstanceForItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem ItemFullInstancesItem
+					var elem InstanceForItem
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -5550,7 +5754,7 @@ func (s *ItemFull) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5592,191 +5796,6 @@ func (s *ItemFull) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ItemFull) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *ItemFullInstancesItem) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ItemFullInstancesItem) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
-		e.FieldStart("status")
-		s.Status.Encode(e)
-	}
-	{
-		e.FieldStart("variant")
-		s.Variant.Encode(e)
-	}
-	{
-		if s.Cell.Set {
-			e.FieldStart("cell")
-			s.Cell.Encode(e)
-		}
-	}
-}
-
-var jsonFieldsNameOfItemFullInstancesItem = [4]string{
-	0: "id",
-	1: "status",
-	2: "variant",
-	3: "cell",
-}
-
-// Decode decodes ItemFullInstancesItem from json.
-func (s *ItemFullInstancesItem) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ItemFullInstancesItem to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "status":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				if err := s.Status.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"status\"")
-			}
-		case "variant":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				if err := s.Variant.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"variant\"")
-			}
-		case "cell":
-			if err := func() error {
-				s.Cell.Reset()
-				if err := s.Cell.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"cell\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ItemFullInstancesItem")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000111,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfItemFullInstancesItem) {
-					name = jsonFieldsNameOfItemFullInstancesItem[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ItemFullInstancesItem) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ItemFullInstancesItem) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ItemFullInstancesItemStatus as json.
-func (s ItemFullInstancesItemStatus) Encode(e *jx.Encoder) {
-	e.Str(string(s))
-}
-
-// Decode decodes ItemFullInstancesItemStatus from json.
-func (s *ItemFullInstancesItemStatus) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ItemFullInstancesItemStatus to nil")
-	}
-	v, err := d.StrBytes()
-	if err != nil {
-		return err
-	}
-	// Try to use constant string.
-	switch ItemFullInstancesItemStatus(v) {
-	case ItemFullInstancesItemStatusAvailable:
-		*s = ItemFullInstancesItemStatusAvailable
-	case ItemFullInstancesItemStatusReserved:
-		*s = ItemFullInstancesItemStatusReserved
-	case ItemFullInstancesItemStatusConsumed:
-		*s = ItemFullInstancesItemStatusConsumed
-	default:
-		*s = ItemFullInstancesItemStatus(v)
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ItemFullInstancesItemStatus) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ItemFullInstancesItemStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -6302,72 +6321,6 @@ func (s NilUUID) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *NilUUID) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes CellForInstance as json.
-func (o OptCellForInstance) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes CellForInstance from json.
-func (o *OptCellForInstance) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptCellForInstance to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptCellForInstance) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptCellForInstance) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes CellForInstanceCellPathItemObjectType as json.
-func (o OptCellForInstanceCellPathItemObjectType) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Str(string(o.Value))
-}
-
-// Decode decodes CellForInstanceCellPathItemObjectType from json.
-func (o *OptCellForInstanceCellPathItemObjectType) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptCellForInstanceCellPathItemObjectType to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptCellForInstanceCellPathItemObjectType) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptCellForInstanceCellPathItemObjectType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

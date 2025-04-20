@@ -1,4 +1,5 @@
 post:
+  security: []
   tags:
     - auth
   summary: Exchange Yandex Access token for Session token

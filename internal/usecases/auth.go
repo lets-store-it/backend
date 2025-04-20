@@ -104,3 +104,45 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 
 	return orgID, nil
 }
+
+func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	apiTokens, err := uc.authService.GetApiTokens(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiTokens, nil
+}
+
+func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models.ApiToken, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	apiToken, err := uc.authService.CreateApiToken(ctx, orgID, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiToken, nil
+}
+
+func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = uc.authService.RevokeApiToken(ctx, orgID, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

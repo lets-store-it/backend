@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/models"
 )
 
 // func (h *RestApiImplementation) GetCurrentUserBySessionSecret(ctx context.Context) (*api.GetCurrentUserResponse, error) {
@@ -71,4 +72,48 @@ func (h *RestApiImplementation) Logout(ctx context.Context) (*api.LogoutResponse
 	return &api.LogoutResponse{
 		SetCookie: cookie.String(),
 	}, nil
+}
+
+func toApiToken(token *models.ApiToken) api.Token {
+	return api.Token{
+		ID:    token.ID,
+		Token: token.Token,
+		Name:  token.Name,
+	}
+}
+
+// GetApiTokens implements api.Handler.
+func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (*api.GetApiTokensResponse, error) {
+	apiTokens, err := h.authUseCase.GetApiTokens(ctx)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+
+	tokens := make([]api.Token, len(apiTokens))
+	for i, token := range apiTokens {
+		tokens[i] = toApiToken(token)
+	}
+	return &api.GetApiTokensResponse{
+		Data: tokens,
+	}, nil
+}
+
+// CreateApiToken implements api.Handler.
+func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.CreateApiTokenRequest) (*api.CreateApiTokenResponse, error) {
+	apiToken, err := h.authUseCase.CreateApiToken(ctx, req.Name)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	return &api.CreateApiTokenResponse{
+		Data: toApiToken(apiToken),
+	}, nil
+}
+
+// RevokeApiToken implements api.Handler.
+func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.RevokeApiTokenParams) error {
+	err := h.authUseCase.RevokeApiToken(ctx, params.ID)
+	if err != nil {
+		return h.NewError(ctx, err)
+	}
+	return nil
 }

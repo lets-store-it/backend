@@ -9,109 +9,101 @@ import (
 	"github.com/let-store-it/backend/internal/usecases"
 )
 
+func convertItemVariantsToDTO(variants *[]models.ItemVariant) []api.ItemVariant {
+	if variants == nil {
+		return nil
+	}
+
+	dtoVariants := make([]api.ItemVariant, 0, len(*variants))
+	for _, variant := range *variants {
+		var article api.NilString
+		if variant.Article != nil {
+			article.SetTo(*variant.Article)
+		} else {
+			article.SetToNull()
+		}
+		var ean13 api.NilInt
+		if variant.EAN13 != nil {
+			ean13.SetTo(*variant.EAN13)
+		} else {
+			ean13.SetToNull()
+		}
+
+		dtoVariants = append(dtoVariants, api.ItemVariant{
+			ID:      variant.ID,
+			Name:    variant.Name,
+			Article: article,
+			Ean13:   ean13,
+		})
+	}
+
+	return dtoVariants
+}
+
+func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []api.InstanceForItem {
+	if itemInstances == nil {
+		return nil
+	}
+
+	dtoInstances := make([]api.InstanceForItem, 0, len(*itemInstances))
+	for _, instance := range *itemInstances {
+		var article api.NilString
+		if instance.Variant.Article != nil {
+			article.SetTo(*instance.Variant.Article)
+		} else {
+			article.SetToNull()
+		}
+
+		var ean13 api.NilInt
+		if instance.Variant.EAN13 != nil {
+			ean13.SetTo(*instance.Variant.EAN13)
+		} else {
+			ean13.SetToNull()
+		}
+
+		var cellPath []api.CellForInstanceCellPathItem
+		for _, pathSegment := range *instance.Cell.Path {
+			cellPath = append(cellPath, api.CellForInstanceCellPathItem{
+				ID:         pathSegment.ID,
+				Alias:      pathSegment.Alias,
+				Name:       pathSegment.Name,
+				ObjectType: api.CellForInstanceCellPathItemObjectType(pathSegment.ObjectType),
+			})
+		}
+
+		dtoInstances = append(dtoInstances, api.InstanceForItem{
+			ID:     instance.ID,
+			Status: api.InstanceForItemStatus(instance.Status),
+			Variant: api.ItemVariant{
+				ID:      instance.Variant.ID,
+				Name:    instance.Variant.Name,
+				Article: article,
+				Ean13:   ean13,
+			},
+			Cell: api.CellForInstance{
+				ID:       instance.Cell.ID,
+				Alias:    instance.Cell.Alias,
+				Row:      instance.Cell.Row,
+				Level:    instance.Cell.Level,
+				Position: instance.Cell.Position,
+				CellPath: cellPath,
+			},
+		})
+	}
+	return dtoInstances
+}
 func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstance) *api.ItemFull {
 	var description api.NilString
 	if item.Description != nil {
 		description.SetTo(*item.Description)
 	}
 
-	var variants []api.ItemVariant
-	if item.Variants != nil {
-		for _, variant := range *item.Variants {
-			var article api.NilString
-			if variant.Article != nil {
-				article.SetTo(*variant.Article)
-			} else {
-				article.SetToNull()
-			}
-			var ean13 api.NilInt
-			if variant.EAN13 != nil {
-				ean13.SetTo(*variant.EAN13)
-			} else {
-				ean13.SetToNull()
-			}
-			variants = append(variants, api.ItemVariant{
-				ID:      variant.ID,
-				Name:    variant.Name,
-				Article: article,
-				Ean13:   ean13,
-			})
-		}
-	}
-
-	var instances []api.ItemFullInstancesItem
-	if itemInstances != nil {
-		for _, instance := range *itemInstances {
-			var article api.NilString
-			if instance.Variant.Article != nil {
-				article.SetTo(*instance.Variant.Article)
-			} else {
-				article.SetToNull()
-			}
-
-			var ean13 api.NilInt
-			if instance.Variant.EAN13 != nil {
-				ean13.SetTo(*instance.Variant.EAN13)
-			} else {
-				ean13.SetToNull()
-			}
-
-			var cell api.OptCellForInstance
-			if instance.Cell != nil && instance.Cell.Path != nil {
-				var cellPath []api.CellForInstanceCellPathItem
-				for _, pathItem := range *instance.Cell.Path {
-					var pathItemID api.OptUUID
-					pathItemID.Set = true
-					pathItemID.Value = pathItem.ID
-
-					var pathItemAlias api.OptString
-					pathItemAlias.Set = true
-					pathItemAlias.Value = pathItem.Alias
-
-					var pathItemObjectType api.OptCellForInstanceCellPathItemObjectType
-					pathItemObjectType.Set = true
-					pathItemObjectType.Value = api.CellForInstanceCellPathItemObjectType(pathItem.ObjectType)
-
-					cellPath = append(cellPath, api.CellForInstanceCellPathItem{
-						ID:         pathItemID,
-						ObjectType: pathItemObjectType,
-						Alias:      pathItemAlias,
-					})
-				}
-
-				cell = api.OptCellForInstance{
-					Value: api.CellForInstance{
-						ID:       instance.Cell.ID,
-						Alias:    instance.Cell.Alias,
-						Row:      instance.Cell.Row,
-						Level:    instance.Cell.Level,
-						Position: instance.Cell.Position,
-						CellPath: cellPath,
-					},
-					Set: true,
-				}
-			}
-
-			instances = append(instances, api.ItemFullInstancesItem{
-				ID:     instance.ID,
-				Status: api.ItemFullInstancesItemStatus(instance.Status),
-				Variant: api.ItemVariant{
-					ID:      instance.VariantID,
-					Name:    instance.Variant.Name,
-					Article: article,
-					Ean13:   ean13,
-				},
-				Cell: cell,
-			})
-		}
-	}
-
 	return &api.ItemFull{
 		ID:          item.ID,
 		Name:        item.Name,
 		Description: description,
-		Variants:    variants,
-		Instances:   instances,
+		Variants:    convertItemVariantsToDTO(item.Variants),
+		Instances:   convertItemInstancesForItemToDTO(itemInstances),
 	}
 }
 
@@ -175,7 +167,7 @@ func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetI
 	}
 
 	return &api.GetItemByIdResponse{
-		Data: *convertItemToFullDTO(item, nil),
+		Data: *convertItemToFullDTO(item, item.Instances),
 	}, nil
 }
 

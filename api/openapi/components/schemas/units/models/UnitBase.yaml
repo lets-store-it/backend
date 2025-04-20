@@ -10,7 +10,6 @@ properties:
     minLength: 1
     maxLength: 100
     example: MWS
-    pattern: ^[A-Z-]+$
   address:
     type: string
     nullable: true

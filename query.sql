@@ -148,56 +148,55 @@ UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group
 
 -- name: GetCellPath :many
 WITH RECURSIVE path AS (
-  -- cells_group
   SELECT
     cg.id,
-    'cells_group'    AS type,
+    'cells_group'      AS type,
     cg.alias,
-    cg.storage_group_id  AS parent_group_id,
-    NULL::UUID           AS unit_id,
-    1                AS lvl
+    cg.name,
+    cg.storage_group_id AS parent_group_id,
+    NULL::UUID         AS unit_id,
+    1                  AS lvl
   FROM cell c
   JOIN cells_group cg
     ON c.cells_group_id = cg.id
    AND c.org_id         = cg.org_id
-  WHERE c.org_id    = $1
-    AND c.id        = $2
+  WHERE c.org_id = $1
+    AND c.id     = $2
 
   UNION ALL
 
-  -- climb up the storage_group parent chain
   SELECT
     sg.id,
-    'storage_group'  AS type,
+    'storage_group'    AS type,
     sg.alias,
-    sg.parent_id    AS parent_group_id,
+    sg.name,
+    sg.parent_id       AS parent_group_id,
     sg.unit_id,
-    p.lvl + 1        AS lvl
+    p.lvl + 1          AS lvl
   FROM path p
   JOIN storage_group sg
-    ON sg.id         = p.parent_group_id
-   AND sg.org_id     = $1
+    ON sg.id     = p.parent_group_id
+   AND sg.org_id = $1
 )
 
--- union in the org_unit at the very end
-SELECT id, type, alias
+SELECT id, type, alias, name
 FROM (
-  -- all cells_group + storage_group entries
-  SELECT id, type, alias, lvl
+  SELECT id, type, alias, name, lvl
   FROM path
 
   UNION ALL
 
-  -- the unit (only once, at level = deepest lvl + 1)
   SELECT
     ou.id,
-    'unit'          AS type,
+    'unit'            AS type,
     ou.alias,
-    MAX(p.lvl) + 1  AS lvl
+    ou.name,
+    MAX(p.lvl) + 1    AS lvl
   FROM path p
-  JOIN org_unit ou ON
-      ou.org_id   = $1
-  GROUP BY ou.id, ou.alias
+  JOIN org_unit ou
+    ON ou.id     = p.unit_id
+   AND ou.org_id = $1
+  GROUP BY ou.id, ou.alias, ou.name
 ) t
 ORDER BY lvl;
 
@@ -229,10 +228,10 @@ SELECT * FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELE
 SELECT * FROM app_api_token WHERE org_id = $1 AND revoked_at IS NULL;
 
 -- name: CreateApiToken :one
-INSERT INTO app_api_token (org_id, token) VALUES ($1, $2) RETURNING *;
+INSERT INTO app_api_token (org_id, name, token) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: RevokeApiToken :exec
-UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND token = $2;
+UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- name: GetOrgIdByApiToken :one
 SELECT org_id FROM app_api_token WHERE token = $1 AND revoked_at IS NULL;

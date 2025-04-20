@@ -10,4 +10,3 @@ allOf:
     required:
       - id
   - $ref: ./OrganizationBase.yaml
-
