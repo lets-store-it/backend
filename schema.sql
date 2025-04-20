@@ -1,3 +1,17 @@
+CREATE TABLE app_user (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    middle_name VARCHAR(255),
+
+    yandex_id VARCHAR(255),
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE org (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -111,6 +125,30 @@ CREATE TABLE cell (
 CREATE INDEX cell_cells_group_id_idx ON cell(cells_group_id, id);
 
 
+CREATE TABLE task (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+    unit_id UUID NOT NULL REFERENCES org_unit(id),
+    type VARCHAR(255) NOT NULL CHECK (type IN ('pick', 'movement')),
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    
+    assigned_to_user_id UUID REFERENCES app_user(id),
+    assigned_at TIMESTAMP,
+    completed_at TIMESTAMP,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+CREATE TABLE task_item (
+    task_id UUID NOT NULL REFERENCES task(id),
+    item_instance_id UUID NOT NULL REFERENCES item_instance(id),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'returned')),
+    origin_cell_id UUID REFERENCES cell(id),
+    destination_cell_id UUID REFERENCES cell(id)
+);
+
 CREATE TABLE item_instance (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
@@ -119,24 +157,11 @@ CREATE TABLE item_instance (
 
     cell_id UUID REFERENCES cell(id),
     status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
-    -- affected_by_operation_id UUID REFERENCES operation(id),
+    affected_by_task_id UUID REFERENCES task(id),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
     UNIQUE (item_id, variant_id)
-);
-
-CREATE TABLE app_user (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL UNIQUE,
-
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    middle_name VARCHAR(255),
-
-    yandex_id VARCHAR(255),
-
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE app_user_session (
@@ -209,22 +234,6 @@ CREATE TABLE app_api_token (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP
 );
-
--- CREATE TABLE operation (
---     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     type VARCHAR(255) NOT NULL CHECK (type IN ('pick', 'movement')),
---     assigned_to UUID REFERENCES employee(id),
---     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
--- );
-
--- CREATE TABLE operation_item (
---     operation_id UUID NOT NULL REFERENCES operation(id),
---     item_instance_id UUID NOT NULL REFERENCES item_instance(id),
---     status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'returned')),
---     origin_cell_id UUID REFERENCES cell(id),
---     destination_cell_id UUID REFERENCES cell(id)
--- );
-
 
 -- CREATE TABLE custom_field (
 --     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

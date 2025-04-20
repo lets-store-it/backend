@@ -74,3 +74,9 @@ paths:
 
   /api-tokens/{id}:
     $ref: paths/api-tokens/api-tokens_{id}.yaml
+
+  /tasks:
+    $ref: paths/tasks/tasks.yaml
+
+  /tasks/{id}:
+    $ref: paths/tasks/tasks_{id}.yaml
