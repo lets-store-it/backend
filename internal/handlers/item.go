@@ -39,20 +39,9 @@ func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstanc
 		}
 	}
 
-	var instances []api.Instance
+	var instances []api.ItemFullInstancesItem
 	if itemInstances != nil {
 		for _, instance := range *itemInstances {
-			var cellPath []api.CellForInstanceCellPathItem
-			if instance.Cell != nil {
-				for _, pathItem := range instance.Cell.Path {
-					cellPath = append(cellPath, api.CellForInstanceCellPathItem{
-						ID:         pathItem.ID,
-						ObjectType: api.CellForInstanceCellPathItemObjectType(pathItem.ObjectType),
-						Alias:      pathItem.Alias,
-					})
-				}
-			}
-
 			var article api.NilString
 			if instance.Variant.Article != nil {
 				article.SetTo(*instance.Variant.Article)
@@ -67,6 +56,42 @@ func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstanc
 				ean13.SetToNull()
 			}
 
+			var cell api.OptCellForInstance
+			if instance.Cell != nil && instance.Cell.Path != nil {
+				var cellPath []api.CellForInstanceCellPathItem
+				for _, pathItem := range *instance.Cell.Path {
+					var pathItemID api.OptUUID
+					pathItemID.Set = true
+					pathItemID.Value = pathItem.ID
+
+					var pathItemAlias api.OptString
+					pathItemAlias.Set = true
+					pathItemAlias.Value = pathItem.Alias
+
+					var pathItemObjectType api.OptCellForInstanceCellPathItemObjectType
+					pathItemObjectType.Set = true
+					pathItemObjectType.Value = api.CellForInstanceCellPathItemObjectType(pathItem.ObjectType)
+
+					cellPath = append(cellPath, api.CellForInstanceCellPathItem{
+						ID:         pathItemID,
+						ObjectType: pathItemObjectType,
+						Alias:      pathItemAlias,
+					})
+				}
+
+				cell = api.OptCellForInstance{
+					Value: api.CellForInstance{
+						ID:       instance.Cell.ID,
+						Alias:    instance.Cell.Alias,
+						Row:      instance.Cell.Row,
+						Level:    instance.Cell.Level,
+						Position: instance.Cell.Position,
+						CellPath: cellPath,
+					},
+					Set: true,
+				}
+			}
+
 			instances = append(instances, api.ItemFullInstancesItem{
 				ID:     instance.ID,
 				Status: api.ItemFullInstancesItemStatus(instance.Status),
@@ -76,13 +101,11 @@ func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstanc
 					Article: article,
 					Ean13:   ean13,
 				},
-				Cell: api.CellForInstance{
-					ID:   instance.Cell.ID,
-					Path: cellPath,
-				},
+				Cell: cell,
 			})
 		}
 	}
+
 	return &api.ItemFull{
 		ID:          item.ID,
 		Name:        item.Name,
@@ -131,7 +154,7 @@ func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateI
 	}
 
 	return &api.CreateItemResponse{
-		Data: *convertItemToFullDTO(createdItem),
+		Data: *convertItemToFullDTO(createdItem, nil),
 	}, nil
 }
 
@@ -152,7 +175,7 @@ func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetI
 	}
 
 	return &api.GetItemByIdResponse{
-		Data: *convertItemToFullDTO(item),
+		Data: *convertItemToFullDTO(item, nil),
 	}, nil
 }
 
@@ -249,7 +272,7 @@ func (h *RestApiImplementation) PatchItem(ctx context.Context, req *api.PatchIte
 	}
 
 	return &api.PatchItemResponse{
-		Data: *convertItemToFullDTO(item),
+		Data: *convertItemToFullDTO(item, nil),
 	}, nil
 }
 
@@ -296,6 +319,6 @@ func (h *RestApiImplementation) UpdateItem(ctx context.Context, req *api.UpdateI
 	}
 
 	return &api.UpdateItemResponse{
-		Data: *convertItemToFullDTO(updatedItem),
+		Data: *convertItemToFullDTO(updatedItem, nil),
 	}, nil
 }

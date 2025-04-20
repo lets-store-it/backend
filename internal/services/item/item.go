@@ -248,6 +248,126 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 
 	itemModel.Variants = &itemVariants
 
+	// Get item instances
+	instances, err := s.queries.GetItemInstancesForItem(ctx, database.GetItemInstancesForItemParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		ItemID: pgtype.UUID{Bytes: id, Valid: true},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item instances: %w", err)
+	}
+
+	// Convert instances to models
+	itemInstances := make([]models.ItemInstance, len(instances))
+	for i, instance := range instances {
+		// Find the variant for this instance
+		var instanceVariant *models.ItemVariant
+		for _, variant := range itemVariants {
+			if variant.ID == uuid.UUID(instance.VariantID.Bytes) {
+				instanceVariant = &variant
+				break
+			}
+		}
+		if instanceVariant == nil {
+			return nil, fmt.Errorf("failed to find variant for instance: %w", ErrInvalidVariant)
+		}
+
+		itemInstances[i] = models.ItemInstance{
+			ID:        uuid.UUID(instance.ID.Bytes),
+			OrgID:     uuid.UUID(instance.OrgID.Bytes),
+			ItemID:    uuid.UUID(instance.ItemID.Bytes),
+			VariantID: uuid.UUID(instance.VariantID.Bytes),
+			Status:    models.ItemInstanceStatus(instance.Status),
+			Variant:   instanceVariant,
+		}
+
+		// If instance has a cell, get cell information
+		if instance.CellID.Valid {
+			cell, err := s.queries.GetCell(ctx, database.GetCellParams{
+				OrgID:        pgtype.UUID{Bytes: orgID, Valid: true},
+				CellsGroupID: pgtype.UUID{}, // We don't need this for the query
+				ID:           instance.CellID,
+			})
+			if err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					continue // Skip if cell not found
+				}
+				return nil, fmt.Errorf("failed to get cell: %w", err)
+			}
+
+			itemInstances[i].Cell = &models.Cell{
+				ID:       uuid.UUID(cell.ID.Bytes),
+				Alias:    cell.Alias,
+				Row:      int(cell.Row),
+				Level:    int(cell.Level),
+				Position: int(cell.Position),
+			}
+
+			// Get cell path (storage group hierarchy)
+			cellsGroup, err := s.queries.GetCellsGroup(ctx, database.GetCellsGroupParams{
+				OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+				ID:    cell.CellsGroupID,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get cells group: %w", err)
+			}
+
+			storageGroup, err := s.queries.GetStorageGroup(ctx, database.GetStorageGroupParams{
+				OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+				ID:    cellsGroup.StorageGroupID,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get storage group: %w", err)
+			}
+
+			// Build the path
+			path := []models.CellPathItem{
+				{
+					ID:         uuid.UUID(storageGroup.ID.Bytes),
+					Alias:      storageGroup.Alias,
+					ObjectType: "storage-group",
+				},
+				{
+					ID:         uuid.UUID(cellsGroup.ID.Bytes),
+					Alias:      cellsGroup.Alias,
+					ObjectType: "cells-group",
+				},
+			}
+
+			// If storage group has a parent, add it to the path
+			if storageGroup.ParentID.Valid {
+				parentGroup, err := s.queries.GetStorageGroup(ctx, database.GetStorageGroupParams{
+					OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+					ID:    storageGroup.ParentID,
+				})
+				if err != nil {
+					return nil, fmt.Errorf("failed to get parent storage group: %w", err)
+				}
+
+				// Insert parent at the beginning of the path
+				path = append([]models.CellPathItem{{
+					ID:         uuid.UUID(parentGroup.ID.Bytes),
+					Alias:      parentGroup.Alias,
+					ObjectType: "storage-group",
+				}}, path...)
+			}
+
+			// Convert CellPathItem array to CellPath array
+			cellPath := make([]models.CellPath, len(path))
+			for i, item := range path {
+				cellPath[i] = models.CellPath{
+					ID:         item.ID,
+					Alias:      item.Alias,
+					ObjectType: item.ObjectType,
+				}
+			}
+
+			itemInstances[i].Cell.Path = &cellPath
+		}
+	}
+
+	itemModel.Instances = &itemInstances
+
 	return itemModel, nil
 }
 
