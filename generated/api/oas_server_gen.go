@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateApiToken implements createApiToken operation.
+	//
+	// Create Service API Token.
+	//
+	// POST /api-tokens
+	CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (*CreateApiTokenResponse, error)
 	// CreateCell implements createCell operation.
 	//
 	// Create Cells.
@@ -20,6 +26,12 @@ type Handler interface {
 	//
 	// POST /cells-groups
 	CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error)
+	// CreateInstanceForItem implements createInstanceForItem operation.
+	//
+	// Create Instance For Item.
+	//
+	// POST /items/{itemId}/instances
+	CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (*CreateInstanceForItemResponse, error)
 	// CreateItem implements createItem operation.
 	//
 	// Create Item.
@@ -56,6 +68,12 @@ type Handler interface {
 	//
 	// DELETE /cells-groups/{groupId}
 	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
+	// DeleteInstanceById implements deleteInstanceById operation.
+	//
+	// Delete Instance by ID.
+	//
+	// DELETE /instances/{instanceId}
+	DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error
 	// DeleteItem implements deleteItem operation.
 	//
 	// Delete Item.
@@ -86,6 +104,12 @@ type Handler interface {
 	//
 	// POST /auth/oauth2/yandex
 	ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
+	// GetApiTokens implements getApiTokens operation.
+	//
+	// Get list of Service API Tokens.
+	//
+	// GET /api-tokens
+	GetApiTokens(ctx context.Context) (*GetApiTokensResponse, error)
 	// GetCellById implements getCellById operation.
 	//
 	// Get Cell by ID.
@@ -116,6 +140,18 @@ type Handler interface {
 	//
 	// GET /me
 	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
+	// GetInstances implements getInstances operation.
+	//
+	// Get list of Instances.
+	//
+	// GET /instances
+	GetInstances(ctx context.Context) (*GetInstancesResponse, error)
+	// GetInstancesByItemId implements getInstancesByItemId operation.
+	//
+	// Get list of Instances For Item.
+	//
+	// GET /items/{itemId}/instances
+	GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (*GetInstancesByItemIdResponse, error)
 	// GetItemById implements getItemById operation.
 	//
 	// Get Item by ID.
@@ -182,6 +218,12 @@ type Handler interface {
 	//
 	// PATCH /cells-groups/{groupId}
 	PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error)
+	// PatchCurrentUser implements patchCurrentUser operation.
+	//
+	// Update Current User.
+	//
+	// PATCH /me
+	PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (*GetCurrentUserResponse, error)
 	// PatchItem implements patchItem operation.
 	//
 	// Patch Item.
@@ -206,6 +248,18 @@ type Handler interface {
 	//
 	// PATCH /storage-groups/{id}
 	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	// PutCurrentUser implements putCurrentUser operation.
+	//
+	// Update Current User.
+	//
+	// PUT /me
+	PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (*GetCurrentUserResponse, error)
+	// RevokeApiToken implements revokeApiToken operation.
+	//
+	// Revoke Service API Token.
+	//
+	// DELETE /api-tokens/{id}
+	RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error
 	// UpdateCell implements updateCell operation.
 	//
 	// Update Cell.

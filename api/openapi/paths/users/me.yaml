@@ -1,6 +1,6 @@
 get:
   tags:
-    - unit
+    - user
   summary: Get Current User
   operationId: getCurrentUser
   responses:
@@ -14,7 +14,7 @@ get:
       $ref: ../../components/responses/default-error.yaml
 patch:
   tags:
-    - unit
+    - user
   summary: Update Current User
   operationId: patchCurrentUser
   requestBody:
@@ -50,3 +50,5 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

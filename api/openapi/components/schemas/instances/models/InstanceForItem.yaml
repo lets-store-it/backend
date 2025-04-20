@@ -18,8 +18,8 @@ items:
       $ref: ../../items/models/ItemVariant.yaml
     cell:
       $ref: ../../cells-groups/models/CellForInstance.yaml
-required:
-  - id
-  - status
-  - variant
-  - cell
+  required:
+    - id
+    - status
+    - variant
+    - cell
