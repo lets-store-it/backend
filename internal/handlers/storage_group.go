@@ -249,7 +249,7 @@ func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.Delet
 
 // GetCellById implements api.Handler.
 func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (*api.GetCellByIdResponse, error) {
-	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.GroupId, params.CellId)
+	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +288,7 @@ func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCell
 
 // PatchCell implements api.Handler.
 func (h *RestApiImplementation) PatchCell(ctx context.Context, req *api.PatchCellRequest, params api.PatchCellParams) (*api.PatchCellResponse, error) {
-	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.GroupId, params.CellId)
+	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
 	if err != nil {
 		return nil, err
 	}

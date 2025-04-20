@@ -28,16 +28,17 @@ func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserPara
 }
 
 const createApiToken = `-- name: CreateApiToken :one
-INSERT INTO app_api_token (org_id, token) VALUES ($1, $2) RETURNING id, org_id, name, token, created_at, revoked_at
+INSERT INTO app_api_token (org_id, name, token) VALUES ($1, $2, $3) RETURNING id, org_id, name, token, created_at, revoked_at
 `
 
 type CreateApiTokenParams struct {
 	OrgID pgtype.UUID
+	Name  string
 	Token string
 }
 
 func (q *Queries) CreateApiToken(ctx context.Context, arg CreateApiTokenParams) (AppApiToken, error) {
-	row := q.db.QueryRow(ctx, createApiToken, arg.OrgID, arg.Token)
+	row := q.db.QueryRow(ctx, createApiToken, arg.OrgID, arg.Name, arg.Token)
 	var i AppApiToken
 	err := row.Scan(
 		&i.ID,
@@ -527,17 +528,16 @@ func (q *Queries) GetApiTokens(ctx context.Context, orgID pgtype.UUID) ([]AppApi
 }
 
 const getCell = `-- name: GetCell :one
-SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL
+SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetCellParams struct {
-	OrgID        pgtype.UUID
-	CellsGroupID pgtype.UUID
-	ID           pgtype.UUID
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
 }
 
 func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) {
-	row := q.db.QueryRow(ctx, getCell, arg.OrgID, arg.CellsGroupID, arg.ID)
+	row := q.db.QueryRow(ctx, getCell, arg.OrgID, arg.ID)
 	var i Cell
 	err := row.Scan(
 		&i.ID,
@@ -551,6 +551,98 @@ func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) 
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getCellPath = `-- name: GetCellPath :many
+WITH RECURSIVE path AS (
+  SELECT
+    cg.id,
+    'cells_group'      AS type,
+    cg.alias,
+    cg.name,
+    cg.storage_group_id AS parent_group_id,
+    NULL::UUID         AS unit_id,
+    1                  AS lvl
+  FROM cell c
+  JOIN cells_group cg
+    ON c.cells_group_id = cg.id
+   AND c.org_id         = cg.org_id
+  WHERE c.org_id = $1
+    AND c.id     = $2
+
+  UNION ALL
+
+  SELECT
+    sg.id,
+    'storage_group'    AS type,
+    sg.alias,
+    sg.name,
+    sg.parent_id       AS parent_group_id,
+    sg.unit_id,
+    p.lvl + 1          AS lvl
+  FROM path p
+  JOIN storage_group sg
+    ON sg.id     = p.parent_group_id
+   AND sg.org_id = $1
+)
+
+SELECT id, type, alias, name
+FROM (
+  SELECT id, type, alias, name, lvl
+  FROM path
+
+  UNION ALL
+
+  SELECT
+    ou.id,
+    'unit'            AS type,
+    ou.alias,
+    ou.name,
+    MAX(p.lvl) + 1    AS lvl
+  FROM path p
+  JOIN org_unit ou
+    ON ou.id     = p.unit_id
+   AND ou.org_id = $1
+  GROUP BY ou.id, ou.alias, ou.name
+) t
+ORDER BY lvl
+`
+
+type GetCellPathParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+type GetCellPathRow struct {
+	ID    pgtype.UUID
+	Type  string
+	Alias string
+	Name  string
+}
+
+func (q *Queries) GetCellPath(ctx context.Context, arg GetCellPathParams) ([]GetCellPathRow, error) {
+	rows, err := q.db.Query(ctx, getCellPath, arg.OrgID, arg.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCellPathRow
+	for rows.Next() {
+		var i GetCellPathRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Alias,
+			&i.Name,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCells = `-- name: GetCells :many
@@ -1207,16 +1299,16 @@ func (q *Queries) IsOrgExists(ctx context.Context, id pgtype.UUID) (bool, error)
 }
 
 const revokeApiToken = `-- name: RevokeApiToken :exec
-UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND token = $2
+UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 `
 
 type RevokeApiTokenParams struct {
 	OrgID pgtype.UUID
-	Token string
+	ID    pgtype.UUID
 }
 
 func (q *Queries) RevokeApiToken(ctx context.Context, arg RevokeApiTokenParams) error {
-	_, err := q.db.Exec(ctx, revokeApiToken, arg.OrgID, arg.Token)
+	_, err := q.db.Exec(ctx, revokeApiToken, arg.OrgID, arg.ID)
 	return err
 }
 

@@ -149,6 +149,9 @@ func (s *CellForInstance) Validate() error {
 		})
 	}
 	if err := func() error {
+		if s.CellPath == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.CellPath {
 			if err := func() error {
@@ -186,15 +189,8 @@ func (s *CellForInstanceCellPathItem) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.ObjectType.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.ObjectType.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -330,25 +326,8 @@ func (s *CreateInstanceForItemResponse) Validate() error {
 		var failures []validate.FieldError
 		for i, elem := range s.Data {
 			if err := func() error {
-				if elem == nil {
-					return errors.New("nil is invalid value")
-				}
-				var failures []validate.FieldError
-				for i, elem := range elem {
-					if err := func() error {
-						if err := elem.Validate(); err != nil {
-							return err
-						}
-						return nil
-					}(); err != nil {
-						failures = append(failures, validate.FieldError{
-							Name:  fmt.Sprintf("[%d]", i),
-							Error: err,
-						})
-					}
-				}
-				if len(failures) > 0 {
-					return &validate.Error{Fields: failures}
+				if err := elem.Validate(); err != nil {
+					return err
 				}
 				return nil
 			}(); err != nil {
@@ -374,7 +353,7 @@ func (s *CreateInstanceForItemResponse) Validate() error {
 	return nil
 }
 
-func (s *CreateInstanceForItemResponseDataItemItem) Validate() error {
+func (s *CreateInstanceForItemResponseDataItem) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -408,7 +387,7 @@ func (s *CreateInstanceForItemResponseDataItemItem) Validate() error {
 	return nil
 }
 
-func (s CreateInstanceForItemResponseDataItemItemStatus) Validate() error {
+func (s CreateInstanceForItemResponseDataItemStatus) Validate() error {
 	switch s {
 	case "available":
 		return nil
@@ -559,7 +538,7 @@ func (s *CreateOrganizationUnitRequest) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[A-Z-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Alias)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -770,25 +749,8 @@ func (s *GetInstancesByItemIdResponse) Validate() error {
 		var failures []validate.FieldError
 		for i, elem := range s.Data {
 			if err := func() error {
-				if elem == nil {
-					return errors.New("nil is invalid value")
-				}
-				var failures []validate.FieldError
-				for i, elem := range elem {
-					if err := func() error {
-						if err := elem.Validate(); err != nil {
-							return err
-						}
-						return nil
-					}(); err != nil {
-						failures = append(failures, validate.FieldError{
-							Name:  fmt.Sprintf("[%d]", i),
-							Error: err,
-						})
-					}
-				}
-				if len(failures) > 0 {
-					return &validate.Error{Fields: failures}
+				if err := elem.Validate(); err != nil {
+					return err
 				}
 				return nil
 			}(); err != nil {
@@ -814,7 +776,7 @@ func (s *GetInstancesByItemIdResponse) Validate() error {
 	return nil
 }
 
-func (s *GetInstancesByItemIdResponseDataItemItem) Validate() error {
+func (s *GetInstancesByItemIdResponseDataItem) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -848,7 +810,7 @@ func (s *GetInstancesByItemIdResponseDataItemItem) Validate() error {
 	return nil
 }
 
-func (s GetInstancesByItemIdResponseDataItemItemStatus) Validate() error {
+func (s GetInstancesByItemIdResponseDataItemStatus) Validate() error {
 	switch s {
 	case "available":
 		return nil
@@ -1119,6 +1081,53 @@ func (s *GetStorageGroupsResponse) Validate() error {
 	return nil
 }
 
+func (s *InstanceForItem) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Status.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Cell.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "cell",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s InstanceForItemStatus) Validate() error {
+	switch s {
+	case "available":
+		return nil
+	case "reserved":
+		return nil
+	case "consumed":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s InstanceFull) Validate() error {
 	alias := ([]InstanceFullItem)(s)
 	if alias == nil {
@@ -1221,6 +1230,20 @@ func (s *ItemFull) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
+		if s.Variants == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "variants",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Instances == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.Instances {
 			if err := func() error {
@@ -1249,60 +1272,6 @@ func (s *ItemFull) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s *ItemFullInstancesItem) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := s.Status.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "status",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if value, ok := s.Cell.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "cell",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s ItemFullInstancesItemStatus) Validate() error {
-	switch s {
-	case "available":
-		return nil
-	case "reserved":
-		return nil
-	case "consumed":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }
 
 func (s *Organization) Validate() error {
@@ -1592,7 +1561,7 @@ func (s *PatchOrganizationUnitRequest) Validate() error {
 					MaxLengthSet: true,
 					Email:        false,
 					Hostname:     false,
-					Regex:        regexMap["^[A-Z-]+$"],
+					Regex:        nil,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -1710,7 +1679,7 @@ func (s *Unit) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[A-Z-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Alias)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -1980,7 +1949,7 @@ func (s *UpdateOrganizationUnitRequest) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        regexMap["^[A-Z-]+$"],
+			Regex:        nil,
 		}).Validate(string(s.Alias)); err != nil {
 			return errors.Wrap(err, "string")
 		}

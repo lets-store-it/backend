@@ -53,12 +53,6 @@ type StorageGroup struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
-type CellPathItem struct {
-	ID         uuid.UUID          `json:"id"`
-	Alias      string             `json:"alias"`
-	ObjectType CellPathObjectType `json:"object_type"`
-}
-
 type Item struct {
 	ID          uuid.UUID `json:"id"`
 	OrgID       uuid.UUID `json:"org_id"`
@@ -97,13 +91,14 @@ type CellsGroup struct {
 type CellPathObjectType string
 
 const (
-	CellPathObjectTypeCell         CellPathObjectType = "cell"
 	CellPathObjectTypeCellsGroup   CellPathObjectType = "cells_group"
 	CellPathObjectTypeStorageGroup CellPathObjectType = "storage_group"
+	CellPathObjectTypeUnit         CellPathObjectType = "unit"
 )
 
-type CellPath struct {
+type CellPathSegment struct {
 	ID         uuid.UUID          `json:"id"`
+	Name       string             `json:"name"`
 	ObjectType CellPathObjectType `json:"object_type"`
 	Alias      string             `json:"alias"`
 }
@@ -117,7 +112,7 @@ type Cell struct {
 	Level        int       `json:"level"`
 	Position     int       `json:"position"`
 
-	Path *[]CellPath `json:"path"`
+	Path *[]CellPathSegment `json:"path"`
 }
 
 type ObjectChangeAction string
@@ -168,7 +163,6 @@ type ItemInstance struct {
 	CellID                uuid.UUID          `json:"cell_id"`
 	Status                ItemInstanceStatus `json:"status"`
 	AffectedByOperationID uuid.UUID          `json:"affected_by_operation_id"`
-	CellPath              []CellPathItem     `json:"cell_path"`
 
 	Cell    *Cell        `json:"cell"`
 	Variant *ItemVariant `json:"variant"`

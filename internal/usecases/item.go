@@ -60,7 +60,7 @@ func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item,
 		return nil, err
 	}
 
-	return uc.service.GetByID(ctx, orgID, id)
+return uc.service.GetByID(ctx, orgID, id)
 }
 
 func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models.Item) (*models.Item, error) {

@@ -40,12 +40,12 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	e.Use(middleware.CORS())
 
 	// Initialize services
+	storageGroupService := storage.New(queries)
 	auditService := audit.New(queries)
-	itemService := item.New(queries, pool)
+	itemService := item.New(queries, pool, storageGroupService)
 	authService := auth.New(queries, pool)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
 	orgService := organization.New(queries, pool)
-	storageGroupService := storage.New(queries)
 
 	// Initialize use cases
 	itemUseCase := usecases.NewItemUseCase(itemService)

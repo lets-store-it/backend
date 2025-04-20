@@ -380,21 +380,17 @@ func (s *StorageService) GetCells(ctx context.Context, orgID uuid.UUID, cellsGro
 	return result, nil
 }
 
-func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, cellsGroupID uuid.UUID, id uuid.UUID) (*models.Cell, error) {
+func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.Cell, error) {
 	if orgID == uuid.Nil {
 		return nil, ErrInvalidOrganization
-	}
-	if cellsGroupID == uuid.Nil {
-		return nil, ErrInvalidCellsGroup
 	}
 	if id == uuid.Nil {
 		return nil, ErrInvalidCell
 	}
 
 	cell, err := s.queries.GetCell(ctx, database.GetCellParams{
-		OrgID:        pgtype.UUID{Bytes: orgID, Valid: true},
-		CellsGroupID: pgtype.UUID{Bytes: cellsGroupID, Valid: true},
-		ID:           pgtype.UUID{Bytes: id, Valid: true},
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get cell: %w", err)
@@ -479,4 +475,34 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsG
 		return fmt.Errorf("failed to delete cell: %w", err)
 	}
 	return nil
+}
+
+func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellID uuid.UUID) ([]models.CellPathSegment, error) {
+	if orgID == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+	if cellID == uuid.Nil {
+		return nil, ErrInvalidCell
+	}
+
+	segments, err := s.queries.GetCellPath(ctx, database.GetCellPathParams{
+		ID:    pgtype.UUID{Bytes: cellID, Valid: true},
+		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cell path: %w", err)
+	}
+
+	result := make([]models.CellPathSegment, len(segments))
+	for i, segment := range segments {
+
+		result[i] = models.CellPathSegment{
+			ID:         *uuidFromPgx(segment.ID),
+			Name:       segment.Name,
+			ObjectType: models.CellPathObjectType(segment.Type),
+			Alias:      segment.Alias,
+		}
+	}
+	return result, nil
 }

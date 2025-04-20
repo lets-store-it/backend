@@ -1,25 +1,23 @@
-type: array
-items:
-  type: object
-  properties:
-    id:
-      type: string
-      format: uuid
-    status:
-      type: string
-      enum:
-        - available
-        - reserved
-        - consumed
-    # affectedByOperationId:
-    #   type: string
-    #   format: uuid
-    variant:
-      $ref: ../../items/models/ItemVariant.yaml
-    cell:
-      $ref: ../../cells-groups/models/CellForInstance.yaml
-  required:
-    - id
-    - status
-    - variant
-    - cell
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+  status:
+    type: string
+    enum:
+      - available
+      - reserved
+      - consumed
+  # affectedByOperationId:
+  #   type: string
+  #   format: uuid
+  variant:
+    $ref: ../../items/models/ItemVariant.yaml
+  cell:
+    $ref: ../../cells-groups/models/CellForInstance.yaml
+required:
+  - id
+  - status
+  - variant
+  - cell

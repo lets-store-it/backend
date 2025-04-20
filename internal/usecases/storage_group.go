@@ -165,13 +165,13 @@ func (uc *StorageUseCase) CreateCell(ctx context.Context, cellsGroupID uuid.UUID
 	return uc.service.CreateCell(ctx, orgID, cellsGroupID, alias, row, level, position)
 }
 
-func (uc *StorageUseCase) GetCellByID(ctx context.Context, cellsGroupID uuid.UUID, id uuid.UUID) (*models.Cell, error) {
+func (uc *StorageUseCase) GetCellByID(ctx context.Context, id uuid.UUID) (*models.Cell, error) {
 	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.GetCellByID(ctx, orgID, cellsGroupID, id)
+	return uc.service.GetCellByID(ctx, orgID, id)
 }
 
 func (uc *StorageUseCase) DeleteCell(ctx context.Context, cellsGroupID uuid.UUID, id uuid.UUID) error {

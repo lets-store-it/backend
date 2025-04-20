@@ -9,7 +9,20 @@ info:
     url: https://store-it.ru
 servers:
   - url: http://localhost:8080/api/v0
-security: []
+# security:
+#   - apiToken: []
+#   - cookie: []
+components:
+  securitySchemes:
+    apiToken:
+      description: API key authentication
+      type: apiKey
+      name: X-Api-Key
+      in: header
+    cookie:
+      type: apiKey
+      in: cookie
+      name: storeit_session
 tags:
   - name: org
     description: Organization management
@@ -35,24 +48,16 @@ paths:
   /storage-groups/{id}:
     $ref: paths/storage-groups/storage-groups_{id}.yaml
 
-  /items:
-    $ref: paths/items/items.yaml
-  /items/{id}:
-    $ref: paths/items/items_{id}.yaml
-
-  /auth/oauth2/yandex:
-    $ref: paths/auth/yandex.yaml
-  /auth/logout:
-    $ref: paths/auth/logout.yaml
-
-  /me:
-    $ref: paths/users/me.yaml
-
   /cells-groups:
     $ref: paths/cells-groups/cells-groups.yaml
 
   /cells-groups/{groupId}:
     $ref: paths/cells-groups/cells-groups_{id}.yaml
+
+  /items:
+    $ref: paths/items/items.yaml
+  /items/{id}:
+    $ref: paths/items/items_{id}.yaml
 
   /cells-groups/{groupId}/cells:
     $ref: paths/cells-groups/cells-groups_{id}_cells.yaml
@@ -75,8 +80,17 @@ paths:
   /api-tokens/{id}:
     $ref: paths/api-tokens/api-tokens_{id}.yaml
 
-  /tasks:
-    $ref: paths/tasks/tasks.yaml
+  /auth/oauth2/yandex:
+    $ref: paths/auth/yandex.yaml
 
-  /tasks/{id}:
-    $ref: paths/tasks/tasks_{id}.yaml
+  /auth/logout:
+    $ref: paths/auth/logout.yaml
+
+  /me:
+    $ref: paths/users/me.yaml
+
+  # /tasks:
+  #   $ref: paths/tasks/tasks.yaml
+
+  # /tasks/{id}:
+  #   $ref: paths/tasks/tasks_{id}.yaml

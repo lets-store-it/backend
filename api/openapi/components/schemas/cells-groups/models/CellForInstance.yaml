@@ -10,6 +10,8 @@ allOf:
             id:
               type: string
               format: uuid
+            name:
+              type: string
             alias:
               type: string
             objectType:
@@ -18,3 +20,10 @@ allOf:
                 - cell
                 - cells_group
                 - storage_group
+          required:
+            - id
+            - name
+            - alias
+            - objectType
+    required:
+      - cellPath

@@ -157,7 +157,7 @@ CREATE TABLE item_instance (
 
     cell_id UUID REFERENCES cell(id),
     status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
-    affected_by_task_id UUID REFERENCES task(id),
+    -- affected_by_task_id UUID REFERENCES task(id),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,

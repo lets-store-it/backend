@@ -4,7 +4,7 @@ get:
   summary: Get list of Organization Units
   operationId: getOrganizationUnits
   responses:
-    '200':
+    "200":
       description: Successful operation
       content:
         application/json:

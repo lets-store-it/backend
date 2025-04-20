@@ -159,38 +159,49 @@ func (s *CellForInstance) SetCellPath(val []CellForInstanceCellPathItem) {
 }
 
 type CellForInstanceCellPathItem struct {
-	ID         OptUUID                                  `json:"id"`
-	Alias      OptString                                `json:"alias"`
-	ObjectType OptCellForInstanceCellPathItemObjectType `json:"objectType"`
+	ID         uuid.UUID                             `json:"id"`
+	Name       string                                `json:"name"`
+	Alias      string                                `json:"alias"`
+	ObjectType CellForInstanceCellPathItemObjectType `json:"objectType"`
 }
 
 // GetID returns the value of ID.
-func (s *CellForInstanceCellPathItem) GetID() OptUUID {
+func (s *CellForInstanceCellPathItem) GetID() uuid.UUID {
 	return s.ID
 }
 
+// GetName returns the value of Name.
+func (s *CellForInstanceCellPathItem) GetName() string {
+	return s.Name
+}
+
 // GetAlias returns the value of Alias.
-func (s *CellForInstanceCellPathItem) GetAlias() OptString {
+func (s *CellForInstanceCellPathItem) GetAlias() string {
 	return s.Alias
 }
 
 // GetObjectType returns the value of ObjectType.
-func (s *CellForInstanceCellPathItem) GetObjectType() OptCellForInstanceCellPathItemObjectType {
+func (s *CellForInstanceCellPathItem) GetObjectType() CellForInstanceCellPathItemObjectType {
 	return s.ObjectType
 }
 
 // SetID sets the value of ID.
-func (s *CellForInstanceCellPathItem) SetID(val OptUUID) {
+func (s *CellForInstanceCellPathItem) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
+// SetName sets the value of Name.
+func (s *CellForInstanceCellPathItem) SetName(val string) {
+	s.Name = val
+}
+
 // SetAlias sets the value of Alias.
-func (s *CellForInstanceCellPathItem) SetAlias(val OptString) {
+func (s *CellForInstanceCellPathItem) SetAlias(val string) {
 	s.Alias = val
 }
 
 // SetObjectType sets the value of ObjectType.
-func (s *CellForInstanceCellPathItem) SetObjectType(val OptCellForInstanceCellPathItemObjectType) {
+func (s *CellForInstanceCellPathItem) SetObjectType(val CellForInstanceCellPathItemObjectType) {
 	s.ObjectType = val
 }
 
@@ -486,91 +497,91 @@ func (s *CreateInstanceForItemRequest) SetCellId(val OptNilUUID) {
 
 // Ref: #/components/schemas/CreateInstanceForItemResponse
 type CreateInstanceForItemResponse struct {
-	Data [][]CreateInstanceForItemResponseDataItemItem `json:"data"`
+	Data []CreateInstanceForItemResponseDataItem `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *CreateInstanceForItemResponse) GetData() [][]CreateInstanceForItemResponseDataItemItem {
+func (s *CreateInstanceForItemResponse) GetData() []CreateInstanceForItemResponseDataItem {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *CreateInstanceForItemResponse) SetData(val [][]CreateInstanceForItemResponseDataItemItem) {
+func (s *CreateInstanceForItemResponse) SetData(val []CreateInstanceForItemResponseDataItem) {
 	s.Data = val
 }
 
-type CreateInstanceForItemResponseDataItemItem struct {
-	ID      uuid.UUID                                       `json:"id"`
-	Status  CreateInstanceForItemResponseDataItemItemStatus `json:"status"`
-	Variant ItemVariant                                     `json:"variant"`
-	Cell    CellForInstance                                 `json:"cell"`
+type CreateInstanceForItemResponseDataItem struct {
+	ID      uuid.UUID                                   `json:"id"`
+	Status  CreateInstanceForItemResponseDataItemStatus `json:"status"`
+	Variant ItemVariant                                 `json:"variant"`
+	Cell    CellForInstance                             `json:"cell"`
 }
 
 // GetID returns the value of ID.
-func (s *CreateInstanceForItemResponseDataItemItem) GetID() uuid.UUID {
+func (s *CreateInstanceForItemResponseDataItem) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetStatus returns the value of Status.
-func (s *CreateInstanceForItemResponseDataItemItem) GetStatus() CreateInstanceForItemResponseDataItemItemStatus {
+func (s *CreateInstanceForItemResponseDataItem) GetStatus() CreateInstanceForItemResponseDataItemStatus {
 	return s.Status
 }
 
 // GetVariant returns the value of Variant.
-func (s *CreateInstanceForItemResponseDataItemItem) GetVariant() ItemVariant {
+func (s *CreateInstanceForItemResponseDataItem) GetVariant() ItemVariant {
 	return s.Variant
 }
 
 // GetCell returns the value of Cell.
-func (s *CreateInstanceForItemResponseDataItemItem) GetCell() CellForInstance {
+func (s *CreateInstanceForItemResponseDataItem) GetCell() CellForInstance {
 	return s.Cell
 }
 
 // SetID sets the value of ID.
-func (s *CreateInstanceForItemResponseDataItemItem) SetID(val uuid.UUID) {
+func (s *CreateInstanceForItemResponseDataItem) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetStatus sets the value of Status.
-func (s *CreateInstanceForItemResponseDataItemItem) SetStatus(val CreateInstanceForItemResponseDataItemItemStatus) {
+func (s *CreateInstanceForItemResponseDataItem) SetStatus(val CreateInstanceForItemResponseDataItemStatus) {
 	s.Status = val
 }
 
 // SetVariant sets the value of Variant.
-func (s *CreateInstanceForItemResponseDataItemItem) SetVariant(val ItemVariant) {
+func (s *CreateInstanceForItemResponseDataItem) SetVariant(val ItemVariant) {
 	s.Variant = val
 }
 
 // SetCell sets the value of Cell.
-func (s *CreateInstanceForItemResponseDataItemItem) SetCell(val CellForInstance) {
+func (s *CreateInstanceForItemResponseDataItem) SetCell(val CellForInstance) {
 	s.Cell = val
 }
 
-type CreateInstanceForItemResponseDataItemItemStatus string
+type CreateInstanceForItemResponseDataItemStatus string
 
 const (
-	CreateInstanceForItemResponseDataItemItemStatusAvailable CreateInstanceForItemResponseDataItemItemStatus = "available"
-	CreateInstanceForItemResponseDataItemItemStatusReserved  CreateInstanceForItemResponseDataItemItemStatus = "reserved"
-	CreateInstanceForItemResponseDataItemItemStatusConsumed  CreateInstanceForItemResponseDataItemItemStatus = "consumed"
+	CreateInstanceForItemResponseDataItemStatusAvailable CreateInstanceForItemResponseDataItemStatus = "available"
+	CreateInstanceForItemResponseDataItemStatusReserved  CreateInstanceForItemResponseDataItemStatus = "reserved"
+	CreateInstanceForItemResponseDataItemStatusConsumed  CreateInstanceForItemResponseDataItemStatus = "consumed"
 )
 
-// AllValues returns all CreateInstanceForItemResponseDataItemItemStatus values.
-func (CreateInstanceForItemResponseDataItemItemStatus) AllValues() []CreateInstanceForItemResponseDataItemItemStatus {
-	return []CreateInstanceForItemResponseDataItemItemStatus{
-		CreateInstanceForItemResponseDataItemItemStatusAvailable,
-		CreateInstanceForItemResponseDataItemItemStatusReserved,
-		CreateInstanceForItemResponseDataItemItemStatusConsumed,
+// AllValues returns all CreateInstanceForItemResponseDataItemStatus values.
+func (CreateInstanceForItemResponseDataItemStatus) AllValues() []CreateInstanceForItemResponseDataItemStatus {
+	return []CreateInstanceForItemResponseDataItemStatus{
+		CreateInstanceForItemResponseDataItemStatusAvailable,
+		CreateInstanceForItemResponseDataItemStatusReserved,
+		CreateInstanceForItemResponseDataItemStatusConsumed,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s CreateInstanceForItemResponseDataItemItemStatus) MarshalText() ([]byte, error) {
+func (s CreateInstanceForItemResponseDataItemStatus) MarshalText() ([]byte, error) {
 	switch s {
-	case CreateInstanceForItemResponseDataItemItemStatusAvailable:
+	case CreateInstanceForItemResponseDataItemStatusAvailable:
 		return []byte(s), nil
-	case CreateInstanceForItemResponseDataItemItemStatusReserved:
+	case CreateInstanceForItemResponseDataItemStatusReserved:
 		return []byte(s), nil
-	case CreateInstanceForItemResponseDataItemItemStatusConsumed:
+	case CreateInstanceForItemResponseDataItemStatusConsumed:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -578,16 +589,16 @@ func (s CreateInstanceForItemResponseDataItemItemStatus) MarshalText() ([]byte, 
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *CreateInstanceForItemResponseDataItemItemStatus) UnmarshalText(data []byte) error {
-	switch CreateInstanceForItemResponseDataItemItemStatus(data) {
-	case CreateInstanceForItemResponseDataItemItemStatusAvailable:
-		*s = CreateInstanceForItemResponseDataItemItemStatusAvailable
+func (s *CreateInstanceForItemResponseDataItemStatus) UnmarshalText(data []byte) error {
+	switch CreateInstanceForItemResponseDataItemStatus(data) {
+	case CreateInstanceForItemResponseDataItemStatusAvailable:
+		*s = CreateInstanceForItemResponseDataItemStatusAvailable
 		return nil
-	case CreateInstanceForItemResponseDataItemItemStatusReserved:
-		*s = CreateInstanceForItemResponseDataItemItemStatusReserved
+	case CreateInstanceForItemResponseDataItemStatusReserved:
+		*s = CreateInstanceForItemResponseDataItemStatusReserved
 		return nil
-	case CreateInstanceForItemResponseDataItemItemStatusConsumed:
-		*s = CreateInstanceForItemResponseDataItemItemStatusConsumed
+	case CreateInstanceForItemResponseDataItemStatusConsumed:
+		*s = CreateInstanceForItemResponseDataItemStatusConsumed
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1083,91 +1094,91 @@ func (s *GetCurrentUserResponse) SetEmail(val string) {
 
 // Ref: #/components/schemas/GetInstancesByItemIdResponse
 type GetInstancesByItemIdResponse struct {
-	Data [][]GetInstancesByItemIdResponseDataItemItem `json:"data"`
+	Data []GetInstancesByItemIdResponseDataItem `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetInstancesByItemIdResponse) GetData() [][]GetInstancesByItemIdResponseDataItemItem {
+func (s *GetInstancesByItemIdResponse) GetData() []GetInstancesByItemIdResponseDataItem {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetInstancesByItemIdResponse) SetData(val [][]GetInstancesByItemIdResponseDataItemItem) {
+func (s *GetInstancesByItemIdResponse) SetData(val []GetInstancesByItemIdResponseDataItem) {
 	s.Data = val
 }
 
-type GetInstancesByItemIdResponseDataItemItem struct {
-	ID      uuid.UUID                                      `json:"id"`
-	Status  GetInstancesByItemIdResponseDataItemItemStatus `json:"status"`
-	Variant ItemVariant                                    `json:"variant"`
-	Cell    CellForInstance                                `json:"cell"`
+type GetInstancesByItemIdResponseDataItem struct {
+	ID      uuid.UUID                                  `json:"id"`
+	Status  GetInstancesByItemIdResponseDataItemStatus `json:"status"`
+	Variant ItemVariant                                `json:"variant"`
+	Cell    CellForInstance                            `json:"cell"`
 }
 
 // GetID returns the value of ID.
-func (s *GetInstancesByItemIdResponseDataItemItem) GetID() uuid.UUID {
+func (s *GetInstancesByItemIdResponseDataItem) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetStatus returns the value of Status.
-func (s *GetInstancesByItemIdResponseDataItemItem) GetStatus() GetInstancesByItemIdResponseDataItemItemStatus {
+func (s *GetInstancesByItemIdResponseDataItem) GetStatus() GetInstancesByItemIdResponseDataItemStatus {
 	return s.Status
 }
 
 // GetVariant returns the value of Variant.
-func (s *GetInstancesByItemIdResponseDataItemItem) GetVariant() ItemVariant {
+func (s *GetInstancesByItemIdResponseDataItem) GetVariant() ItemVariant {
 	return s.Variant
 }
 
 // GetCell returns the value of Cell.
-func (s *GetInstancesByItemIdResponseDataItemItem) GetCell() CellForInstance {
+func (s *GetInstancesByItemIdResponseDataItem) GetCell() CellForInstance {
 	return s.Cell
 }
 
 // SetID sets the value of ID.
-func (s *GetInstancesByItemIdResponseDataItemItem) SetID(val uuid.UUID) {
+func (s *GetInstancesByItemIdResponseDataItem) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetStatus sets the value of Status.
-func (s *GetInstancesByItemIdResponseDataItemItem) SetStatus(val GetInstancesByItemIdResponseDataItemItemStatus) {
+func (s *GetInstancesByItemIdResponseDataItem) SetStatus(val GetInstancesByItemIdResponseDataItemStatus) {
 	s.Status = val
 }
 
 // SetVariant sets the value of Variant.
-func (s *GetInstancesByItemIdResponseDataItemItem) SetVariant(val ItemVariant) {
+func (s *GetInstancesByItemIdResponseDataItem) SetVariant(val ItemVariant) {
 	s.Variant = val
 }
 
 // SetCell sets the value of Cell.
-func (s *GetInstancesByItemIdResponseDataItemItem) SetCell(val CellForInstance) {
+func (s *GetInstancesByItemIdResponseDataItem) SetCell(val CellForInstance) {
 	s.Cell = val
 }
 
-type GetInstancesByItemIdResponseDataItemItemStatus string
+type GetInstancesByItemIdResponseDataItemStatus string
 
 const (
-	GetInstancesByItemIdResponseDataItemItemStatusAvailable GetInstancesByItemIdResponseDataItemItemStatus = "available"
-	GetInstancesByItemIdResponseDataItemItemStatusReserved  GetInstancesByItemIdResponseDataItemItemStatus = "reserved"
-	GetInstancesByItemIdResponseDataItemItemStatusConsumed  GetInstancesByItemIdResponseDataItemItemStatus = "consumed"
+	GetInstancesByItemIdResponseDataItemStatusAvailable GetInstancesByItemIdResponseDataItemStatus = "available"
+	GetInstancesByItemIdResponseDataItemStatusReserved  GetInstancesByItemIdResponseDataItemStatus = "reserved"
+	GetInstancesByItemIdResponseDataItemStatusConsumed  GetInstancesByItemIdResponseDataItemStatus = "consumed"
 )
 
-// AllValues returns all GetInstancesByItemIdResponseDataItemItemStatus values.
-func (GetInstancesByItemIdResponseDataItemItemStatus) AllValues() []GetInstancesByItemIdResponseDataItemItemStatus {
-	return []GetInstancesByItemIdResponseDataItemItemStatus{
-		GetInstancesByItemIdResponseDataItemItemStatusAvailable,
-		GetInstancesByItemIdResponseDataItemItemStatusReserved,
-		GetInstancesByItemIdResponseDataItemItemStatusConsumed,
+// AllValues returns all GetInstancesByItemIdResponseDataItemStatus values.
+func (GetInstancesByItemIdResponseDataItemStatus) AllValues() []GetInstancesByItemIdResponseDataItemStatus {
+	return []GetInstancesByItemIdResponseDataItemStatus{
+		GetInstancesByItemIdResponseDataItemStatusAvailable,
+		GetInstancesByItemIdResponseDataItemStatusReserved,
+		GetInstancesByItemIdResponseDataItemStatusConsumed,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s GetInstancesByItemIdResponseDataItemItemStatus) MarshalText() ([]byte, error) {
+func (s GetInstancesByItemIdResponseDataItemStatus) MarshalText() ([]byte, error) {
 	switch s {
-	case GetInstancesByItemIdResponseDataItemItemStatusAvailable:
+	case GetInstancesByItemIdResponseDataItemStatusAvailable:
 		return []byte(s), nil
-	case GetInstancesByItemIdResponseDataItemItemStatusReserved:
+	case GetInstancesByItemIdResponseDataItemStatusReserved:
 		return []byte(s), nil
-	case GetInstancesByItemIdResponseDataItemItemStatusConsumed:
+	case GetInstancesByItemIdResponseDataItemStatusConsumed:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -1175,16 +1186,16 @@ func (s GetInstancesByItemIdResponseDataItemItemStatus) MarshalText() ([]byte, e
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetInstancesByItemIdResponseDataItemItemStatus) UnmarshalText(data []byte) error {
-	switch GetInstancesByItemIdResponseDataItemItemStatus(data) {
-	case GetInstancesByItemIdResponseDataItemItemStatusAvailable:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusAvailable
+func (s *GetInstancesByItemIdResponseDataItemStatus) UnmarshalText(data []byte) error {
+	switch GetInstancesByItemIdResponseDataItemStatus(data) {
+	case GetInstancesByItemIdResponseDataItemStatusAvailable:
+		*s = GetInstancesByItemIdResponseDataItemStatusAvailable
 		return nil
-	case GetInstancesByItemIdResponseDataItemItemStatusReserved:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusReserved
+	case GetInstancesByItemIdResponseDataItemStatusReserved:
+		*s = GetInstancesByItemIdResponseDataItemStatusReserved
 		return nil
-	case GetInstancesByItemIdResponseDataItemItemStatusConsumed:
-		*s = GetInstancesByItemIdResponseDataItemItemStatusConsumed
+	case GetInstancesByItemIdResponseDataItemStatusConsumed:
+		*s = GetInstancesByItemIdResponseDataItemStatusConsumed
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1338,6 +1349,102 @@ func (s *GetStorageGroupsResponse) GetData() []StorageGroup {
 // SetData sets the value of Data.
 func (s *GetStorageGroupsResponse) SetData(val []StorageGroup) {
 	s.Data = val
+}
+
+// Ref: #/components/schemas/InstanceForItem
+type InstanceForItem struct {
+	ID      uuid.UUID             `json:"id"`
+	Status  InstanceForItemStatus `json:"status"`
+	Variant ItemVariant           `json:"variant"`
+	Cell    CellForInstance       `json:"cell"`
+}
+
+// GetID returns the value of ID.
+func (s *InstanceForItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetStatus returns the value of Status.
+func (s *InstanceForItem) GetStatus() InstanceForItemStatus {
+	return s.Status
+}
+
+// GetVariant returns the value of Variant.
+func (s *InstanceForItem) GetVariant() ItemVariant {
+	return s.Variant
+}
+
+// GetCell returns the value of Cell.
+func (s *InstanceForItem) GetCell() CellForInstance {
+	return s.Cell
+}
+
+// SetID sets the value of ID.
+func (s *InstanceForItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetStatus sets the value of Status.
+func (s *InstanceForItem) SetStatus(val InstanceForItemStatus) {
+	s.Status = val
+}
+
+// SetVariant sets the value of Variant.
+func (s *InstanceForItem) SetVariant(val ItemVariant) {
+	s.Variant = val
+}
+
+// SetCell sets the value of Cell.
+func (s *InstanceForItem) SetCell(val CellForInstance) {
+	s.Cell = val
+}
+
+type InstanceForItemStatus string
+
+const (
+	InstanceForItemStatusAvailable InstanceForItemStatus = "available"
+	InstanceForItemStatusReserved  InstanceForItemStatus = "reserved"
+	InstanceForItemStatusConsumed  InstanceForItemStatus = "consumed"
+)
+
+// AllValues returns all InstanceForItemStatus values.
+func (InstanceForItemStatus) AllValues() []InstanceForItemStatus {
+	return []InstanceForItemStatus{
+		InstanceForItemStatusAvailable,
+		InstanceForItemStatusReserved,
+		InstanceForItemStatusConsumed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s InstanceForItemStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case InstanceForItemStatusAvailable:
+		return []byte(s), nil
+	case InstanceForItemStatusReserved:
+		return []byte(s), nil
+	case InstanceForItemStatusConsumed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *InstanceForItemStatus) UnmarshalText(data []byte) error {
+	switch InstanceForItemStatus(data) {
+	case InstanceForItemStatusAvailable:
+		*s = InstanceForItemStatusAvailable
+		return nil
+	case InstanceForItemStatusReserved:
+		*s = InstanceForItemStatusReserved
+		return nil
+	case InstanceForItemStatusConsumed:
+		*s = InstanceForItemStatusConsumed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type InstanceFull []InstanceFullItem
@@ -1547,9 +1654,9 @@ type ItemFull struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
 	// Merged property.
-	Description NilString               `json:"description"`
-	Variants    []ItemVariant           `json:"variants"`
-	Instances   []ItemFullInstancesItem `json:"instances"`
+	Description NilString         `json:"description"`
+	Variants    []ItemVariant     `json:"variants"`
+	Instances   []InstanceForItem `json:"instances"`
 }
 
 // GetID returns the value of ID.
@@ -1573,7 +1680,7 @@ func (s *ItemFull) GetVariants() []ItemVariant {
 }
 
 // GetInstances returns the value of Instances.
-func (s *ItemFull) GetInstances() []ItemFullInstancesItem {
+func (s *ItemFull) GetInstances() []InstanceForItem {
 	return s.Instances
 }
 
@@ -1598,103 +1705,8 @@ func (s *ItemFull) SetVariants(val []ItemVariant) {
 }
 
 // SetInstances sets the value of Instances.
-func (s *ItemFull) SetInstances(val []ItemFullInstancesItem) {
+func (s *ItemFull) SetInstances(val []InstanceForItem) {
 	s.Instances = val
-}
-
-type ItemFullInstancesItem struct {
-	ID      uuid.UUID                   `json:"id"`
-	Status  ItemFullInstancesItemStatus `json:"status"`
-	Variant ItemVariant                 `json:"variant"`
-	Cell    OptCellForInstance          `json:"cell"`
-}
-
-// GetID returns the value of ID.
-func (s *ItemFullInstancesItem) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetStatus returns the value of Status.
-func (s *ItemFullInstancesItem) GetStatus() ItemFullInstancesItemStatus {
-	return s.Status
-}
-
-// GetVariant returns the value of Variant.
-func (s *ItemFullInstancesItem) GetVariant() ItemVariant {
-	return s.Variant
-}
-
-// GetCell returns the value of Cell.
-func (s *ItemFullInstancesItem) GetCell() OptCellForInstance {
-	return s.Cell
-}
-
-// SetID sets the value of ID.
-func (s *ItemFullInstancesItem) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetStatus sets the value of Status.
-func (s *ItemFullInstancesItem) SetStatus(val ItemFullInstancesItemStatus) {
-	s.Status = val
-}
-
-// SetVariant sets the value of Variant.
-func (s *ItemFullInstancesItem) SetVariant(val ItemVariant) {
-	s.Variant = val
-}
-
-// SetCell sets the value of Cell.
-func (s *ItemFullInstancesItem) SetCell(val OptCellForInstance) {
-	s.Cell = val
-}
-
-type ItemFullInstancesItemStatus string
-
-const (
-	ItemFullInstancesItemStatusAvailable ItemFullInstancesItemStatus = "available"
-	ItemFullInstancesItemStatusReserved  ItemFullInstancesItemStatus = "reserved"
-	ItemFullInstancesItemStatusConsumed  ItemFullInstancesItemStatus = "consumed"
-)
-
-// AllValues returns all ItemFullInstancesItemStatus values.
-func (ItemFullInstancesItemStatus) AllValues() []ItemFullInstancesItemStatus {
-	return []ItemFullInstancesItemStatus{
-		ItemFullInstancesItemStatusAvailable,
-		ItemFullInstancesItemStatusReserved,
-		ItemFullInstancesItemStatusConsumed,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s ItemFullInstancesItemStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case ItemFullInstancesItemStatusAvailable:
-		return []byte(s), nil
-	case ItemFullInstancesItemStatusReserved:
-		return []byte(s), nil
-	case ItemFullInstancesItemStatusConsumed:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *ItemFullInstancesItemStatus) UnmarshalText(data []byte) error {
-	switch ItemFullInstancesItemStatus(data) {
-	case ItemFullInstancesItemStatusAvailable:
-		*s = ItemFullInstancesItemStatusAvailable
-		return nil
-	case ItemFullInstancesItemStatusReserved:
-		*s = ItemFullInstancesItemStatusReserved
-		return nil
-	case ItemFullInstancesItemStatusConsumed:
-		*s = ItemFullInstancesItemStatusConsumed
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
 }
 
 // Merged schema.
@@ -1977,98 +1989,6 @@ func (o NilUUID) Get() (v uuid.UUID, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilUUID) Or(d uuid.UUID) uuid.UUID {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptCellForInstance returns new OptCellForInstance with value set to v.
-func NewOptCellForInstance(v CellForInstance) OptCellForInstance {
-	return OptCellForInstance{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptCellForInstance is optional CellForInstance.
-type OptCellForInstance struct {
-	Value CellForInstance
-	Set   bool
-}
-
-// IsSet returns true if OptCellForInstance was set.
-func (o OptCellForInstance) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptCellForInstance) Reset() {
-	var v CellForInstance
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptCellForInstance) SetTo(v CellForInstance) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptCellForInstance) Get() (v CellForInstance, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptCellForInstance) Or(d CellForInstance) CellForInstance {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptCellForInstanceCellPathItemObjectType returns new OptCellForInstanceCellPathItemObjectType with value set to v.
-func NewOptCellForInstanceCellPathItemObjectType(v CellForInstanceCellPathItemObjectType) OptCellForInstanceCellPathItemObjectType {
-	return OptCellForInstanceCellPathItemObjectType{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptCellForInstanceCellPathItemObjectType is optional CellForInstanceCellPathItemObjectType.
-type OptCellForInstanceCellPathItemObjectType struct {
-	Value CellForInstanceCellPathItemObjectType
-	Set   bool
-}
-
-// IsSet returns true if OptCellForInstanceCellPathItemObjectType was set.
-func (o OptCellForInstanceCellPathItemObjectType) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptCellForInstanceCellPathItemObjectType) Reset() {
-	var v CellForInstanceCellPathItemObjectType
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptCellForInstanceCellPathItemObjectType) SetTo(v CellForInstanceCellPathItemObjectType) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptCellForInstanceCellPathItemObjectType) Get() (v CellForInstanceCellPathItemObjectType, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptCellForInstanceCellPathItemObjectType) Or(d CellForInstanceCellPathItemObjectType) CellForInstanceCellPathItemObjectType {
 	if v, ok := o.Get(); ok {
 		return v
 	}

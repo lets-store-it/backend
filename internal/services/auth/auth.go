@@ -284,6 +284,7 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 	token, err := s.queries.CreateApiToken(ctx, database.CreateApiTokenParams{
 		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
 		Token: uuid.New().String(),
+		Name:  name,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create API token: %w", err)
@@ -291,18 +292,18 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 	return tokenToModel(token), nil
 }
 
-func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, token string) error {
-	slog.Debug("service:auth:RevokeApiToken", "orgID", orgID, "token", token)
+func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
+	slog.Debug("service:auth:RevokeApiToken", "orgID", orgID, "id", id)
 	if orgID == uuid.Nil {
 		return ErrInvalidOrganization
 	}
-	if token == "" {
+	if id == uuid.Nil {
 		return ErrInvalidApiToken
 	}
 
 	err := s.queries.RevokeApiToken(ctx, database.RevokeApiTokenParams{
 		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		Token: token,
+		ID:    pgtype.UUID{Bytes: id, Valid: true},
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

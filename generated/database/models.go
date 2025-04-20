@@ -154,3 +154,25 @@ type StorageGroup struct {
 	CreatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
 }
+
+type Task struct {
+	ID               pgtype.UUID
+	OrgID            pgtype.UUID
+	UnitID           pgtype.UUID
+	Type             string
+	Name             string
+	Description      pgtype.Text
+	AssignedToUserID pgtype.UUID
+	AssignedAt       pgtype.Timestamp
+	CompletedAt      pgtype.Timestamp
+	CreatedAt        pgtype.Timestamp
+	DeletedAt        pgtype.Timestamp
+}
+
+type TaskItem struct {
+	TaskID            pgtype.UUID
+	ItemInstanceID    pgtype.UUID
+	Status            string
+	OriginCellID      pgtype.UUID
+	DestinationCellID pgtype.UUID
+}
