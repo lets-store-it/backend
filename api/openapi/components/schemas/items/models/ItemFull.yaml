@@ -29,5 +29,7 @@ allOf:
             cell:
               $ref: ../../cells-groups/models/CellForInstance.yaml
           required:
+            - id
             - variant
+            - status
             - instances

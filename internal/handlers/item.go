@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/usecases"
 )
 
-func convertItemToFullDTO(item *models.Item) *api.ItemFull {
+func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstance) *api.ItemFull {
 	var description api.NilString
 	if item.Description != nil {
 		description.SetTo(*item.Description)
@@ -37,11 +38,57 @@ func convertItemToFullDTO(item *models.Item) *api.ItemFull {
 			})
 		}
 	}
+
+	var instances []api.Instance
+	if itemInstances != nil {
+		for _, instance := range *itemInstances {
+			var cellPath []api.CellForInstanceCellPathItem
+			if instance.Cell != nil {
+				for _, pathItem := range instance.Cell.Path {
+					cellPath = append(cellPath, api.CellForInstanceCellPathItem{
+						ID:         pathItem.ID,
+						ObjectType: api.CellForInstanceCellPathItemObjectType(pathItem.ObjectType),
+						Alias:      pathItem.Alias,
+					})
+				}
+			}
+
+			var article api.NilString
+			if instance.Variant.Article != nil {
+				article.SetTo(*instance.Variant.Article)
+			} else {
+				article.SetToNull()
+			}
+
+			var ean13 api.NilInt
+			if instance.Variant.EAN13 != nil {
+				ean13.SetTo(*instance.Variant.EAN13)
+			} else {
+				ean13.SetToNull()
+			}
+
+			instances = append(instances, api.ItemFullInstancesItem{
+				ID:     instance.ID,
+				Status: api.ItemFullInstancesItemStatus(instance.Status),
+				Variant: api.ItemVariant{
+					ID:      instance.VariantID,
+					Name:    instance.Variant.Name,
+					Article: article,
+					Ean13:   ean13,
+				},
+				Cell: api.CellForInstance{
+					ID:   instance.Cell.ID,
+					Path: cellPath,
+				},
+			})
+		}
+	}
 	return &api.ItemFull{
 		ID:          item.ID,
 		Name:        item.Name,
 		Description: description,
 		Variants:    variants,
+		Instances:   instances,
 	}
 }
 
@@ -109,23 +156,51 @@ func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetI
 	}, nil
 }
 
-// GetItems implements api.Handler.
+// // GetItems implements api.Handler.
 func (h *RestApiImplementation) GetItems(ctx context.Context) (*api.GetItemsResponse, error) {
 	items, err := h.itemUseCase.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	dtoItems := make([]api.Item, 0, len(items))
+	dtoItems := make([]api.ItemForList, 0, len(items))
 	for _, item := range items {
+		if item.Variants == nil {
+			return nil, errors.New("variants are nil")
+		}
+
+		var variants []api.ItemVariant
+		for _, variant := range *item.Variants {
+			var article api.NilString
+			if variant.Article != nil {
+				article.SetTo(*variant.Article)
+			} else {
+				article.SetToNull()
+			}
+			var ean13 api.NilInt
+			if variant.EAN13 != nil {
+				ean13.SetTo(*variant.EAN13)
+			} else {
+				ean13.SetToNull()
+			}
+
+			variants = append(variants, api.ItemVariant{
+				ID:      variant.ID,
+				Name:    variant.Name,
+				Article: article,
+				Ean13:   ean13,
+			})
+		}
+
 		var description api.NilString
 		if item.Description != nil {
 			description.SetTo(*item.Description)
 		}
-		dtoItems = append(dtoItems, api.Item{
+		dtoItems = append(dtoItems, api.ItemForList{
 			ID:          item.ID,
 			Name:        item.Name,
 			Description: description,
+			Variants:    variants,
 		})
 	}
 

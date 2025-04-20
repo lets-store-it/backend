@@ -59,9 +59,10 @@ type Item struct {
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 
-	Variants  *[]ItemVariant `json:"variants"`
-	CreatedAt time.Time      `json:"created_at"`
-	DeletedAt *time.Time     `json:"deleted_at"`
+	Variants *[]ItemVariant `json:"variants"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type ItemVariant struct {
@@ -86,6 +87,20 @@ type CellsGroup struct {
 	Alias          string    `json:"alias"`
 }
 
+type CellPathObjectType string
+
+const (
+	CellPathObjectTypeCell         CellPathObjectType = "cell"
+	CellPathObjectTypeCellsGroup   CellPathObjectType = "cells_group"
+	CellPathObjectTypeStorageGroup CellPathObjectType = "storage_group"
+)
+
+type CellPath struct {
+	ID         uuid.UUID          `json:"id"`
+	ObjectType CellPathObjectType `json:"object_type"`
+	Alias      string             `json:"alias"`
+}
+
 type Cell struct {
 	ID           uuid.UUID `json:"id"`
 	OrgID        uuid.UUID `json:"org_id"`
@@ -94,6 +109,8 @@ type Cell struct {
 	Row          int       `json:"row"`
 	Level        int       `json:"level"`
 	Position     int       `json:"position"`
+
+	Path *[]CellPath `json:"path"`
 }
 
 type ObjectChangeAction string
@@ -144,6 +161,9 @@ type ItemInstance struct {
 	CellID                uuid.UUID          `json:"cell_id"`
 	Status                ItemInstanceStatus `json:"status"`
 	AffectedByOperationID uuid.UUID          `json:"affected_by_operation_id"`
+
+	Cell    *Cell        `json:"cell"`
+	Variant *ItemVariant `json:"variant"`
 }
 
 type ApiToken struct {
