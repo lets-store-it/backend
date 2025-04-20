@@ -1,0 +1,52 @@
+type: object
+properties:
+  id:
+    type: string
+    readOnly: true
+    format: uuid
+  name:
+    type: string
+  description:
+    type: string
+  status:
+    type: string
+    enum:
+      - pending
+      - in_progress
+      - completed
+      - failed
+  unitId:
+    type: string
+    format: uuid
+  # createdAt:
+  #   type: string
+  #   format: date-time
+  # assignedTo:
+  #   type: object
+  #   # ref: ../../users/User.yaml
+  #   properties:
+  #     id:
+  #       type: string
+  #       format: uuid
+  items:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        instance:
+          $ref: ../../instances/models/InstanceFull.yaml
+        targetCell:
+          $ref: ../../cells-groups/models/CellForInstance.yaml
+      required:
+        - instance
+        - id
+required:
+  - name
+  - type
+  - unitId
+  - assignedTo
+  - items

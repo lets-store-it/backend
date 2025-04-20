@@ -1,0 +1,6 @@
+type: object
+properties:
+  data:
+    $ref: models/TaskFull.yaml
+required:
+  - data
