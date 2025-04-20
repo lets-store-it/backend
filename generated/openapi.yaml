@@ -1329,6 +1329,45 @@ components:
           required:
             - article
             - ean13
+    ItemForList:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            variants:
+              type: array
+              items:
+                $ref: '#/components/schemas/ItemVariant'
+          required:
+            - variants
+    GetItemsResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ItemForList'
+          required:
+            - data
+    ItemCreate:
+      allOf:
+        - $ref: '#/components/schemas/ItemBase'
+        - type: object
+          properties:
+            variants:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/ItemVariantBase'
+      required:
+        - variants
+    CreateItemRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ItemCreate'
     CellBase:
       type: object
       properties:
@@ -1403,35 +1442,10 @@ components:
                   cell:
                     $ref: '#/components/schemas/CellForInstance'
                 required:
+                  - id
                   - variant
+                  - status
                   - instances
-    GetItemsResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemFull'
-          required:
-            - data
-    ItemCreate:
-      allOf:
-        - $ref: '#/components/schemas/ItemBase'
-        - type: object
-          properties:
-            variants:
-              type: array
-              minItems: 1
-              items:
-                $ref: '#/components/schemas/ItemVariantBase'
-      required:
-        - variants
-    CreateItemRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ItemCreate'
     CreateItemResponse:
       type: object
       allOf:

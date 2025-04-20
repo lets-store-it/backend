@@ -16,6 +16,52 @@ type RestApiImplementation struct {
 	authUseCase         *usecases.AuthUseCase
 }
 
+// CreateApiToken implements api.Handler.
+func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.CreateApiTokenRequest) (*api.CreateApiTokenResponse, error) {
+	panic("unimplemented")
+}
+
+// CreateInstanceForItem implements api.Handler.
+func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (*api.CreateInstanceForItemResponse, error) {
+	panic("unimplemented")
+}
+
+// DeleteInstanceById implements api.Handler.
+func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) error {
+	panic("unimplemented")
+}
+
+// GetApiTokens implements api.Handler.
+func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (*api.GetApiTokensResponse, error) {
+	panic("unimplemented")
+}
+
+// GetInstances implements api.Handler.
+func (h *RestApiImplementation) GetInstances(ctx context.Context) (*api.GetInstancesResponse, error) {
+	panic("unimplemented")
+}
+
+// GetInstancesByItemId implements api.Handler.
+func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (*api.GetInstancesByItemIdResponse, error) {
+	panic("unimplemented")
+}
+
+
+// PatchCurrentUser implements api.Handler.
+func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (*api.GetCurrentUserResponse, error) {
+	panic("unimplemented")
+}
+
+// PutCurrentUser implements api.Handler.
+func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.UpdateCurrentUserRequest) (*api.GetCurrentUserResponse, error) {
+	panic("unimplemented")
+}
+
+// RevokeApiToken implements api.Handler.
+func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.RevokeApiTokenParams) error {
+	panic("unimplemented")
+}
+
 func NewRestApiImplementation(
 	orgUseCase *usecases.OrganizationUseCase,
 	orgUnitUseCase *usecases.OrganizationUnitUseCase,

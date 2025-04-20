@@ -1237,16 +1237,16 @@ func (s *GetItemByIdResponse) SetData(val ItemFull) {
 
 // Ref: #/components/schemas/GetItemsResponse
 type GetItemsResponse struct {
-	Data []ItemFull `json:"data"`
+	Data []ItemForList `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetItemsResponse) GetData() []ItemFull {
+func (s *GetItemsResponse) GetData() []ItemForList {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetItemsResponse) SetData(val []ItemFull) {
+func (s *GetItemsResponse) SetData(val []ItemForList) {
 	s.Data = val
 }
 
@@ -1490,6 +1490,57 @@ func (s *Item) SetDescription(val NilString) {
 }
 
 // Merged schema.
+// Ref: #/components/schemas/ItemForList
+type ItemForList struct {
+	// Merged property.
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	// Merged property.
+	Description NilString     `json:"description"`
+	Variants    []ItemVariant `json:"variants"`
+}
+
+// GetID returns the value of ID.
+func (s *ItemForList) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ItemForList) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *ItemForList) GetDescription() NilString {
+	return s.Description
+}
+
+// GetVariants returns the value of Variants.
+func (s *ItemForList) GetVariants() []ItemVariant {
+	return s.Variants
+}
+
+// SetID sets the value of ID.
+func (s *ItemForList) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ItemForList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *ItemForList) SetDescription(val NilString) {
+	s.Description = val
+}
+
+// SetVariants sets the value of Variants.
+func (s *ItemForList) SetVariants(val []ItemVariant) {
+	s.Variants = val
+}
+
+// Merged schema.
 // Ref: #/components/schemas/ItemFull
 type ItemFull struct {
 	// Merged property.
@@ -1552,19 +1603,19 @@ func (s *ItemFull) SetInstances(val []ItemFullInstancesItem) {
 }
 
 type ItemFullInstancesItem struct {
-	ID      OptUUID                        `json:"id"`
-	Status  OptItemFullInstancesItemStatus `json:"status"`
-	Variant ItemVariant                    `json:"variant"`
-	Cell    OptCellForInstance             `json:"cell"`
+	ID      uuid.UUID                   `json:"id"`
+	Status  ItemFullInstancesItemStatus `json:"status"`
+	Variant ItemVariant                 `json:"variant"`
+	Cell    OptCellForInstance          `json:"cell"`
 }
 
 // GetID returns the value of ID.
-func (s *ItemFullInstancesItem) GetID() OptUUID {
+func (s *ItemFullInstancesItem) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetStatus returns the value of Status.
-func (s *ItemFullInstancesItem) GetStatus() OptItemFullInstancesItemStatus {
+func (s *ItemFullInstancesItem) GetStatus() ItemFullInstancesItemStatus {
 	return s.Status
 }
 
@@ -1579,12 +1630,12 @@ func (s *ItemFullInstancesItem) GetCell() OptCellForInstance {
 }
 
 // SetID sets the value of ID.
-func (s *ItemFullInstancesItem) SetID(val OptUUID) {
+func (s *ItemFullInstancesItem) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetStatus sets the value of Status.
-func (s *ItemFullInstancesItem) SetStatus(val OptItemFullInstancesItemStatus) {
+func (s *ItemFullInstancesItem) SetStatus(val ItemFullInstancesItemStatus) {
 	s.Status = val
 }
 
@@ -2110,52 +2161,6 @@ func (o OptItem) Get() (v Item, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptItem) Or(d Item) Item {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptItemFullInstancesItemStatus returns new OptItemFullInstancesItemStatus with value set to v.
-func NewOptItemFullInstancesItemStatus(v ItemFullInstancesItemStatus) OptItemFullInstancesItemStatus {
-	return OptItemFullInstancesItemStatus{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptItemFullInstancesItemStatus is optional ItemFullInstancesItemStatus.
-type OptItemFullInstancesItemStatus struct {
-	Value ItemFullInstancesItemStatus
-	Set   bool
-}
-
-// IsSet returns true if OptItemFullInstancesItemStatus was set.
-func (o OptItemFullInstancesItemStatus) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptItemFullInstancesItemStatus) Reset() {
-	var v ItemFullInstancesItemStatus
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptItemFullInstancesItemStatus) SetTo(v ItemFullInstancesItemStatus) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptItemFullInstancesItemStatus) Get() (v ItemFullInstancesItemStatus, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptItemFullInstancesItemStatus) Or(d ItemFullInstancesItemStatus) ItemFullInstancesItemStatus {
 	if v, ok := o.Get(); ok {
 		return v
 	}

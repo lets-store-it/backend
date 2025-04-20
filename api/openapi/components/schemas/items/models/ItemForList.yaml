@@ -1,10 +1,11 @@
 type: object
 allOf:
+  - $ref: ./Item.yaml
   - type: object
     properties:
-      data:
+      variants:
         type: array
         items:
-          $ref: ./models/ItemForList.yaml
+          $ref: ./ItemVariant.yaml
     required:
-      - data
+      - variants
