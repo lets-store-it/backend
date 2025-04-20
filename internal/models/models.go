@@ -53,13 +53,20 @@ type StorageGroup struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
+type CellPathItem struct {
+	ID         uuid.UUID          `json:"id"`
+	Alias      string             `json:"alias"`
+	ObjectType CellPathObjectType `json:"object_type"`
+}
+
 type Item struct {
 	ID          uuid.UUID `json:"id"`
 	OrgID       uuid.UUID `json:"org_id"`
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 
-	Variants *[]ItemVariant `json:"variants"`
+	Variants  *[]ItemVariant  `json:"variants"`
+	Instances *[]ItemInstance `json:"instances"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
@@ -161,6 +168,7 @@ type ItemInstance struct {
 	CellID                uuid.UUID          `json:"cell_id"`
 	Status                ItemInstanceStatus `json:"status"`
 	AffectedByOperationID uuid.UUID          `json:"affected_by_operation_id"`
+	CellPath              []CellPathItem     `json:"cell_path"`
 
 	Cell    *Cell        `json:"cell"`
 	Variant *ItemVariant `json:"variant"`
