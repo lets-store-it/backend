@@ -135,7 +135,7 @@ UPDATE cells_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id =
 SELECT * FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND deleted_at IS NULL;
 
 -- name: GetCell :one
-SELECT * FROM cell WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL;
+SELECT * FROM cell WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 
 -- name: CreateCell :one
 INSERT INTO cell (org_id, cells_group_id, alias, row, level, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
@@ -145,6 +145,61 @@ UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $
 
 -- name: DeleteCell :exec
 UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3;
+
+-- name: GetCellPath :many
+WITH RECURSIVE path AS (
+  -- cells_group
+  SELECT
+    cg.id,
+    'cells_group'    AS type,
+    cg.alias,
+    cg.storage_group_id  AS parent_group_id,
+    NULL::UUID           AS unit_id,
+    1                AS lvl
+  FROM cell c
+  JOIN cells_group cg
+    ON c.cells_group_id = cg.id
+   AND c.org_id         = cg.org_id
+  WHERE c.org_id    = $1
+    AND c.id        = $2
+
+  UNION ALL
+
+  -- climb up the storage_group parent chain
+  SELECT
+    sg.id,
+    'storage_group'  AS type,
+    sg.alias,
+    sg.parent_id    AS parent_group_id,
+    sg.unit_id,
+    p.lvl + 1        AS lvl
+  FROM path p
+  JOIN storage_group sg
+    ON sg.id         = p.parent_group_id
+   AND sg.org_id     = $1
+)
+
+-- union in the org_unit at the very end
+SELECT id, type, alias
+FROM (
+  -- all cells_group + storage_group entries
+  SELECT id, type, alias, lvl
+  FROM path
+
+  UNION ALL
+
+  -- the unit (only once, at level = deepest lvl + 1)
+  SELECT
+    ou.id,
+    'unit'          AS type,
+    ou.alias,
+    MAX(p.lvl) + 1  AS lvl
+  FROM path p
+  JOIN org_unit ou ON
+      ou.org_id   = $1
+  GROUP BY ou.id, ou.alias
+) t
+ORDER BY lvl;
 
 
 -- Audit Log
