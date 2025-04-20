@@ -1,0 +1,35 @@
+get:
+  tags:
+    - tasks
+  summary: Get all tasks
+  operationId: getTasks
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tasks/GetTasksResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+
+post:
+  tags:
+    - tasks
+  summary: Create a task
+  operationId: createTask
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/tasks/CreateTaskRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tasks/CreateTaskResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
