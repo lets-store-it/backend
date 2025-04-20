@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/models"
 )
 
 func convertToDTO(org *models.Organization) *api.Organization {

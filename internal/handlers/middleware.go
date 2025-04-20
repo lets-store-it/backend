@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/usecases"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 func WithOrganizationID(next http.Handler) http.Handler {

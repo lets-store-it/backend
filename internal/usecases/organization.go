@@ -7,17 +7,19 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/audit"
+	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/organization"
 )
 
 type OrganizationUseCase struct {
-	service      *services.OrganizationService
-	authService  *services.AuthService
-	auditService *services.AuditService
+	service      *organization.OrganizationService
+	authService  *auth.AuthService
+	auditService *audit.AuditService
 }
 
-func NewOrganizationUseCase(service *services.OrganizationService, authService *services.AuthService, auditService *services.AuditService) *OrganizationUseCase {
+func NewOrganizationUseCase(service *organization.OrganizationService, authService *auth.AuthService, auditService *audit.AuditService) *OrganizationUseCase {
 	return &OrganizationUseCase{
 		service:      service,
 		authService:  authService,
@@ -36,7 +38,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	err = uc.authService.AssignRoleToUser(ctx, org.ID, userID, services.RoleOwner)
+	err = uc.authService.AssignRoleToUser(ctx, org.ID, userID, auth.RoleOwner)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +90,7 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return errors.New("no permissions to delete organization")
 	}
 
-	if _, ok := roles[services.RoleOwner]; !ok {
+	if _, ok := roles[auth.RoleOwner]; !ok {
 		return errors.New("no permissions to delete organization")
 	}
 
@@ -131,7 +133,7 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 		return nil, err
 	}
 
-	if _, ok := roles[services.RoleOwner]; !ok {
+	if _, ok := roles[auth.RoleOwner]; !ok {
 		return nil, errors.New("no permissions to update organization")
 	}
 	org, err = uc.service.GetByID(ctx, org.ID)
@@ -179,7 +181,7 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		return nil, err
 	}
 
-	if _, ok := roles[services.RoleOwner]; !ok {
+	if _, ok := roles[auth.RoleOwner]; !ok {
 		return nil, errors.New("no permissions to update organization")
 	}
 

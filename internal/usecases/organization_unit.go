@@ -5,16 +5,16 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/organization"
 )
 
 type OrganizationUnitUseCase struct {
-	orgService  *services.OrganizationService
+	orgService  *organization.OrganizationService
 	authUseCase *AuthUseCase
 }
 
-func NewOrganizationUnitUseCase(orgService *services.OrganizationService, authUseCase *AuthUseCase) *OrganizationUnitUseCase {
+func NewOrganizationUnitUseCase(orgService *organization.OrganizationService, authUseCase *AuthUseCase) *OrganizationUnitUseCase {
 	return &OrganizationUnitUseCase{
 		authUseCase: authUseCase,
 		orgService:  orgService,

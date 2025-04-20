@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/item"
 )
 
 type ItemUseCase struct {
-	service *services.ItemService
+	service *item.ItemService
 }
 
 func (uc *ItemUseCase) validateOrganizationAccess(ctx context.Context, itemID uuid.UUID) (uuid.UUID, error) {
@@ -25,14 +25,14 @@ func (uc *ItemUseCase) validateOrganizationAccess(ctx context.Context, itemID uu
 			return uuid.Nil, fmt.Errorf("failed to check item ownership: %w", err)
 		}
 		if !exists {
-			return uuid.Nil, services.ErrItemNotFound
+			return uuid.Nil, item.ErrItemNotFound
 		}
 	}
 
 	return orgID, nil
 }
 
-func NewItemUseCase(service *services.ItemService) *ItemUseCase {
+func NewItemUseCase(service *item.ItemService) *ItemUseCase {
 	return &ItemUseCase{service}
 }
 

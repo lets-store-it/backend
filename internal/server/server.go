@@ -9,11 +9,15 @@ import (
 	"github.com/let-store-it/backend/config"
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/generated/database"
-	"github.com/let-store-it/backend/internal/storeit/handlers"
-	"github.com/let-store-it/backend/internal/storeit/services"
-	"github.com/let-store-it/backend/internal/storeit/services/yandex"
-	"github.com/let-store-it/backend/internal/storeit/telemetry"
-	"github.com/let-store-it/backend/internal/storeit/usecases"
+	"github.com/let-store-it/backend/internal/handlers"
+	"github.com/let-store-it/backend/internal/services/audit"
+	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/item"
+	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/services/storage"
+	"github.com/let-store-it/backend/internal/services/yandex"
+	"github.com/let-store-it/backend/internal/telemetry"
+	"github.com/let-store-it/backend/internal/usecases"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -26,7 +30,6 @@ type Server struct {
 // New creates and configures a new server instance
 func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Server, error) {
 	// Initialize telemetry
-
 	if err := telemetry.InitTelemetry(context.Background()); err != nil {
 		return nil, err
 	}
@@ -37,14 +40,12 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	e.Use(middleware.CORS())
 
 	// Initialize services
-
-	auditService := services.NewAuditService(queries)
-
-	itemService := services.NewItemService(queries, pool)
-	authService := services.NewAuthService(queries, pool)
+	auditService := audit.New(queries)
+	itemService := item.New(queries, pool)
+	authService := auth.New(queries, pool)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
-	orgService := services.NewOrganizationService(queries, pool)
-	storageGroupService := services.NewStorageService(queries)
+	orgService := organization.New(queries, pool)
+	storageGroupService := storage.New(queries)
 
 	// Initialize use cases
 	itemUseCase := usecases.NewItemUseCase(itemService)

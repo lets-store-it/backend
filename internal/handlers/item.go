@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/usecases"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 func convertItemToFullDTO(item *models.Item) *api.ItemFull {

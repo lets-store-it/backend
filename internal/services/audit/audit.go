@@ -1,23 +1,45 @@
-package services
+package audit
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/let-store-it/backend/generated/database"
-	"github.com/let-store-it/backend/internal/storeit/models"
+	"github.com/let-store-it/backend/internal/models"
+)
+
+var (
+	ErrInvalidObjectChange = errors.New("invalid object change")
+	ErrInvalidOrganization = errors.New("invalid organization")
+	ErrInvalidUser         = errors.New("invalid user")
+	ErrInvalidTargetObject = errors.New("invalid target object")
 )
 
 type AuditService struct {
 	queries *database.Queries
 }
 
-func NewAuditService(queries *database.Queries) *AuditService {
+func New(queries *database.Queries) *AuditService {
 	return &AuditService{queries: queries}
 }
 
 func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
+	if objectChange == nil {
+		return ErrInvalidObjectChange
+	}
+	if objectChange.OrgID == uuid.Nil {
+		return ErrInvalidOrganization
+	}
+	if objectChange.UserID == uuid.Nil {
+		return ErrInvalidUser
+	}
+	if objectChange.TargetObjectID == uuid.Nil {
+		return ErrInvalidTargetObject
+	}
+
 	_, err := s.queries.CreateObjectChange(ctx, database.CreateObjectChangeParams{
 		OrgID:            pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
 		UserID:           pgtype.UUID{Bytes: objectChange.UserID, Valid: true},
@@ -28,19 +50,26 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		PostchangeState:  objectChange.PostchangeState,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create object change: %w", err)
 	}
 	return nil
 }
 
 func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectType models.ObjectType, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
+	if orgID == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+	if targetObjectID == uuid.Nil {
+		return nil, ErrInvalidTargetObject
+	}
+
 	objectChanges, err := s.queries.GetObjectChanges(ctx, database.GetObjectChangesParams{
 		OrgID:            pgtype.UUID{Bytes: orgID, Valid: true},
 		TargetObjectType: int32(targetObjectType),
 		TargetObjectID:   pgtype.UUID{Bytes: targetObjectID, Valid: true},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get object changes: %w", err)
 	}
 
 	objectChangesModels := make([]*models.ObjectChange, len(objectChanges))

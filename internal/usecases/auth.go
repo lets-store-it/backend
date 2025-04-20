@@ -6,17 +6,17 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/services"
-	"github.com/let-store-it/backend/internal/storeit/services/yandex"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/yandex"
 )
 
 type AuthUseCase struct {
-	authService        *services.AuthService
+	authService        *auth.AuthService
 	yandexOAuthService *yandex.YandexOAuthService
 }
 
-func NewAuthUseCase(authService *services.AuthService, yandexOAuthService *yandex.YandexOAuthService) *AuthUseCase {
+func NewAuthUseCase(authService *auth.AuthService, yandexOAuthService *yandex.YandexOAuthService) *AuthUseCase {
 	return &AuthUseCase{authService: authService, yandexOAuthService: yandexOAuthService}
 }
 
@@ -60,7 +60,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 
 	user, err := u.authService.GetUserByEmail(ctx, userInfo.DefaultEmail)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, auth.ErrUserNotFound) {
 			user = &models.User{
 				Email:     userInfo.DefaultEmail,
 				FirstName: userInfo.FirstName,
@@ -98,7 +98,7 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
 	}
-	if _, ok := roles[services.RoleOwner]; !ok {
+	if _, ok := roles[auth.RoleOwner]; !ok {
 		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
 	}
 
