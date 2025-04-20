@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/internal/storeit/usecases"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type RestApiImplementation struct {

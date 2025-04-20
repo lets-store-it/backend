@@ -5,17 +5,19 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/internal/storeit/models"
-	"github.com/let-store-it/backend/internal/storeit/services"
+	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/services/storage"
 )
 
 type StorageUseCase struct {
-	service     *services.StorageService
-	orgService  *services.OrganizationService
-	authService *services.AuthService
+	service     *storage.StorageService
+	orgService  *organization.OrganizationService
+	authService *auth.AuthService
 }
 
-func NewStorageUseCase(service *services.StorageService, orgService *services.OrganizationService, authService *services.AuthService) *StorageUseCase {
+func NewStorageUseCase(service *storage.StorageService, orgService *organization.OrganizationService, authService *auth.AuthService) *StorageUseCase {
 	return &StorageUseCase{
 		authService: authService,
 		service:     service,
@@ -37,7 +39,7 @@ func (uc *StorageUseCase) validateOrganizationAccess(ctx context.Context) (uuid.
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
 	}
-	if _, ok := roles[services.RoleOwner]; !ok {
+	if _, ok := roles[auth.RoleOwner]; !ok {
 		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
 	}
 

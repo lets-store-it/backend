@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/let-store-it/backend/config"
-	dbLayer "github.com/let-store-it/backend/internal/storeit/database"
-	"github.com/let-store-it/backend/internal/storeit/server"
+	dbLayer "github.com/let-store-it/backend/internal/database"
+	"github.com/let-store-it/backend/internal/server"
 )
 
 func main() {
