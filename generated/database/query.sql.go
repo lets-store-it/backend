@@ -147,16 +147,15 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 }
 
 const createItemInstance = `-- name: CreateItemInstance :one
-INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status, affected_by_operation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at
+INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at
 `
 
 type CreateItemInstanceParams struct {
-	OrgID                 pgtype.UUID
-	ItemID                pgtype.UUID
-	VariantID             pgtype.UUID
-	CellID                pgtype.UUID
-	Status                string
-	AffectedByOperationID pgtype.UUID
+	OrgID     pgtype.UUID
+	ItemID    pgtype.UUID
+	VariantID pgtype.UUID
+	CellID    pgtype.UUID
+	Status    string
 }
 
 // Item Instances
@@ -167,7 +166,6 @@ func (q *Queries) CreateItemInstance(ctx context.Context, arg CreateItemInstance
 		arg.VariantID,
 		arg.CellID,
 		arg.Status,
-		arg.AffectedByOperationID,
 	)
 	var i ItemInstance
 	err := row.Scan(
@@ -177,7 +175,6 @@ func (q *Queries) CreateItemInstance(ctx context.Context, arg CreateItemInstance
 		&i.VariantID,
 		&i.CellID,
 		&i.Status,
-		&i.AffectedByOperationID,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -681,7 +678,7 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 }
 
 const getItemInstancesForCell = `-- name: GetItemInstancesForCell :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
 `
 
 type GetItemInstancesForCellParams struct {
@@ -705,7 +702,6 @@ func (q *Queries) GetItemInstancesForCell(ctx context.Context, arg GetItemInstan
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
-			&i.AffectedByOperationID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -720,7 +716,7 @@ func (q *Queries) GetItemInstancesForCell(ctx context.Context, arg GetItemInstan
 }
 
 const getItemInstancesForCellsGroup = `-- name: GetItemInstancesForCellsGroup :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL
 `
 
 type GetItemInstancesForCellsGroupParams struct {
@@ -744,7 +740,6 @@ func (q *Queries) GetItemInstancesForCellsGroup(ctx context.Context, arg GetItem
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
-			&i.AffectedByOperationID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -759,7 +754,7 @@ func (q *Queries) GetItemInstancesForCellsGroup(ctx context.Context, arg GetItem
 }
 
 const getItemInstancesForItem = `-- name: GetItemInstancesForItem :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_operation_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
 `
 
 type GetItemInstancesForItemParams struct {
@@ -783,7 +778,6 @@ func (q *Queries) GetItemInstancesForItem(ctx context.Context, arg GetItemInstan
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
-			&i.AffectedByOperationID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {

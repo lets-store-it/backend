@@ -157,7 +157,7 @@ SELECT * FROM app_object_changes WHERE org_id = $1 AND target_object_type = $2 A
 
 -- Item Instances
 -- name: CreateItemInstance :one
-INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status, affected_by_operation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: GetItemInstancesForItem :many
 SELECT * FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL;

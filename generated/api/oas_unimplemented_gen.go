@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateApiToken implements createApiToken operation.
+//
+// Create Service API Token.
+//
+// POST /api-tokens
+func (UnimplementedHandler) CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (r *CreateApiTokenResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateCell implements createCell operation.
 //
 // Create Cells.
@@ -28,6 +37,15 @@ func (UnimplementedHandler) CreateCell(ctx context.Context, req *CreateCellReque
 //
 // POST /cells-groups
 func (UnimplementedHandler) CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (r *CreateCellsGroupResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateInstanceForItem implements createInstanceForItem operation.
+//
+// Create Instance For Item.
+//
+// POST /items/{itemId}/instances
+func (UnimplementedHandler) CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (r *CreateInstanceForItemResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -85,6 +103,15 @@ func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteC
 	return ht.ErrNotImplemented
 }
 
+// DeleteInstanceById implements deleteInstanceById operation.
+//
+// Delete Instance by ID.
+//
+// DELETE /instances/{instanceId}
+func (UnimplementedHandler) DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error {
+	return ht.ErrNotImplemented
+}
+
 // DeleteItem implements deleteItem operation.
 //
 // Delete Item.
@@ -130,6 +157,15 @@ func (UnimplementedHandler) ExchangeYandexAccessToken(ctx context.Context, req *
 	return r, ht.ErrNotImplemented
 }
 
+// GetApiTokens implements getApiTokens operation.
+//
+// Get list of Service API Tokens.
+//
+// GET /api-tokens
+func (UnimplementedHandler) GetApiTokens(ctx context.Context) (r *GetApiTokensResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetCellById implements getCellById operation.
 //
 // Get Cell by ID.
@@ -172,6 +208,24 @@ func (UnimplementedHandler) GetCellsGroups(ctx context.Context) (r *GetCellsGrou
 //
 // GET /me
 func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r *GetCurrentUserResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetInstances implements getInstances operation.
+//
+// Get list of Instances.
+//
+// GET /instances
+func (UnimplementedHandler) GetInstances(ctx context.Context) (r *GetInstancesResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetInstancesByItemId implements getInstancesByItemId operation.
+//
+// Get list of Instances For Item.
+//
+// GET /items/{itemId}/instances
+func (UnimplementedHandler) GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (r *GetInstancesByItemIdResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -274,6 +328,15 @@ func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCells
 	return r, ht.ErrNotImplemented
 }
 
+// PatchCurrentUser implements patchCurrentUser operation.
+//
+// Update Current User.
+//
+// PATCH /me
+func (UnimplementedHandler) PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (r *GetCurrentUserResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // PatchItem implements patchItem operation.
 //
 // Patch Item.
@@ -308,6 +371,24 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 // PATCH /storage-groups/{id}
 func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
 	return r, ht.ErrNotImplemented
+}
+
+// PutCurrentUser implements putCurrentUser operation.
+//
+// Update Current User.
+//
+// PUT /me
+func (UnimplementedHandler) PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (r *GetCurrentUserResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RevokeApiToken implements revokeApiToken operation.
+//
+// Revoke Service API Token.
+//
+// DELETE /api-tokens/{id}
+func (UnimplementedHandler) RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error {
+	return ht.ErrNotImplemented
 }
 
 // UpdateCell implements updateCell operation.

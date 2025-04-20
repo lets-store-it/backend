@@ -5,6 +5,6 @@ allOf:
       data:
         type: array
         items:
-          $ref: ./models/Item.yaml
+          $ref: ./models/ItemFull.yaml
     required:
       - data

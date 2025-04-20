@@ -489,7 +489,7 @@ paths:
   /me:
     get:
       tags:
-        - unit
+        - user
       summary: Get Current User
       operationId: getCurrentUser
       responses:
@@ -503,7 +503,7 @@ paths:
           $ref: '#/components/responses/default-error'
     patch:
       tags:
-        - unit
+        - user
       summary: Update Current User
       operationId: patchCurrentUser
       requestBody:
@@ -539,6 +539,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
+        default:
+          $ref: '#/components/responses/default-error'
   /cells-groups:
     get:
       tags:
@@ -839,6 +841,59 @@ paths:
         - instance
       summary: Delete Instance by ID
       operationId: deleteInstanceById
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          $ref: '#/components/responses/default-error'
+  /api-tokens:
+    get:
+      tags:
+        - auth
+      summary: Get list of Service API Tokens
+      operationId: getApiTokens
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetApiTokensResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - auth
+      summary: Create Service API Token
+      operationId: createApiToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiTokenRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateApiTokenResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /api-tokens/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - auth
+      summary: Revoke Service API Token
+      operationId: revokeApiToken
       responses:
         '200':
           description: Successful operation
@@ -1233,17 +1288,6 @@ components:
           required:
             - description
             - id
-    GetItemsResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Item'
-          required:
-            - data
     ItemVariantBase:
       type: object
       properties:
@@ -1260,22 +1304,6 @@ components:
           example: 1234567890123
       required:
         - name
-    ItemCreate:
-      allOf:
-        - $ref: '#/components/schemas/ItemBase'
-        - type: object
-          properties:
-            variants:
-              type: array
-              minItems: 1
-              items:
-                $ref: '#/components/schemas/ItemVariantBase'
-      required:
-        - variants
-    CreateItemRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ItemCreate'
     ItemVariant:
       type: object
       allOf:
@@ -1374,9 +1402,36 @@ components:
                     $ref: '#/components/schemas/ItemVariant'
                   cell:
                     $ref: '#/components/schemas/CellForInstance'
+                required:
+                  - variant
+                  - instances
+    GetItemsResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ItemFull'
           required:
-            - variants
-            - instances
+            - data
+    ItemCreate:
+      allOf:
+        - $ref: '#/components/schemas/ItemBase'
+        - type: object
+          properties:
+            variants:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/ItemVariantBase'
+      required:
+        - variants
+    CreateItemRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ItemCreate'
     CreateItemResponse:
       type: object
       allOf:
@@ -1690,12 +1745,12 @@ components:
             $ref: '#/components/schemas/ItemVariant'
           cell:
             $ref: '#/components/schemas/CellForInstance'
-      required:
-        - id
-        - itemId
-        - status
-        - variant
-        - cell
+        required:
+          - id
+          - itemId
+          - status
+          - variant
+          - cell
     GetInstancesResponse:
       type: object
       properties:
@@ -1723,11 +1778,11 @@ components:
             $ref: '#/components/schemas/ItemVariant'
           cell:
             $ref: '#/components/schemas/CellForInstance'
-      required:
-        - id
-        - status
-        - variant
-        - cell
+        required:
+          - id
+          - status
+          - variant
+          - cell
     GetInstancesByItemIdResponse:
       type: object
       properties:
@@ -1761,6 +1816,50 @@ components:
           items:
             allOf:
               - $ref: '#/components/schemas/InstanceForItem'
+      required:
+        - data
+    Token:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: The name of the token
+        token:
+          type: string
+          description: The token secret
+      required:
+        - id
+        - name
+        - token
+    GetApiTokensResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+      required:
+        - data
+    TokenCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the token
+      required:
+        - name
+    CreateApiTokenRequest:
+      allOf:
+        - $ref: '#/components/schemas/TokenCreate'
+    CreateApiTokenResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Token'
       required:
         - data
   responses:

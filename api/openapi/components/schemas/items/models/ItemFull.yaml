@@ -28,6 +28,6 @@ allOf:
               $ref: ./ItemVariant.yaml
             cell:
               $ref: ../../cells-groups/models/CellForInstance.yaml
-    required:
-      - variants
-      - instances
+          required:
+            - variant
+            - instances
