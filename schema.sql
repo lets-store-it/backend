@@ -144,8 +144,7 @@ CREATE TABLE task (
 CREATE TABLE task_item (
     task_id UUID NOT NULL REFERENCES task(id),
     item_instance_id UUID NOT NULL REFERENCES item_instance(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'returned')),
-    origin_cell_id UUID REFERENCES cell(id),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')),
     destination_cell_id UUID REFERENCES cell(id)
 );
 

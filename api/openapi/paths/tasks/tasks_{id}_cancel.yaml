@@ -1,0 +1,17 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+post:
+  tags:
+    - tasks
+  summary: Cancel task
+  operationId: cancelTask
+  responses:
+    "201":
+      description: Successful operation
+    default:
+      $ref: ../../components/responses/default-error.yaml

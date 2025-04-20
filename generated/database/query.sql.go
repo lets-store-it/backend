@@ -344,6 +344,44 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 	return i, err
 }
 
+const createTask = `-- name: CreateTask :one
+INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, type, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
+`
+
+type CreateTaskParams struct {
+	OrgID       pgtype.UUID
+	UnitID      pgtype.UUID
+	Type        string
+	Name        string
+	Description pgtype.Text
+}
+
+// Tasks
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
+	row := q.db.QueryRow(ctx, createTask,
+		arg.OrgID,
+		arg.UnitID,
+		arg.Type,
+		arg.Name,
+		arg.Description,
+	)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Type,
+		&i.Name,
+		&i.Description,
+		&i.AssignedToUserID,
+		&i.AssignedAt,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, middle_name, yandex_id, created_at
 `

@@ -173,6 +173,5 @@ type TaskItem struct {
 	TaskID            pgtype.UUID
 	ItemInstanceID    pgtype.UUID
 	Status            string
-	OriginCellID      pgtype.UUID
 	DestinationCellID pgtype.UUID
 }
