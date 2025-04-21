@@ -24,6 +24,7 @@ const (
 	DeleteStorageGroupOperation        OperationName = "DeleteStorageGroup"
 	ExchangeYandexAccessTokenOperation OperationName = "ExchangeYandexAccessToken"
 	GetApiTokensOperation              OperationName = "GetApiTokens"
+	GetAuditLogsOperation              OperationName = "GetAuditLogs"
 	GetCellByIdOperation               OperationName = "GetCellById"
 	GetCellsOperation                  OperationName = "GetCells"
 	GetCellsGroupByIdOperation         OperationName = "GetCellsGroupById"

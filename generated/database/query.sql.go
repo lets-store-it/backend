@@ -217,7 +217,7 @@ func (q *Queries) CreateItemVariant(ctx context.Context, arg CreateItemVariantPa
 }
 
 const createObjectChange = `-- name: CreateObjectChange :one
-INSERT INTO app_object_changes (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state
+INSERT INTO app_object_change (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state
 `
 
 type CreateObjectChangeParams struct {
@@ -1082,7 +1082,7 @@ func (q *Queries) GetItems(ctx context.Context, orgID pgtype.UUID) ([]Item, erro
 }
 
 const getObjectChanges = `-- name: GetObjectChanges :many
-SELECT id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state FROM app_object_changes WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL
+SELECT id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL
 `
 
 type GetObjectChangesParams struct {
@@ -1119,6 +1119,17 @@ func (q *Queries) GetObjectChanges(ctx context.Context, arg GetObjectChangesPara
 		return nil, err
 	}
 	return items, nil
+}
+
+const getObjectType = `-- name: GetObjectType :one
+SELECT id, object_group, object_name FROM object_type WHERE id = $1
+`
+
+func (q *Queries) GetObjectType(ctx context.Context, id int32) (ObjectType, error) {
+	row := q.db.QueryRow(ctx, getObjectType, id)
+	var i ObjectType
+	err := row.Scan(&i.ID, &i.ObjectGroup, &i.ObjectName)
+	return i, err
 }
 
 const getOrg = `-- name: GetOrg :one

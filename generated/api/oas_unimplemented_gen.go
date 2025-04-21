@@ -175,6 +175,15 @@ func (UnimplementedHandler) GetApiTokens(ctx context.Context) (r *GetApiTokensRe
 	return r, ht.ErrNotImplemented
 }
 
+// GetAuditLogs implements getAuditLogs operation.
+//
+// Get audit logs.
+//
+// GET /audit-logs
+func (UnimplementedHandler) GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (r *GetAuditLogsResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetCellById implements getCellById operation.
 //
 // Get Cell by ID.

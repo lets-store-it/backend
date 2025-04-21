@@ -215,7 +215,7 @@ INSERT INTO object_type (id, object_group, object_name) VALUES
     (8, 'rbac', 'user-roles');
 
 
-CREATE TABLE app_object_changes (
+CREATE TABLE app_object_change (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
     user_id UUID NOT NULL REFERENCES app_user(id),

@@ -1,0 +1,56 @@
+# [
+#     {
+#         "id": "123e4567-e89b-12d3-a456-426614174000",
+#         "userId": "123e4567-e89b-12d3-a456-426614174000 OR NULL",
+#         "action": "create|update|delete",
+#         "time": "2021-09-01T00:00:00Z",
+#         "targetObjectType": "item",
+#         "targetObjectId": "123e4567-e89b-12d3-a456-426614174000",
+#         "prechangeState": {},
+#         "postchangeState": {}
+#     }
+# ]
+
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+  employee:
+    $ref: ../../employees/models/Employee.yaml
+  action:
+    type: string
+    enum:
+      - create
+      - update
+      - delete
+  time:
+    type: string
+    format: date-time
+  targetObjectType:
+    type: object
+    properties:
+      id:
+        type: integer
+      group:
+        type: string
+      name:
+        type: string
+    required:
+      - id
+      - group
+      - name
+  targetObjectId:
+    type: string
+    format: uuid
+  prechangeState:
+    type: object
+  postchangeState:
+    type: object
+required:
+  - id
+  - employee
+  - action
+  - time
+  - targetObjectType
+  - targetObjectId
