@@ -90,8 +90,8 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
 	}
 
-	isSystemUser := ctx.Value(IsSystemUserKey).(bool)
-	if isSystemUser {
+	isSystemUser, ok := ctx.Value(IsSystemUserKey).(bool)
+	if ok && isSystemUser {
 		return orgID, nil
 	}
 
