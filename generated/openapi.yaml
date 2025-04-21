@@ -9,6 +9,9 @@ info:
     url: https://store-it.ru
 servers:
   - url: http://localhost:8080/api/v0
+security:
+  - apiToken: []
+  - cookie: []
 tags:
   - name: org
     description: Organization management

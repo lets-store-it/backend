@@ -89,6 +89,12 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
 	}
+
+	isSystemUser := ctx.Value(IsSystemUserKey).(bool)
+	if isSystemUser {
+		return orgID, nil
+	}
+
 	userID, err := GetUserIdFromContext(ctx)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
@@ -237,4 +243,12 @@ func (uc *AuthUseCase) GetRoles(ctx context.Context) ([]*models.Role, error) {
 		return nil, err
 	}
 	return roles, nil
+}
+
+func (uc *AuthUseCase) GetOrgIdByApiToken(ctx context.Context, token string) (uuid.UUID, error) {
+	orgID, err := uc.authService.GetOrgIdByApiToken(ctx, token)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return orgID, nil
 }
