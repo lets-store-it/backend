@@ -161,9 +161,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					}
 
-				case 'u': // Prefix: "uth/"
+				case 'u': // Prefix: "u"
 
-					if l := len("uth/"); len(elem) >= l && elem[0:l] == "uth/" {
+					if l := len("u"); len(elem) >= l && elem[0:l] == "u" {
 						elem = elem[l:]
 					} else {
 						break
@@ -173,9 +173,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 					switch elem[0] {
-					case 'l': // Prefix: "logout"
+					case 'd': // Prefix: "dit-logs"
 
-						if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+						if l := len("dit-logs"); len(elem) >= l && elem[0:l] == "dit-logs" {
 							elem = elem[l:]
 						} else {
 							break
@@ -185,7 +185,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							// Leaf node.
 							switch r.Method {
 							case "GET":
-								s.handleLogoutRequest([0]string{}, elemIsEscaped, w, r)
+								s.handleGetAuditLogsRequest([0]string{}, elemIsEscaped, w, r)
 							default:
 								s.notAllowed(w, r, "GET")
 							}
@@ -193,24 +193,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 
-					case 'o': // Prefix: "oauth2/yandex"
+					case 't': // Prefix: "th/"
 
-						if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+						if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "POST":
-								s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "POST")
+							break
+						}
+						switch elem[0] {
+						case 'l': // Prefix: "logout"
+
+							if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleLogoutRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+						case 'o': // Prefix: "oauth2/yandex"
+
+							if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleExchangeYandexAccessTokenRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
 						}
 
 					}
@@ -1035,9 +1069,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					}
 
-				case 'u': // Prefix: "uth/"
+				case 'u': // Prefix: "u"
 
-					if l := len("uth/"); len(elem) >= l && elem[0:l] == "uth/" {
+					if l := len("u"); len(elem) >= l && elem[0:l] == "u" {
 						elem = elem[l:]
 					} else {
 						break
@@ -1047,9 +1081,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						break
 					}
 					switch elem[0] {
-					case 'l': // Prefix: "logout"
+					case 'd': // Prefix: "dit-logs"
 
-						if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+						if l := len("dit-logs"); len(elem) >= l && elem[0:l] == "dit-logs" {
 							elem = elem[l:]
 						} else {
 							break
@@ -1059,10 +1093,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							// Leaf node.
 							switch method {
 							case "GET":
-								r.name = LogoutOperation
-								r.summary = "Logout user"
-								r.operationID = "logout"
-								r.pathPattern = "/auth/logout"
+								r.name = GetAuditLogsOperation
+								r.summary = "Get audit logs"
+								r.operationID = "getAuditLogs"
+								r.pathPattern = "/audit-logs"
 								r.args = args
 								r.count = 0
 								return r, true
@@ -1071,28 +1105,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 
-					case 'o': // Prefix: "oauth2/yandex"
+					case 't': // Prefix: "th/"
 
-						if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+						if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "POST":
-								r.name = ExchangeYandexAccessTokenOperation
-								r.summary = "Exchange Yandex Access token for Session token"
-								r.operationID = "exchangeYandexAccessToken"
-								r.pathPattern = "/auth/oauth2/yandex"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'l': // Prefix: "logout"
+
+							if l := len("logout"); len(elem) >= l && elem[0:l] == "logout" {
+								elem = elem[l:]
+							} else {
+								break
 							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = LogoutOperation
+									r.summary = "Logout user"
+									r.operationID = "logout"
+									r.pathPattern = "/auth/logout"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 'o': // Prefix: "oauth2/yandex"
+
+							if l := len("oauth2/yandex"); len(elem) >= l && elem[0:l] == "oauth2/yandex" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = ExchangeYandexAccessTokenOperation
+									r.summary = "Exchange Yandex Access token for Session token"
+									r.operationID = "exchangeYandexAccessToken"
+									r.pathPattern = "/auth/oauth2/yandex"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
 						}
 
 					}

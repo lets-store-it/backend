@@ -219,13 +219,15 @@ FROM (
 ) t
 ORDER BY lvl;
 
+-- name: GetObjectType :one
+SELECT * FROM object_type WHERE id = $1;
 
 -- Audit Log
 -- name: CreateObjectChange :one
-INSERT INTO app_object_changes (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+INSERT INTO app_object_change (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 
 -- name: GetObjectChanges :many
-SELECT * FROM app_object_changes WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL;
+SELECT * FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL;
 
 
 -- Item Instances

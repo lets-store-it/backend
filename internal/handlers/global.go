@@ -71,4 +71,3 @@ func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.De
 		},
 	}
 }
-

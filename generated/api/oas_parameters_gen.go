@@ -726,6 +726,123 @@ func decodeDeleteStorageGroupParams(args [1]string, argsEscaped bool, r *http.Re
 	return params, nil
 }
 
+// GetAuditLogsParams is parameters of getAuditLogs operation.
+type GetAuditLogsParams struct {
+	// The type of the object to filter by.
+	ObjectTypeID OptInt
+	// The id of the object to filter by.
+	ObjectID OptUUID
+}
+
+func unpackGetAuditLogsParams(packed middleware.Parameters) (params GetAuditLogsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "object_type_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ObjectTypeID = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "object_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ObjectID = v.(OptUUID)
+		}
+	}
+	return params
+}
+
+func decodeGetAuditLogsParams(args [0]string, argsEscaped bool, r *http.Request) (params GetAuditLogsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: object_type_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "object_type_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotObjectTypeIDVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotObjectTypeIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ObjectTypeID.SetTo(paramsDotObjectTypeIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "object_type_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: object_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "object_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotObjectIDVal uuid.UUID
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUUID(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotObjectIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ObjectID.SetTo(paramsDotObjectIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "object_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetCellByIdParams is parameters of getCellById operation.
 type GetCellByIdParams struct {
 	GroupId uuid.UUID

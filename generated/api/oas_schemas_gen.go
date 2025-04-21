@@ -4,6 +4,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/google/uuid"
@@ -25,6 +26,186 @@ func (s *ApiToken) GetAPIKey() string {
 // SetAPIKey sets the value of APIKey.
 func (s *ApiToken) SetAPIKey(val string) {
 	s.APIKey = val
+}
+
+// Ref: #/components/schemas/AuditLog
+type AuditLog struct {
+	ID               uuid.UUID                `json:"id"`
+	Employee         Employee                 `json:"employee"`
+	Action           AuditLogAction           `json:"action"`
+	Time             time.Time                `json:"time"`
+	TargetObjectType AuditLogTargetObjectType `json:"targetObjectType"`
+	TargetObjectId   uuid.UUID                `json:"targetObjectId"`
+	PrechangeState   *AuditLogPrechangeState  `json:"prechangeState"`
+	PostchangeState  *AuditLogPostchangeState `json:"postchangeState"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditLog) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetEmployee returns the value of Employee.
+func (s *AuditLog) GetEmployee() Employee {
+	return s.Employee
+}
+
+// GetAction returns the value of Action.
+func (s *AuditLog) GetAction() AuditLogAction {
+	return s.Action
+}
+
+// GetTime returns the value of Time.
+func (s *AuditLog) GetTime() time.Time {
+	return s.Time
+}
+
+// GetTargetObjectType returns the value of TargetObjectType.
+func (s *AuditLog) GetTargetObjectType() AuditLogTargetObjectType {
+	return s.TargetObjectType
+}
+
+// GetTargetObjectId returns the value of TargetObjectId.
+func (s *AuditLog) GetTargetObjectId() uuid.UUID {
+	return s.TargetObjectId
+}
+
+// GetPrechangeState returns the value of PrechangeState.
+func (s *AuditLog) GetPrechangeState() *AuditLogPrechangeState {
+	return s.PrechangeState
+}
+
+// GetPostchangeState returns the value of PostchangeState.
+func (s *AuditLog) GetPostchangeState() *AuditLogPostchangeState {
+	return s.PostchangeState
+}
+
+// SetID sets the value of ID.
+func (s *AuditLog) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetEmployee sets the value of Employee.
+func (s *AuditLog) SetEmployee(val Employee) {
+	s.Employee = val
+}
+
+// SetAction sets the value of Action.
+func (s *AuditLog) SetAction(val AuditLogAction) {
+	s.Action = val
+}
+
+// SetTime sets the value of Time.
+func (s *AuditLog) SetTime(val time.Time) {
+	s.Time = val
+}
+
+// SetTargetObjectType sets the value of TargetObjectType.
+func (s *AuditLog) SetTargetObjectType(val AuditLogTargetObjectType) {
+	s.TargetObjectType = val
+}
+
+// SetTargetObjectId sets the value of TargetObjectId.
+func (s *AuditLog) SetTargetObjectId(val uuid.UUID) {
+	s.TargetObjectId = val
+}
+
+// SetPrechangeState sets the value of PrechangeState.
+func (s *AuditLog) SetPrechangeState(val *AuditLogPrechangeState) {
+	s.PrechangeState = val
+}
+
+// SetPostchangeState sets the value of PostchangeState.
+func (s *AuditLog) SetPostchangeState(val *AuditLogPostchangeState) {
+	s.PostchangeState = val
+}
+
+type AuditLogAction string
+
+const (
+	AuditLogActionCreate AuditLogAction = "create"
+	AuditLogActionUpdate AuditLogAction = "update"
+	AuditLogActionDelete AuditLogAction = "delete"
+)
+
+// AllValues returns all AuditLogAction values.
+func (AuditLogAction) AllValues() []AuditLogAction {
+	return []AuditLogAction{
+		AuditLogActionCreate,
+		AuditLogActionUpdate,
+		AuditLogActionDelete,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AuditLogAction) MarshalText() ([]byte, error) {
+	switch s {
+	case AuditLogActionCreate:
+		return []byte(s), nil
+	case AuditLogActionUpdate:
+		return []byte(s), nil
+	case AuditLogActionDelete:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AuditLogAction) UnmarshalText(data []byte) error {
+	switch AuditLogAction(data) {
+	case AuditLogActionCreate:
+		*s = AuditLogActionCreate
+		return nil
+	case AuditLogActionUpdate:
+		*s = AuditLogActionUpdate
+		return nil
+	case AuditLogActionDelete:
+		*s = AuditLogActionDelete
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type AuditLogPostchangeState struct{}
+
+type AuditLogPrechangeState struct{}
+
+type AuditLogTargetObjectType struct {
+	ID    int    `json:"id"`
+	Group string `json:"group"`
+	Name  string `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditLogTargetObjectType) GetID() int {
+	return s.ID
+}
+
+// GetGroup returns the value of Group.
+func (s *AuditLogTargetObjectType) GetGroup() string {
+	return s.Group
+}
+
+// GetName returns the value of Name.
+func (s *AuditLogTargetObjectType) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *AuditLogTargetObjectType) SetID(val int) {
+	s.ID = val
+}
+
+// SetGroup sets the value of Group.
+func (s *AuditLogTargetObjectType) SetGroup(val string) {
+	s.Group = val
+}
+
+// SetName sets the value of Name.
+func (s *AuditLogTargetObjectType) SetName(val string) {
+	s.Name = val
 }
 
 // Ref: #/components/responses/AuthResponse
@@ -1027,6 +1208,21 @@ func (s *GetApiTokensResponse) GetData() []Token {
 
 // SetData sets the value of Data.
 func (s *GetApiTokensResponse) SetData(val []Token) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/GetAuditLogsResponse
+type GetAuditLogsResponse struct {
+	Data []AuditLog `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetAuditLogsResponse) GetData() []AuditLog {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetAuditLogsResponse) SetData(val []AuditLog) {
 	s.Data = val
 }
 

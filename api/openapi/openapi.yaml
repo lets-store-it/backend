@@ -110,3 +110,6 @@ paths:
     $ref: paths/employees/employees_invite.yaml
   /app/roles:
     $ref: paths/employees/roles.yaml
+
+  /audit-logs:
+    $ref: paths/audit-logs/audit-logs.yaml

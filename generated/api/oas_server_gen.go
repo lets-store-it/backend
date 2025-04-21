@@ -116,6 +116,12 @@ type Handler interface {
 	//
 	// GET /api-tokens
 	GetApiTokens(ctx context.Context) (*GetApiTokensResponse, error)
+	// GetAuditLogs implements getAuditLogs operation.
+	//
+	// Get audit logs.
+	//
+	// GET /audit-logs
+	GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (*GetAuditLogsResponse, error)
 	// GetCellById implements getCellById operation.
 	//
 	// Get Cell by ID.

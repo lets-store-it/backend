@@ -1014,6 +1014,36 @@ paths:
                   - data
         default:
           $ref: '#/components/responses/default-error'
+  /audit-logs:
+    get:
+      summary: Get audit logs
+      description: Get audit logs
+      tags:
+        - audit-logs
+      parameters:
+        - name: object_type_id
+          in: query
+          description: The type of the object to filter by
+          required: false
+          schema:
+            type: integer
+        - name: object_id
+          in: query
+          description: The id of the object to filter by
+          required: false
+          schema:
+            type: string
+            format: uuid
+      operationId: getAuditLogs
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAuditLogsResponse'
+        default:
+          $ref: '#/components/responses/default-error'
 components:
   securitySchemes:
     apiToken:
@@ -2065,6 +2095,59 @@ components:
       required:
         - email
         - roleId
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employee:
+          $ref: '#/components/schemas/Employee'
+        action:
+          type: string
+          enum:
+            - create
+            - update
+            - delete
+        time:
+          type: string
+          format: date-time
+        targetObjectType:
+          type: object
+          properties:
+            id:
+              type: integer
+            group:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - group
+            - name
+        targetObjectId:
+          type: string
+          format: uuid
+        prechangeState:
+          type: object
+        postchangeState:
+          type: object
+      required:
+        - id
+        - employee
+        - action
+        - time
+        - targetObjectType
+        - targetObjectId
+    GetAuditLogsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+      required:
+        - data
   responses:
     default-error:
       description: General Error
