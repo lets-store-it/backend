@@ -41,7 +41,16 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 
 	// Initialize services
 	storageGroupService := storage.New(queries)
-	auditService := audit.New(queries)
+	auditService, err := audit.New(&audit.AuditServiceConfig{
+		Queries:      queries,
+		KafkaEnabled: cfg.Kafka.Enabled,
+		KafkaBrokers: []string{cfg.Kafka.Brokers},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer auditService.Close()
+
 	itemService := item.New(queries, pool, storageGroupService)
 	authService := auth.New(queries, pool)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
