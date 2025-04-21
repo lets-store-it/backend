@@ -177,7 +177,7 @@ CREATE TABLE app_role (
     id INTEGER PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
-    description VARCHAR(255)
+    description VARCHAR(255) NOT NULL
 );
 
 INSERT INTO app_role (id, name, display_name, description) VALUES

@@ -857,6 +857,9 @@ type DeleteCellOK struct{}
 // DeleteCellsGroupOK is response for DeleteCellsGroup operation.
 type DeleteCellsGroupOK struct{}
 
+// DeleteEmployeeByIdOK is response for DeleteEmployeeById operation.
+type DeleteEmployeeByIdOK struct{}
+
 // DeleteInstanceByIdOK is response for DeleteInstanceById operation.
 type DeleteInstanceByIdOK struct{}
 
@@ -871,6 +874,76 @@ type DeleteOrganizationUnitOK struct{}
 
 // DeleteStorageGroupOK is response for DeleteStorageGroup operation.
 type DeleteStorageGroupOK struct{}
+
+// Ref: #/components/schemas/Employee
+type Employee struct {
+	UserId     uuid.UUID `json:"userId"`
+	FirstName  string    `json:"firstName"`
+	LastName   string    `json:"lastName"`
+	MiddleName NilString `json:"middleName"`
+	Email      string    `json:"email"`
+	Role       Role      `json:"role"`
+}
+
+// GetUserId returns the value of UserId.
+func (s *Employee) GetUserId() uuid.UUID {
+	return s.UserId
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *Employee) GetFirstName() string {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *Employee) GetLastName() string {
+	return s.LastName
+}
+
+// GetMiddleName returns the value of MiddleName.
+func (s *Employee) GetMiddleName() NilString {
+	return s.MiddleName
+}
+
+// GetEmail returns the value of Email.
+func (s *Employee) GetEmail() string {
+	return s.Email
+}
+
+// GetRole returns the value of Role.
+func (s *Employee) GetRole() Role {
+	return s.Role
+}
+
+// SetUserId sets the value of UserId.
+func (s *Employee) SetUserId(val uuid.UUID) {
+	s.UserId = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *Employee) SetFirstName(val string) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *Employee) SetLastName(val string) {
+	s.LastName = val
+}
+
+// SetMiddleName sets the value of MiddleName.
+func (s *Employee) SetMiddleName(val NilString) {
+	s.MiddleName = val
+}
+
+// SetEmail sets the value of Email.
+func (s *Employee) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetRole sets the value of Role.
+func (s *Employee) SetRole(val Role) {
+	s.Role = val
+}
 
 // Represents error object.
 // Ref: #/components/schemas/Error
@@ -1090,6 +1163,36 @@ func (s *GetCurrentUserResponse) SetMiddleName(val NilString) {
 // SetEmail sets the value of Email.
 func (s *GetCurrentUserResponse) SetEmail(val string) {
 	s.Email = val
+}
+
+// Ref: #/components/schemas/GetEmployeeResponse
+type GetEmployeeResponse struct {
+	Data Employee `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetEmployeeResponse) GetData() Employee {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetEmployeeResponse) SetData(val Employee) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/GetEmployeesResponse
+type GetEmployeesResponse struct {
+	Data []Employee `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetEmployeesResponse) GetData() []Employee {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetEmployeesResponse) SetData(val []Employee) {
+	s.Data = val
 }
 
 // Ref: #/components/schemas/GetInstancesByItemIdResponse
@@ -1321,6 +1424,20 @@ func (s *GetOrganizationsResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
+type GetRolesOK struct {
+	Data []Role `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetRolesOK) GetData() []Role {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetRolesOK) SetData(val []Role) {
+	s.Data = val
+}
+
 // Ref: #/components/schemas/GetStorageGroupByIdResponse
 type GetStorageGroupByIdResponse struct {
 	Data StorageGroup `json:"data"`
@@ -1447,92 +1564,91 @@ func (s *InstanceForItemStatus) UnmarshalText(data []byte) error {
 	}
 }
 
-type InstanceFull []InstanceFullItem
-
-type InstanceFullItem struct {
+// Ref: #/components/schemas/InstanceFull
+type InstanceFull struct {
 	// Instance ID.
-	ID      uuid.UUID              `json:"id"`
-	Status  InstanceFullItemStatus `json:"status"`
-	Item    OptItem                `json:"item"`
-	Variant ItemVariant            `json:"variant"`
-	Cell    CellForInstance        `json:"cell"`
+	ID      uuid.UUID          `json:"id"`
+	Status  InstanceFullStatus `json:"status"`
+	Item    OptItem            `json:"item"`
+	Variant ItemVariant        `json:"variant"`
+	Cell    CellForInstance    `json:"cell"`
 }
 
 // GetID returns the value of ID.
-func (s *InstanceFullItem) GetID() uuid.UUID {
+func (s *InstanceFull) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetStatus returns the value of Status.
-func (s *InstanceFullItem) GetStatus() InstanceFullItemStatus {
+func (s *InstanceFull) GetStatus() InstanceFullStatus {
 	return s.Status
 }
 
 // GetItem returns the value of Item.
-func (s *InstanceFullItem) GetItem() OptItem {
+func (s *InstanceFull) GetItem() OptItem {
 	return s.Item
 }
 
 // GetVariant returns the value of Variant.
-func (s *InstanceFullItem) GetVariant() ItemVariant {
+func (s *InstanceFull) GetVariant() ItemVariant {
 	return s.Variant
 }
 
 // GetCell returns the value of Cell.
-func (s *InstanceFullItem) GetCell() CellForInstance {
+func (s *InstanceFull) GetCell() CellForInstance {
 	return s.Cell
 }
 
 // SetID sets the value of ID.
-func (s *InstanceFullItem) SetID(val uuid.UUID) {
+func (s *InstanceFull) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetStatus sets the value of Status.
-func (s *InstanceFullItem) SetStatus(val InstanceFullItemStatus) {
+func (s *InstanceFull) SetStatus(val InstanceFullStatus) {
 	s.Status = val
 }
 
 // SetItem sets the value of Item.
-func (s *InstanceFullItem) SetItem(val OptItem) {
+func (s *InstanceFull) SetItem(val OptItem) {
 	s.Item = val
 }
 
 // SetVariant sets the value of Variant.
-func (s *InstanceFullItem) SetVariant(val ItemVariant) {
+func (s *InstanceFull) SetVariant(val ItemVariant) {
 	s.Variant = val
 }
 
 // SetCell sets the value of Cell.
-func (s *InstanceFullItem) SetCell(val CellForInstance) {
+func (s *InstanceFull) SetCell(val CellForInstance) {
 	s.Cell = val
 }
 
-type InstanceFullItemStatus string
+type InstanceFullStatus string
 
 const (
-	InstanceFullItemStatusAvailable InstanceFullItemStatus = "available"
-	InstanceFullItemStatusReserved  InstanceFullItemStatus = "reserved"
-	InstanceFullItemStatusConsumed  InstanceFullItemStatus = "consumed"
+	InstanceFullStatusAvailable InstanceFullStatus = "available"
+	InstanceFullStatusReserved  InstanceFullStatus = "reserved"
+	InstanceFullStatusConsumed  InstanceFullStatus = "consumed"
 )
 
-// AllValues returns all InstanceFullItemStatus values.
-func (InstanceFullItemStatus) AllValues() []InstanceFullItemStatus {
-	return []InstanceFullItemStatus{
-		InstanceFullItemStatusAvailable,
-		InstanceFullItemStatusReserved,
-		InstanceFullItemStatusConsumed,
+// AllValues returns all InstanceFullStatus values.
+func (InstanceFullStatus) AllValues() []InstanceFullStatus {
+	return []InstanceFullStatus{
+		InstanceFullStatusAvailable,
+		InstanceFullStatusReserved,
+		InstanceFullStatusConsumed,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s InstanceFullItemStatus) MarshalText() ([]byte, error) {
+func (s InstanceFullStatus) MarshalText() ([]byte, error) {
 	switch s {
-	case InstanceFullItemStatusAvailable:
+	case InstanceFullStatusAvailable:
 		return []byte(s), nil
-	case InstanceFullItemStatusReserved:
+	case InstanceFullStatusReserved:
 		return []byte(s), nil
-	case InstanceFullItemStatusConsumed:
+	case InstanceFullStatusConsumed:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -1540,20 +1656,46 @@ func (s InstanceFullItemStatus) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *InstanceFullItemStatus) UnmarshalText(data []byte) error {
-	switch InstanceFullItemStatus(data) {
-	case InstanceFullItemStatusAvailable:
-		*s = InstanceFullItemStatusAvailable
+func (s *InstanceFullStatus) UnmarshalText(data []byte) error {
+	switch InstanceFullStatus(data) {
+	case InstanceFullStatusAvailable:
+		*s = InstanceFullStatusAvailable
 		return nil
-	case InstanceFullItemStatusReserved:
-		*s = InstanceFullItemStatusReserved
+	case InstanceFullStatusReserved:
+		*s = InstanceFullStatusReserved
 		return nil
-	case InstanceFullItemStatusConsumed:
-		*s = InstanceFullItemStatusConsumed
+	case InstanceFullStatusConsumed:
+		*s = InstanceFullStatusConsumed
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
+}
+
+// Ref: #/components/schemas/InviteEmployeeRequest
+type InviteEmployeeRequest struct {
+	Email  string `json:"email"`
+	RoleId int    `json:"roleId"`
+}
+
+// GetEmail returns the value of Email.
+func (s *InviteEmployeeRequest) GetEmail() string {
+	return s.Email
+}
+
+// GetRoleId returns the value of RoleId.
+func (s *InviteEmployeeRequest) GetRoleId() int {
+	return s.RoleId
+}
+
+// SetEmail sets the value of Email.
+func (s *InviteEmployeeRequest) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetRoleId sets the value of RoleId.
+func (s *InviteEmployeeRequest) SetRoleId(val int) {
+	s.RoleId = val
 }
 
 // Merged schema.
@@ -2558,6 +2700,32 @@ func (s *PatchCurrentUserRequest) SetMiddleName(val NilString) {
 	s.MiddleName = val
 }
 
+// Ref: #/components/schemas/PatchEmployeeRequest
+type PatchEmployeeRequest struct {
+	UserId uuid.UUID `json:"userId"`
+	RoleId OptInt    `json:"roleId"`
+}
+
+// GetUserId returns the value of UserId.
+func (s *PatchEmployeeRequest) GetUserId() uuid.UUID {
+	return s.UserId
+}
+
+// GetRoleId returns the value of RoleId.
+func (s *PatchEmployeeRequest) GetRoleId() OptInt {
+	return s.RoleId
+}
+
+// SetUserId sets the value of UserId.
+func (s *PatchEmployeeRequest) SetUserId(val uuid.UUID) {
+	s.UserId = val
+}
+
+// SetRoleId sets the value of RoleId.
+func (s *PatchEmployeeRequest) SetRoleId(val OptInt) {
+	s.RoleId = val
+}
+
 // Ref: #/components/schemas/PatchItemRequest
 type PatchItemRequest struct {
 	Name        OptString                `json:"name"`
@@ -2768,6 +2936,54 @@ func (s *PatchStorageGroupResponse) SetData(val []StorageGroup) {
 
 // RevokeApiTokenOK is response for RevokeApiToken operation.
 type RevokeApiTokenOK struct{}
+
+// Ref: #/components/schemas/Role
+type Role struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	Description string `json:"description"`
+}
+
+// GetID returns the value of ID.
+func (s *Role) GetID() int {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Role) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *Role) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetDescription returns the value of Description.
+func (s *Role) GetDescription() string {
+	return s.Description
+}
+
+// SetID sets the value of ID.
+func (s *Role) SetID(val int) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Role) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *Role) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Role) SetDescription(val string) {
+	s.Description = val
+}
 
 // Merged schema.
 // Ref: #/components/schemas/StorageGroup

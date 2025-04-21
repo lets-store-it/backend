@@ -3,7 +3,6 @@ package usecases
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -38,7 +37,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	err = uc.authService.AssignRoleToUser(ctx, org.ID, userID, auth.RoleOwner)
+	err = uc.authService.AssignRoleToUser(ctx, org.ID, userID, 1) // owner
 	if err != nil {
 		return nil, err
 	}
@@ -81,18 +80,18 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	roles, err := uc.authService.GetUserRoles(ctx, userID, id)
+	_, err = uc.authService.GetUserRole(ctx, userID, id)
 	if err != nil {
 		return err
 	}
 
-	if len(roles) == 0 {
-		return errors.New("no permissions to delete organization")
-	}
+	// if roles != auth.RoleOwner {
+	// 	return errors.New("no permissions to delete organization")
+	// }
 
-	if _, ok := roles[auth.RoleOwner]; !ok {
-		return errors.New("no permissions to delete organization")
-	}
+	// if _, ok := roles[auth.RoleOwner]; !ok {
+	// 	return errors.New("no permissions to delete organization")
+	// }
 
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {
@@ -128,14 +127,14 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 		return nil, err
 	}
 
-	roles, err := uc.authService.GetUserRoles(ctx, userID, org.ID)
+	_, err = uc.authService.GetUserRole(ctx, userID, org.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, ok := roles[auth.RoleOwner]; !ok {
-		return nil, errors.New("no permissions to update organization")
-	}
+	// if role != auth.RoleOwner {
+	// 	return nil, errors.New("no permissions to update organization")
+	// }
 	org, err = uc.service.GetByID(ctx, org.ID)
 	if err != nil {
 		return nil, err
@@ -176,14 +175,14 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		return nil, err
 	}
 
-	roles, err := uc.authService.GetUserRoles(ctx, userID, id)
+	_, err = uc.authService.GetUserRole(ctx, userID, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, ok := roles[auth.RoleOwner]; !ok {
-		return nil, errors.New("no permissions to update organization")
-	}
+	// if _, ok := roles[auth.RoleOwner]; !ok {
+	// 	return nil, errors.New("no permissions to update organization")
+	// }
 
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {

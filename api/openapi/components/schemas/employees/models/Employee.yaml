@@ -1,0 +1,23 @@
+type: object
+properties:
+  userId:
+    type: string
+    format: uuid
+  firstName:
+    type: string
+  lastName:
+    type: string
+  middleName:
+    type: string
+    nullable: true
+  email:
+    type: string
+  role:
+    $ref: ../../employees/models/Role.yaml
+required:
+  - userId
+  - firstName
+  - lastName
+  - middleName
+  - email
+  - role

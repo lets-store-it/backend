@@ -73,53 +73,87 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case 'p': // Prefix: "pi-tokens"
+				case 'p': // Prefix: "p"
 
-					if l := len("pi-tokens"); len(elem) >= l && elem[0:l] == "pi-tokens" {
+					if l := len("p"); len(elem) >= l && elem[0:l] == "p" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						switch r.Method {
-						case "GET":
-							s.handleGetApiTokensRequest([0]string{}, elemIsEscaped, w, r)
-						case "POST":
-							s.handleCreateApiTokenRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET,POST")
-						}
-
-						return
+						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 'i': // Prefix: "i-tokens"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("i-tokens"); len(elem) >= l && elem[0:l] == "i-tokens" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
-						// Param: "id"
-						// Leaf parameter, slashes are prohibited
-						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
+						if len(elem) == 0 {
+							switch r.Method {
+							case "GET":
+								s.handleGetApiTokensRequest([0]string{}, elemIsEscaped, w, r)
+							case "POST":
+								s.handleCreateApiTokenRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET,POST")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "DELETE":
+									s.handleRevokeApiTokenRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "DELETE")
+								}
+
+								return
+							}
+
+						}
+
+					case 'p': // Prefix: "p/roles"
+
+						if l := len("p/roles"); len(elem) >= l && elem[0:l] == "p/roles" {
+							elem = elem[l:]
+						} else {
 							break
 						}
-						args[0] = elem
-						elem = ""
 
 						if len(elem) == 0 {
 							// Leaf node.
 							switch r.Method {
-							case "DELETE":
-								s.handleRevokeApiTokenRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleGetRolesRequest([0]string{}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "DELETE")
+								s.notAllowed(w, r, "GET")
 							}
 
 							return
@@ -320,6 +354,92 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 						}
 
+					}
+
+				}
+
+			case 'e': // Prefix: "employees"
+
+				if l := len("employees"); len(elem) >= l && elem[0:l] == "employees" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetEmployeesRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'i': // Prefix: "invite"
+						origElem := elem
+						if l := len("invite"); len(elem) >= l && elem[0:l] == "invite" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleInviteEmployeeRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+						elem = origElem
+					}
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteEmployeeByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetEmployeeByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handlePatchEmployeeByIdRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PATCH")
+						}
+
+						return
 					}
 
 				}
@@ -811,64 +931,102 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case 'p': // Prefix: "pi-tokens"
+				case 'p': // Prefix: "p"
 
-					if l := len("pi-tokens"); len(elem) >= l && elem[0:l] == "pi-tokens" {
+					if l := len("p"); len(elem) >= l && elem[0:l] == "p" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						switch method {
-						case "GET":
-							r.name = GetApiTokensOperation
-							r.summary = "Get list of Service API Tokens"
-							r.operationID = "getApiTokens"
-							r.pathPattern = "/api-tokens"
-							r.args = args
-							r.count = 0
-							return r, true
-						case "POST":
-							r.name = CreateApiTokenOperation
-							r.summary = "Create Service API Token"
-							r.operationID = "createApiToken"
-							r.pathPattern = "/api-tokens"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
-						}
+						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 'i': // Prefix: "i-tokens"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("i-tokens"); len(elem) >= l && elem[0:l] == "i-tokens" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
-						// Param: "id"
-						// Leaf parameter, slashes are prohibited
-						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
+						if len(elem) == 0 {
+							switch method {
+							case "GET":
+								r.name = GetApiTokensOperation
+								r.summary = "Get list of Service API Tokens"
+								r.operationID = "getApiTokens"
+								r.pathPattern = "/api-tokens"
+								r.args = args
+								r.count = 0
+								return r, true
+							case "POST":
+								r.name = CreateApiTokenOperation
+								r.summary = "Create Service API Token"
+								r.operationID = "createApiToken"
+								r.pathPattern = "/api-tokens"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "DELETE":
+									r.name = RevokeApiTokenOperation
+									r.summary = "Revoke Service API Token"
+									r.operationID = "revokeApiToken"
+									r.pathPattern = "/api-tokens/{id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					case 'p': // Prefix: "p/roles"
+
+						if l := len("p/roles"); len(elem) >= l && elem[0:l] == "p/roles" {
+							elem = elem[l:]
+						} else {
 							break
 						}
-						args[0] = elem
-						elem = ""
 
 						if len(elem) == 0 {
 							// Leaf node.
 							switch method {
-							case "DELETE":
-								r.name = RevokeApiTokenOperation
-								r.summary = "Revoke Service API Token"
-								r.operationID = "revokeApiToken"
-								r.pathPattern = "/api-tokens/{id}"
+							case "GET":
+								r.name = GetRolesOperation
+								r.summary = "Get all roles in system"
+								r.operationID = "getRoles"
+								r.pathPattern = "/app/roles"
 								r.args = args
-								r.count = 1
+								r.count = 0
 								return r, true
 							default:
 								return
@@ -1118,6 +1276,110 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 						}
 
+					}
+
+				}
+
+			case 'e': // Prefix: "employees"
+
+				if l := len("employees"); len(elem) >= l && elem[0:l] == "employees" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = GetEmployeesOperation
+						r.summary = "Get employees of the organization"
+						r.operationID = "getEmployees"
+						r.pathPattern = "/employees"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'i': // Prefix: "invite"
+						origElem := elem
+						if l := len("invite"); len(elem) >= l && elem[0:l] == "invite" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = InviteEmployeeOperation
+								r.summary = "Invite employee to the organization"
+								r.operationID = "inviteEmployee"
+								r.pathPattern = "/employees/invite"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+						elem = origElem
+					}
+					// Param: "id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteEmployeeByIdOperation
+							r.summary = "Delete employee by id"
+							r.operationID = "deleteEmployeeById"
+							r.pathPattern = "/employees/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetEmployeeByIdOperation
+							r.summary = "Get employee by id"
+							r.operationID = "getEmployeeById"
+							r.pathPattern = "/employees/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = PatchEmployeeByIdOperation
+							r.summary = "Update employee by id"
+							r.operationID = "patchEmployeeById"
+							r.pathPattern = "/employees/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
 					}
 
 				}

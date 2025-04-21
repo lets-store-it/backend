@@ -117,3 +117,100 @@ func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.R
 	}
 	return nil
 }
+
+func toRoleDTO(role *models.Role) api.Role {
+	return api.Role{
+		ID:          role.ID,
+		Name:        role.Name,
+		DisplayName: role.DisplayName,
+		Description: role.Description,
+	}
+}
+
+func toEmployeeDTO(employee *models.Employee) api.Employee {
+	var middleName api.NilString
+	if employee.MiddleName != nil {
+		middleName.Value = *employee.MiddleName
+	}
+	return api.Employee{
+		UserId:     employee.UserID,
+		Email:      employee.Email,
+		FirstName:  employee.FirstName,
+		LastName:   employee.LastName,
+		MiddleName: middleName,
+		Role:       toRoleDTO(employee.Role),
+	}
+}
+
+// GetEmployees implements api.Handler.
+func (h *RestApiImplementation) GetEmployees(ctx context.Context) (*api.GetEmployeesResponse, error) {
+	employees, err := h.authUseCase.GetEmployees(ctx)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	employeesDTO := make([]api.Employee, len(employees))
+	for i, employee := range employees {
+		employeesDTO[i] = toEmployeeDTO(employee)
+	}
+	return &api.GetEmployeesResponse{
+		Data: employeesDTO,
+	}, nil
+}
+
+// DeleteEmployeeById implements api.Handler.
+func (h *RestApiImplementation) DeleteEmployeeById(ctx context.Context, params api.DeleteEmployeeByIdParams) error {
+	err := h.authUseCase.DeleteEmployee(ctx, params.ID)
+	if err != nil {
+		return h.NewError(ctx, err)
+	}
+	return nil
+}
+
+// GetEmployeeById implements api.Handler.
+func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.GetEmployeeByIdParams) (*api.GetEmployeeResponse, error) {
+	employee, err := h.authUseCase.GetEmployee(ctx, params.ID)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	return &api.GetEmployeeResponse{
+		Data: toEmployeeDTO(employee),
+	}, nil
+}
+
+// GetRoles implements api.Handler.
+func (h *RestApiImplementation) GetRoles(ctx context.Context) (*api.GetRolesOK, error) {
+	roles, err := h.authUseCase.GetRoles(ctx)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	rolesDTO := make([]api.Role, len(roles))
+	for i, role := range roles {
+		rolesDTO[i] = toRoleDTO(role)
+	}
+	return &api.GetRolesOK{
+		Data: rolesDTO,
+	}, nil
+}
+
+// InviteEmployee implements api.Handler.
+func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.InviteEmployeeRequest) (*api.GetEmployeeResponse, error) {
+	employee, err := h.authUseCase.InviteEmployee(ctx, req.Email, req.RoleId)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	return &api.GetEmployeeResponse{
+		Data: toEmployeeDTO(employee),
+	}, nil
+}
+
+// PatchEmployeeById implements api.Handler.
+func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.PatchEmployeeRequest, params api.PatchEmployeeByIdParams) (*api.GetEmployeeResponse, error) {
+	roleID := req.RoleId.Value
+	employee, err := h.authUseCase.SetEmployeeRole(ctx, params.ID, roleID)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+	return &api.GetEmployeeResponse{
+		Data: toEmployeeDTO(employee),
+	}, nil
+}

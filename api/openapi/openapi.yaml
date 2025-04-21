@@ -89,22 +89,24 @@ paths:
   /me:
     $ref: paths/users/me.yaml
 
-  /tasks:
-    $ref: paths/tasks/tasks.yaml
+  # /tasks:
+  #   $ref: paths/tasks/tasks.yaml
 
-  /tasks/{id}/pick-item:
-    $ref: paths/tasks/tasks_{id}_pick-item.yaml
-  /tasks/{id}/ready:
-    $ref: paths/tasks/tasks_{id}_ready.yaml
-  /tasks/{id}/cancel:
-    $ref: paths/tasks/tasks_{id}_cancel.yaml
-
+  # /tasks/{id}/pick-item:
+  #   $ref: paths/tasks/tasks_{id}_pick-item.yaml
+  # /tasks/{id}/ready:
+  #   $ref: paths/tasks/tasks_{id}_ready.yaml
+  # /tasks/{id}/cancel:
+  #   $ref: paths/tasks/tasks_{id}_cancel.yaml
 
   # /tasks/{id}:
   #   $ref: paths/tasks/tasks_{id}.yaml
 
-  # /employees:
-  #   $ref: paths/employees/employees.yaml
-
-  # /employees/{id}:
-  #   $ref: paths/employees/employees_{id}.yaml
+  /employees:
+    $ref: paths/employees/employees.yaml
+  /employees/{id}:
+    $ref: paths/employees/employees_{id}.yaml
+  /employees/invite:
+    $ref: paths/employees/employees_invite.yaml
+  /app/roles:
+    $ref: paths/employees/roles.yaml

@@ -1,0 +1,9 @@
+type: object
+properties:
+  userId:
+    type: string
+    format: uuid
+  roleId:
+    type: integer
+required:
+  - userId

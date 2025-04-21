@@ -1,0 +1,7 @@
+allOf:
+  - type: object
+    properties:
+      data:
+        $ref: ../employees/models/Employee.yaml
+    required:
+      - data

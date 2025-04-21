@@ -1,0 +1,15 @@
+type: object
+properties:
+  id:
+    type: integer
+  name:
+    type: string
+  displayName:
+    type: string
+  description:
+    type: string
+required:
+  - id
+  - name
+  - displayName
+  - description

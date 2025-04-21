@@ -1,0 +1,21 @@
+get:
+  summary: Get all roles in system
+  tags:
+    - employees
+  operationId: getRoles
+  responses:
+    "200":
+      description: List of roles
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: ../../components/schemas/employees/models/Role.yaml
+            required:
+              - data
+    default:
+      $ref: ../../components/responses/default-error.yaml

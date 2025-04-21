@@ -104,14 +104,33 @@ INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALU
 INSERT INTO app_role_binding (role_id, user_id, org_id) VALUES ($1, $2, $3);
 
 -- name: UnassignRoleFromUser :exec
-DELETE FROM app_role_binding WHERE role_id = $1 AND user_id = $2 AND org_id = $3;
+DELETE FROM app_role_binding WHERE org_id = $1 AND user_id = $2;
 
--- name: GetUserRolesInOrg :many
-SELECT * FROM app_role_binding WHERE user_id = $1 AND org_id = $2;
+-- name: GetUserRoleInOrg :one
+SELECT sqlc.embed(app_role) FROM app_role 
+JOIN app_role_binding ON app_role.id = app_role_binding.role_id
+WHERE app_role_binding.user_id = $2 AND app_role_binding.org_id = $1;
 
 -- name: GetUserOrgs :many
 SELECT * FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1);
 
+-- name: GetRoles :many
+SELECT * FROM app_role;
+
+-- name: GetRoleById :one
+SELECT * FROM app_role WHERE id = $1;
+
+-- name: GetEmployees :many
+SELECT sqlc.embed(app_user), sqlc.embed(app_role) FROM app_user
+JOIN app_role_binding ON app_user.id = app_role_binding.user_id
+JOIN app_role ON app_role_binding.role_id = app_role.id
+WHERE app_role_binding.org_id = $1;
+
+-- name: GetEmployee :one
+SELECT sqlc.embed(app_user), sqlc.embed(app_role) FROM app_user
+JOIN app_role_binding ON app_user.id = app_role_binding.user_id
+JOIN app_role ON app_role_binding.role_id = app_role.id
+WHERE app_role_binding.org_id = $1 AND app_role_binding.user_id = $2;
 
 -- CellsGroups
 -- name: GetCellsGroups :many

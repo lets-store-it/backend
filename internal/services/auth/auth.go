@@ -184,40 +184,32 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 	}, nil
 }
 
-type Role int
-
-const (
-	RoleOwner   Role = 1
-	RoleAdmin   Role = 2
-	RoleManager Role = 3
-	RoleWorker  Role = 4
-)
-
-func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, role Role) error {
-	slog.Debug("service:auth:AssignRoleToUser", "orgID", orgID, "userID", userID, "role", role)
+func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID int) error {
+	slog.Debug("service:auth:AssignRoleToUser", "orgID", orgID, "userID", userID, "roleID", roleID)
 	if orgID == uuid.Nil {
 		return ErrInvalidOrganization
 	}
 	if userID == uuid.Nil {
 		return fmt.Errorf("invalid user ID")
 	}
-	if role < RoleOwner || role > RoleWorker {
+	if roleID < 1 || roleID > 4 {
 		return ErrInvalidRole
 	}
 
 	err := s.queries.AssignRoleToUser(ctx, database.AssignRoleToUserParams{
 		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
 		UserID: pgtype.UUID{Bytes: userID, Valid: true},
-		RoleID: int32(role),
+		RoleID: int32(roleID),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to assign role to user: %w", err)
 	}
+
 	return nil
 }
 
-func (s *AuthService) GetUserRoles(ctx context.Context, userID uuid.UUID, orgID uuid.UUID) (map[Role]struct{}, error) {
-	slog.Debug("service:auth:GetUserRoles", "userID", userID, "orgID", orgID)
+func (s *AuthService) GetUserRole(ctx context.Context, userID uuid.UUID, orgID uuid.UUID) (*models.Role, error) {
+	slog.Debug("service:auth:GetUserRole", "userID", userID, "orgID", orgID)
 	if userID == uuid.Nil {
 		return nil, fmt.Errorf("invalid user ID")
 	}
@@ -225,20 +217,38 @@ func (s *AuthService) GetUserRoles(ctx context.Context, userID uuid.UUID, orgID 
 		return nil, ErrInvalidOrganization
 	}
 
-	dbRoles, err := s.queries.GetUserRolesInOrg(ctx, database.GetUserRolesInOrgParams{
+	role, err := s.queries.GetUserRoleInOrg(ctx, database.GetUserRoleInOrgParams{
 		UserID: pgtype.UUID{Bytes: userID, Valid: true},
 		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user roles: %w", err)
+		return nil, fmt.Errorf("failed to get user role: %w", err)
 	}
 
-	roles := make(map[Role]struct{}, len(dbRoles))
-	for _, role := range dbRoles {
-		roles[Role(role.RoleID)] = struct{}{}
-	}
+	return &models.Role{
+		ID:          int(role.AppRole.ID),
+		Name:        role.AppRole.Name,
+		DisplayName: role.AppRole.DisplayName,
+		Description: role.AppRole.Description,
+	}, nil
+}
 
-	return roles, nil
+func (s *AuthService) GetRoles(ctx context.Context) ([]*models.Role, error) {
+	slog.Debug("service:auth:GetRoles")
+	roles, err := s.queries.GetRoles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get roles: %w", err)
+	}
+	rolesModels := make([]*models.Role, len(roles))
+	for i, role := range roles {
+		rolesModels[i] = &models.Role{
+			ID:          int(role.ID),
+			Name:        role.Name,
+			DisplayName: role.DisplayName,
+			Description: role.Description,
+		}
+	}
+	return rolesModels, nil
 }
 
 func tokenToModel(token database.AppApiToken) *models.ApiToken {
@@ -329,4 +339,119 @@ func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*mod
 		modelsTokens[i] = tokenToModel(token)
 	}
 	return modelsTokens, nil
+}
+
+func (s *AuthService) GetEmployees(ctx context.Context, orgID uuid.UUID) ([]*models.Employee, error) {
+	slog.Debug("service:auth:GetEmployees", "orgID", orgID)
+	if orgID == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+
+	employees, err := s.queries.GetEmployees(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get employees: %w", err)
+	}
+
+	employeesModels := make([]*models.Employee, len(employees))
+	for i, employee := range employees {
+		var middleName *string
+		if employee.AppUser.MiddleName.Valid {
+			middleName = &employee.AppUser.MiddleName.String
+		}
+		employeesModels[i] = &models.Employee{
+			UserID:     employee.AppUser.ID.Bytes,
+			Email:      employee.AppUser.Email,
+			FirstName:  employee.AppUser.FirstName,
+			LastName:   employee.AppUser.LastName,
+			MiddleName: middleName,
+			RoleID:     int(employee.AppRole.ID),
+			Role: &models.Role{
+				ID:          int(employee.AppRole.ID),
+				Name:        employee.AppRole.Name,
+				DisplayName: employee.AppRole.DisplayName,
+				Description: employee.AppRole.Description,
+			},
+		}
+	}
+	return employeesModels, nil
+}
+
+func (s *AuthService) DeleteEmployee(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
+	slog.Debug("service:auth:DeleteEmployee", "orgID", orgID, "userID", userID)
+	if orgID == uuid.Nil {
+		return ErrInvalidOrganization
+	}
+	if userID == uuid.Nil {
+		return fmt.Errorf("invalid user ID")
+	}
+
+	err := s.queries.UnassignRoleFromUser(ctx, database.UnassignRoleFromUserParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to unassign role from user: %w", err)
+	}
+	return nil
+}
+
+func (s *AuthService) GetEmployee(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) (*models.Employee, error) {
+	slog.Debug("service:auth:GetEmployee", "orgID", orgID, "userID", userID)
+	if orgID == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+	if userID == uuid.Nil {
+		return nil, fmt.Errorf("invalid user ID")
+	}
+
+	employee, err := s.queries.GetEmployee(ctx, database.GetEmployeeParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get employee: %w", err)
+	}
+
+	var middleName *string
+	if employee.AppUser.MiddleName.Valid {
+		middleName = &employee.AppUser.MiddleName.String
+	}
+
+	return &models.Employee{
+		UserID:     employee.AppUser.ID.Bytes,
+		Email:      employee.AppUser.Email,
+		FirstName:  employee.AppUser.FirstName,
+		LastName:   employee.AppUser.LastName,
+		MiddleName: middleName,
+		RoleID:     int(employee.AppRole.ID),
+		Role: &models.Role{
+			ID:          int(employee.AppRole.ID),
+			Name:        employee.AppRole.Name,
+			DisplayName: employee.AppRole.DisplayName,
+			Description: employee.AppRole.Description,
+		},
+	}, nil
+}
+
+func (s *AuthService) SetEmployeeRole(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID int) error {
+	slog.Debug("service:auth:SetEmployeeRole", "orgID", orgID, "userID", userID, "roleID", roleID)
+	if orgID == uuid.Nil {
+		return ErrInvalidOrganization
+	}
+	if userID == uuid.Nil {
+		return fmt.Errorf("invalid user ID")
+	}
+	if roleID < 1 || roleID > 4 {
+		return ErrInvalidRole
+	}
+
+	err := s.queries.AssignRoleToUser(ctx, database.AssignRoleToUserParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+		RoleID: int32(roleID),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to set employee role: %w", err)
+	}
+	return nil
 }

@@ -1,0 +1,9 @@
+type: object
+properties:
+  email:
+    type: string
+  roleId:
+    type: integer
+required:
+  - email
+  - roleId

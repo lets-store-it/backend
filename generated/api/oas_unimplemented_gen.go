@@ -103,6 +103,15 @@ func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteC
 	return ht.ErrNotImplemented
 }
 
+// DeleteEmployeeById implements deleteEmployeeById operation.
+//
+// Delete employee by id.
+//
+// DELETE /employees/{id}
+func (UnimplementedHandler) DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error {
+	return ht.ErrNotImplemented
+}
+
 // DeleteInstanceById implements deleteInstanceById operation.
 //
 // Delete Instance by ID.
@@ -211,6 +220,24 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r *GetCurrentUs
 	return r, ht.ErrNotImplemented
 }
 
+// GetEmployeeById implements getEmployeeById operation.
+//
+// Get employee by id.
+//
+// GET /employees/{id}
+func (UnimplementedHandler) GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (r *GetEmployeeResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetEmployees implements getEmployees operation.
+//
+// Get all employees.
+//
+// GET /employees
+func (UnimplementedHandler) GetEmployees(ctx context.Context) (r *GetEmployeesResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetInstances implements getInstances operation.
 //
 // Get list of Instances.
@@ -283,6 +310,15 @@ func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r *GetOrganiz
 	return r, ht.ErrNotImplemented
 }
 
+// GetRoles implements getRoles operation.
+//
+// Get all roles in system.
+//
+// GET /app/roles
+func (UnimplementedHandler) GetRoles(ctx context.Context) (r *GetRolesOK, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetStorageGroupById implements getStorageGroupById operation.
 //
 // Get Storage Group by ID.
@@ -298,6 +334,15 @@ func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetS
 //
 // GET /storage-groups
 func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorageGroupsResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// InviteEmployee implements inviteEmployee operation.
+//
+// Invite employee to the organization.
+//
+// POST /employees/invite
+func (UnimplementedHandler) InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (r *GetEmployeeResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -334,6 +379,15 @@ func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCells
 //
 // PATCH /me
 func (UnimplementedHandler) PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (r *GetCurrentUserResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// PatchEmployeeById implements patchEmployeeById operation.
+//
+// Update employee by id.
+//
+// PATCH /employees/{id}
+func (UnimplementedHandler) PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (r *GetEmployeeResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
