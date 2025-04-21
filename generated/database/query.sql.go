@@ -780,6 +780,86 @@ func (q *Queries) GetCellsGroups(ctx context.Context, orgID pgtype.UUID) ([]Cell
 	return items, nil
 }
 
+const getEmployee = `-- name: GetEmployee :one
+SELECT app_user.id, app_user.email, app_user.first_name, app_user.last_name, app_user.middle_name, app_user.yandex_id, app_user.created_at, app_role.id, app_role.name, app_role.display_name, app_role.description FROM app_user
+JOIN app_role_binding ON app_user.id = app_role_binding.user_id
+JOIN app_role ON app_role_binding.role_id = app_role.id
+WHERE app_role_binding.org_id = $1 AND app_role_binding.user_id = $2
+`
+
+type GetEmployeeParams struct {
+	OrgID  pgtype.UUID
+	UserID pgtype.UUID
+}
+
+type GetEmployeeRow struct {
+	AppUser AppUser
+	AppRole AppRole
+}
+
+func (q *Queries) GetEmployee(ctx context.Context, arg GetEmployeeParams) (GetEmployeeRow, error) {
+	row := q.db.QueryRow(ctx, getEmployee, arg.OrgID, arg.UserID)
+	var i GetEmployeeRow
+	err := row.Scan(
+		&i.AppUser.ID,
+		&i.AppUser.Email,
+		&i.AppUser.FirstName,
+		&i.AppUser.LastName,
+		&i.AppUser.MiddleName,
+		&i.AppUser.YandexID,
+		&i.AppUser.CreatedAt,
+		&i.AppRole.ID,
+		&i.AppRole.Name,
+		&i.AppRole.DisplayName,
+		&i.AppRole.Description,
+	)
+	return i, err
+}
+
+const getEmployees = `-- name: GetEmployees :many
+SELECT app_user.id, app_user.email, app_user.first_name, app_user.last_name, app_user.middle_name, app_user.yandex_id, app_user.created_at, app_role.id, app_role.name, app_role.display_name, app_role.description FROM app_user
+JOIN app_role_binding ON app_user.id = app_role_binding.user_id
+JOIN app_role ON app_role_binding.role_id = app_role.id
+WHERE app_role_binding.org_id = $1
+`
+
+type GetEmployeesRow struct {
+	AppUser AppUser
+	AppRole AppRole
+}
+
+func (q *Queries) GetEmployees(ctx context.Context, orgID pgtype.UUID) ([]GetEmployeesRow, error) {
+	rows, err := q.db.Query(ctx, getEmployees, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEmployeesRow
+	for rows.Next() {
+		var i GetEmployeesRow
+		if err := rows.Scan(
+			&i.AppUser.ID,
+			&i.AppUser.Email,
+			&i.AppUser.FirstName,
+			&i.AppUser.LastName,
+			&i.AppUser.MiddleName,
+			&i.AppUser.YandexID,
+			&i.AppUser.CreatedAt,
+			&i.AppRole.ID,
+			&i.AppRole.Name,
+			&i.AppRole.DisplayName,
+			&i.AppRole.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getItem = `-- name: GetItem :one
 SELECT id, org_id, name, description, width, depth, height, weight, created_at, deleted_at FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
@@ -1126,6 +1206,51 @@ func (q *Queries) GetOrgUnits(ctx context.Context, orgID pgtype.UUID) ([]OrgUnit
 	return items, nil
 }
 
+const getRoleById = `-- name: GetRoleById :one
+SELECT id, name, display_name, description FROM app_role WHERE id = $1
+`
+
+func (q *Queries) GetRoleById(ctx context.Context, id int32) (AppRole, error) {
+	row := q.db.QueryRow(ctx, getRoleById, id)
+	var i AppRole
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Description,
+	)
+	return i, err
+}
+
+const getRoles = `-- name: GetRoles :many
+SELECT id, name, display_name, description FROM app_role
+`
+
+func (q *Queries) GetRoles(ctx context.Context) ([]AppRole, error) {
+	rows, err := q.db.Query(ctx, getRoles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AppRole
+	for rows.Next() {
+		var i AppRole
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.DisplayName,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getStorageGroup = `-- name: GetStorageGroup :one
 SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
@@ -1275,38 +1400,31 @@ func (q *Queries) GetUserOrgs(ctx context.Context, userID pgtype.UUID) ([]Org, e
 	return items, nil
 }
 
-const getUserRolesInOrg = `-- name: GetUserRolesInOrg :many
-SELECT id, org_id, role_id, user_id FROM app_role_binding WHERE user_id = $1 AND org_id = $2
+const getUserRoleInOrg = `-- name: GetUserRoleInOrg :one
+SELECT app_role.id, app_role.name, app_role.display_name, app_role.description FROM app_role 
+JOIN app_role_binding ON app_role.id = app_role_binding.role_id
+WHERE app_role_binding.user_id = $2 AND app_role_binding.org_id = $1
 `
 
-type GetUserRolesInOrgParams struct {
-	UserID pgtype.UUID
+type GetUserRoleInOrgParams struct {
 	OrgID  pgtype.UUID
+	UserID pgtype.UUID
 }
 
-func (q *Queries) GetUserRolesInOrg(ctx context.Context, arg GetUserRolesInOrgParams) ([]AppRoleBinding, error) {
-	rows, err := q.db.Query(ctx, getUserRolesInOrg, arg.UserID, arg.OrgID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []AppRoleBinding
-	for rows.Next() {
-		var i AppRoleBinding
-		if err := rows.Scan(
-			&i.ID,
-			&i.OrgID,
-			&i.RoleID,
-			&i.UserID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type GetUserRoleInOrgRow struct {
+	AppRole AppRole
+}
+
+func (q *Queries) GetUserRoleInOrg(ctx context.Context, arg GetUserRoleInOrgParams) (GetUserRoleInOrgRow, error) {
+	row := q.db.QueryRow(ctx, getUserRoleInOrg, arg.OrgID, arg.UserID)
+	var i GetUserRoleInOrgRow
+	err := row.Scan(
+		&i.AppRole.ID,
+		&i.AppRole.Name,
+		&i.AppRole.DisplayName,
+		&i.AppRole.Description,
+	)
+	return i, err
 }
 
 const isItemExists = `-- name: IsItemExists :one
@@ -1351,17 +1469,16 @@ func (q *Queries) RevokeApiToken(ctx context.Context, arg RevokeApiTokenParams) 
 }
 
 const unassignRoleFromUser = `-- name: UnassignRoleFromUser :exec
-DELETE FROM app_role_binding WHERE role_id = $1 AND user_id = $2 AND org_id = $3
+DELETE FROM app_role_binding WHERE org_id = $1 AND user_id = $2
 `
 
 type UnassignRoleFromUserParams struct {
-	RoleID int32
-	UserID pgtype.UUID
 	OrgID  pgtype.UUID
+	UserID pgtype.UUID
 }
 
 func (q *Queries) UnassignRoleFromUser(ctx context.Context, arg UnassignRoleFromUserParams) error {
-	_, err := q.db.Exec(ctx, unassignRoleFromUser, arg.RoleID, arg.UserID, arg.OrgID)
+	_, err := q.db.Exec(ctx, unassignRoleFromUser, arg.OrgID, arg.UserID)
 	return err
 }
 

@@ -68,6 +68,12 @@ type Handler interface {
 	//
 	// DELETE /cells-groups/{groupId}
 	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
+	// DeleteEmployeeById implements deleteEmployeeById operation.
+	//
+	// Delete employee by id.
+	//
+	// DELETE /employees/{id}
+	DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error
 	// DeleteInstanceById implements deleteInstanceById operation.
 	//
 	// Delete Instance by ID.
@@ -140,6 +146,18 @@ type Handler interface {
 	//
 	// GET /me
 	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
+	// GetEmployeeById implements getEmployeeById operation.
+	//
+	// Get employee by id.
+	//
+	// GET /employees/{id}
+	GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (*GetEmployeeResponse, error)
+	// GetEmployees implements getEmployees operation.
+	//
+	// Get all employees.
+	//
+	// GET /employees
+	GetEmployees(ctx context.Context) (*GetEmployeesResponse, error)
 	// GetInstances implements getInstances operation.
 	//
 	// Get list of Instances.
@@ -188,6 +206,12 @@ type Handler interface {
 	//
 	// GET /orgs
 	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
+	// GetRoles implements getRoles operation.
+	//
+	// Get all roles in system.
+	//
+	// GET /app/roles
+	GetRoles(ctx context.Context) (*GetRolesOK, error)
 	// GetStorageGroupById implements getStorageGroupById operation.
 	//
 	// Get Storage Group by ID.
@@ -200,6 +224,12 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	// InviteEmployee implements inviteEmployee operation.
+	//
+	// Invite employee to the organization.
+	//
+	// POST /employees/invite
+	InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (*GetEmployeeResponse, error)
 	// Logout implements logout operation.
 	//
 	// Logout user.
@@ -224,6 +254,12 @@ type Handler interface {
 	//
 	// PATCH /me
 	PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (*GetCurrentUserResponse, error)
+	// PatchEmployeeById implements patchEmployeeById operation.
+	//
+	// Update employee by id.
+	//
+	// PATCH /employees/{id}
+	PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (*GetEmployeeResponse, error)
 	// PatchItem implements patchItem operation.
 	//
 	// Patch Item.

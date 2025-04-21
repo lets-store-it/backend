@@ -33,7 +33,7 @@ type AppRole struct {
 	ID          int32
 	Name        string
 	DisplayName string
-	Description pgtype.Text
+	Description string
 }
 
 type AppRoleBinding struct {

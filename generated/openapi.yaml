@@ -899,6 +899,118 @@ paths:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
         default:
           $ref: '#/components/responses/default-error'
+  /employees:
+    get:
+      summary: Get employees of the organization
+      tags:
+        - employees
+      description: Get all employees
+      operationId: getEmployees
+      responses:
+        '200':
+          description: A list of employees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmployeesResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /employees/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get employee by id
+      tags:
+        - employees
+      operationId: getEmployeeById
+      responses:
+        '200':
+          description: A single employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmployeeResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    patch:
+      summary: Update employee by id
+      tags:
+        - employees
+      operationId: patchEmployeeById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchEmployeeRequest'
+      responses:
+        '200':
+          description: A single employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmployeeResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    delete:
+      summary: Delete employee by id
+      tags:
+        - employees
+      operationId: deleteEmployeeById
+      responses:
+        '200':
+          description: Employee deleted successfully
+        default:
+          $ref: '#/components/responses/default-error'
+  /employees/invite:
+    post:
+      summary: Invite employee to the organization
+      tags:
+        - employees
+      description: Invite employee to the organization
+      operationId: inviteEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteEmployeeRequest'
+      responses:
+        '200':
+          description: Employee invited successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmployeeResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /app/roles:
+    get:
+      summary: Get all roles in system
+      tags:
+        - employees
+      operationId: getRoles
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+                required:
+                  - data
+        default:
+          $ref: '#/components/responses/default-error'
 components:
   securitySchemes:
     apiToken:
@@ -1700,34 +1812,32 @@ components:
       required:
         - data
     InstanceFull:
-      type: array
-      items:
-        type: object
-        properties:
-          id:
-            type: string
-            format: uuid
-            readOnly: true
-            description: Instance ID
-          status:
-            type: string
-            enum:
-              - available
-              - reserved
-              - consumed
-          item:
-            type: object
-            $ref: '#/components/schemas/Item'
-          variant:
-            $ref: '#/components/schemas/ItemVariant'
-          cell:
-            $ref: '#/components/schemas/CellForInstance'
-        required:
-          - id
-          - itemId
-          - status
-          - variant
-          - cell
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Instance ID
+        status:
+          type: string
+          enum:
+            - available
+            - reserved
+            - consumed
+        item:
+          type: object
+          $ref: '#/components/schemas/Item'
+        variant:
+          $ref: '#/components/schemas/ItemVariant'
+        cell:
+          $ref: '#/components/schemas/CellForInstance'
+      required:
+        - id
+        - itemId
+        - status
+        - variant
+        - cell
     GetInstancesResponse:
       type: object
       properties:
@@ -1874,6 +1984,84 @@ components:
     PatchCurrentUserRequest:
       allOf:
         - $ref: '#/components/schemas/UserPatch'
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - displayName
+        - description
+    Employee:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+          nullable: true
+        email:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+      required:
+        - userId
+        - firstName
+        - lastName
+        - middleName
+        - email
+        - role
+    GetEmployeesResponse:
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Employee'
+          required:
+            - data
+    GetEmployeeResponse:
+      allOf:
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Employee'
+          required:
+            - data
+    PatchEmployeeRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        roleId:
+          type: integer
+      required:
+        - userId
+    InviteEmployeeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        roleId:
+          type: integer
+      required:
+        - email
+        - roleId
   responses:
     default-error:
       description: General Error

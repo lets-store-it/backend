@@ -35,13 +35,13 @@ func (uc *StorageUseCase) validateOrganizationAccess(ctx context.Context) (uuid.
 		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
 	}
 
-	roles, err := uc.authService.GetUserRoles(ctx, userID, orgID)
+	_, err = uc.authService.GetUserRole(ctx, userID, orgID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
 	}
-	if _, ok := roles[auth.RoleOwner]; !ok {
-		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
-	}
+	// if _, ok := roles[auth.RoleOwner]; !ok {
+	// 	return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
+	// }
 
 	return orgID, nil
 }

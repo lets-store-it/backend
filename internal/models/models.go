@@ -212,3 +212,30 @@ type Task struct {
 	Type        TaskType   `json:"type"`
 	Items       []TaskItem `json:"items"`
 }
+
+type RoleLevel string
+
+const (
+	RoleOwner   RoleLevel = "org_owner"
+	RoleAdmin   RoleLevel = "org_admin"
+	RoleManager RoleLevel = "org_manager"
+	RoleWorker  RoleLevel = "org_worker"
+)
+
+type Role struct {
+	ID          int
+	Name        string
+	DisplayName string
+	Description string
+}
+
+type Employee struct {
+	UserID     uuid.UUID `json:"id"`
+	Email      string    `json:"email"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	MiddleName *string   `json:"middle_name"`
+	RoleID     int       `json:"role_id"`
+
+	Role *Role `json:"role"`
+}

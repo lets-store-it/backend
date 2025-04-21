@@ -1,0 +1,51 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  summary: Get employee by id
+  tags:
+    - employees
+  operationId: getEmployeeById
+  responses:
+    "200":
+      description: A single employee
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/employees/GetEmployeeResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+patch:
+  summary: Update employee by id
+  tags:
+    - employees
+  operationId: patchEmployeeById
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/employees/PatchEmployeeRequest.yaml
+  responses:
+    "200":
+      description: A single employee
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/employees/GetEmployeeResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  summary: Delete employee by id
+  tags:
+    - employees
+  operationId: deleteEmployeeById
+  responses:
+    "200":
+      description: Employee deleted successfully
+    default:
+      $ref: ../../components/responses/default-error.yaml

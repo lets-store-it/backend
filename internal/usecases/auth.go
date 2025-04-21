@@ -94,13 +94,13 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
 	}
 
-	roles, err := uc.authService.GetUserRoles(ctx, userID, orgID)
+	_, err = uc.authService.GetUserRole(ctx, userID, orgID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
 	}
-	if _, ok := roles[auth.RoleOwner]; !ok {
-		return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
-	}
+	// if roles != auth.RoleOwner {
+	// 	return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
+	// }
 
 	return orgID, nil
 }
@@ -145,4 +145,96 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	employees, err := uc.authService.GetEmployees(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	return employees, nil
+}
+
+func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	employee, err := uc.authService.GetEmployee(ctx, orgID, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return employee, nil
+}
+
+func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID int) (*models.Employee, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.authService.SetEmployeeRole(ctx, orgID, id, roleID)
+	if err != nil {
+		return nil, err
+	}
+
+	employee, err := uc.authService.GetEmployee(ctx, orgID, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return employee, nil
+}
+
+func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = uc.authService.DeleteEmployee(ctx, orgID, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
+	orgID, err := uc.validateOrganizationAccess(ctx)
+	if err != nil {
+		return nil, err
+	}
+	user, err := uc.authService.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.authService.AssignRoleToUser(ctx, orgID, user.ID, roleID)
+	if err != nil {
+		return nil, err
+	}
+
+	employee, err := uc.authService.GetEmployee(ctx, orgID, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return employee, nil
+}
+
+func (uc *AuthUseCase) GetRoles(ctx context.Context) ([]*models.Role, error) {
+	roles, err := uc.authService.GetRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
 }

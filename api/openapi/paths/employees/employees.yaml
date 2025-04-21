@@ -1,0 +1,15 @@
+get:
+  summary: Get employees of the organization
+  tags:
+    - employees
+  description: Get all employees
+  operationId: getEmployees
+  responses:
+    "200":
+      description: A list of employees
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/employees/GetEmployeesResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

@@ -137,6 +137,20 @@ func encodeExchangeYandexAccessTokenRequest(
 	return nil
 }
 
+func encodeInviteEmployeeRequest(
+	req *InviteEmployeeRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodePatchCellRequest(
 	req *PatchCellRequest,
 	r *http.Request,
@@ -167,6 +181,20 @@ func encodePatchCellsGroupRequest(
 
 func encodePatchCurrentUserRequest(
 	req *PatchCurrentUserRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodePatchEmployeeByIdRequest(
+	req *PatchEmployeeRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

@@ -1,0 +1,21 @@
+post:
+  summary: Invite employee to the organization
+  tags:
+    - employees
+  description: Invite employee to the organization
+  operationId: inviteEmployee
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/employees/InviteEmployeeRequest.yaml
+  responses:
+    "200":
+      description: Employee invited successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/employees/GetEmployeeResponse.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

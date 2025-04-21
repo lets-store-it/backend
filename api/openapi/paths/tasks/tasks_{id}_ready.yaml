@@ -9,7 +9,7 @@ post:
   tags:
     - tasks
   summary: Mark task as completed
-  operationId: pickItemFromCell
+  operationId: markTaskAsCompleted
   responses:
     "201":
       description: Successful operation
