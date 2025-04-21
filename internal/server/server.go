@@ -55,9 +55,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	storageGroupUseCase := usecases.NewStorageUseCase(storageGroupService, orgService, authService)
 
 	// Initialize auth middleware
-	authMiddleware := handlers.NewAuthMiddleware(authUseCase, "storeit_session", []string{"/auth", "/metrics"})
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
-	e.Use(echo.WrapMiddleware(authMiddleware.Process))
 
 	// Initialize API handlers
 	handler := handlers.NewRestApiImplementation(
@@ -69,7 +67,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	)
 
 	// Setup API server with global telemetry providers
-	server, err := api.NewServer(handler,
+	server, err := api.NewServer(handler, handler,
 		api.WithMeterProvider(telemetry.GetMeterProvider()),
 		api.WithTracerProvider(telemetry.GetTracerProvider()),
 	)

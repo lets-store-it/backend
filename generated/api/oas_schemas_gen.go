@@ -13,6 +13,20 @@ func (s *DefaultErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+type ApiToken struct {
+	APIKey string
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *ApiToken) GetAPIKey() string {
+	return s.APIKey
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *ApiToken) SetAPIKey(val string) {
+	s.APIKey = val
+}
+
 // Ref: #/components/responses/AuthResponse
 type AuthResponse struct {
 	SetCookie string
@@ -299,6 +313,20 @@ func (s *CellGroupBase) SetAlias(val string) {
 // SetStorageGroupID sets the value of StorageGroupID.
 func (s *CellGroupBase) SetStorageGroupID(val uuid.UUID) {
 	s.StorageGroupID = val
+}
+
+type Cookie struct {
+	APIKey string
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *Cookie) GetAPIKey() string {
+	return s.APIKey
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *Cookie) SetAPIKey(val string) {
+	s.APIKey = val
 }
 
 // Ref: #/components/schemas/CreateApiTokenRequest

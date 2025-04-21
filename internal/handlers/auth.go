@@ -2,11 +2,34 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/usecases"
 )
+
+// HandleApiToken implements api.SecurityHandler.
+func (h *RestApiImplementation) HandleApiToken(ctx context.Context, operationName api.OperationName, t api.ApiToken) (context.Context, error) {
+	orgID, err := h.authUseCase.GetOrgIdByApiToken(ctx, t.GetAPIKey())
+	if err != nil {
+		return nil, fmt.Errorf("invalid api token: %w", err)
+	}
+	ctx = context.WithValue(ctx, usecases.OrganizationIDKey, orgID)
+	ctx = context.WithValue(ctx, usecases.IsSystemUserKey, true)
+	return ctx, nil
+}
+
+// HandleCookie implements api.SecurityHandler.
+func (h *RestApiImplementation) HandleCookie(ctx context.Context, operationName api.OperationName, t api.Cookie) (context.Context, error) {
+	userID, err := h.authUseCase.GetUserIdFromSession(ctx, t.GetAPIKey())
+	if err != nil {
+		return nil, fmt.Errorf("invalid session: %w", err)
+	}
+
+	return context.WithValue(ctx, usecases.UserIDKey, userID), nil
+}
 
 // func (h *RestApiImplementation) GetCurrentUserBySessionSecret(ctx context.Context) (*api.GetCurrentUserResponse, error) {
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -24,10 +25,23 @@ type YandexOAuthConfig struct {
 	ClientSecret string `yaml:"client_secret" env:"YANDEX_OAUTH_CLIENT_SECRET"`
 }
 
+type KafkaConfig struct {
+	// Comma-separated list of brokers, e.g. "localhost:9092,localhost:9093"
+	Brokers string `yaml:"brokers" env:"KAFKA_BROKERS" env-default:"localhost:9092"`
+	// Whether Kafka integration is enabled
+	Enabled bool `yaml:"enabled" env:"KAFKA_ENABLED" env-default:"false"`
+}
+
+// GetBrokersList returns the list of Kafka brokers
+func (k *KafkaConfig) GetBrokersList() []string {
+	return strings.Split(k.Brokers, ",")
+}
+
 type Config struct {
 	Server      ServerConfig      `yaml:"server"`
 	Database    DatabaseConfig    `yaml:"database"`
 	YandexOAuth YandexOAuthConfig `yaml:"yandex_oauth"`
+	Kafka       KafkaConfig       `yaml:"kafka"`
 }
 
 func GetConfigOrDie() *Config {

@@ -2,13 +2,19 @@ package audit
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/models"
+)
+
+const (
+	auditTopic = "audit.object-changes"
 )
 
 var (
@@ -20,10 +26,38 @@ var (
 
 type AuditService struct {
 	queries *database.Queries
+	kafka   *KafkaConfig
 }
 
-func New(queries *database.Queries) *AuditService {
-	return &AuditService{queries: queries}
+type AuditServiceConfig struct {
+	Queries      *database.Queries
+	KafkaEnabled bool
+	KafkaBrokers []string
+}
+
+func New(cfg *AuditServiceConfig) (*AuditService, error) {
+	service := &AuditService{
+		queries: cfg.Queries,
+	}
+
+	if cfg.KafkaEnabled {
+		kafka := NewKafkaConfig(cfg.KafkaBrokers)
+		if err := kafka.Connect(context.Background(), auditTopic); err != nil {
+			return nil, fmt.Errorf("failed to connect to kafka: %w", err)
+		}
+		service.kafka = kafka
+	}
+
+	return service, nil
+}
+
+func (s *AuditService) Close() error {
+	if s.kafka != nil {
+		if err := s.kafka.Close(); err != nil {
+			return fmt.Errorf("failed to close kafka connection: %w", err)
+		}
+	}
+	return nil
 }
 
 func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
@@ -52,6 +86,21 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	if err != nil {
 		return fmt.Errorf("failed to create object change: %w", err)
 	}
+
+	// Send to Kafka if enabled
+	if s.kafka != nil {
+		message, err := json.Marshal(objectChange)
+		if err != nil {
+			return fmt.Errorf("failed to marshal object change: %w", err)
+		}
+
+		// Use random number as key for even distribution
+		key := []byte(fmt.Sprintf("%d", rand.Int()))
+		if err := s.kafka.SendMessage(ctx, key, message); err != nil {
+			return fmt.Errorf("failed to send message to kafka: %w", err)
+		}
+	}
+
 	return nil
 }
 
