@@ -37,8 +37,19 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000",
+			"http://localhost:8080",
+			"http://localhost",
+			"https://store-it.ru",
+			"https://www.store-it.ru",
+			"http://store-it.ru",
+			"http://www.store-it.ru",
+		},
+		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowCredentials: true,
+	}))
 	// Initialize services
 	storageGroupService := storage.New(queries)
 	auditService, err := audit.New(&audit.AuditServiceConfig{
