@@ -58,6 +58,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 			"X-Organization-Id",
 			"X-Api-Key",
 			"X-Requested-With",
+			"Access-Control-Allow-Origin"
 		},
 		AllowCredentials: true,
 	}))
