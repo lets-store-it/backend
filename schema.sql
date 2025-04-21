@@ -141,13 +141,6 @@ CREATE TABLE task (
     deleted_at TIMESTAMP
 );
 
-CREATE TABLE task_item (
-    task_id UUID NOT NULL REFERENCES task(id),
-    item_instance_id UUID NOT NULL REFERENCES item_instance(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')),
-    destination_cell_id UUID REFERENCES cell(id)
-);
-
 CREATE TABLE item_instance (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
@@ -162,6 +155,15 @@ CREATE TABLE item_instance (
     deleted_at TIMESTAMP,
     UNIQUE (item_id, variant_id)
 );
+
+CREATE TABLE task_item (
+    task_id UUID NOT NULL REFERENCES task(id),
+    item_instance_id UUID NOT NULL REFERENCES item_instance(id),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')),
+    destination_cell_id UUID REFERENCES cell(id)
+);
+
+
 
 CREATE TABLE app_user_session (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
