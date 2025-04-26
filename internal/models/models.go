@@ -123,28 +123,38 @@ const (
 	ObjectChangeActionDelete ObjectChangeAction = "delete"
 )
 
-type ObjectType int
+type ObjectTypeId int
 
 const (
-	ObjectTypeOrganization ObjectType = 1
-	ObjectTypeUnit         ObjectType = 2
-	ObjectTypeStorageGroup ObjectType = 3
-	ObjectTypeCellsGroup   ObjectType = 4
-	ObjectTypeCell         ObjectType = 5
-	ObjectTypeItem         ObjectType = 6
-	ObjectTypeItemInstance ObjectType = 7
-	ObjectTypeUserRoles    ObjectType = 8
+	ObjectTypeOrganization ObjectTypeId = 1
+	ObjectTypeUnit         ObjectTypeId = 2
+	ObjectTypeStorageGroup ObjectTypeId = 3
+	ObjectTypeCellsGroup   ObjectTypeId = 4
+	ObjectTypeCell         ObjectTypeId = 5
+	ObjectTypeItem         ObjectTypeId = 6
+	ObjectTypeItemInstance ObjectTypeId = 7
+	ObjectTypeUserRoles    ObjectTypeId = 8
 )
 
+type ObjectType struct {
+	ID    ObjectTypeId `json:"id"`
+	Group string       `json:"group"`
+	Name  string       `json:"name"`
+}
+
 type ObjectChange struct {
-	ID               uuid.UUID          `json:"id"`
-	OrgID            uuid.UUID          `json:"org_id"`
-	UserID           uuid.UUID          `json:"user_id"`
-	Action           ObjectChangeAction `json:"action"`
-	TargetObjectType ObjectType         `json:"target_object_type"`
-	TargetObjectID   uuid.UUID          `json:"target_object_id"`
-	PrechangeState   json.RawMessage    `json:"prechange_state"`
-	PostchangeState  json.RawMessage    `json:"postchange_state"`
+	ID                 uuid.UUID          `json:"id"`
+	OrgID              uuid.UUID          `json:"org_id"`
+	UserID             uuid.UUID          `json:"user_id"`
+	Action             ObjectChangeAction `json:"action"`
+	TargetObjectTypeId ObjectTypeId       `json:"target_object_type_id"`
+	TargetObjectID     uuid.UUID          `json:"target_object_id"`
+	PrechangeState     json.RawMessage    `json:"prechange_state"`
+	PostchangeState    json.RawMessage    `json:"postchange_state"`
+	Timestamp          time.Time          `json:"timestamp"`
+
+	Employee   *Employee   `json:"employee"`
+	ObjectType *ObjectType `json:"object_type"`
 }
 
 type ItemInstanceStatus string

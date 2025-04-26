@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -237,16 +236,4 @@ func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.
 	return &api.GetEmployeeResponse{
 		Data: toEmployeeDTO(employee),
 	}, nil
-}
-
-// GetAuditLogs implements api.Handler.
-func (h *RestApiImplementation) GetAuditLogs(ctx context.Context, params api.GetAuditLogsParams) (*api.GetAuditLogsResponse, error) {
-	if !params.ObjectTypeID.Set || !params.ObjectID.Set {
-		return nil, h.NewError(ctx, errors.New("object type id and object id are required"))
-	}
-	
-	auditLogs, err := h.auditUseCase.GetAuditLogs(ctx, params.ObjectTypeID.Value, params.ObjectID.Value)
-	if err != nil {
-		return nil, h.NewError(ctx, err)
-	}
 }

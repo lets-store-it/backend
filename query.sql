@@ -227,7 +227,7 @@ SELECT * FROM object_type WHERE id = $1;
 INSERT INTO app_object_change (org_id, user_id, action, target_object_type, target_object_id, prechange_state, postchange_state) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 
 -- name: GetObjectChanges :many
-SELECT * FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL;
+SELECT * FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3;
 
 
 -- Item Instances
@@ -314,3 +314,18 @@ INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, 
 
 -- -- name: DeleteCustomFieldRelatedType :exec
 -- DELETE FROM custom_field_related_types WHERE custom_field_id = $1 AND object_type_id = $2;
+
+-- name: GetObjectTypeById :one
+SELECT * FROM object_type WHERE id = $1;
+
+-- name: GetEmployeeByUserId :one
+SELECT 
+    u.id as user_id,
+    u.email,
+    u.first_name,
+    u.last_name,
+    u.middle_name,
+    rb.role_id
+FROM app_user u
+JOIN app_role_binding rb ON rb.user_id = u.id
+WHERE rb.org_id = $1 AND rb.user_id = $2;

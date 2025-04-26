@@ -816,6 +816,47 @@ func (q *Queries) GetEmployee(ctx context.Context, arg GetEmployeeParams) (GetEm
 	return i, err
 }
 
+const getEmployeeByUserId = `-- name: GetEmployeeByUserId :one
+SELECT 
+    u.id as user_id,
+    u.email,
+    u.first_name,
+    u.last_name,
+    u.middle_name,
+    rb.role_id
+FROM app_user u
+JOIN app_role_binding rb ON rb.user_id = u.id
+WHERE rb.org_id = $1 AND rb.user_id = $2
+`
+
+type GetEmployeeByUserIdParams struct {
+	OrgID  pgtype.UUID
+	UserID pgtype.UUID
+}
+
+type GetEmployeeByUserIdRow struct {
+	UserID     pgtype.UUID
+	Email      string
+	FirstName  string
+	LastName   string
+	MiddleName pgtype.Text
+	RoleID     int32
+}
+
+func (q *Queries) GetEmployeeByUserId(ctx context.Context, arg GetEmployeeByUserIdParams) (GetEmployeeByUserIdRow, error) {
+	row := q.db.QueryRow(ctx, getEmployeeByUserId, arg.OrgID, arg.UserID)
+	var i GetEmployeeByUserIdRow
+	err := row.Scan(
+		&i.UserID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.RoleID,
+	)
+	return i, err
+}
+
 const getEmployees = `-- name: GetEmployees :many
 SELECT app_user.id, app_user.email, app_user.first_name, app_user.last_name, app_user.middle_name, app_user.yandex_id, app_user.created_at, app_role.id, app_role.name, app_role.display_name, app_role.description FROM app_user
 JOIN app_role_binding ON app_user.id = app_role_binding.user_id
@@ -1082,7 +1123,7 @@ func (q *Queries) GetItems(ctx context.Context, orgID pgtype.UUID) ([]Item, erro
 }
 
 const getObjectChanges = `-- name: GetObjectChanges :many
-SELECT id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3 AND deleted_at IS NULL
+SELECT id, org_id, user_id, action, time, target_object_type, target_object_id, prechange_state, postchange_state FROM app_object_change WHERE org_id = $1 AND target_object_type = $2 AND target_object_id = $3
 `
 
 type GetObjectChangesParams struct {
@@ -1127,6 +1168,71 @@ SELECT id, object_group, object_name FROM object_type WHERE id = $1
 
 func (q *Queries) GetObjectType(ctx context.Context, id int32) (ObjectType, error) {
 	row := q.db.QueryRow(ctx, getObjectType, id)
+	var i ObjectType
+	err := row.Scan(&i.ID, &i.ObjectGroup, &i.ObjectName)
+	return i, err
+}
+
+const getObjectTypeById = `-- name: GetObjectTypeById :one
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT id, object_group, object_name FROM object_type WHERE id = $1
+`
+
+// -- name: GetActiveItemVariants :many
+// SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
+// -- name: GetItemVariant :one
+// SELECT * FROM item_variant WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL;
+// -- Custom fields
+// -- name: GetCustomFields :many
+// SELECT * FROM custom_field WHERE org_id = $1 AND deleted_at IS NULL;
+// -- Object Types
+// -- name: GetObjectTypes :many
+// SELECT id, group, name FROM object_type;
+// CREATE TABLE custom_field (
+//
+//	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//	org_id UUID NOT NULL REFERENCES org(id),
+//	type VARCHAR(100) NOT NULL CHECK (type IN ('text', 'integer', 'decimal' 'boolean')),
+//	name VARCHAR(100) NOT NULL,
+//	label VARCHAR(100) NOT NULL,
+//	description VARCHAR(255),
+//	group_name VARCHAR(100),
+//	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//	deleted_at TIMESTAMP,
+//	UNIQUE (org_id, name)
+//
+// );
+// -- name: IsCustomFieldExistsForOrganization :one
+// SELECT EXISTS (SELECT 1 FROM custom_field WHERE org_id = $1 AND name = $2 AND deleted_at IS NULL);
+// -- name: CreateCustomField :one
+// INSERT INTO custom_field (org_id, name, label, type, group_name, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+// -- name: UpdateCustomField :one
+// UPDATE custom_field SET name = $2, label = $3, group_name = $5, description = $6 WHERE id = $1 AND deleted_at IS NULL RETURNING *;
+// -- name: DeleteCustomField :exec
+// UPDATE custom_field SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
+// -- name: GetCustomFieldById :one
+// SELECT * FROM custom_field WHERE id = $1 AND deleted_at IS NULL;
+// -- name: GetCustomFieldRelatedTypes :many
+// SELECT object_type_id FROM custom_field_related_types WHERE custom_field_id = $1;
+// -- name: AddCustomFieldRelatedType :exec
+// INSERT INTO custom_field_related_types (custom_field_id, object_type_id) VALUES ($1, $2);
+// -- name: DeleteCustomFieldRelatedType :exec
+// DELETE FROM custom_field_related_types WHERE custom_field_id = $1 AND object_type_id = $2;
+func (q *Queries) GetObjectTypeById(ctx context.Context, id int32) (ObjectType, error) {
+	row := q.db.QueryRow(ctx, getObjectTypeById, id)
 	var i ObjectType
 	err := row.Scan(&i.ID, &i.ObjectGroup, &i.ObjectName)
 	return i, err

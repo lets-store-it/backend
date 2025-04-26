@@ -48,14 +48,14 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           userID,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
+		ID:                 uuid.New(),
+		OrgID:              org.ID,
+		UserID:             userID,
+		Action:             models.ObjectChangeActionCreate,
+		TargetObjectTypeId: models.ObjectTypeOrganization,
+		TargetObjectID:     org.ID,
+		PrechangeState:     nil,
+		PostchangeState:    postchangeState,
 	})
 
 	return org, nil
@@ -85,14 +85,6 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	// if roles != auth.RoleOwner {
-	// 	return errors.New("no permissions to delete organization")
-	// }
-
-	// if _, ok := roles[auth.RoleOwner]; !ok {
-	// 	return errors.New("no permissions to delete organization")
-	// }
-
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {
 		return err
@@ -109,14 +101,14 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           userID,
-		Action:           models.ObjectChangeActionDelete,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  nil,
+		ID:                 uuid.New(),
+		OrgID:              org.ID,
+		UserID:             userID,
+		Action:             models.ObjectChangeActionDelete,
+		TargetObjectTypeId: models.ObjectTypeOrganization,
+		TargetObjectID:     org.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    nil,
 	})
 	return nil
 }
@@ -132,9 +124,6 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 		return nil, err
 	}
 
-	// if role != auth.RoleOwner {
-	// 	return nil, errors.New("no permissions to update organization")
-	// }
 	org, err = uc.service.GetByID(ctx, org.ID)
 	if err != nil {
 		return nil, err
@@ -156,14 +145,14 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           userID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
+		ID:                 uuid.New(),
+		OrgID:              org.ID,
+		UserID:             userID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeOrganization,
+		TargetObjectID:     org.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
 	})
 
 	return orgUpdated, nil
@@ -179,10 +168,6 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	if err != nil {
 		return nil, err
 	}
-
-	// if _, ok := roles[auth.RoleOwner]; !ok {
-	// 	return nil, errors.New("no permissions to update organization")
-	// }
 
 	org, err := uc.service.GetByID(ctx, id)
 	if err != nil {
@@ -213,14 +198,14 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           userID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
+		ID:                 uuid.New(),
+		OrgID:              org.ID,
+		UserID:             userID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeOrganization,
+		TargetObjectID:     org.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
 	})
 
 	return orgUpdated, nil

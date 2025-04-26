@@ -2130,8 +2130,12 @@ components:
           format: uuid
         prechangeState:
           type: object
+          additionalProperties: true
+          nullable: true
         postchangeState:
           type: object
+          additionalProperties: true
+          nullable: true
       required:
         - id
         - employee
@@ -2139,6 +2143,8 @@ components:
         - time
         - targetObjectType
         - targetObjectId
+        - prechangeState
+        - postchangeState
     GetAuditLogsResponse:
       type: object
       properties:

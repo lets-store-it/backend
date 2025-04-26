@@ -45,8 +45,12 @@ properties:
     format: uuid
   prechangeState:
     type: object
+    additionalProperties: true
+    nullable: true
   postchangeState:
     type: object
+    additionalProperties: true
+    nullable: true
 required:
   - id
   - employee
@@ -54,3 +58,5 @@ required:
   - time
   - targetObjectType
   - targetObjectId
+  - prechangeState
+  - postchangeState

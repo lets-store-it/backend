@@ -85,6 +85,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService, auditService)
 	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService, authUseCase)
 	storageGroupUseCase := usecases.NewStorageUseCase(storageGroupService, orgService, authService)
+	auditUseCase := usecases.NewAuditUseCase(authService, auditService)
 
 	// Initialize auth middleware
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
@@ -96,6 +97,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 		storageGroupUseCase,
 		itemUseCase,
 		authUseCase,
+		auditUseCase,
 	)
 
 	// Setup API server with global telemetry providers
