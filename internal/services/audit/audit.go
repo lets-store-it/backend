@@ -74,17 +74,67 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return ErrInvalidTargetObject
 	}
 
-	_, err := s.queries.CreateObjectChange(ctx, database.CreateObjectChangeParams{
+	// Get the object type information
+	objectType, err := s.queries.GetObjectTypeById(ctx, int32(objectChange.TargetObjectTypeId))
+	if err != nil {
+		return fmt.Errorf("failed to get object type: %w", err)
+	}
+
+	// Get the employee information
+	employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
+		OrgID:  pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: objectChange.UserID, Valid: true},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get employee: %w", err)
+	}
+
+	// Get the role information
+	role, err := s.queries.GetRoleById(ctx, employee.RoleID)
+	if err != nil {
+		return fmt.Errorf("failed to get role: %w", err)
+	}
+
+	// Create the object change record
+	change, err := s.queries.CreateObjectChange(ctx, database.CreateObjectChangeParams{
 		OrgID:            pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
 		UserID:           pgtype.UUID{Bytes: objectChange.UserID, Valid: true},
 		Action:           string(objectChange.Action),
-		TargetObjectType: int32(objectChange.TargetObjectType),
+		TargetObjectType: int32(objectChange.TargetObjectTypeId),
 		TargetObjectID:   pgtype.UUID{Bytes: objectChange.TargetObjectID, Valid: true},
 		PrechangeState:   objectChange.PrechangeState,
 		PostchangeState:  objectChange.PostchangeState,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create object change: %w", err)
+	}
+
+	// Fill in the optional fields
+	objectChange.ID = change.ID.Bytes
+	objectChange.ObjectType = &models.ObjectType{
+		ID:    models.ObjectTypeId(objectType.ID),
+		Group: objectType.ObjectGroup,
+		Name:  objectType.ObjectName,
+	}
+
+	var middleName *string
+	if employee.MiddleName.Valid {
+		middleName = &employee.MiddleName.String
+	}
+
+	objectChange.Employee = &models.Employee{
+		UserID:     employee.UserID.Bytes,
+		Email:      employee.Email,
+		FirstName:  employee.FirstName,
+		LastName:   employee.LastName,
+		MiddleName: middleName,
+		RoleID:     int(employee.RoleID),
+		Role: &models.Role{
+			ID:          int(role.ID),
+			Name:        role.Name,
+			DisplayName: role.DisplayName,
+			Description: role.Description,
+		},
 	}
 
 	// Send to Kafka if enabled
@@ -104,7 +154,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	return nil
 }
 
-func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectType models.ObjectType, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
+func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
 	if orgID == uuid.Nil {
 		return nil, ErrInvalidOrganization
 	}
@@ -112,27 +162,75 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 		return nil, ErrInvalidTargetObject
 	}
 
+	// Get the object changes
 	objectChanges, err := s.queries.GetObjectChanges(ctx, database.GetObjectChangesParams{
 		OrgID:            pgtype.UUID{Bytes: orgID, Valid: true},
-		TargetObjectType: int32(targetObjectType),
+		TargetObjectType: int32(targetObjectTypeId),
 		TargetObjectID:   pgtype.UUID{Bytes: targetObjectID, Valid: true},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object changes: %w", err)
 	}
 
+	// Get the object type information
+	objectType, err := s.queries.GetObjectTypeById(ctx, int32(targetObjectTypeId))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object type: %w", err)
+	}
+
 	objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
-	for i, objectChange := range objectChanges {
+	for i, change := range objectChanges {
+		// Get the employee information for each change
+		employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
+			OrgID:  change.OrgID,
+			UserID: change.UserID,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to get employee for change %s: %w", change.ID.Bytes, err)
+		}
+
+		// Get the role information
+		role, err := s.queries.GetRoleById(ctx, employee.RoleID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get role for employee %s: %w", employee.UserID.Bytes, err)
+		}
+
+		var middleName *string
+		if employee.MiddleName.Valid {
+			middleName = &employee.MiddleName.String
+		}
+
 		objectChangesModels[i] = &models.ObjectChange{
-			ID:               objectChange.ID.Bytes,
-			OrgID:            objectChange.OrgID.Bytes,
-			UserID:           objectChange.UserID.Bytes,
-			Action:           models.ObjectChangeAction(objectChange.Action),
-			TargetObjectType: models.ObjectType(objectChange.TargetObjectType),
-			TargetObjectID:   objectChange.TargetObjectID.Bytes,
-			PrechangeState:   objectChange.PrechangeState,
-			PostchangeState:  objectChange.PostchangeState,
+			ID:                 change.ID.Bytes,
+			OrgID:              change.OrgID.Bytes,
+			UserID:             change.UserID.Bytes,
+			Action:             models.ObjectChangeAction(change.Action),
+			TargetObjectTypeId: models.ObjectTypeId(objectType.ID),
+			TargetObjectID:     change.TargetObjectID.Bytes,
+			PrechangeState:     change.PrechangeState,
+			PostchangeState:    change.PostchangeState,
+			Timestamp:          change.Time.Time,
+			ObjectType: &models.ObjectType{
+				ID:    models.ObjectTypeId(objectType.ID),
+				Group: objectType.ObjectGroup,
+				Name:  objectType.ObjectName,
+			},
+			Employee: &models.Employee{
+				UserID:     employee.UserID.Bytes,
+				Email:      employee.Email,
+				FirstName:  employee.FirstName,
+				LastName:   employee.LastName,
+				MiddleName: middleName,
+				RoleID:     int(employee.RoleID),
+				Role: &models.Role{
+					ID:          int(role.ID),
+					Name:        role.Name,
+					DisplayName: role.DisplayName,
+					Description: role.Description,
+				},
+			},
 		}
 	}
+
 	return objectChangesModels, nil
 }

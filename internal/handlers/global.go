@@ -14,7 +14,10 @@ type RestApiImplementation struct {
 	storageGroupUseCase *usecases.StorageUseCase
 	itemUseCase         *usecases.ItemUseCase
 	authUseCase         *usecases.AuthUseCase
+	auditUseCase        *usecases.AuditUseCase
 }
+
+
 
 // CreateInstanceForItem implements api.Handler.
 func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (*api.CreateInstanceForItemResponse, error) {
@@ -52,6 +55,7 @@ func NewRestApiImplementation(
 	storageGroupUseCase *usecases.StorageUseCase,
 	itemUseCase *usecases.ItemUseCase,
 	authUseCase *usecases.AuthUseCase,
+	auditUseCase *usecases.AuditUseCase,
 ) *RestApiImplementation {
 	return &RestApiImplementation{
 		orgUseCase:          orgUseCase,
@@ -59,6 +63,7 @@ func NewRestApiImplementation(
 		storageGroupUseCase: storageGroupUseCase,
 		itemUseCase:         itemUseCase,
 		authUseCase:         authUseCase,
+		auditUseCase:        auditUseCase,
 	}
 }
 

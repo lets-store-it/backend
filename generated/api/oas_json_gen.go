@@ -48,16 +48,12 @@ func (s *AuditLog) encodeFields(e *jx.Encoder) {
 		json.EncodeUUID(e, s.TargetObjectId)
 	}
 	{
-		if s.PrechangeState != nil {
-			e.FieldStart("prechangeState")
-			s.PrechangeState.Encode(e)
-		}
+		e.FieldStart("prechangeState")
+		s.PrechangeState.Encode(e)
 	}
 	{
-		if s.PostchangeState != nil {
-			e.FieldStart("postchangeState")
-			s.PostchangeState.Encode(e)
-		}
+		e.FieldStart("postchangeState")
+		s.PostchangeState.Encode(e)
 	}
 }
 
@@ -148,25 +144,21 @@ func (s *AuditLog) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"targetObjectId\"")
 			}
 		case "prechangeState":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
-				s.PrechangeState = nil
-				var elem AuditLogPrechangeState
-				if err := elem.Decode(d); err != nil {
+				if err := s.PrechangeState.Decode(d); err != nil {
 					return err
 				}
-				s.PrechangeState = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"prechangeState\"")
 			}
 		case "postchangeState":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
-				s.PostchangeState = nil
-				var elem AuditLogPostchangeState
-				if err := elem.Decode(d); err != nil {
+				if err := s.PostchangeState.Decode(d); err != nil {
 					return err
 				}
-				s.PostchangeState = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"postchangeState\"")
@@ -181,7 +173,7 @@ func (s *AuditLog) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b11111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -270,29 +262,43 @@ func (s *AuditLogAction) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *AuditLogPostchangeState) Encode(e *jx.Encoder) {
+func (s AuditLogPostchangeState) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
-// encodeFields encodes fields.
-func (s *AuditLogPostchangeState) encodeFields(e *jx.Encoder) {
-}
+// encodeFields implements json.Marshaler.
+func (s AuditLogPostchangeState) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
 
-var jsonFieldsNameOfAuditLogPostchangeState = [0]string{}
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
 
 // Decode decodes AuditLogPostchangeState from json.
 func (s *AuditLogPostchangeState) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode AuditLogPostchangeState to nil")
 	}
-
+	m := s.init()
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
-			return d.Skip()
+		var elem jx.Raw
+		if err := func() error {
+			v, err := d.RawAppend(nil)
+			elem = jx.Raw(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
 		}
+		m[string(k)] = elem
+		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode AuditLogPostchangeState")
 	}
@@ -301,7 +307,7 @@ func (s *AuditLogPostchangeState) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *AuditLogPostchangeState) MarshalJSON() ([]byte, error) {
+func (s AuditLogPostchangeState) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
@@ -314,29 +320,43 @@ func (s *AuditLogPostchangeState) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *AuditLogPrechangeState) Encode(e *jx.Encoder) {
+func (s AuditLogPrechangeState) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
-// encodeFields encodes fields.
-func (s *AuditLogPrechangeState) encodeFields(e *jx.Encoder) {
-}
+// encodeFields implements json.Marshaler.
+func (s AuditLogPrechangeState) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
 
-var jsonFieldsNameOfAuditLogPrechangeState = [0]string{}
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
 
 // Decode decodes AuditLogPrechangeState from json.
 func (s *AuditLogPrechangeState) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode AuditLogPrechangeState to nil")
 	}
-
+	m := s.init()
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
-			return d.Skip()
+		var elem jx.Raw
+		if err := func() error {
+			v, err := d.RawAppend(nil)
+			elem = jx.Raw(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
 		}
+		m[string(k)] = elem
+		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode AuditLogPrechangeState")
 	}
@@ -345,7 +365,7 @@ func (s *AuditLogPrechangeState) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *AuditLogPrechangeState) MarshalJSON() ([]byte, error) {
+func (s AuditLogPrechangeState) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
@@ -7308,6 +7328,96 @@ func (s *ItemVariantPatchInItem) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ItemVariantPatchInItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes AuditLogPostchangeState as json.
+func (o NilAuditLogPostchangeState) Encode(e *jx.Encoder) {
+	if o.Null {
+		e.Null()
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes AuditLogPostchangeState from json.
+func (o *NilAuditLogPostchangeState) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode NilAuditLogPostchangeState to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v AuditLogPostchangeState
+		o.Value = v
+		o.Null = true
+		return nil
+	}
+	o.Null = false
+	o.Value = make(AuditLogPostchangeState)
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s NilAuditLogPostchangeState) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NilAuditLogPostchangeState) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes AuditLogPrechangeState as json.
+func (o NilAuditLogPrechangeState) Encode(e *jx.Encoder) {
+	if o.Null {
+		e.Null()
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes AuditLogPrechangeState from json.
+func (o *NilAuditLogPrechangeState) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode NilAuditLogPrechangeState to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v AuditLogPrechangeState
+		o.Value = v
+		o.Null = true
+		return nil
+	}
+	o.Null = false
+	o.Value = make(AuditLogPrechangeState)
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s NilAuditLogPrechangeState) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NilAuditLogPrechangeState) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

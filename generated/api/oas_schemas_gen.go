@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
+	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 )
 
@@ -30,14 +31,14 @@ func (s *ApiToken) SetAPIKey(val string) {
 
 // Ref: #/components/schemas/AuditLog
 type AuditLog struct {
-	ID               uuid.UUID                `json:"id"`
-	Employee         Employee                 `json:"employee"`
-	Action           AuditLogAction           `json:"action"`
-	Time             time.Time                `json:"time"`
-	TargetObjectType AuditLogTargetObjectType `json:"targetObjectType"`
-	TargetObjectId   uuid.UUID                `json:"targetObjectId"`
-	PrechangeState   *AuditLogPrechangeState  `json:"prechangeState"`
-	PostchangeState  *AuditLogPostchangeState `json:"postchangeState"`
+	ID               uuid.UUID                  `json:"id"`
+	Employee         Employee                   `json:"employee"`
+	Action           AuditLogAction             `json:"action"`
+	Time             time.Time                  `json:"time"`
+	TargetObjectType AuditLogTargetObjectType   `json:"targetObjectType"`
+	TargetObjectId   uuid.UUID                  `json:"targetObjectId"`
+	PrechangeState   NilAuditLogPrechangeState  `json:"prechangeState"`
+	PostchangeState  NilAuditLogPostchangeState `json:"postchangeState"`
 }
 
 // GetID returns the value of ID.
@@ -71,12 +72,12 @@ func (s *AuditLog) GetTargetObjectId() uuid.UUID {
 }
 
 // GetPrechangeState returns the value of PrechangeState.
-func (s *AuditLog) GetPrechangeState() *AuditLogPrechangeState {
+func (s *AuditLog) GetPrechangeState() NilAuditLogPrechangeState {
 	return s.PrechangeState
 }
 
 // GetPostchangeState returns the value of PostchangeState.
-func (s *AuditLog) GetPostchangeState() *AuditLogPostchangeState {
+func (s *AuditLog) GetPostchangeState() NilAuditLogPostchangeState {
 	return s.PostchangeState
 }
 
@@ -111,12 +112,12 @@ func (s *AuditLog) SetTargetObjectId(val uuid.UUID) {
 }
 
 // SetPrechangeState sets the value of PrechangeState.
-func (s *AuditLog) SetPrechangeState(val *AuditLogPrechangeState) {
+func (s *AuditLog) SetPrechangeState(val NilAuditLogPrechangeState) {
 	s.PrechangeState = val
 }
 
 // SetPostchangeState sets the value of PostchangeState.
-func (s *AuditLog) SetPostchangeState(val *AuditLogPostchangeState) {
+func (s *AuditLog) SetPostchangeState(val NilAuditLogPostchangeState) {
 	s.PostchangeState = val
 }
 
@@ -168,9 +169,27 @@ func (s *AuditLogAction) UnmarshalText(data []byte) error {
 	}
 }
 
-type AuditLogPostchangeState struct{}
+type AuditLogPostchangeState map[string]jx.Raw
 
-type AuditLogPrechangeState struct{}
+func (s *AuditLogPostchangeState) init() AuditLogPostchangeState {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type AuditLogPrechangeState map[string]jx.Raw
+
+func (s *AuditLogPrechangeState) init() AuditLogPrechangeState {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
 
 type AuditLogTargetObjectType struct {
 	ID    int    `json:"id"`
@@ -2224,6 +2243,96 @@ func (s *LogoutResponse) GetSetCookie() string {
 // SetSetCookie sets the value of SetCookie.
 func (s *LogoutResponse) SetSetCookie(val string) {
 	s.SetCookie = val
+}
+
+// NewNilAuditLogPostchangeState returns new NilAuditLogPostchangeState with value set to v.
+func NewNilAuditLogPostchangeState(v AuditLogPostchangeState) NilAuditLogPostchangeState {
+	return NilAuditLogPostchangeState{
+		Value: v,
+	}
+}
+
+// NilAuditLogPostchangeState is nullable AuditLogPostchangeState.
+type NilAuditLogPostchangeState struct {
+	Value AuditLogPostchangeState
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilAuditLogPostchangeState) SetTo(v AuditLogPostchangeState) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilAuditLogPostchangeState) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilAuditLogPostchangeState) SetToNull() {
+	o.Null = true
+	var v AuditLogPostchangeState
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilAuditLogPostchangeState) Get() (v AuditLogPostchangeState, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilAuditLogPostchangeState) Or(d AuditLogPostchangeState) AuditLogPostchangeState {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilAuditLogPrechangeState returns new NilAuditLogPrechangeState with value set to v.
+func NewNilAuditLogPrechangeState(v AuditLogPrechangeState) NilAuditLogPrechangeState {
+	return NilAuditLogPrechangeState{
+		Value: v,
+	}
+}
+
+// NilAuditLogPrechangeState is nullable AuditLogPrechangeState.
+type NilAuditLogPrechangeState struct {
+	Value AuditLogPrechangeState
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilAuditLogPrechangeState) SetTo(v AuditLogPrechangeState) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilAuditLogPrechangeState) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilAuditLogPrechangeState) SetToNull() {
+	o.Null = true
+	var v AuditLogPrechangeState
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilAuditLogPrechangeState) Get() (v AuditLogPrechangeState, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilAuditLogPrechangeState) Or(d AuditLogPrechangeState) AuditLogPrechangeState {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // NewNilInt returns new NilInt with value set to v.
