@@ -4,16 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
-
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/storage"
+	"github.com/let-store-it/backend/internal/utils"
 )
 
 var (
@@ -23,69 +22,6 @@ var (
 	ErrInvalidItemID       = errors.New("invalid item ID")
 	ErrInvalidVariant      = errors.New("invalid variant")
 )
-
-func uuidFromPgx(id pgtype.UUID) *uuid.UUID {
-	if !id.Valid {
-		return nil
-	}
-	result := uuid.UUID(id.Bytes)
-	return &result
-}
-
-func toItem(item database.Item) (*models.Item, error) {
-	id := uuidFromPgx(item.ID)
-	if id == nil {
-		return nil, fmt.Errorf("failed to convert item: %w", ErrInvalidItemID)
-	}
-
-	var description *string
-	if item.Description.Valid {
-		description = &item.Description.String
-	}
-
-	return &models.Item{
-		ID:          *id,
-		Name:        item.Name,
-		Description: description,
-	}, nil
-}
-
-func toItemVariant(variant database.ItemVariant) (*models.ItemVariant, error) {
-	id := uuidFromPgx(variant.ID)
-	if id == nil {
-		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidVariant)
-	}
-	itemID := uuidFromPgx(variant.ItemID)
-	if itemID == nil {
-		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidItemID)
-	}
-
-	var article *string
-	if variant.Article.Valid {
-		article = &variant.Article.String
-	}
-
-	var ean13 *int
-	if variant.Ean13.Valid {
-		inInt64 := int(variant.Ean13.Int32)
-		ean13 = &inInt64
-	}
-
-	var deletedAt *time.Time
-	if variant.DeletedAt.Valid {
-		deletedAt = &variant.DeletedAt.Time
-	}
-
-	return &models.ItemVariant{
-		ID:        *id,
-		ItemID:    *itemID,
-		Name:      variant.Name,
-		Article:   article,
-		EAN13:     ean13,
-		CreatedAt: variant.CreatedAt.Time,
-		DeletedAt: deletedAt,
-	}, nil
-}
 
 type ItemService struct {
 	storageService *storage.StorageService
@@ -117,14 +53,9 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	var description pgtype.Text
-	if item.Description != nil {
-		description = pgtype.Text{String: *item.Description, Valid: true}
-	}
-
 	createdItem, err := qtx.CreateItem(ctx, database.CreateItemParams{
 		Name:        item.Name,
-		Description: description,
+		Description: utils.PgTextPtr(item.Description),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create item: %w", err)
@@ -134,28 +65,18 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 		createdVariants := make([]models.ItemVariant, len(*item.Variants))
 
 		for i, variant := range *item.Variants {
-			var article pgtype.Text
-			if variant.Article != nil {
-				article = pgtype.Text{String: *variant.Article, Valid: true}
-			}
-
-			var ean13 pgtype.Int4
-			if variant.EAN13 != nil {
-				ean13 = pgtype.Int4{Int32: int32(*variant.EAN13), Valid: true}
-			}
-
 			createdVariant, err := qtx.CreateItemVariant(ctx, database.CreateItemVariantParams{
 				ItemID:  createdItem.ID,
 				Name:    variant.Name,
-				Article: article,
-				Ean13:   ean13,
+				Article: utils.PgTextPtr(variant.Article),
+				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
 			})
 
 			if err != nil {
 				return nil, fmt.Errorf("failed to create item variant: %w", err)
 			}
 
-			createdVariantModel, err := toItemVariant(createdVariant)
+			createdVariantModel, err := toItemVariantModel(createdVariant)
 			if err != nil {
 				return nil, fmt.Errorf("failed to convert created variant: %w", err)
 			}
@@ -176,7 +97,7 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 		return nil, ErrInvalidOrganization
 	}
 
-	results, err := s.queries.GetItems(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	results, err := s.queries.GetItems(ctx, utils.PgUUID(orgID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get items: %w", err)
 	}
@@ -185,21 +106,21 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 
 	for i, item := range results {
 		variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
-			OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
-			ItemID: pgtype.UUID{Bytes: item.ID.Bytes, Valid: true},
+			OrgID:  utils.PgUUID(orgID),
+			ItemID: utils.PgUUID(uuid.UUID(item.ID.Bytes)),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to get item variants: %w", err)
 		}
 		itemVariants := make([]models.ItemVariant, len(variants))
 		for j, variant := range variants {
-			itemVariant, err := toItemVariant(variant)
+			itemVariant, err := toItemVariantModel(variant)
 			if err != nil {
 				return nil, fmt.Errorf("failed to convert variant: %w", err)
 			}
 			itemVariants[j] = *itemVariant
 		}
-		itemModel, err := toItem(item)
+		itemModel, err := toItemModel(item)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert item: %w", err)
 		}
@@ -218,8 +139,8 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 	}
 
 	item, err := s.queries.GetItem(ctx, database.GetItemParams{
-		ID:    pgtype.UUID{Bytes: id, Valid: true},
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
+		ID:    utils.PgUUID(id),
+		OrgID: utils.PgUUID(orgID),
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -229,87 +150,29 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 	}
 
 	variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
-		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
-		ItemID: pgtype.UUID{Bytes: item.ID.Bytes, Valid: true},
+		OrgID:  utils.PgUUID(orgID),
+		ItemID: utils.PgUUID(id),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item variants: %w", err)
 	}
 
-	itemVariants := make([]models.ItemVariant, len(variants))
-	for j, variant := range variants {
-		itemVariant, err := toItemVariant(variant)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert variant: %w", err)
-		}
-		itemVariants[j] = *itemVariant
-	}
-
-	itemModel, err := toItem(item)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert item: %w", err)
-	}
-
-	itemModel.Variants = &itemVariants
-
 	// Get item instances
 	instances, err := s.queries.GetItemInstancesForItem(ctx, database.GetItemInstancesForItemParams{
-		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
-		ItemID: pgtype.UUID{Bytes: id, Valid: true},
+		OrgID:  utils.PgUUID(orgID),
+		ItemID: utils.PgUUID(id),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item instances: %w", err)
 	}
 
-	// Convert instances to models
-	itemInstances := make([]models.ItemInstance, len(instances))
-	for i, instance := range instances {
-		// Find the variant for this instance
-		var instanceVariant *models.ItemVariant
-		for _, variant := range itemVariants {
-			if variant.ID == uuid.UUID(instance.VariantID.Bytes) {
-				instanceVariant = &variant
-				break
-			}
-		}
-
-		if instanceVariant == nil {
-			return nil, fmt.Errorf("failed to find variant for instance: %w", ErrInvalidVariant)
-		}
-
-		itemInstances[i] = models.ItemInstance{
-			CellID:    uuid.UUID(instance.CellID.Bytes),
-			ID:        uuid.UUID(instance.ID.Bytes),
-			OrgID:     uuid.UUID(instance.OrgID.Bytes),
-			ItemID:    uuid.UUID(instance.ItemID.Bytes),
-			VariantID: uuid.UUID(instance.VariantID.Bytes),
-			Status:    models.ItemInstanceStatus(instance.Status),
-			Variant:   instanceVariant,
-		}
-
-		// If instance has a cell, get cell information
-		if instance.CellID.Valid {
-			cell, err := s.storageService.GetCellByID(ctx, orgID, uuid.UUID(instance.CellID.Bytes))
-			if err != nil {
-				if errors.Is(err, pgx.ErrNoRows) {
-					continue // Skip if cell not found
-				}
-				return nil, fmt.Errorf("failed to get cell: %w", err)
-			}
-
-			itemInstances[i].Cell = cell
-
-			cellPath, err := s.storageService.GetCellPath(ctx, orgID, cell.ID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get cell path: %w", err)
-			}
-			itemInstances[i].Cell.Path = &cellPath
-		}
-	}
-
-	itemModel.Instances = &itemInstances
-
-	return itemModel, nil
+	return toFullItemModel(ctx, toFullItemModelParams{
+		item:           item,
+		variants:       variants,
+		instances:      instances,
+		storageService: s.storageService,
+		orgID:          orgID,
+	})
 }
 
 func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.Item) (*models.Item, error) {
@@ -350,8 +213,8 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 		for _, v := range *existingItem.Variants {
 			if !remainingVariants[v.ID] {
 				err := s.queries.DeleteItemVariant(ctx, database.DeleteItemVariantParams{
-					ItemID: pgtype.UUID{Bytes: item.ID, Valid: true},
-					ID:     pgtype.UUID{Bytes: v.ID, Valid: true},
+					ItemID: utils.PgUUID(item.ID),
+					ID:     utils.PgUUID(v.ID),
 				})
 				if err != nil {
 					return nil, fmt.Errorf("failed to delete item variant: %w", err)
@@ -367,15 +230,10 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	var description pgtype.Text
-	if item.Description != nil {
-		description = pgtype.Text{String: *item.Description, Valid: true}
-	}
-
 	_, err = qtx.UpdateItem(ctx, database.UpdateItemParams{
-		ID:          pgtype.UUID{Bytes: item.ID, Valid: true},
+		ID:          utils.PgUUID(item.ID),
 		Name:        item.Name,
-		Description: description,
+		Description: utils.PgTextPtr(item.Description),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update item: %w", err)
@@ -383,21 +241,11 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 
 	if item.Variants != nil {
 		for _, variant := range *item.Variants {
-			var article pgtype.Text
-			if variant.Article != nil {
-				article = pgtype.Text{String: *variant.Article, Valid: true}
-			}
-
-			var ean13 pgtype.Int4
-			if variant.EAN13 != nil {
-				ean13 = pgtype.Int4{Int32: int32(*variant.EAN13), Valid: true}
-			}
-
 			_, err = qtx.UpdateItemVariant(ctx, database.UpdateItemVariantParams{
-				ItemID:  pgtype.UUID{Bytes: item.ID, Valid: true},
+				ItemID:  utils.PgUUID(item.ID),
 				Name:    variant.Name,
-				Article: article,
-				Ean13:   ean13,
+				Article: utils.PgTextPtr(variant.Article),
+				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
 			})
 			if err != nil {
 				return nil, fmt.Errorf("failed to update item variant: %w", err)
@@ -421,7 +269,7 @@ func (s *ItemService) Delete(ctx context.Context, orgID uuid.UUID, id uuid.UUID)
 	}
 
 	err := s.queries.DeleteItem(ctx, database.DeleteItemParams{
-		ID: pgtype.UUID{Bytes: id, Valid: true},
+		ID: utils.PgUUID(id),
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -441,8 +289,8 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 	}
 
 	exists, err := s.queries.IsItemExists(ctx, database.IsItemExistsParams{
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		ID:    pgtype.UUID{Bytes: id, Valid: true},
+		OrgID: utils.PgUUID(orgID),
+		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
 		return false, fmt.Errorf("failed to check item existence: %w", err)
