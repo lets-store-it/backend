@@ -64,10 +64,14 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	}))
 	// Initialize services
 	storageGroupService := storage.New(queries)
+	authService := auth.New(queries, pool)
+
 	auditService, err := audit.New(&audit.AuditServiceConfig{
 		Queries:      queries,
 		KafkaEnabled: cfg.Kafka.Enabled,
 		KafkaBrokers: []string{cfg.Kafka.Brokers},
+		PGXPool:      pool,
+		Auth:         authService,
 	})
 	if err != nil {
 		return nil, err
@@ -75,7 +79,6 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	defer auditService.Close()
 
 	itemService := item.New(queries, pool, storageGroupService)
-	authService := auth.New(queries, pool)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
 	orgService := organization.New(queries, pool)
 
