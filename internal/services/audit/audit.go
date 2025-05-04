@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
 )
 
 const (
@@ -26,11 +27,13 @@ var (
 
 type AuditService struct {
 	queries *database.Queries
+	auth    *auth.AuthService
 	kafka   *KafkaConfig
 }
 
 type AuditServiceConfig struct {
 	Queries      *database.Queries
+	Auth         *auth.AuthService
 	KafkaEnabled bool
 	KafkaBrokers []string
 }
@@ -42,6 +45,7 @@ func New(cfg *AuditServiceConfig) (*AuditService, error) {
 
 	service := &AuditService{
 		queries: cfg.Queries,
+		auth:    cfg.Auth,
 	}
 
 	if cfg.KafkaEnabled {
@@ -93,41 +97,6 @@ func (s *AuditService) getObjectTypeInfo(ctx context.Context, typeID int32) (*mo
 	}, nil
 }
 
-func (s *AuditService) getEmployeeInfo(ctx context.Context, orgID, userID uuid.UUID) (*models.Employee, error) {
-	employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
-		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
-		UserID: pgtype.UUID{Bytes: userID, Valid: true},
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get employee: %w", err)
-	}
-
-	role, err := s.queries.GetRoleById(ctx, employee.RoleID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get role: %w", err)
-	}
-
-	var middleName *string
-	if employee.MiddleName.Valid {
-		middleName = &employee.MiddleName.String
-	}
-
-	return &models.Employee{
-		UserID:     employee.UserID.Bytes,
-		Email:      employee.Email,
-		FirstName:  employee.FirstName,
-		LastName:   employee.LastName,
-		MiddleName: middleName,
-		RoleID:     int(employee.RoleID),
-		Role: &models.Role{
-			ID:          int(role.ID),
-			Name:        role.Name,
-			DisplayName: role.DisplayName,
-			Description: role.Description,
-		},
-	}, nil
-}
-
 func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.ObjectChange) error {
 	if s.kafka == nil {
 		return nil
@@ -157,7 +126,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return err
 	}
 
-	employee, err := s.getEmployeeInfo(ctx, objectChange.OrgID, objectChange.UserID)
+	employee, err := s.auth.GetEmployeeWithRole(ctx, objectChange.OrgID, objectChange.UserID)
 	if err != nil {
 		return err
 	}
@@ -210,7 +179,7 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 
 	objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
 	for i, change := range objectChanges {
-		employee, err := s.getEmployeeInfo(ctx, change.OrgID.Bytes, change.UserID.Bytes)
+		employee, err := s.auth.GetEmployeeWithRole(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 		}
