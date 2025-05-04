@@ -455,3 +455,38 @@ func (s *AuthService) SetEmployeeRole(ctx context.Context, orgID uuid.UUID, user
 	}
 	return nil
 }
+
+func (s *AuthService) GetEmployeeWithRole(ctx context.Context, orgID, userID uuid.UUID) (*models.Employee, error) {
+	employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get employee: %w", err)
+	}
+
+	role, err := s.queries.GetRoleById(ctx, employee.RoleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get role: %w", err)
+	}
+
+	var middleName *string
+	if employee.MiddleName.Valid {
+		middleName = &employee.MiddleName.String
+	}
+
+	return &models.Employee{
+		UserID:     employee.UserID.Bytes,
+		Email:      employee.Email,
+		FirstName:  employee.FirstName,
+		LastName:   employee.LastName,
+		MiddleName: middleName,
+		RoleID:     int(employee.RoleID),
+		Role: &models.Role{
+			ID:          int(role.ID),
+			Name:        role.Name,
+			DisplayName: role.DisplayName,
+			Description: role.Description,
+		},
+	}, nil
+}
