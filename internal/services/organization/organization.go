@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/utils"
 )
 
 var (
@@ -20,21 +20,57 @@ var (
 	ErrOrganizationUnitNotFound = errors.New("organization unit not found")
 	ErrInvalidOrganization      = errors.New("invalid organization")
 	ErrInvalidOrganizationUnit  = errors.New("invalid organization unit")
-	ErrInvalidName              = errors.New("invalid name")
-	ErrInvalidSubdomain         = errors.New("invalid subdomain")
-	ErrInvalidAlias             = errors.New("invalid alias")
+	ErrInvalidUserID            = errors.New("invalid user ID")
+
+	ErrValidationError = errors.New("validation error")
 )
 
-func uuidFromPgx(id pgtype.UUID) *uuid.UUID {
-	if !id.Valid {
-		return nil
+const (
+	maxNameLength      = 100
+	maxSubdomainLength = 63
+	maxAliasLength     = 100
+)
+
+func validateName(name string) error {
+	if strings.TrimSpace(name) == "" {
+		return errors.Join(ErrValidationError, errors.New("name cannot be empty"))
 	}
-	result := uuid.UUID(id.Bytes)
-	return &result
+	if len(name) > maxNameLength {
+		return errors.Join(ErrValidationError, errors.New("name is too long"))
+	}
+	return nil
+}
+
+func validateSubdomain(subdomain string) error {
+	if strings.TrimSpace(subdomain) == "" {
+		return errors.Join(ErrValidationError, errors.New("subdomain cannot be empty"))
+	}
+	if len(subdomain) > maxSubdomainLength {
+		return errors.Join(ErrValidationError, errors.New("subdomain is too long"))
+	}
+	matched, _ := regexp.MatchString("^[a-z0-9-]+$", subdomain)
+	if !matched {
+		return errors.Join(ErrValidationError, errors.New("subdomain can only contain lowercase letters, numbers, and hyphens"))
+	}
+	return nil
+}
+
+func validateAlias(alias string) error {
+	if strings.TrimSpace(alias) == "" {
+		return errors.Join(ErrValidationError, errors.New("alias cannot be empty"))
+	}
+	if len(alias) > maxAliasLength {
+		return errors.Join(ErrValidationError, errors.New("alias is too long"))
+	}
+	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
+	if !matched {
+		return errors.Join(ErrValidationError, errors.New("alias can only contain letters, numbers, and hyphens (no spaces)"))
+	}
+	return nil
 }
 
 func toOrganization(org database.Org) (*models.Organization, error) {
-	id := uuidFromPgx(org.ID)
+	id := utils.UuidFromPgx(org.ID)
 	if id == nil {
 		return nil, fmt.Errorf("failed to convert organization: %w", ErrInvalidOrganization)
 	}
@@ -45,148 +81,12 @@ func toOrganization(org database.Org) (*models.Organization, error) {
 	}, nil
 }
 
-type OrganizationService struct {
-	queries *database.Queries
-	pgxPool *pgxpool.Pool
-}
-
-func New(queries *database.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
-	return &OrganizationService{
-		queries: queries,
-		pgxPool: pgxPool,
-	}
-}
-
-func validateOrganizationData(name, subdomain string) error {
-	if strings.TrimSpace(name) == "" {
-		return fmt.Errorf("%w: name cannot be empty", ErrInvalidName)
-	}
-	if len(name) > 100 {
-		return fmt.Errorf("%w: name is too long (max 100 characters)", ErrInvalidName)
-	}
-	if strings.TrimSpace(subdomain) == "" {
-		return fmt.Errorf("%w: subdomain cannot be empty", ErrInvalidSubdomain)
-	}
-	if len(subdomain) > 63 {
-		return fmt.Errorf("%w: subdomain is too long (max 63 characters)", ErrInvalidSubdomain)
-	}
-	matched, _ := regexp.MatchString("^[a-z0-9-]+$", subdomain)
-	if !matched {
-		return fmt.Errorf("%w: subdomain can only contain lowercase letters, numbers, and hyphens", ErrInvalidSubdomain)
-	}
-	return nil
-}
-
-func (s *OrganizationService) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
-	if err := validateOrganizationData(name, subdomain); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
-
-	org, err := s.queries.CreateOrg(ctx, database.CreateOrgParams{
-		Name:      name,
-		Subdomain: subdomain,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create organization: %w", err)
-	}
-
-	return toOrganization(org)
-}
-
-func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID) ([]*models.Organization, error) {
-	if userID == uuid.Nil {
-		return nil, fmt.Errorf("invalid user ID")
-	}
-
-	res, err := s.queries.GetUserOrgs(ctx, pgtype.UUID{Bytes: userID, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user organizations: %w", err)
-	}
-
-	orgs := make([]*models.Organization, len(res))
-	for i, org := range res {
-		orgs[i], err = toOrganization(org)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert organization: %w", err)
-		}
-	}
-
-	return orgs, nil
-}
-
-func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	if id == uuid.Nil {
-		return nil, ErrInvalidOrganization
-	}
-
-	org, err := s.queries.GetOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get organization: %w", err)
-	}
-	return toOrganization(org)
-}
-
-func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
-	if id == uuid.Nil {
-		return ErrInvalidOrganization
-	}
-
-	err := s.queries.DeleteOrg(ctx, pgtype.UUID{Bytes: id, Valid: true})
-	if err != nil {
-		return fmt.Errorf("failed to delete organization: %w", err)
-	}
-	return nil
-}
-
-func (s *OrganizationService) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	if org == nil {
-		return nil, ErrInvalidOrganization
-	}
-	if org.ID == uuid.Nil {
-		return nil, ErrInvalidOrganization
-	}
-
-	exists, err := s.IsOrganizationExists(ctx, org.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check organization existence: %w", err)
-	}
-	if !exists {
-		return nil, ErrOrganizationNotFound
-	}
-
-	if err := validateOrganizationData(org.Name, org.Subdomain); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
-
-	res, err := s.queries.UpdateOrg(ctx, database.UpdateOrgParams{
-		ID:        pgtype.UUID{Bytes: org.ID, Valid: true},
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to update organization: %w", err)
-	}
-	return toOrganization(res)
-}
-
-func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
-	if id == uuid.Nil {
-		return false, ErrInvalidOrganization
-	}
-
-	exists, err := s.queries.IsOrgExists(ctx, pgtype.UUID{Bytes: id, Valid: true})
-	if err != nil {
-		return false, fmt.Errorf("failed to check organization existence: %w", err)
-	}
-	return exists, nil
-}
-
 func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error) {
-	id := uuidFromPgx(unit.ID)
+	id := utils.UuidFromPgx(unit.ID)
 	if id == nil {
 		return nil, fmt.Errorf("failed to convert organization unit: %w", ErrInvalidOrganizationUnit)
 	}
-	orgID := uuidFromPgx(unit.OrgID)
+	orgID := utils.UuidFromPgx(unit.OrgID)
 	if orgID == nil {
 		return nil, fmt.Errorf("failed to convert organization unit: %w", ErrInvalidOrganization)
 	}
@@ -212,40 +112,142 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 	}, nil
 }
 
-func validateOrganizationUnitData(name string, alias string) error {
-	if strings.TrimSpace(name) == "" {
-		return fmt.Errorf("%w: name cannot be empty", ErrInvalidName)
+type OrganizationService struct {
+	queries *database.Queries
+	pgxPool *pgxpool.Pool
+}
+
+func New(queries *database.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
+	return &OrganizationService{
+		queries: queries,
+		pgxPool: pgxPool,
 	}
-	if len(name) > 100 {
-		return fmt.Errorf("%w: name is too long (max 100 characters)", ErrInvalidName)
+}
+
+func (s *OrganizationService) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
+	if err := validateName(name); err != nil {
+		return nil, err
+	}
+	if err := validateSubdomain(subdomain); err != nil {
+		return nil, err
 	}
 
-	if strings.TrimSpace(alias) == "" {
-		return fmt.Errorf("%w: alias cannot be empty", ErrInvalidAlias)
+	org, err := s.queries.CreateOrg(ctx, database.CreateOrgParams{
+		Name:      name,
+		Subdomain: subdomain,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create organization: %w", err)
 	}
-	if len(alias) > 100 {
-		return fmt.Errorf("%w: alias is too long (max 100 characters)", ErrInvalidAlias)
+
+	return toOrganization(org)
+}
+
+func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID) ([]*models.Organization, error) {
+	if userID == uuid.Nil {
+		return nil, ErrInvalidUserID
 	}
-	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
-	if !matched {
-		return fmt.Errorf("%w: alias can only contain letters, numbers, and hyphens (no spaces)", ErrInvalidAlias)
+
+	res, err := s.queries.GetUserOrgs(ctx, utils.PgUUID(userID))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user organizations: %w", err)
+	}
+
+	orgs := make([]*models.Organization, len(res))
+	for i, org := range res {
+		orgs[i], err = toOrganization(org)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert organization: %w", err)
+		}
+	}
+
+	return orgs, nil
+}
+
+func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
+	if id == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+
+	org, err := s.queries.GetOrg(ctx, utils.PgUUID(id))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organization: %w", err)
+	}
+	return toOrganization(org)
+}
+
+func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
+	if id == uuid.Nil {
+		return ErrInvalidOrganization
+	}
+
+	err := s.queries.DeleteOrg(ctx, utils.PgUUID(id))
+	if err != nil {
+		return fmt.Errorf("failed to delete organization: %w", err)
 	}
 	return nil
 }
 
+func (s *OrganizationService) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	if org == nil || org.ID == uuid.Nil {
+		return nil, ErrInvalidOrganization
+	}
+
+	exists, err := s.IsOrganizationExists(ctx, org.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check organization existence: %w", err)
+	}
+	if !exists {
+		return nil, ErrOrganizationNotFound
+	}
+
+	if err := validateName(org.Name); err != nil {
+		return nil, err
+	}
+	if err := validateSubdomain(org.Subdomain); err != nil {
+		return nil, err
+	}
+
+	res, err := s.queries.UpdateOrg(ctx, database.UpdateOrgParams{
+		ID:        utils.PgUUID(org.ID),
+		Name:      org.Name,
+		Subdomain: org.Subdomain,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update organization: %w", err)
+	}
+	return toOrganization(res)
+}
+
+func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	if id == uuid.Nil {
+		return false, ErrInvalidOrganization
+	}
+
+	exists, err := s.queries.IsOrgExists(ctx, utils.PgUUID(id))
+	if err != nil {
+		return false, fmt.Errorf("failed to check organization existence: %w", err)
+	}
+	return exists, nil
+}
+
+// Organization Unit methods
 func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
 	if orgID == uuid.Nil {
 		return nil, ErrInvalidOrganization
 	}
-	if err := validateOrganizationUnitData(name, alias); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if err := validateName(name); err != nil {
+		return nil, err
+	}
+	if err := validateAlias(alias); err != nil {
+		return nil, err
 	}
 
 	unit, err := s.queries.CreateOrgUnit(ctx, database.CreateOrgUnitParams{
-		OrgID:   pgtype.UUID{Bytes: orgID, Valid: true},
+		OrgID:   utils.PgUUID(orgID),
 		Name:    name,
 		Alias:   alias,
-		Address: pgtype.Text{String: address, Valid: address != ""},
+		Address: utils.PgText(address),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create organization unit: %w", err)
@@ -259,7 +261,7 @@ func (s *OrganizationService) GetAllUnits(ctx context.Context, orgID uuid.UUID) 
 		return nil, ErrInvalidOrganization
 	}
 
-	units, err := s.queries.GetOrgUnits(ctx, pgtype.UUID{Bytes: orgID, Valid: true})
+	units, err := s.queries.GetOrgUnits(ctx, utils.PgUUID(orgID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization units: %w", err)
 	}
@@ -284,8 +286,8 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 	}
 
 	unit, err := s.queries.GetOrgUnit(ctx, database.GetOrgUnitParams{
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		ID:    pgtype.UUID{Bytes: id, Valid: true},
+		OrgID: utils.PgUUID(orgID),
+		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
@@ -310,8 +312,8 @@ func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, i
 	}
 
 	err := s.queries.DeleteOrgUnit(ctx, database.DeleteOrgUnitParams{
-		OrgID: pgtype.UUID{Bytes: orgID, Valid: true},
-		ID:    pgtype.UUID{Bytes: id, Valid: true},
+		OrgID: utils.PgUUID(orgID),
+		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to delete organization unit: %w", err)
@@ -320,18 +322,15 @@ func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, i
 }
 
 func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	if unit == nil {
+	if unit == nil || unit.ID == uuid.Nil || unit.OrgID == uuid.Nil {
 		return nil, ErrInvalidOrganizationUnit
-	}
-	if unit.ID == uuid.Nil {
-		return nil, ErrInvalidOrganizationUnit
-	}
-	if unit.OrgID == uuid.Nil {
-		return nil, ErrInvalidOrganization
 	}
 
-	if err := validateOrganizationUnitData(unit.Name, unit.Alias); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if err := validateName(unit.Name); err != nil {
+		return nil, err
+	}
+	if err := validateAlias(unit.Alias); err != nil {
+		return nil, err
 	}
 
 	var address string
@@ -340,10 +339,10 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 	}
 
 	updatedUnit, err := s.queries.UpdateOrgUnit(ctx, database.UpdateOrgUnitParams{
-		ID:      pgtype.UUID{Bytes: unit.ID, Valid: true},
+		ID:      utils.PgUUID(unit.ID),
 		Name:    unit.Name,
 		Alias:   unit.Alias,
-		Address: pgtype.Text{String: address, Valid: address != ""},
+		Address: utils.PgText(address),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update organization unit: %w", err)
