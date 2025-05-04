@@ -36,6 +36,10 @@ type AuditServiceConfig struct {
 }
 
 func New(cfg *AuditServiceConfig) (*AuditService, error) {
+	if cfg == nil || cfg.Queries == nil {
+		return nil, fmt.Errorf("invalid configuration")
+	}
+
 	service := &AuditService{
 		queries: cfg.Queries,
 	}
@@ -60,7 +64,7 @@ func (s *AuditService) Close() error {
 	return nil
 }
 
-func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
+func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) error {
 	if objectChange == nil {
 		return ErrInvalidObjectChange
 	}
@@ -73,26 +77,89 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	if objectChange.TargetObjectID == uuid.Nil {
 		return ErrInvalidTargetObject
 	}
+	return nil
+}
 
-	// Get the object type information
-	objectType, err := s.queries.GetObjectTypeById(ctx, int32(objectChange.TargetObjectTypeId))
+func (s *AuditService) getObjectTypeInfo(ctx context.Context, typeID int32) (*models.ObjectType, error) {
+	objectType, err := s.queries.GetObjectTypeById(ctx, typeID)
 	if err != nil {
-		return fmt.Errorf("failed to get object type: %w", err)
+		return nil, fmt.Errorf("failed to get object type: %w", err)
 	}
 
-	// Get the employee information
+	return &models.ObjectType{
+		ID:    models.ObjectTypeId(objectType.ID),
+		Group: objectType.ObjectGroup,
+		Name:  objectType.ObjectName,
+	}, nil
+}
+
+func (s *AuditService) getEmployeeInfo(ctx context.Context, orgID, userID uuid.UUID) (*models.Employee, error) {
 	employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
-		OrgID:  pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
-		UserID: pgtype.UUID{Bytes: objectChange.UserID, Valid: true},
+		OrgID:  pgtype.UUID{Bytes: orgID, Valid: true},
+		UserID: pgtype.UUID{Bytes: userID, Valid: true},
 	})
 	if err != nil {
-		return fmt.Errorf("failed to get employee: %w", err)
+		return nil, fmt.Errorf("failed to get employee: %w", err)
 	}
 
-	// Get the role information
 	role, err := s.queries.GetRoleById(ctx, employee.RoleID)
 	if err != nil {
-		return fmt.Errorf("failed to get role: %w", err)
+		return nil, fmt.Errorf("failed to get role: %w", err)
+	}
+
+	var middleName *string
+	if employee.MiddleName.Valid {
+		middleName = &employee.MiddleName.String
+	}
+
+	return &models.Employee{
+		UserID:     employee.UserID.Bytes,
+		Email:      employee.Email,
+		FirstName:  employee.FirstName,
+		LastName:   employee.LastName,
+		MiddleName: middleName,
+		RoleID:     int(employee.RoleID),
+		Role: &models.Role{
+			ID:          int(role.ID),
+			Name:        role.Name,
+			DisplayName: role.DisplayName,
+			Description: role.Description,
+		},
+	}, nil
+}
+
+func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.ObjectChange) error {
+	if s.kafka == nil {
+		return nil
+	}
+
+	message, err := json.Marshal(objectChange)
+	if err != nil {
+		return fmt.Errorf("failed to marshal object change: %w", err)
+	}
+
+	key := []byte(fmt.Sprintf("%d", rand.Int()))
+	if err := s.kafka.SendMessage(ctx, key, message); err != nil {
+		return fmt.Errorf("failed to send message to kafka: %w", err)
+	}
+
+	return nil
+}
+
+func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
+	if err := s.validateObjectChange(objectChange); err != nil {
+		return err
+	}
+
+	// Get related information
+	objectType, err := s.getObjectTypeInfo(ctx, int32(objectChange.TargetObjectTypeId))
+	if err != nil {
+		return err
+	}
+
+	employee, err := s.getEmployeeInfo(ctx, objectChange.OrgID, objectChange.UserID)
+	if err != nil {
+		return err
 	}
 
 	// Create the object change record
@@ -109,49 +176,12 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return fmt.Errorf("failed to create object change: %w", err)
 	}
 
-	// Fill in the optional fields
+	// Update the object change with additional information
 	objectChange.ID = change.ID.Bytes
-	objectChange.ObjectType = &models.ObjectType{
-		ID:    models.ObjectTypeId(objectType.ID),
-		Group: objectType.ObjectGroup,
-		Name:  objectType.ObjectName,
-	}
+	objectChange.ObjectType = objectType
+	objectChange.Employee = employee
 
-	var middleName *string
-	if employee.MiddleName.Valid {
-		middleName = &employee.MiddleName.String
-	}
-
-	objectChange.Employee = &models.Employee{
-		UserID:     employee.UserID.Bytes,
-		Email:      employee.Email,
-		FirstName:  employee.FirstName,
-		LastName:   employee.LastName,
-		MiddleName: middleName,
-		RoleID:     int(employee.RoleID),
-		Role: &models.Role{
-			ID:          int(role.ID),
-			Name:        role.Name,
-			DisplayName: role.DisplayName,
-			Description: role.Description,
-		},
-	}
-
-	// Send to Kafka if enabled
-	if s.kafka != nil {
-		message, err := json.Marshal(objectChange)
-		if err != nil {
-			return fmt.Errorf("failed to marshal object change: %w", err)
-		}
-
-		// Use random number as key for even distribution
-		key := []byte(fmt.Sprintf("%d", rand.Int()))
-		if err := s.kafka.SendMessage(ctx, key, message); err != nil {
-			return fmt.Errorf("failed to send message to kafka: %w", err)
-		}
-	}
-
-	return nil
+	return s.publishToKafka(ctx, objectChange)
 }
 
 func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
@@ -173,31 +203,16 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 	}
 
 	// Get the object type information
-	objectType, err := s.queries.GetObjectTypeById(ctx, int32(targetObjectTypeId))
+	objectType, err := s.getObjectTypeInfo(ctx, int32(targetObjectTypeId))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get object type: %w", err)
+		return nil, err
 	}
 
 	objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
 	for i, change := range objectChanges {
-		// Get the employee information for each change
-		employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
-			OrgID:  change.OrgID,
-			UserID: change.UserID,
-		})
+		employee, err := s.getEmployeeInfo(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get employee for change %s: %w", change.ID.Bytes, err)
-		}
-
-		// Get the role information
-		role, err := s.queries.GetRoleById(ctx, employee.RoleID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get role for employee %s: %w", employee.UserID.Bytes, err)
-		}
-
-		var middleName *string
-		if employee.MiddleName.Valid {
-			middleName = &employee.MiddleName.String
+			return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 		}
 
 		objectChangesModels[i] = &models.ObjectChange{
@@ -210,25 +225,8 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			PrechangeState:     change.PrechangeState,
 			PostchangeState:    change.PostchangeState,
 			Timestamp:          change.Time.Time,
-			ObjectType: &models.ObjectType{
-				ID:    models.ObjectTypeId(objectType.ID),
-				Group: objectType.ObjectGroup,
-				Name:  objectType.ObjectName,
-			},
-			Employee: &models.Employee{
-				UserID:     employee.UserID.Bytes,
-				Email:      employee.Email,
-				FirstName:  employee.FirstName,
-				LastName:   employee.LastName,
-				MiddleName: middleName,
-				RoleID:     int(employee.RoleID),
-				Role: &models.Role{
-					ID:          int(role.ID),
-					Name:        role.Name,
-					DisplayName: role.DisplayName,
-					Description: role.Description,
-				},
-			},
+			ObjectType:         objectType,
+			Employee:           employee,
 		}
 	}
 
