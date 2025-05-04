@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strings"
 	"time"
@@ -115,12 +116,19 @@ func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error)
 type OrganizationService struct {
 	queries *database.Queries
 	pgxPool *pgxpool.Pool
+	logger  *slog.Logger
 }
 
-func New(queries *database.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
+func New(queries *database.Queries, pgxPool *pgxpool.Pool, logger *slog.Logger) *OrganizationService {
+	if logger == nil {
+		logger = slog.Default()
+	}
+	logger = logger.With("service", "organization")
+
 	return &OrganizationService{
 		queries: queries,
 		pgxPool: pgxPool,
+		logger:  logger,
 	}
 }
 
@@ -137,8 +145,16 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 		Subdomain: subdomain,
 	})
 	if err != nil {
+		s.logger.Error("failed to create organization",
+			"method", "Create",
+			"error", err,
+			"name", name)
 		return nil, fmt.Errorf("failed to create organization: %w", err)
 	}
+
+	s.logger.Info("organization created",
+		"method", "Create",
+		"org_id", org.ID)
 
 	return toOrganization(org)
 }
@@ -150,6 +166,10 @@ func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID
 
 	res, err := s.queries.GetUserOrgs(ctx, utils.PgUUID(userID))
 	if err != nil {
+		s.logger.Error("failed to get user organizations",
+			"method", "GetUsersOrgs",
+			"error", err,
+			"user_id", userID)
 		return nil, fmt.Errorf("failed to get user organizations: %w", err)
 	}
 
@@ -171,8 +191,13 @@ func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*model
 
 	org, err := s.queries.GetOrg(ctx, utils.PgUUID(id))
 	if err != nil {
+		s.logger.Error("failed to get organization",
+			"method", "GetByID",
+			"error", err,
+			"org_id", id)
 		return nil, fmt.Errorf("failed to get organization: %w", err)
 	}
+
 	return toOrganization(org)
 }
 
@@ -183,8 +208,17 @@ func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
 
 	err := s.queries.DeleteOrg(ctx, utils.PgUUID(id))
 	if err != nil {
+		s.logger.Error("failed to delete organization",
+			"method", "Delete",
+			"error", err,
+			"org_id", id)
 		return fmt.Errorf("failed to delete organization: %w", err)
 	}
+
+	s.logger.Info("organization deleted",
+		"method", "Delete",
+		"org_id", id)
+
 	return nil
 }
 
@@ -195,6 +229,10 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 
 	exists, err := s.IsOrganizationExists(ctx, org.ID)
 	if err != nil {
+		s.logger.Error("failed to check organization existence",
+			"method", "Update",
+			"error", err,
+			"org_id", org.ID)
 		return nil, fmt.Errorf("failed to check organization existence: %w", err)
 	}
 	if !exists {
@@ -214,8 +252,17 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 		Subdomain: org.Subdomain,
 	})
 	if err != nil {
+		s.logger.Error("failed to update organization",
+			"method", "Update",
+			"error", err,
+			"org_id", org.ID)
 		return nil, fmt.Errorf("failed to update organization: %w", err)
 	}
+
+	s.logger.Info("organization updated",
+		"method", "Update",
+		"org_id", org.ID)
+
 	return toOrganization(res)
 }
 
@@ -226,8 +273,13 @@ func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.
 
 	exists, err := s.queries.IsOrgExists(ctx, utils.PgUUID(id))
 	if err != nil {
+		s.logger.Error("failed to check organization existence",
+			"method", "IsOrganizationExists",
+			"error", err,
+			"org_id", id)
 		return false, fmt.Errorf("failed to check organization existence: %w", err)
 	}
+
 	return exists, nil
 }
 
@@ -250,8 +302,17 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 		Address: utils.PgText(address),
 	})
 	if err != nil {
+		s.logger.Error("failed to create organization unit",
+			"method", "CreateUnit",
+			"error", err,
+			"org_id", orgID)
 		return nil, fmt.Errorf("failed to create organization unit: %w", err)
 	}
+
+	s.logger.Info("organization unit created",
+		"method", "CreateUnit",
+		"org_id", orgID,
+		"unit_id", unit.ID)
 
 	return toOrganizationUnit(unit)
 }
@@ -263,6 +324,10 @@ func (s *OrganizationService) GetAllUnits(ctx context.Context, orgID uuid.UUID) 
 
 	units, err := s.queries.GetOrgUnits(ctx, utils.PgUUID(orgID))
 	if err != nil {
+		s.logger.Error("failed to get organization units",
+			"method", "GetAllUnits",
+			"error", err,
+			"org_id", orgID)
 		return nil, fmt.Errorf("failed to get organization units: %w", err)
 	}
 
@@ -290,6 +355,11 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
+		s.logger.Error("failed to get organization unit",
+			"method", "GetUnitByID",
+			"error", err,
+			"org_id", orgID,
+			"unit_id", id)
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
 	}
 
@@ -300,6 +370,7 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 	if unitModel == nil {
 		return nil, ErrOrganizationUnitNotFound
 	}
+
 	return unitModel, nil
 }
 
@@ -316,8 +387,19 @@ func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, i
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
+		s.logger.Error("failed to delete organization unit",
+			"method", "DeleteUnit",
+			"error", err,
+			"org_id", orgID,
+			"unit_id", id)
 		return fmt.Errorf("failed to delete organization unit: %w", err)
 	}
+
+	s.logger.Info("organization unit deleted",
+		"method", "DeleteUnit",
+		"org_id", orgID,
+		"unit_id", id)
+
 	return nil
 }
 
@@ -345,7 +427,18 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 		Address: utils.PgText(address),
 	})
 	if err != nil {
+		s.logger.Error("failed to update organization unit",
+			"method", "UpdateUnit",
+			"error", err,
+			"org_id", unit.OrgID,
+			"unit_id", unit.ID)
 		return nil, fmt.Errorf("failed to update organization unit: %w", err)
 	}
+
+	s.logger.Info("organization unit updated",
+		"method", "UpdateUnit",
+		"org_id", unit.OrgID,
+		"unit_id", unit.ID)
+
 	return toOrganizationUnit(updatedUnit)
 }
