@@ -13,11 +13,13 @@ post:
           properties:
             access_token:
               type: string
-              description: Yandex Access token
+              description: Yandex Access token received from Yandex OAuth on Frontend
           required:
             - access_token
   responses:
     "200":
       $ref: ../../components/responses/AuthResponse.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

@@ -828,12 +828,14 @@ paths:
               properties:
                 access_token:
                   type: string
-                  description: Yandex Access token
+                  description: Yandex Access token received from Yandex OAuth on Frontend
               required:
                 - access_token
       responses:
         '200':
           $ref: '#/components/responses/AuthResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         default:
           $ref: '#/components/responses/default-error'
   /auth/logout:
@@ -1056,17 +1058,21 @@ components:
       in: cookie
       name: storeit_session
   schemas:
-    Error:
-      description: Represents error object
+    ErrorContent:
       type: object
       properties:
-        error_id:
-          type: string
-        message:
-          type: string
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+          required:
+            - code
+            - message
       required:
-        - error_id
-        - message
+        - error
     OrganizationBase:
       type: object
       properties:
@@ -2160,7 +2166,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorContent'
     AuthResponse:
       description: Auth response
       headers:
@@ -2169,6 +2175,12 @@ components:
             type: string
             description: Auth cookie
           required: true
+    default-bad-request:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
     LogoutResponse:
       description: Logout response
       headers:

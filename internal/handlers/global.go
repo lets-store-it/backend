@@ -17,8 +17,6 @@ type RestApiImplementation struct {
 	auditUseCase        *usecases.AuditUseCase
 }
 
-
-
 // CreateInstanceForItem implements api.Handler.
 func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (*api.CreateInstanceForItemResponse, error) {
 	panic("unimplemented")
@@ -70,9 +68,11 @@ func NewRestApiImplementation(
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
 	return &api.DefaultErrorStatusCode{
 		StatusCode: http.StatusInternalServerError,
-		Response: api.Error{
-			ErrorID: "internal_server_error",
-			Message: err.Error(),
+		Response: api.ErrorContent{
+			Error: api.ErrorContentError{
+				Code:    "internal_server_error",
+				Message: err.Error(),
+			},
 		},
 	}
 }

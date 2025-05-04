@@ -162,7 +162,7 @@ func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params Delet
 // Exchange Yandex Access token for Session token.
 //
 // POST /auth/oauth2/yandex
-func (UnimplementedHandler) ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (r *AuthResponse, _ error) {
+func (UnimplementedHandler) ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (r ExchangeYandexAccessTokenRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

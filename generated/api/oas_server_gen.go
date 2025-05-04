@@ -109,7 +109,7 @@ type Handler interface {
 	// Exchange Yandex Access token for Session token.
 	//
 	// POST /auth/oauth2/yandex
-	ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
+	ExchangeYandexAccessToken(ctx context.Context, req *ExchangeYandexAccessTokenReq) (ExchangeYandexAccessTokenRes, error)
 	// GetApiTokens implements getApiTokens operation.
 	//
 	// Get list of Service API Tokens.

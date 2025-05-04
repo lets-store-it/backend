@@ -130,7 +130,7 @@ type Invoker interface {
 	// Exchange Yandex Access token for Session token.
 	//
 	// POST /auth/oauth2/yandex
-	ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (*AuthResponse, error)
+	ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (ExchangeYandexAccessTokenRes, error)
 	// GetApiTokens invokes getApiTokens operation.
 	//
 	// Get list of Service API Tokens.
@@ -2512,12 +2512,12 @@ func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorag
 // Exchange Yandex Access token for Session token.
 //
 // POST /auth/oauth2/yandex
-func (c *Client) ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (*AuthResponse, error) {
+func (c *Client) ExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (ExchangeYandexAccessTokenRes, error) {
 	res, err := c.sendExchangeYandexAccessToken(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (res *AuthResponse, err error) {
+func (c *Client) sendExchangeYandexAccessToken(ctx context.Context, request *ExchangeYandexAccessTokenReq) (res ExchangeYandexAccessTokenRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("exchangeYandexAccessToken"),
 		semconv.HTTPRequestMethodKey.String("POST"),

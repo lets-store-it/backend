@@ -3,9 +3,14 @@ package yandex
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+)
+
+var (
+	ErrInvalidOrExpiredToken = errors.New("token invalid or expired")
 )
 
 type YandexOAuthService struct {
@@ -42,6 +47,10 @@ func (s *YandexOAuthService) GetUserInfo(ctx context.Context, accessToken string
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, ErrInvalidOrExpiredToken
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)

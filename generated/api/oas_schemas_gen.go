@@ -242,6 +242,8 @@ func (s *AuthResponse) SetSetCookie(val string) {
 	s.SetCookie = val
 }
 
+func (*AuthResponse) exchangeYandexAccessTokenRes() {}
+
 // Ref: #/components/schemas/CellBase
 type CellBase struct {
 	ID       uuid.UUID `json:"id"`
@@ -1053,10 +1055,10 @@ func (s *CreateStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
-// DefaultErrorStatusCode wraps Error with StatusCode.
+// DefaultErrorStatusCode wraps ErrorContent with StatusCode.
 type DefaultErrorStatusCode struct {
 	StatusCode int
-	Response   Error
+	Response   ErrorContent
 }
 
 // GetStatusCode returns the value of StatusCode.
@@ -1065,7 +1067,7 @@ func (s *DefaultErrorStatusCode) GetStatusCode() int {
 }
 
 // GetResponse returns the value of Response.
-func (s *DefaultErrorStatusCode) GetResponse() Error {
+func (s *DefaultErrorStatusCode) GetResponse() ErrorContent {
 	return s.Response
 }
 
@@ -1075,7 +1077,7 @@ func (s *DefaultErrorStatusCode) SetStatusCode(val int) {
 }
 
 // SetResponse sets the value of Response.
-func (s *DefaultErrorStatusCode) SetResponse(val Error) {
+func (s *DefaultErrorStatusCode) SetResponse(val ErrorContent) {
 	s.Response = val
 }
 
@@ -1173,35 +1175,50 @@ func (s *Employee) SetRole(val Role) {
 	s.Role = val
 }
 
-// Represents error object.
-// Ref: #/components/schemas/Error
-type Error struct {
-	ErrorID string `json:"error_id"`
+// Ref: #/components/schemas/ErrorContent
+type ErrorContent struct {
+	Error ErrorContentError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorContent) GetError() ErrorContentError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorContent) SetError(val ErrorContentError) {
+	s.Error = val
+}
+
+func (*ErrorContent) exchangeYandexAccessTokenRes() {}
+
+type ErrorContentError struct {
+	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-// GetErrorID returns the value of ErrorID.
-func (s *Error) GetErrorID() string {
-	return s.ErrorID
+// GetCode returns the value of Code.
+func (s *ErrorContentError) GetCode() string {
+	return s.Code
 }
 
 // GetMessage returns the value of Message.
-func (s *Error) GetMessage() string {
+func (s *ErrorContentError) GetMessage() string {
 	return s.Message
 }
 
-// SetErrorID sets the value of ErrorID.
-func (s *Error) SetErrorID(val string) {
-	s.ErrorID = val
+// SetCode sets the value of Code.
+func (s *ErrorContentError) SetCode(val string) {
+	s.Code = val
 }
 
 // SetMessage sets the value of Message.
-func (s *Error) SetMessage(val string) {
+func (s *ErrorContentError) SetMessage(val string) {
 	s.Message = val
 }
 
 type ExchangeYandexAccessTokenReq struct {
-	// Yandex Access token.
+	// Yandex Access token received from Yandex OAuth on Frontend.
 	AccessToken string `json:"access_token"`
 }
 
