@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math/rand"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/auth"
@@ -26,26 +29,39 @@ var (
 )
 
 type AuditService struct {
+	pgxPool *pgxpool.Pool
 	queries *database.Queries
 	auth    *auth.AuthService
 	kafka   *KafkaConfig
+	logger  *slog.Logger
 }
 
 type AuditServiceConfig struct {
+	PGXPool      *pgxpool.Pool
 	Queries      *database.Queries
 	Auth         *auth.AuthService
 	KafkaEnabled bool
 	KafkaBrokers []string
+	Logger       *slog.Logger
 }
 
 func New(cfg *AuditServiceConfig) (*AuditService, error) {
-	if cfg == nil || cfg.Queries == nil {
+	if cfg == nil || cfg.Queries == nil || cfg.PGXPool == nil {
 		return nil, fmt.Errorf("invalid configuration")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = slog.Default()
+	}
+	// Add service name prefix to all log messages
+	logger = logger.With("service", "audit")
+
 	service := &AuditService{
+		pgxPool: cfg.PGXPool,
 		queries: cfg.Queries,
 		auth:    cfg.Auth,
+		logger:  logger,
 	}
 
 	if cfg.KafkaEnabled {
@@ -54,6 +70,7 @@ func New(cfg *AuditServiceConfig) (*AuditService, error) {
 			return nil, fmt.Errorf("failed to connect to kafka: %w", err)
 		}
 		service.kafka = kafka
+		service.logger.Info("kafka connection established", "brokers", cfg.KafkaBrokers)
 	}
 
 	return service, nil
@@ -62,8 +79,13 @@ func New(cfg *AuditServiceConfig) (*AuditService, error) {
 func (s *AuditService) Close() error {
 	if s.kafka != nil {
 		if err := s.kafka.Close(); err != nil {
+			s.logger.Error("failed to close kafka connection",
+				"method", "Close",
+				"error", err)
 			return fmt.Errorf("failed to close kafka connection: %w", err)
 		}
+		s.logger.Info("kafka connection closed",
+			"method", "Close")
 	}
 	return nil
 }
@@ -104,30 +126,69 @@ func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.
 
 	message, err := json.Marshal(objectChange)
 	if err != nil {
+		s.logger.Error("failed to marshal object change",
+			"method", "publishToKafka",
+			"error", err)
 		return fmt.Errorf("failed to marshal object change: %w", err)
 	}
 
 	key := []byte(fmt.Sprintf("%d", rand.Int()))
 	if err := s.kafka.SendMessage(ctx, key, message); err != nil {
+		s.logger.Error("failed to send message to kafka",
+			"method", "publishToKafka",
+			"error", err,
+			"object_change_id", objectChange.ID,
+			"org_id", objectChange.OrgID,
+			"target_object_id", objectChange.TargetObjectID)
 		return fmt.Errorf("failed to send message to kafka: %w", err)
 	}
+
+	s.logger.Info("kafka message sent successfully",
+		"method", "publishToKafka",
+		"object_change_id", objectChange.ID,
+		"org_id", objectChange.OrgID,
+		"target_object_id", objectChange.TargetObjectID)
 
 	return nil
 }
 
 func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
+	tx, err := s.pgxPool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		s.logger.Error("failed to begin transaction",
+			"method", "CreateObjectChange",
+			"error", err)
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
 	if err := s.validateObjectChange(objectChange); err != nil {
+		s.logger.Error("invalid object change",
+			"method", "CreateObjectChange",
+			"error", err,
+			"org_id", objectChange.OrgID,
+			"user_id", objectChange.UserID,
+			"target_object_id", objectChange.TargetObjectID)
 		return err
 	}
 
 	// Get related information
 	objectType, err := s.getObjectTypeInfo(ctx, int32(objectChange.TargetObjectTypeId))
 	if err != nil {
+		s.logger.Error("failed to get object type info",
+			"method", "CreateObjectChange",
+			"error", err,
+			"type_id", objectChange.TargetObjectTypeId)
 		return err
 	}
 
 	employee, err := s.auth.GetEmployeeWithRole(ctx, objectChange.OrgID, objectChange.UserID)
 	if err != nil {
+		s.logger.Error("failed to get employee with role",
+			"method", "CreateObjectChange",
+			"error", err,
+			"org_id", objectChange.OrgID,
+			"user_id", objectChange.UserID)
 		return err
 	}
 
@@ -142,6 +203,13 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		PostchangeState:  objectChange.PostchangeState,
 	})
 	if err != nil {
+		s.logger.Error("failed to create object change",
+			"method", "CreateObjectChange",
+			"error", err,
+			"org_id", objectChange.OrgID,
+			"user_id", objectChange.UserID,
+			"action", objectChange.Action,
+			"target_object_id", objectChange.TargetObjectID)
 		return fmt.Errorf("failed to create object change: %w", err)
 	}
 
@@ -150,14 +218,28 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	objectChange.ObjectType = objectType
 	objectChange.Employee = employee
 
+	s.logger.Info("object change created successfully",
+		"method", "CreateObjectChange",
+		"change_id", objectChange.ID,
+		"org_id", objectChange.OrgID,
+		"user_id", objectChange.UserID,
+		"action", objectChange.Action,
+		"target_object_id", objectChange.TargetObjectID)
+
 	return s.publishToKafka(ctx, objectChange)
 }
 
 func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "GetObjectChanges",
+			"org_id", orgID)
 		return nil, ErrInvalidOrganization
 	}
 	if targetObjectID == uuid.Nil {
+		s.logger.Error("invalid target object ID",
+			"method", "GetObjectChanges",
+			"target_object_id", targetObjectID)
 		return nil, ErrInvalidTargetObject
 	}
 
