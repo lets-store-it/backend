@@ -63,11 +63,12 @@ func (h *RestApiImplementation) GetCurrentUser(ctx context.Context) (*api.GetCur
 	}, nil
 }
 
-func (h *RestApiImplementation) ExchangeYandexAccessToken(ctx context.Context, req *api.ExchangeYandexAccessTokenReq) (*api.AuthResponse, error) {
+func (h *RestApiImplementation) ExchangeYandexAccessToken(ctx context.Context, req *api.ExchangeYandexAccessTokenReq) (api.ExchangeYandexAccessTokenRes, error) {
 	session, err := h.authUseCase.ExchangeYandexAccessToken(ctx, req.AccessToken)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
+
 	cookie := &http.Cookie{
 		Name:     "storeit_session",
 		Value:    session.Secret,

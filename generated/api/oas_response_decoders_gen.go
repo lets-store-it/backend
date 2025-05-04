@@ -68,7 +68,7 @@ func decodeCreateApiTokenResponse(resp *http.Response) (res *CreateApiTokenRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -160,7 +160,7 @@ func decodeCreateCellResponse(resp *http.Response) (res *CreateCellResponse, _ e
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -243,7 +243,7 @@ func decodeCreateCellsGroupResponse(resp *http.Response) (res *CreateCellsGroupR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -335,7 +335,7 @@ func decodeCreateInstanceForItemResponse(resp *http.Response) (res *CreateInstan
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -427,7 +427,7 @@ func decodeCreateItemResponse(resp *http.Response) (res *CreateItemResponse, _ e
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -519,7 +519,7 @@ func decodeCreateOrganizationResponse(resp *http.Response) (res *CreateOrganizat
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -602,7 +602,7 @@ func decodeCreateStorageGroupResponse(resp *http.Response) (res *CreateStorageGr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -694,7 +694,7 @@ func decodeCreateUnitResponse(resp *http.Response) (res *CreateOrganizationUnitR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -745,7 +745,7 @@ func decodeDeleteCellResponse(resp *http.Response) (res *DeleteCellOK, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -796,7 +796,7 @@ func decodeDeleteCellsGroupResponse(resp *http.Response) (res *DeleteCellsGroupO
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -847,7 +847,7 @@ func decodeDeleteEmployeeByIdResponse(resp *http.Response) (res *DeleteEmployeeB
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -898,7 +898,7 @@ func decodeDeleteInstanceByIdResponse(resp *http.Response) (res *DeleteInstanceB
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -949,7 +949,7 @@ func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemOK, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1000,7 +1000,7 @@ func decodeDeleteOrganizationResponse(resp *http.Response) (res *DeleteOrganizat
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1051,7 +1051,7 @@ func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res *DeleteOrgan
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1102,7 +1102,7 @@ func decodeDeleteStorageGroupResponse(resp *http.Response) (res *DeleteStorageGr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1133,7 +1133,7 @@ func decodeDeleteStorageGroupResponse(resp *http.Response) (res *DeleteStorageGr
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeExchangeYandexAccessTokenResponse(resp *http.Response) (res *AuthResponse, _ error) {
+func decodeExchangeYandexAccessTokenResponse(resp *http.Response) (res ExchangeYandexAccessTokenRes, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -1172,6 +1172,41 @@ func decodeExchangeYandexAccessTokenResponse(resp *http.Response) (res *AuthResp
 			}
 		}
 		return &wrapper, nil
+	case 400:
+		// Code 400.
+		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		if err != nil {
+			return res, errors.Wrap(err, "parse media type")
+		}
+		switch {
+		case ct == "application/json":
+			buf, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return res, err
+			}
+			d := jx.DecodeBytes(buf)
+
+			var response ErrorContent
+			if err := func() error {
+				if err := response.Decode(d); err != nil {
+					return err
+				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
+				return nil
+			}(); err != nil {
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
+			}
+			return &response, nil
+		default:
+			return res, validate.InvalidContentType(ct)
+		}
 	}
 	// Convenient error response.
 	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
@@ -1187,7 +1222,7 @@ func decodeExchangeYandexAccessTokenResponse(resp *http.Response) (res *AuthResp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1279,7 +1314,7 @@ func decodeGetApiTokensResponse(resp *http.Response) (res *GetApiTokensResponse,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1371,7 +1406,7 @@ func decodeGetAuditLogsResponse(resp *http.Response) (res *GetAuditLogsResponse,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1463,7 +1498,7 @@ func decodeGetCellByIdResponse(resp *http.Response) (res *GetCellByIdResponse, _
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1555,7 +1590,7 @@ func decodeGetCellsResponse(resp *http.Response) (res *GetCellsResponse, _ error
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1638,7 +1673,7 @@ func decodeGetCellsGroupByIdResponse(resp *http.Response) (res *GetCellsGroupByI
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1730,7 +1765,7 @@ func decodeGetCellsGroupsResponse(resp *http.Response) (res *GetCellsGroupsRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1813,7 +1848,7 @@ func decodeGetCurrentUserResponse(resp *http.Response) (res *GetCurrentUserRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1896,7 +1931,7 @@ func decodeGetEmployeeByIdResponse(resp *http.Response) (res *GetEmployeeRespons
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1988,7 +2023,7 @@ func decodeGetEmployeesResponse(resp *http.Response) (res *GetEmployeesResponse,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2080,7 +2115,7 @@ func decodeGetInstancesResponse(resp *http.Response) (res *GetInstancesResponse,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2172,7 +2207,7 @@ func decodeGetInstancesByItemIdResponse(resp *http.Response) (res *GetInstancesB
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2264,7 +2299,7 @@ func decodeGetItemByIdResponse(resp *http.Response) (res *GetItemByIdResponse, _
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2356,7 +2391,7 @@ func decodeGetItemsResponse(resp *http.Response) (res *GetItemsResponse, _ error
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2448,7 +2483,7 @@ func decodeGetOrganizationByIdResponse(resp *http.Response) (res *GetOrganizatio
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2540,7 +2575,7 @@ func decodeGetOrganizationUnitByIdResponse(resp *http.Response) (res *GetOrganiz
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2632,7 +2667,7 @@ func decodeGetOrganizationUnitsResponse(resp *http.Response) (res *GetOrganizati
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2724,7 +2759,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *GetOrganizationsR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2816,7 +2851,7 @@ func decodeGetRolesResponse(resp *http.Response) (res *GetRolesOK, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2899,7 +2934,7 @@ func decodeGetStorageGroupByIdResponse(resp *http.Response) (res *GetStorageGrou
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2991,7 +3026,7 @@ func decodeGetStorageGroupsResponse(resp *http.Response) (res *GetStorageGroupsR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3074,7 +3109,7 @@ func decodeInviteEmployeeResponse(resp *http.Response) (res *GetEmployeeResponse
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3159,7 +3194,7 @@ func decodeLogoutResponse(resp *http.Response) (res *LogoutResponse, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3251,7 +3286,7 @@ func decodePatchCellResponse(resp *http.Response) (res *PatchCellResponse, _ err
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3334,7 +3369,7 @@ func decodePatchCellsGroupResponse(resp *http.Response) (res *PatchCellsGroupRes
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3417,7 +3452,7 @@ func decodePatchCurrentUserResponse(resp *http.Response) (res *GetCurrentUserRes
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3500,7 +3535,7 @@ func decodePatchEmployeeByIdResponse(resp *http.Response) (res *GetEmployeeRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3592,7 +3627,7 @@ func decodePatchItemResponse(resp *http.Response) (res *PatchItemResponse, _ err
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3684,7 +3719,7 @@ func decodePatchOrganizationResponse(resp *http.Response) (res *PatchOrganizatio
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3776,7 +3811,7 @@ func decodePatchOrganizationUnitResponse(resp *http.Response) (res *PatchOrganiz
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3868,7 +3903,7 @@ func decodePatchStorageGroupResponse(resp *http.Response) (res *PatchStorageGrou
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3951,7 +3986,7 @@ func decodePutCurrentUserResponse(resp *http.Response) (res *GetCurrentUserRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4002,7 +4037,7 @@ func decodeRevokeApiTokenResponse(resp *http.Response) (res *RevokeApiTokenOK, _
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4094,7 +4129,7 @@ func decodeUpdateCellResponse(resp *http.Response) (res *UpdateCellResponse, _ e
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4177,7 +4212,7 @@ func decodeUpdateCellsGroupResponse(resp *http.Response) (res *UpdateCellsGroupR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4269,7 +4304,7 @@ func decodeUpdateItemResponse(resp *http.Response) (res *UpdateItemResponse, _ e
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4361,7 +4396,7 @@ func decodeUpdateOrganizationResponse(resp *http.Response) (res *UpdateOrganizat
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4453,7 +4488,7 @@ func decodeUpdateOrganizationUnitResponse(resp *http.Response) (res *UpdateOrgan
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4545,7 +4580,7 @@ func decodeUpdateStorageGroupResponse(resp *http.Response) (res *UpdateStorageGr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Error
+			var response ErrorContent
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

@@ -3578,7 +3578,7 @@ func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEsca
 		}
 	}()
 
-	var response *AuthResponse
+	var response ExchangeYandexAccessTokenRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -3593,7 +3593,7 @@ func (s *Server) handleExchangeYandexAccessTokenRequest(args [0]string, argsEsca
 		type (
 			Request  = *ExchangeYandexAccessTokenReq
 			Params   = struct{}
-			Response = *AuthResponse
+			Response = ExchangeYandexAccessTokenRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
