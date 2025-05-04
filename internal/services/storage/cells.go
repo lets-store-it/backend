@@ -56,12 +56,25 @@ func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uu
 
 func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsGroupID uuid.UUID, alias string, row int, level int, position int) (*models.Cell, error) {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "CreateCell",
+			"org_id", orgID)
 		return nil, ErrInvalidOrganization
 	}
 	if cellsGroupID == uuid.Nil {
+		s.logger.Error("invalid cells group ID",
+			"method", "CreateCell",
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID)
 		return nil, ErrInvalidCellsGroup
 	}
 	if err := s.validateAlias(alias); err != nil {
+		s.logger.Error("validation failed",
+			"method", "CreateCell",
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID,
+			"alias", alias,
+			"error", err)
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -74,25 +87,56 @@ func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsG
 		Position:     int32(position),
 	})
 	if err != nil {
+		s.logger.Error("failed to create cell",
+			"method", "CreateCell",
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID,
+			"alias", alias,
+			"error", err)
 		return nil, fmt.Errorf("failed to create cell: %w", err)
 	}
+
+	s.logger.Info("cell created successfully",
+		"method", "CreateCell",
+		"org_id", orgID,
+		"cells_group_id", cellsGroupID,
+		"cell_id", cell.ID,
+		"alias", alias)
+
 	return toCell(cell)
 }
 
 func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*models.Cell, error) {
 	if cell == nil {
+		s.logger.Error("invalid cell: nil",
+			"method", "UpdateCell")
 		return nil, ErrInvalidCell
 	}
 	if cell.ID == uuid.Nil {
+		s.logger.Error("invalid cell ID",
+			"method", "UpdateCell")
 		return nil, ErrInvalidCell
 	}
 	if cell.OrgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "UpdateCell",
+			"cell_id", cell.ID)
 		return nil, ErrInvalidOrganization
 	}
 	if cell.CellsGroupID == uuid.Nil {
+		s.logger.Error("invalid cells group ID",
+			"method", "UpdateCell",
+			"cell_id", cell.ID,
+			"org_id", cell.OrgID)
 		return nil, ErrInvalidCellsGroup
 	}
 	if err := s.validateAlias(cell.Alias); err != nil {
+		s.logger.Error("validation failed",
+			"method", "UpdateCell",
+			"cell_id", cell.ID,
+			"org_id", cell.OrgID,
+			"alias", cell.Alias,
+			"error", err)
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -106,19 +150,41 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 		Position:     int32(cell.Position),
 	})
 	if err != nil {
+		s.logger.Error("failed to update cell",
+			"method", "UpdateCell",
+			"cell_id", cell.ID,
+			"org_id", cell.OrgID,
+			"error", err)
 		return nil, fmt.Errorf("failed to update cell: %w", err)
 	}
+
+	s.logger.Info("cell updated successfully",
+		"method", "UpdateCell",
+		"cell_id", cell.ID,
+		"org_id", cell.OrgID)
+
 	return toCell(updatedCell)
 }
 
 func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsGroupID uuid.UUID, id uuid.UUID) error {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "DeleteCell",
+			"org_id", orgID)
 		return ErrInvalidOrganization
 	}
 	if cellsGroupID == uuid.Nil {
+		s.logger.Error("invalid cells group ID",
+			"method", "DeleteCell",
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID)
 		return ErrInvalidCellsGroup
 	}
 	if id == uuid.Nil {
+		s.logger.Error("invalid cell ID",
+			"method", "DeleteCell",
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID)
 		return ErrInvalidCell
 	}
 
@@ -128,8 +194,21 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsG
 		CellsGroupID: utils.PgUUID(cellsGroupID),
 	})
 	if err != nil {
+		s.logger.Error("failed to delete cell",
+			"method", "DeleteCell",
+			"cell_id", id,
+			"org_id", orgID,
+			"cells_group_id", cellsGroupID,
+			"error", err)
 		return fmt.Errorf("failed to delete cell: %w", err)
 	}
+
+	s.logger.Info("cell deleted successfully",
+		"method", "DeleteCell",
+		"cell_id", id,
+		"org_id", orgID,
+		"cells_group_id", cellsGroupID)
+
 	return nil
 }
 

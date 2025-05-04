@@ -63,7 +63,12 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 		AllowCredentials: true,
 	}))
 	// Initialize services
-	storageGroupService := storage.New(queries)
+	storageGroupService, err := storage.New(&storage.StorageServiceConfig{
+		Queries: queries,
+	})
+	if err != nil {
+		return nil, err
+	}
 	authService := auth.New(queries, pool)
 
 	auditService, err := audit.New(&audit.AuditServiceConfig{

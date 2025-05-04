@@ -19,12 +19,26 @@ func (s *StorageService) validateStorageGroupData(name, alias string) error {
 
 func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "CreateStorageGroup",
+			"org_id", orgID)
 		return nil, ErrInvalidOrganization
 	}
 	if unitID == uuid.Nil {
+		s.logger.Error("invalid unit ID",
+			"method", "CreateStorageGroup",
+			"org_id", orgID,
+			"unit_id", unitID)
 		return nil, ErrInvalidUnit
 	}
 	if err := s.validateStorageGroupData(name, alias); err != nil {
+		s.logger.Error("validation failed",
+			"method", "CreateStorageGroup",
+			"org_id", orgID,
+			"unit_id", unitID,
+			"name", name,
+			"alias", alias,
+			"error", err)
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -36,8 +50,25 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID
 		Alias:    alias,
 	})
 	if err != nil {
+		s.logger.Error("failed to create storage group",
+			"method", "CreateStorageGroup",
+			"org_id", orgID,
+			"unit_id", unitID,
+			"parent_id", parentID,
+			"name", name,
+			"alias", alias,
+			"error", err)
 		return nil, fmt.Errorf("failed to create storage group: %w", err)
 	}
+
+	s.logger.Info("storage group created successfully",
+		"method", "CreateStorageGroup",
+		"org_id", orgID,
+		"unit_id", unitID,
+		"group_id", group.ID,
+		"parent_id", parentID,
+		"name", name,
+		"alias", alias)
 
 	return toStorageGroup(group)
 }
@@ -65,9 +96,16 @@ func (s *StorageService) GetAllStorageGroups(ctx context.Context, orgID uuid.UUI
 
 func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.StorageGroup, error) {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "GetStorageGroupByID",
+			"org_id", orgID)
 		return nil, ErrInvalidOrganization
 	}
 	if id == uuid.Nil {
+		s.logger.Error("invalid storage group ID",
+			"method", "GetStorageGroupByID",
+			"org_id", orgID,
+			"group_id", id)
 		return nil, ErrInvalidStorageGroup
 	}
 
@@ -76,14 +114,28 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
+		s.logger.Error("failed to get storage group",
+			"method", "GetStorageGroupByID",
+			"org_id", orgID,
+			"group_id", id,
+			"error", err)
 		return nil, fmt.Errorf("failed to get storage group: %w", err)
 	}
 
 	model, err := toStorageGroup(group)
 	if err != nil {
+		s.logger.Error("failed to convert storage group",
+			"method", "GetStorageGroupByID",
+			"org_id", orgID,
+			"group_id", id,
+			"error", err)
 		return nil, err
 	}
 	if model == nil {
+		s.logger.Error("storage group not found",
+			"method", "GetStorageGroupByID",
+			"org_id", orgID,
+			"group_id", id)
 		return nil, ErrStorageGroupNotFound
 	}
 	return model, nil
@@ -91,9 +143,16 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 
 func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	if orgID == uuid.Nil {
+		s.logger.Error("invalid organization ID",
+			"method", "DeleteStorageGroup",
+			"org_id", orgID)
 		return ErrInvalidOrganization
 	}
 	if id == uuid.Nil {
+		s.logger.Error("invalid storage group ID",
+			"method", "DeleteStorageGroup",
+			"org_id", orgID,
+			"group_id", id)
 		return ErrInvalidStorageGroup
 	}
 
@@ -102,20 +161,41 @@ func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
+		s.logger.Error("failed to delete storage group",
+			"method", "DeleteStorageGroup",
+			"org_id", orgID,
+			"group_id", id,
+			"error", err)
 		return fmt.Errorf("failed to delete storage group: %w", err)
 	}
+
+	s.logger.Info("storage group deleted successfully",
+		"method", "DeleteStorageGroup",
+		"org_id", orgID,
+		"group_id", id)
+
 	return nil
 }
 
 func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
 	if group == nil {
+		s.logger.Error("invalid storage group: nil",
+			"method", "UpdateStorageGroup")
 		return nil, ErrInvalidStorageGroup
 	}
 	if group.ID == uuid.Nil {
+		s.logger.Error("invalid storage group ID",
+			"method", "UpdateStorageGroup")
 		return nil, ErrInvalidStorageGroup
 	}
 
 	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
+		s.logger.Error("validation failed",
+			"method", "UpdateStorageGroup",
+			"group_id", group.ID,
+			"name", group.Name,
+			"alias", group.Alias,
+			"error", err)
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -125,7 +205,18 @@ func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.S
 		Alias: group.Alias,
 	})
 	if err != nil {
+		s.logger.Error("failed to update storage group",
+			"method", "UpdateStorageGroup",
+			"group_id", group.ID,
+			"error", err)
 		return nil, fmt.Errorf("failed to update storage group: %w", err)
 	}
+
+	s.logger.Info("storage group updated successfully",
+		"method", "UpdateStorageGroup",
+		"group_id", group.ID,
+		"name", group.Name,
+		"alias", group.Alias)
+
 	return toStorageGroup(updatedGroup)
 }
