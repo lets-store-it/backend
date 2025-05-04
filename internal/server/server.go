@@ -80,7 +80,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 
 	itemService := item.New(queries, pool, storageGroupService)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
-	orgService := organization.New(queries, pool)
+	orgService := organization.New(queries, pool, nil)
 
 	// Initialize use cases
 	itemUseCase := usecases.NewItemUseCase(itemService)

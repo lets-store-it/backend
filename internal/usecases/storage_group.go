@@ -52,7 +52,7 @@ func (uc *StorageUseCase) Create(ctx context.Context, unitID uuid.UUID, parentID
 		return nil, err
 	}
 
-	return uc.service.Create(ctx, orgID, unitID, parentID, name, alias)
+	return uc.service.CreateStorageGroup(ctx, orgID, unitID, parentID, name, alias)
 }
 
 func (uc *StorageUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, error) {
@@ -61,7 +61,7 @@ func (uc *StorageUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, e
 		return nil, err
 	}
 
-	return uc.service.GetAll(ctx, orgID)
+	return uc.service.GetAllStorageGroups(ctx, orgID)
 }
 
 func (uc *StorageUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.StorageGroup, error) {
@@ -70,7 +70,7 @@ func (uc *StorageUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.St
 		return nil, err
 	}
 
-	group, err := uc.service.GetByID(ctx, orgID, id)
+	group, err := uc.service.GetStorageGroupByID(ctx, orgID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get storage group: %w", err)
 	}
@@ -84,7 +84,7 @@ func (uc *StorageUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	return uc.service.Delete(ctx, orgID, id)
+	return uc.service.DeleteStorageGroup(ctx, orgID, id)
 }
 
 func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
@@ -93,7 +93,7 @@ func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup
 		return nil, err
 	}
 
-	return uc.service.Update(ctx, group)
+	return uc.service.UpdateStoragrGroup(ctx, group)
 }
 
 // CellsGroups
@@ -104,7 +104,7 @@ func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGr
 		return nil, err
 	}
 
-	return uc.service.GetCellsGroups(ctx, orgID)
+	return uc.service.GetAllCellsGroups(ctx, orgID)
 }
 
 func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, storageGroupID uuid.UUID, name string, alias string) (*models.CellsGroup, error) {

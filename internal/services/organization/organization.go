@@ -124,7 +124,7 @@ func New(queries *database.Queries, pgxPool *pgxpool.Pool, logger *slog.Logger) 
 		logger = slog.Default()
 	}
 	logger = logger.With("service", "organization")
-
+	
 	return &OrganizationService{
 		queries: queries,
 		pgxPool: pgxPool,
