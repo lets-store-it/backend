@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 	"strings"
 
@@ -28,12 +29,30 @@ const (
 
 type StorageService struct {
 	queries *database.Queries
+	logger  *slog.Logger
 }
 
-func New(queries *database.Queries) *StorageService {
-	return &StorageService{
-		queries: queries,
+type StorageServiceConfig struct {
+	Queries *database.Queries
+	Logger  *slog.Logger
+}
+
+func New(cfg *StorageServiceConfig) (*StorageService, error) {
+	if cfg == nil || cfg.Queries == nil {
+		return nil, errors.New("invalid configuration")
 	}
+
+	logger := cfg.Logger
+	if logger == nil {
+		logger = slog.Default()
+	}
+	// Add service name prefix to all log messages
+	logger = logger.With("service", "storage")
+
+	return &StorageService{
+		queries: cfg.Queries,
+		logger:  logger,
+	}, nil
 }
 
 func (s *StorageService) validateName(name string) error {
