@@ -21,6 +21,13 @@ func PgText(s string) pgtype.Text {
 	return pgtype.Text{String: s, Valid: s != ""}
 }
 
+func PgTextPtr(s *string) pgtype.Text {
+	if s == nil {
+		return pgtype.Text{Valid: false}
+	}
+	return pgtype.Text{String: *s, Valid: *s != ""}
+}
+
 // NullablePgUUID converts a pointer to UUID to pgtype.UUID
 func NullablePgUUID(id *uuid.UUID) pgtype.UUID {
 	if id == nil {
