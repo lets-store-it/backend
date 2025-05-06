@@ -2,11 +2,12 @@ package storage
 
 import (
 	"errors"
-	"log/slog"
 	"regexp"
 	"strings"
 
 	"github.com/let-store-it/backend/generated/database"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -29,12 +30,11 @@ const (
 
 type StorageService struct {
 	queries *database.Queries
-	logger  *slog.Logger
+	tracer  trace.Tracer
 }
 
 type StorageServiceConfig struct {
 	Queries *database.Queries
-	Logger  *slog.Logger
 }
 
 func New(cfg *StorageServiceConfig) (*StorageService, error) {
@@ -42,16 +42,9 @@ func New(cfg *StorageServiceConfig) (*StorageService, error) {
 		return nil, errors.New("invalid configuration")
 	}
 
-	logger := cfg.Logger
-	if logger == nil {
-		logger = slog.Default()
-	}
-	// Add service name prefix to all log messages
-	logger = logger.With("service", "storage")
-
 	return &StorageService{
 		queries: cfg.Queries,
-		logger:  logger,
+		tracer:  otel.GetTracerProvider().Tracer("storage-service"),
 	}, nil
 }
 

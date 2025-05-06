@@ -8,32 +8,26 @@ import (
 	"github.com/let-store-it/backend/generated/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func (s *StorageService) CreateCellsGroup(ctx context.Context, orgID uuid.UUID, storageGroupID uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
-	if orgID == uuid.Nil {
-		s.logger.Error("invalid organization ID",
-			"method", "CreateCellsGroup",
-			"org_id", orgID)
-		return nil, ErrInvalidOrganization
-	}
-	if storageGroupID == uuid.Nil {
-		s.logger.Error("invalid storage group ID",
-			"method", "CreateCellsGroup",
-			"org_id", orgID,
-			"storage_group_id", storageGroupID)
-		return nil, ErrInvalidStorageGroup
-	}
+	ctx, span := s.tracer.Start(ctx, "CreateCellsGroup")
+	defer span.End()
+
 	if err := s.validateStorageGroupData(name, alias); err != nil {
-		s.logger.Error("validation failed",
-			"method", "CreateCellsGroup",
-			"org_id", orgID,
-			"storage_group_id", storageGroupID,
-			"name", name,
-			"alias", alias,
-			"error", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "validation failed")
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
+
+	span.SetAttributes(
+		attribute.String("org_id", orgID.String()),
+		attribute.String("storage_group_id", storageGroupID.String()),
+		attribute.String("name", name),
+		attribute.String("alias", alias),
+	)
 
 	group, err := s.queries.CreateCellsGroup(ctx, database.CreateCellsGroupParams{
 		OrgID:          utils.PgUUID(orgID),
@@ -42,34 +36,32 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, orgID uuid.UUID, 
 		Alias:          alias,
 	})
 	if err != nil {
-		s.logger.Error("failed to create cells group",
-			"method", "CreateCellsGroup",
-			"org_id", orgID,
-			"storage_group_id", storageGroupID,
-			"name", name,
-			"alias", alias,
-			"error", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to create cells group")
 		return nil, fmt.Errorf("failed to create cells group: %w", err)
 	}
 
-	s.logger.Info("cells group created successfully",
-		"method", "CreateCellsGroup",
-		"org_id", orgID,
-		"storage_group_id", storageGroupID,
-		"group_id", group.ID,
-		"name", name,
-		"alias", alias)
+	result, err := toCellsGroup(group)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to convert cells group")
+		return nil, err
+	}
 
-	return toCellsGroup(group)
+	span.SetStatus(codes.Ok, "cells group created successfully")
+	return result, nil
 }
 
 func (s *StorageService) GetAllCellsGroups(ctx context.Context, orgID uuid.UUID) ([]*models.CellsGroup, error) {
-	if orgID == uuid.Nil {
-		return nil, ErrInvalidOrganization
-	}
+	ctx, span := s.tracer.Start(ctx, "GetAllCellsGroups")
+	defer span.End()
+
+	span.SetAttributes(attribute.String("org_id", orgID.String()))
 
 	groups, err := s.queries.GetCellsGroups(ctx, utils.PgUUID(orgID))
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get cells groups")
 		return nil, fmt.Errorf("failed to get cells groups: %w", err)
 	}
 
@@ -77,56 +69,65 @@ func (s *StorageService) GetAllCellsGroups(ctx context.Context, orgID uuid.UUID)
 	for i, group := range groups {
 		result[i], err = toCellsGroup(group)
 		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to convert cells group")
 			return nil, fmt.Errorf("failed to convert cells group: %w", err)
 		}
 	}
+
+	span.SetStatus(codes.Ok, "cells groups retrieved successfully")
 	return result, nil
 }
 
 func (s *StorageService) GetCellsGroupByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.CellsGroup, error) {
-	if orgID == uuid.Nil {
-		return nil, ErrInvalidOrganization
-	}
-	if id == uuid.Nil {
-		return nil, ErrInvalidCellsGroup
-	}
+	ctx, span := s.tracer.Start(ctx, "GetCellsGroupByID")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("org_id", orgID.String()),
+		attribute.String("group_id", id.String()),
+	)
 
 	group, err := s.queries.GetCellsGroup(ctx, database.GetCellsGroupParams{
 		OrgID: utils.PgUUID(orgID),
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get cells group")
 		return nil, fmt.Errorf("failed to get cells group: %w", err)
 	}
-	return toCellsGroup(group)
+
+	result, err := toCellsGroup(group)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to convert cells group")
+		return nil, err
+	}
+
+	span.SetStatus(codes.Ok, "cells group retrieved successfully")
+	return result, nil
 }
 
 func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.CellsGroup) (*models.CellsGroup, error) {
+	ctx, span := s.tracer.Start(ctx, "UpdateCellsGroup")
+	defer span.End()
+
 	if group == nil {
-		s.logger.Error("invalid cells group: nil",
-			"method", "UpdateCellsGroup")
+		span.SetStatus(codes.Error, "invalid cells group: nil")
 		return nil, ErrInvalidCellsGroup
-	}
-	if group.ID == uuid.Nil {
-		s.logger.Error("invalid cells group ID",
-			"method", "UpdateCellsGroup")
-		return nil, ErrInvalidCellsGroup
-	}
-	if group.OrgID == uuid.Nil {
-		s.logger.Error("invalid organization ID",
-			"method", "UpdateCellsGroup",
-			"group_id", group.ID)
-		return nil, ErrInvalidOrganization
 	}
 
+	span.SetAttributes(
+		attribute.String("group_id", group.ID.String()),
+		attribute.String("org_id", group.OrgID.String()),
+		attribute.String("name", group.Name),
+		attribute.String("alias", group.Alias),
+	)
+
 	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
-		s.logger.Error("validation failed",
-			"method", "UpdateCellsGroup",
-			"group_id", group.ID,
-			"org_id", group.OrgID,
-			"name", group.Name,
-			"alias", group.Alias,
-			"error", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "validation failed")
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -136,56 +137,41 @@ func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.Cel
 		Alias: group.Alias,
 	})
 	if err != nil {
-		s.logger.Error("failed to update cells group",
-			"method", "UpdateCellsGroup",
-			"group_id", group.ID,
-			"org_id", group.OrgID,
-			"error", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to update cells group")
 		return nil, fmt.Errorf("failed to update cells group: %w", err)
 	}
 
-	s.logger.Info("cells group updated successfully",
-		"method", "UpdateCellsGroup",
-		"group_id", group.ID,
-		"org_id", group.OrgID,
-		"name", group.Name,
-		"alias", group.Alias)
+	result, err := toCellsGroup(updatedGroup)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to convert cells group")
+		return nil, err
+	}
 
-	return toCellsGroup(updatedGroup)
+	span.SetStatus(codes.Ok, "cells group updated successfully")
+	return result, nil
 }
 
 func (s *StorageService) DeleteCellsGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
-	if orgID == uuid.Nil {
-		s.logger.Error("invalid organization ID",
-			"method", "DeleteCellsGroup",
-			"org_id", orgID)
-		return ErrInvalidOrganization
-	}
-	if id == uuid.Nil {
-		s.logger.Error("invalid cells group ID",
-			"method", "DeleteCellsGroup",
-			"org_id", orgID,
-			"group_id", id)
-		return ErrInvalidCellsGroup
-	}
+	ctx, span := s.tracer.Start(ctx, "DeleteCellsGroup")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("org_id", orgID.String()),
+		attribute.String("group_id", id.String()),
+	)
 
 	err := s.queries.DeleteCellsGroup(ctx, database.DeleteCellsGroupParams{
 		OrgID: utils.PgUUID(orgID),
 		ID:    utils.PgUUID(id),
 	})
 	if err != nil {
-		s.logger.Error("failed to delete cells group",
-			"method", "DeleteCellsGroup",
-			"group_id", id,
-			"org_id", orgID,
-			"error", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to delete cells group")
 		return fmt.Errorf("failed to delete cells group: %w", err)
 	}
 
-	s.logger.Info("cells group deleted successfully",
-		"method", "DeleteCellsGroup",
-		"group_id", id,
-		"org_id", orgID)
-
+	span.SetStatus(codes.Ok, "cells group deleted successfully")
 	return nil
 }
