@@ -172,7 +172,7 @@ type Invoker interface {
 	// Get Current User.
 	//
 	// GET /me
-	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
+	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
 	// GetEmployeeById invokes getEmployeeById operation.
 	//
 	// Get employee by id.
@@ -3401,12 +3401,12 @@ func (c *Client) sendGetCellsGroups(ctx context.Context) (res *GetCellsGroupsRes
 // Get Current User.
 //
 // GET /me
-func (c *Client) GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error) {
+func (c *Client) GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error) {
 	res, err := c.sendGetCurrentUser(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetCurrentUser(ctx context.Context) (res *GetCurrentUserResponse, err error) {
+func (c *Client) sendGetCurrentUser(ctx context.Context) (res GetCurrentUserRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCurrentUser"),
 		semconv.HTTPRequestMethodKey.String("GET"),

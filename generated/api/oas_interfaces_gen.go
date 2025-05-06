@@ -4,3 +4,7 @@ package api
 type ExchangeYandexAccessTokenRes interface {
 	exchangeYandexAccessTokenRes()
 }
+
+type GetCurrentUserRes interface {
+	getCurrentUserRes()
+}

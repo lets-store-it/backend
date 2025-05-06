@@ -114,13 +114,11 @@ type toFullItemModelParams struct {
 }
 
 func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models.Item, error) {
-	// Convert base item
 	itemModel, err := toItemModel(params.item)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert base item: %w", err)
 	}
 
-	// Convert variants
 	itemVariants := make([]models.ItemVariant, len(params.variants))
 	for i, variant := range params.variants {
 		variantModel, err := toItemVariantModel(variant)
@@ -131,7 +129,6 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 	}
 	itemModel.Variants = &itemVariants
 
-	// Convert instances
 	itemInstances := make([]models.ItemInstance, len(params.instances))
 	for i, instance := range params.instances {
 		instanceModel, err := toItemInstanceModel(instance)
@@ -139,7 +136,6 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 			return nil, fmt.Errorf("failed to convert instance: %w", err)
 		}
 
-		// Find the variant for this instance
 		var instanceVariant *models.ItemVariant
 		for _, variant := range itemVariants {
 			if variant.ID == instanceModel.VariantID {
@@ -154,12 +150,11 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 
 		instanceModel.Variant = instanceVariant
 
-		// If instance has a cell, get cell information
 		if instance.CellID.Valid {
 			cell, err := params.storageService.GetCellByID(ctx, params.orgID, instanceModel.CellID)
 			if err != nil {
 				if errors.Is(err, pgx.ErrNoRows) {
-					continue // Skip if cell not found
+					continue
 				}
 				return nil, fmt.Errorf("failed to get cell: %w", err)
 			}

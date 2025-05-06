@@ -1191,6 +1191,7 @@ func (s *ErrorContent) SetError(val ErrorContentError) {
 }
 
 func (*ErrorContent) exchangeYandexAccessTokenRes() {}
+func (*ErrorContent) getCurrentUserRes()            {}
 
 type ErrorContentError struct {
 	Code    string `json:"code"`
@@ -1424,6 +1425,8 @@ func (s *GetCurrentUserResponse) SetMiddleName(val NilString) {
 func (s *GetCurrentUserResponse) SetEmail(val string) {
 	s.Email = val
 }
+
+func (*GetCurrentUserResponse) getCurrentUserRes() {}
 
 // Ref: #/components/schemas/GetEmployeeResponse
 type GetEmployeeResponse struct {

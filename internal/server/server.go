@@ -71,7 +71,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	}
 	authService := auth.New(queries, pool)
 
-	auditService, err := audit.New(&audit.AuditServiceConfig{
+	auditService, err := audit.New(audit.AuditServiceConfig{
 		Queries:      queries,
 		KafkaEnabled: cfg.Kafka.Enabled,
 		KafkaBrokers: cfg.Kafka.GetBrokersList(),
@@ -86,7 +86,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 
 	itemService := item.New(queries, pool, storageGroupService)
 	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
-	orgService := organization.New(queries, pool, nil)
+	orgService := organization.New(queries, pool)
 
 	// Initialize use cases
 	itemUseCase := usecases.NewItemUseCase(itemService)

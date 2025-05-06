@@ -151,7 +151,7 @@ type Handler interface {
 	// Get Current User.
 	//
 	// GET /me
-	GetCurrentUser(ctx context.Context) (*GetCurrentUserResponse, error)
+	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
 	// GetEmployeeById implements getEmployeeById operation.
 	//
 	// Get employee by id.

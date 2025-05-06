@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/usecases"
 )
 
@@ -14,7 +16,10 @@ import (
 func (h *RestApiImplementation) HandleApiToken(ctx context.Context, operationName api.OperationName, t api.ApiToken) (context.Context, error) {
 	orgID, err := h.authUseCase.GetOrgIdByApiToken(ctx, t.GetAPIKey())
 	if err != nil {
-		return nil, fmt.Errorf("invalid api token: %w", err)
+		if errors.Is(err, auth.ErrApiTokenNotFound) {
+			return nil, h.NewUnauthorizedError(ctx)
+		}
+		return nil, fmt.Errorf("error processing api token")
 	}
 	ctx = context.WithValue(ctx, usecases.OrganizationIDKey, orgID)
 	ctx = context.WithValue(ctx, usecases.IsSystemUserKey, true)
@@ -25,25 +30,17 @@ func (h *RestApiImplementation) HandleApiToken(ctx context.Context, operationNam
 func (h *RestApiImplementation) HandleCookie(ctx context.Context, operationName api.OperationName, t api.Cookie) (context.Context, error) {
 	userID, err := h.authUseCase.GetUserIdFromSession(ctx, t.GetAPIKey())
 	if err != nil {
-		return nil, fmt.Errorf("invalid session: %w", err)
+		if errors.Is(err, auth.ErrSessionNotFound) {
+			return nil, h.NewUnauthorizedError(ctx)
+		}
+		return nil, fmt.Errorf("error processing session")
 	}
 
 	return context.WithValue(ctx, usecases.UserIDKey, userID), nil
 }
 
-// func (h *RestApiImplementation) GetCurrentUserBySessionSecret(ctx context.Context) (*api.GetCurrentUserResponse, error) {
-
-// 	userID := h.authUseCase.GetCurrentUser(ctx)
-// 	user, err := h.authUseCase.GetCurrentUser(ctx, userID)
-// 	if err != nil {
-// 		return nil, h.NewError(ctx, err)
-// 	}
-
-// 	return user, nil
-// }
-
 // / GetCurrentUser implements api.Handler.
-func (h *RestApiImplementation) GetCurrentUser(ctx context.Context) (*api.GetCurrentUserResponse, error) {
+func (h *RestApiImplementation) GetCurrentUser(ctx context.Context) (api.GetCurrentUserRes, error) {
 	user, err := h.authUseCase.GetCurrentUser(ctx)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
