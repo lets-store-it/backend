@@ -28,7 +28,6 @@ func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uui
 	return orgID.Bytes, nil
 }
 
-
 func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name string) (*models.ApiToken, error) {
 	if !utils.IsValidUUID(orgID) {
 		return nil, ErrInvalidOrganization

@@ -5,6 +5,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -24,8 +26,13 @@ var (
 type AuthService struct {
 	queries *database.Queries
 	pgxPool *pgxpool.Pool
+	tracer  trace.Tracer
 }
 
 func New(queries *database.Queries, pgxPool *pgxpool.Pool) *AuthService {
-	return &AuthService{queries: queries, pgxPool: pgxPool}
+	return &AuthService{
+		queries: queries,
+		pgxPool: pgxPool,
+		tracer:  otel.GetTracerProvider().Tracer("auth-service"),
+	}
 }

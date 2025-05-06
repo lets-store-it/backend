@@ -74,7 +74,8 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	auditService, err := audit.New(&audit.AuditServiceConfig{
 		Queries:      queries,
 		KafkaEnabled: cfg.Kafka.Enabled,
-		KafkaBrokers: []string{cfg.Kafka.Brokers},
+		KafkaBrokers: cfg.Kafka.GetBrokersList(),
+		KafkaTopic:   cfg.Kafka.AuditTopic,
 		PGXPool:      pool,
 		Auth:         authService,
 	})
