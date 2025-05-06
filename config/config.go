@@ -30,6 +30,8 @@ type KafkaConfig struct {
 	Brokers string `yaml:"brokers" env:"KAFKA_BROKERS" env-default:"localhost:9092"`
 	// Whether Kafka integration is enabled
 	Enabled bool `yaml:"enabled" env:"KAFKA_ENABLED" env-default:"false"`
+	// Topic for audit events
+	AuditTopic string `yaml:"audit_topic" env:"KAFKA_AUDIT_TOPIC" env-default:"audit.object-changes"`
 }
 
 // GetBrokersList returns the list of Kafka brokers
