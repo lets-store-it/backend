@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/usecases"
+	"github.com/ogen-go/ogen/ogenerrors"
 )
 
 type RestApiImplementation struct {
@@ -65,7 +67,23 @@ func NewRestApiImplementation(
 	}
 }
 
+func (h *RestApiImplementation) NewUnauthorizedError(ctx context.Context) *api.DefaultErrorStatusCode {
+	return &api.DefaultErrorStatusCode{
+		StatusCode: http.StatusUnauthorized,
+		Response: api.ErrorContent{
+			Error: api.ErrorContentError{
+				Code:    "unauthorized",
+				Message: "Unauthorized",
+			},
+		},
+	}
+}
+
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
+	if errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied) {
+		return h.NewUnauthorizedError(ctx)
+	}
+
 	return &api.DefaultErrorStatusCode{
 		StatusCode: http.StatusInternalServerError,
 		Response: api.ErrorContent{

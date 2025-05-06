@@ -5039,7 +5039,7 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 		}
 	}
 
-	var response *GetCurrentUserResponse
+	var response GetCurrentUserRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -5054,7 +5054,7 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetCurrentUserResponse
+			Response = GetCurrentUserRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

@@ -10,6 +10,8 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 patch:

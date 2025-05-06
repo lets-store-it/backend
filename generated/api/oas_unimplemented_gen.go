@@ -225,7 +225,7 @@ func (UnimplementedHandler) GetCellsGroups(ctx context.Context) (r *GetCellsGrou
 // Get Current User.
 //
 // GET /me
-func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r *GetCurrentUserResponse, _ error) {
+func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

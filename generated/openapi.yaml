@@ -862,6 +862,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -2189,3 +2191,9 @@ components:
             type: string
             description: Cleared auth cookie
           required: true
+    default-unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
