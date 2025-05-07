@@ -710,16 +710,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							s.handleGetOrganizationByIdRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
-						case "PATCH":
-							s.handlePatchOrganizationRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
 						case "PUT":
 							s.handleUpdateOrganizationRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
@@ -1703,7 +1699,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					switch method {
 					case "GET":
 						r.name = GetOrganizationsOperation
-						r.summary = "Get list of Organizations"
+						r.summary = "Get list of user Organizations"
 						r.operationID = "getOrganizations"
 						r.pathPattern = "/orgs"
 						r.args = args
@@ -1711,7 +1707,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						return r, true
 					case "POST":
 						r.name = CreateOrganizationOperation
-						r.summary = "Create Organization"
+						r.summary = "Create new Organization"
 						r.operationID = "createOrganization"
 						r.pathPattern = "/orgs"
 						r.args = args
@@ -1754,14 +1750,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.name = GetOrganizationByIdOperation
 							r.summary = "Get Organization by ID"
 							r.operationID = "getOrganizationById"
-							r.pathPattern = "/orgs/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PATCH":
-							r.name = PatchOrganizationOperation
-							r.summary = "Update Organization"
-							r.operationID = "patchOrganization"
 							r.pathPattern = "/orgs/{id}"
 							r.args = args
 							r.count = 1

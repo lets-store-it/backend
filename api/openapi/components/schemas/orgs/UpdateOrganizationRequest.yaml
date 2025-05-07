@@ -1,3 +1,3 @@
 type: object
 allOf:
-  - $ref: ./models/Organization.yaml
+  - $ref: ./models/OrganizationUpdate.yaml

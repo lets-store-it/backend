@@ -471,10 +471,10 @@ func (s *CellForInstanceCellPathItemObjectType) UnmarshalText(data []byte) error
 
 // Ref: #/components/schemas/CellGroupBase
 type CellGroupBase struct {
-	ID             uuid.UUID `json:"id"`
-	Name           string    `json:"name"`
-	Alias          string    `json:"alias"`
-	StorageGroupID uuid.UUID `json:"storage_group_id"`
+	ID             uuid.UUID    `json:"id"`
+	Name           string       `json:"name"`
+	Alias          StorageAlias `json:"alias"`
+	StorageGroupID uuid.UUID    `json:"storage_group_id"`
 }
 
 // GetID returns the value of ID.
@@ -488,7 +488,7 @@ func (s *CellGroupBase) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *CellGroupBase) GetAlias() string {
+func (s *CellGroupBase) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -508,7 +508,7 @@ func (s *CellGroupBase) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *CellGroupBase) SetAlias(val string) {
+func (s *CellGroupBase) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -530,6 +530,10 @@ func (s *Cookie) GetAPIKey() string {
 func (s *Cookie) SetAPIKey(val string) {
 	s.APIKey = val
 }
+
+type CreateApiTokenForbidden ErrorContent
+
+func (*CreateApiTokenForbidden) createApiTokenRes() {}
 
 // Ref: #/components/schemas/CreateApiTokenRequest
 type CreateApiTokenRequest struct {
@@ -561,6 +565,16 @@ func (s *CreateApiTokenResponse) GetData() Token {
 func (s *CreateApiTokenResponse) SetData(val Token) {
 	s.Data = val
 }
+
+func (*CreateApiTokenResponse) createApiTokenRes() {}
+
+type CreateApiTokenUnauthorized ErrorContent
+
+func (*CreateApiTokenUnauthorized) createApiTokenRes() {}
+
+type CreateCellForbidden ErrorContent
+
+func (*CreateCellForbidden) createCellRes() {}
 
 // Ref: #/components/schemas/CreateCellRequest
 type CreateCellRequest struct {
@@ -636,12 +650,22 @@ func (s *CreateCellResponse) SetData(val CellBase) {
 	s.Data = val
 }
 
+func (*CreateCellResponse) createCellRes() {}
+
+type CreateCellUnauthorized ErrorContent
+
+func (*CreateCellUnauthorized) createCellRes() {}
+
+type CreateCellsGroupForbidden ErrorContent
+
+func (*CreateCellsGroupForbidden) createCellsGroupRes() {}
+
 // Ref: #/components/schemas/CreateCellsGroupRequest
 type CreateCellsGroupRequest struct {
-	ID             uuid.UUID `json:"id"`
-	Name           string    `json:"name"`
-	Alias          string    `json:"alias"`
-	StorageGroupID uuid.UUID `json:"storage_group_id"`
+	ID             uuid.UUID    `json:"id"`
+	Name           string       `json:"name"`
+	Alias          StorageAlias `json:"alias"`
+	StorageGroupID uuid.UUID    `json:"storage_group_id"`
 }
 
 // GetID returns the value of ID.
@@ -655,7 +679,7 @@ func (s *CreateCellsGroupRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *CreateCellsGroupRequest) GetAlias() string {
+func (s *CreateCellsGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -675,7 +699,7 @@ func (s *CreateCellsGroupRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *CreateCellsGroupRequest) SetAlias(val string) {
+func (s *CreateCellsGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -698,6 +722,16 @@ func (s *CreateCellsGroupResponse) GetData() CellGroupBase {
 func (s *CreateCellsGroupResponse) SetData(val CellGroupBase) {
 	s.Data = val
 }
+
+func (*CreateCellsGroupResponse) createCellsGroupRes() {}
+
+type CreateCellsGroupUnauthorized ErrorContent
+
+func (*CreateCellsGroupUnauthorized) createCellsGroupRes() {}
+
+type CreateInstanceForItemForbidden ErrorContent
+
+func (*CreateInstanceForItemForbidden) createInstanceForItemRes() {}
 
 // Ref: #/components/schemas/CreateInstanceForItemRequest
 type CreateInstanceForItemRequest struct {
@@ -739,6 +773,8 @@ func (s *CreateInstanceForItemResponse) GetData() []CreateInstanceForItemRespons
 func (s *CreateInstanceForItemResponse) SetData(val []CreateInstanceForItemResponseDataItem) {
 	s.Data = val
 }
+
+func (*CreateInstanceForItemResponse) createInstanceForItemRes() {}
 
 type CreateInstanceForItemResponseDataItem struct {
 	ID      uuid.UUID                                   `json:"id"`
@@ -835,6 +871,14 @@ func (s *CreateInstanceForItemResponseDataItemStatus) UnmarshalText(data []byte)
 	}
 }
 
+type CreateInstanceForItemUnauthorized ErrorContent
+
+func (*CreateInstanceForItemUnauthorized) createInstanceForItemRes() {}
+
+type CreateItemForbidden ErrorContent
+
+func (*CreateItemForbidden) createItemRes() {}
+
 // Merged schema.
 // Ref: #/components/schemas/CreateItemRequest
 type CreateItemRequest struct {
@@ -899,6 +943,16 @@ func (s *CreateItemResponse) SetData(val ItemFull) {
 	s.Data = val
 }
 
+func (*CreateItemResponse) createItemRes() {}
+
+type CreateItemUnauthorized ErrorContent
+
+func (*CreateItemUnauthorized) createItemRes() {}
+
+type CreateOrganizationConflict ErrorContent
+
+func (*CreateOrganizationConflict) createOrganizationRes() {}
+
 // Ref: #/components/schemas/CreateOrganizationRequest
 type CreateOrganizationRequest struct {
 	Name      string `json:"name"`
@@ -940,10 +994,16 @@ func (s *CreateOrganizationResponse) SetData(val Organization) {
 	s.Data = val
 }
 
+func (*CreateOrganizationResponse) createOrganizationRes() {}
+
+type CreateOrganizationUnauthorized ErrorContent
+
+func (*CreateOrganizationUnauthorized) createOrganizationRes() {}
+
 // Ref: #/components/schemas/CreateOrganizationUnitRequest
 type CreateOrganizationUnitRequest struct {
 	Name    string       `json:"name"`
-	Alias   string       `json:"alias"`
+	Alias   StorageAlias `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -953,7 +1013,7 @@ func (s *CreateOrganizationUnitRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *CreateOrganizationUnitRequest) GetAlias() string {
+func (s *CreateOrganizationUnitRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -968,7 +1028,7 @@ func (s *CreateOrganizationUnitRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *CreateOrganizationUnitRequest) SetAlias(val string) {
+func (s *CreateOrganizationUnitRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -992,12 +1052,18 @@ func (s *CreateOrganizationUnitResponse) SetData(val Unit) {
 	s.Data = val
 }
 
+func (*CreateOrganizationUnitResponse) createUnitRes() {}
+
+type CreateStorageGroupForbidden ErrorContent
+
+func (*CreateStorageGroupForbidden) createStorageGroupRes() {}
+
 // Ref: #/components/schemas/CreateStorageGroupRequest
 type CreateStorageGroupRequest struct {
-	ParentId OptNilUUID `json:"parentId"`
-	Name     string     `json:"name"`
-	Alias    string     `json:"alias"`
-	UnitId   uuid.UUID  `json:"unitId"`
+	ParentId OptNilUUID   `json:"parentId"`
+	Name     string       `json:"name"`
+	Alias    StorageAlias `json:"alias"`
+	UnitId   uuid.UUID    `json:"unitId"`
 }
 
 // GetParentId returns the value of ParentId.
@@ -1011,7 +1077,7 @@ func (s *CreateStorageGroupRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *CreateStorageGroupRequest) GetAlias() string {
+func (s *CreateStorageGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -1031,7 +1097,7 @@ func (s *CreateStorageGroupRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *CreateStorageGroupRequest) SetAlias(val string) {
+func (s *CreateStorageGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -1054,6 +1120,20 @@ func (s *CreateStorageGroupResponse) GetData() StorageGroup {
 func (s *CreateStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
+
+func (*CreateStorageGroupResponse) createStorageGroupRes() {}
+
+type CreateStorageGroupUnauthorized ErrorContent
+
+func (*CreateStorageGroupUnauthorized) createStorageGroupRes() {}
+
+type CreateUnitForbidden ErrorContent
+
+func (*CreateUnitForbidden) createUnitRes() {}
+
+type CreateUnitUnauthorized ErrorContent
+
+func (*CreateUnitUnauthorized) createUnitRes() {}
 
 // DefaultErrorStatusCode wraps ErrorContent with StatusCode.
 type DefaultErrorStatusCode struct {
@@ -1084,26 +1164,86 @@ func (s *DefaultErrorStatusCode) SetResponse(val ErrorContent) {
 // DeleteCellOK is response for DeleteCell operation.
 type DeleteCellOK struct{}
 
+type DeleteCellsGroupForbidden ErrorContent
+
+func (*DeleteCellsGroupForbidden) deleteCellsGroupRes() {}
+
 // DeleteCellsGroupOK is response for DeleteCellsGroup operation.
 type DeleteCellsGroupOK struct{}
+
+func (*DeleteCellsGroupOK) deleteCellsGroupRes() {}
+
+type DeleteCellsGroupUnauthorized ErrorContent
+
+func (*DeleteCellsGroupUnauthorized) deleteCellsGroupRes() {}
+
+type DeleteEmployeeByIdForbidden ErrorContent
+
+func (*DeleteEmployeeByIdForbidden) deleteEmployeeByIdRes() {}
 
 // DeleteEmployeeByIdOK is response for DeleteEmployeeById operation.
 type DeleteEmployeeByIdOK struct{}
 
+func (*DeleteEmployeeByIdOK) deleteEmployeeByIdRes() {}
+
+type DeleteEmployeeByIdUnauthorized ErrorContent
+
+func (*DeleteEmployeeByIdUnauthorized) deleteEmployeeByIdRes() {}
+
+type DeleteInstanceByIdForbidden ErrorContent
+
+func (*DeleteInstanceByIdForbidden) deleteInstanceByIdRes() {}
+
 // DeleteInstanceByIdOK is response for DeleteInstanceById operation.
 type DeleteInstanceByIdOK struct{}
+
+func (*DeleteInstanceByIdOK) deleteInstanceByIdRes() {}
+
+type DeleteInstanceByIdUnauthorized ErrorContent
+
+func (*DeleteInstanceByIdUnauthorized) deleteInstanceByIdRes() {}
 
 // DeleteItemOK is response for DeleteItem operation.
 type DeleteItemOK struct{}
 
+type DeleteOrganizationForbidden ErrorContent
+
+func (*DeleteOrganizationForbidden) deleteOrganizationRes() {}
+
 // DeleteOrganizationOK is response for DeleteOrganization operation.
 type DeleteOrganizationOK struct{}
+
+func (*DeleteOrganizationOK) deleteOrganizationRes() {}
+
+type DeleteOrganizationUnauthorized ErrorContent
+
+func (*DeleteOrganizationUnauthorized) deleteOrganizationRes() {}
+
+type DeleteOrganizationUnitForbidden ErrorContent
+
+func (*DeleteOrganizationUnitForbidden) deleteOrganizationUnitRes() {}
 
 // DeleteOrganizationUnitOK is response for DeleteOrganizationUnit operation.
 type DeleteOrganizationUnitOK struct{}
 
+func (*DeleteOrganizationUnitOK) deleteOrganizationUnitRes() {}
+
+type DeleteOrganizationUnitUnauthorized ErrorContent
+
+func (*DeleteOrganizationUnitUnauthorized) deleteOrganizationUnitRes() {}
+
+type DeleteStorageGroupForbidden ErrorContent
+
+func (*DeleteStorageGroupForbidden) deleteStorageGroupRes() {}
+
 // DeleteStorageGroupOK is response for DeleteStorageGroup operation.
 type DeleteStorageGroupOK struct{}
+
+func (*DeleteStorageGroupOK) deleteStorageGroupRes() {}
+
+type DeleteStorageGroupUnauthorized ErrorContent
+
+func (*DeleteStorageGroupUnauthorized) deleteStorageGroupRes() {}
 
 // Ref: #/components/schemas/Employee
 type Employee struct {
@@ -1192,6 +1332,11 @@ func (s *ErrorContent) SetError(val ErrorContentError) {
 
 func (*ErrorContent) exchangeYandexAccessTokenRes() {}
 func (*ErrorContent) getCurrentUserRes()            {}
+func (*ErrorContent) getOrganizationsRes()          {}
+func (*ErrorContent) getRolesRes()                  {}
+func (*ErrorContent) logoutRes()                    {}
+func (*ErrorContent) patchCurrentUserRes()          {}
+func (*ErrorContent) putCurrentUserRes()            {}
 
 type ErrorContentError struct {
 	Code    string `json:"code"`
@@ -1233,6 +1378,10 @@ func (s *ExchangeYandexAccessTokenReq) SetAccessToken(val string) {
 	s.AccessToken = val
 }
 
+type GetApiTokensForbidden ErrorContent
+
+func (*GetApiTokensForbidden) getApiTokensRes() {}
+
 // Ref: #/components/schemas/GetApiTokensResponse
 type GetApiTokensResponse struct {
 	Data []Token `json:"data"`
@@ -1248,6 +1397,16 @@ func (s *GetApiTokensResponse) SetData(val []Token) {
 	s.Data = val
 }
 
+func (*GetApiTokensResponse) getApiTokensRes() {}
+
+type GetApiTokensUnauthorized ErrorContent
+
+func (*GetApiTokensUnauthorized) getApiTokensRes() {}
+
+type GetAuditLogsForbidden ErrorContent
+
+func (*GetAuditLogsForbidden) getAuditLogsRes() {}
+
 // Ref: #/components/schemas/GetAuditLogsResponse
 type GetAuditLogsResponse struct {
 	Data []AuditLog `json:"data"`
@@ -1262,6 +1421,12 @@ func (s *GetAuditLogsResponse) GetData() []AuditLog {
 func (s *GetAuditLogsResponse) SetData(val []AuditLog) {
 	s.Data = val
 }
+
+func (*GetAuditLogsResponse) getAuditLogsRes() {}
+
+type GetAuditLogsUnauthorized ErrorContent
+
+func (*GetAuditLogsUnauthorized) getAuditLogsRes() {}
 
 // Ref: #/components/schemas/GetCellByIdResponse
 type GetCellByIdResponse struct {
@@ -1322,6 +1487,14 @@ func (s *GetCellByIdResponse) SetPosition(val int) {
 	s.Position = val
 }
 
+type GetCellsForbidden ErrorContent
+
+func (*GetCellsForbidden) getCellsRes() {}
+
+type GetCellsGroupByIdForbidden ErrorContent
+
+func (*GetCellsGroupByIdForbidden) getCellsGroupByIdRes() {}
+
 // Ref: #/components/schemas/GetCellsGroupByIdResponse
 type GetCellsGroupByIdResponse struct {
 	Data CellGroupBase `json:"data"`
@@ -1336,6 +1509,16 @@ func (s *GetCellsGroupByIdResponse) GetData() CellGroupBase {
 func (s *GetCellsGroupByIdResponse) SetData(val CellGroupBase) {
 	s.Data = val
 }
+
+func (*GetCellsGroupByIdResponse) getCellsGroupByIdRes() {}
+
+type GetCellsGroupByIdUnauthorized ErrorContent
+
+func (*GetCellsGroupByIdUnauthorized) getCellsGroupByIdRes() {}
+
+type GetCellsGroupsForbidden ErrorContent
+
+func (*GetCellsGroupsForbidden) getCellsGroupsRes() {}
 
 // Ref: #/components/schemas/GetCellsGroupsResponse
 type GetCellsGroupsResponse struct {
@@ -1352,6 +1535,12 @@ func (s *GetCellsGroupsResponse) SetData(val []CellGroupBase) {
 	s.Data = val
 }
 
+func (*GetCellsGroupsResponse) getCellsGroupsRes() {}
+
+type GetCellsGroupsUnauthorized ErrorContent
+
+func (*GetCellsGroupsUnauthorized) getCellsGroupsRes() {}
+
 // Ref: #/components/schemas/GetCellsResponse
 type GetCellsResponse struct {
 	Data []CellBase `json:"data"`
@@ -1366,6 +1555,12 @@ func (s *GetCellsResponse) GetData() []CellBase {
 func (s *GetCellsResponse) SetData(val []CellBase) {
 	s.Data = val
 }
+
+func (*GetCellsResponse) getCellsRes() {}
+
+type GetCellsUnauthorized ErrorContent
+
+func (*GetCellsUnauthorized) getCellsRes() {}
 
 // Ref: #/components/schemas/GetCurrentUserResponse
 type GetCurrentUserResponse struct {
@@ -1426,7 +1621,17 @@ func (s *GetCurrentUserResponse) SetEmail(val string) {
 	s.Email = val
 }
 
-func (*GetCurrentUserResponse) getCurrentUserRes() {}
+func (*GetCurrentUserResponse) getCurrentUserRes()   {}
+func (*GetCurrentUserResponse) patchCurrentUserRes() {}
+func (*GetCurrentUserResponse) putCurrentUserRes()   {}
+
+type GetEmployeeByIdForbidden ErrorContent
+
+func (*GetEmployeeByIdForbidden) getEmployeeByIdRes() {}
+
+type GetEmployeeByIdUnauthorized ErrorContent
+
+func (*GetEmployeeByIdUnauthorized) getEmployeeByIdRes() {}
 
 // Ref: #/components/schemas/GetEmployeeResponse
 type GetEmployeeResponse struct {
@@ -1443,6 +1648,14 @@ func (s *GetEmployeeResponse) SetData(val Employee) {
 	s.Data = val
 }
 
+func (*GetEmployeeResponse) getEmployeeByIdRes()   {}
+func (*GetEmployeeResponse) inviteEmployeeRes()    {}
+func (*GetEmployeeResponse) patchEmployeeByIdRes() {}
+
+type GetEmployeesForbidden ErrorContent
+
+func (*GetEmployeesForbidden) getEmployeesRes() {}
+
 // Ref: #/components/schemas/GetEmployeesResponse
 type GetEmployeesResponse struct {
 	Data []Employee `json:"data"`
@@ -1458,6 +1671,16 @@ func (s *GetEmployeesResponse) SetData(val []Employee) {
 	s.Data = val
 }
 
+func (*GetEmployeesResponse) getEmployeesRes() {}
+
+type GetEmployeesUnauthorized ErrorContent
+
+func (*GetEmployeesUnauthorized) getEmployeesRes() {}
+
+type GetInstancesByItemIdForbidden ErrorContent
+
+func (*GetInstancesByItemIdForbidden) getInstancesByItemIdRes() {}
+
 // Ref: #/components/schemas/GetInstancesByItemIdResponse
 type GetInstancesByItemIdResponse struct {
 	Data []GetInstancesByItemIdResponseDataItem `json:"data"`
@@ -1472,6 +1695,8 @@ func (s *GetInstancesByItemIdResponse) GetData() []GetInstancesByItemIdResponseD
 func (s *GetInstancesByItemIdResponse) SetData(val []GetInstancesByItemIdResponseDataItem) {
 	s.Data = val
 }
+
+func (*GetInstancesByItemIdResponse) getInstancesByItemIdRes() {}
 
 type GetInstancesByItemIdResponseDataItem struct {
 	ID      uuid.UUID                                  `json:"id"`
@@ -1568,34 +1793,34 @@ func (s *GetInstancesByItemIdResponseDataItemStatus) UnmarshalText(data []byte) 
 	}
 }
 
+type GetInstancesByItemIdUnauthorized ErrorContent
+
+func (*GetInstancesByItemIdUnauthorized) getInstancesByItemIdRes() {}
+
+type GetInstancesForbidden ErrorContent
+
+func (*GetInstancesForbidden) getInstancesRes() {}
+
 // Ref: #/components/schemas/GetInstancesResponse
 type GetInstancesResponse struct {
-	Data GetInstancesResponseData `json:"data"`
+	Data []InstanceFull `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetInstancesResponse) GetData() GetInstancesResponseData {
+func (s *GetInstancesResponse) GetData() []InstanceFull {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetInstancesResponse) SetData(val GetInstancesResponseData) {
+func (s *GetInstancesResponse) SetData(val []InstanceFull) {
 	s.Data = val
 }
 
-type GetInstancesResponseData struct {
-	V0 InstanceFull
-}
+func (*GetInstancesResponse) getInstancesRes() {}
 
-// GetV0 returns the value of V0.
-func (s *GetInstancesResponseData) GetV0() InstanceFull {
-	return s.V0
-}
+type GetInstancesUnauthorized ErrorContent
 
-// SetV0 sets the value of V0.
-func (s *GetInstancesResponseData) SetV0(val InstanceFull) {
-	s.V0 = val
-}
+func (*GetInstancesUnauthorized) getInstancesRes() {}
 
 // Ref: #/components/schemas/GetItemByIdResponse
 type GetItemByIdResponse struct {
@@ -1612,6 +1837,10 @@ func (s *GetItemByIdResponse) SetData(val ItemFull) {
 	s.Data = val
 }
 
+type GetItemsForbidden ErrorContent
+
+func (*GetItemsForbidden) getItemsRes() {}
+
 // Ref: #/components/schemas/GetItemsResponse
 type GetItemsResponse struct {
 	Data []ItemForList `json:"data"`
@@ -1626,6 +1855,16 @@ func (s *GetItemsResponse) GetData() []ItemForList {
 func (s *GetItemsResponse) SetData(val []ItemForList) {
 	s.Data = val
 }
+
+func (*GetItemsResponse) getItemsRes() {}
+
+type GetItemsUnauthorized ErrorContent
+
+func (*GetItemsUnauthorized) getItemsRes() {}
+
+type GetOrganizationByIdForbidden ErrorContent
+
+func (*GetOrganizationByIdForbidden) getOrganizationByIdRes() {}
 
 // Ref: #/components/schemas/GetOrganizationByIdResponse
 type GetOrganizationByIdResponse struct {
@@ -1642,6 +1881,16 @@ func (s *GetOrganizationByIdResponse) SetData(val Organization) {
 	s.Data = val
 }
 
+func (*GetOrganizationByIdResponse) getOrganizationByIdRes() {}
+
+type GetOrganizationByIdUnauthorized ErrorContent
+
+func (*GetOrganizationByIdUnauthorized) getOrganizationByIdRes() {}
+
+type GetOrganizationUnitByIdForbidden ErrorContent
+
+func (*GetOrganizationUnitByIdForbidden) getOrganizationUnitByIdRes() {}
+
 // Ref: #/components/schemas/GetOrganizationUnitByIdResponse
 type GetOrganizationUnitByIdResponse struct {
 	Data Unit `json:"data"`
@@ -1656,6 +1905,16 @@ func (s *GetOrganizationUnitByIdResponse) GetData() Unit {
 func (s *GetOrganizationUnitByIdResponse) SetData(val Unit) {
 	s.Data = val
 }
+
+func (*GetOrganizationUnitByIdResponse) getOrganizationUnitByIdRes() {}
+
+type GetOrganizationUnitByIdUnauthorized ErrorContent
+
+func (*GetOrganizationUnitByIdUnauthorized) getOrganizationUnitByIdRes() {}
+
+type GetOrganizationUnitsForbidden ErrorContent
+
+func (*GetOrganizationUnitsForbidden) getOrganizationUnitsRes() {}
 
 // Ref: #/components/schemas/GetOrganizationUnitsResponse
 type GetOrganizationUnitsResponse struct {
@@ -1672,6 +1931,12 @@ func (s *GetOrganizationUnitsResponse) SetData(val []Unit) {
 	s.Data = val
 }
 
+func (*GetOrganizationUnitsResponse) getOrganizationUnitsRes() {}
+
+type GetOrganizationUnitsUnauthorized ErrorContent
+
+func (*GetOrganizationUnitsUnauthorized) getOrganizationUnitsRes() {}
+
 // Ref: #/components/schemas/GetOrganizationsResponse
 type GetOrganizationsResponse struct {
 	Data []Organization `json:"data"`
@@ -1687,6 +1952,8 @@ func (s *GetOrganizationsResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
+func (*GetOrganizationsResponse) getOrganizationsRes() {}
+
 type GetRolesOK struct {
 	Data []Role `json:"data"`
 }
@@ -1700,6 +1967,12 @@ func (s *GetRolesOK) GetData() []Role {
 func (s *GetRolesOK) SetData(val []Role) {
 	s.Data = val
 }
+
+func (*GetRolesOK) getRolesRes() {}
+
+type GetStorageGroupByIdForbidden ErrorContent
+
+func (*GetStorageGroupByIdForbidden) getStorageGroupByIdRes() {}
 
 // Ref: #/components/schemas/GetStorageGroupByIdResponse
 type GetStorageGroupByIdResponse struct {
@@ -1716,6 +1989,16 @@ func (s *GetStorageGroupByIdResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
+func (*GetStorageGroupByIdResponse) getStorageGroupByIdRes() {}
+
+type GetStorageGroupByIdUnauthorized ErrorContent
+
+func (*GetStorageGroupByIdUnauthorized) getStorageGroupByIdRes() {}
+
+type GetStorageGroupsForbidden ErrorContent
+
+func (*GetStorageGroupsForbidden) getStorageGroupsRes() {}
+
 // Ref: #/components/schemas/GetStorageGroupsResponse
 type GetStorageGroupsResponse struct {
 	Data []StorageGroup `json:"data"`
@@ -1730,6 +2013,12 @@ func (s *GetStorageGroupsResponse) GetData() []StorageGroup {
 func (s *GetStorageGroupsResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
+
+func (*GetStorageGroupsResponse) getStorageGroupsRes() {}
+
+type GetStorageGroupsUnauthorized ErrorContent
+
+func (*GetStorageGroupsUnauthorized) getStorageGroupsRes() {}
 
 // Ref: #/components/schemas/InstanceForItem
 type InstanceForItem struct {
@@ -1935,6 +2224,10 @@ func (s *InstanceFullStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+type InviteEmployeeForbidden ErrorContent
+
+func (*InviteEmployeeForbidden) inviteEmployeeRes() {}
+
 // Ref: #/components/schemas/InviteEmployeeRequest
 type InviteEmployeeRequest struct {
 	Email  string `json:"email"`
@@ -1960,6 +2253,10 @@ func (s *InviteEmployeeRequest) SetEmail(val string) {
 func (s *InviteEmployeeRequest) SetRoleId(val int) {
 	s.RoleId = val
 }
+
+type InviteEmployeeUnauthorized ErrorContent
+
+func (*InviteEmployeeUnauthorized) inviteEmployeeRes() {}
 
 // Merged schema.
 // Ref: #/components/schemas/Item
@@ -2264,6 +2561,8 @@ func (s *LogoutResponse) GetSetCookie() string {
 func (s *LogoutResponse) SetSetCookie(val string) {
 	s.SetCookie = val
 }
+
+func (*LogoutResponse) logoutRes() {}
 
 // NewNilAuditLogPostchangeState returns new NilAuditLogPostchangeState with value set to v.
 func NewNilAuditLogPostchangeState(v AuditLogPostchangeState) NilAuditLogPostchangeState {
@@ -2771,6 +3070,52 @@ func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptStorageAlias returns new OptStorageAlias with value set to v.
+func NewOptStorageAlias(v StorageAlias) OptStorageAlias {
+	return OptStorageAlias{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptStorageAlias is optional StorageAlias.
+type OptStorageAlias struct {
+	Value StorageAlias
+	Set   bool
+}
+
+// IsSet returns true if OptStorageAlias was set.
+func (o OptStorageAlias) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptStorageAlias) Reset() {
+	var v StorageAlias
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptStorageAlias) SetTo(v StorageAlias) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptStorageAlias) Get() (v StorageAlias, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptStorageAlias) Or(d StorageAlias) StorageAlias {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -2901,6 +3246,10 @@ func (s *Organization) SetSubdomain(val string) {
 	s.Subdomain = val
 }
 
+type PatchCellForbidden ErrorContent
+
+func (*PatchCellForbidden) patchCellRes() {}
+
 // Ref: #/components/schemas/PatchCellRequest
 type PatchCellRequest struct {
 	Alias    OptString `json:"alias"`
@@ -2964,11 +3313,21 @@ func (s *PatchCellResponse) SetData(val CellBase) {
 	s.Data = val
 }
 
+func (*PatchCellResponse) patchCellRes() {}
+
+type PatchCellUnauthorized ErrorContent
+
+func (*PatchCellUnauthorized) patchCellRes() {}
+
+type PatchCellsGroupForbidden ErrorContent
+
+func (*PatchCellsGroupForbidden) patchCellsGroupRes() {}
+
 // Ref: #/components/schemas/PatchCellsGroupRequest
 type PatchCellsGroupRequest struct {
-	Name           OptString `json:"name"`
-	Alias          OptString `json:"alias"`
-	StorageGroupID OptUUID   `json:"storage_group_id"`
+	Name           OptString       `json:"name"`
+	Alias          OptStorageAlias `json:"alias"`
+	StorageGroupID OptUUID         `json:"storage_group_id"`
 }
 
 // GetName returns the value of Name.
@@ -2977,7 +3336,7 @@ func (s *PatchCellsGroupRequest) GetName() OptString {
 }
 
 // GetAlias returns the value of Alias.
-func (s *PatchCellsGroupRequest) GetAlias() OptString {
+func (s *PatchCellsGroupRequest) GetAlias() OptStorageAlias {
 	return s.Alias
 }
 
@@ -2992,7 +3351,7 @@ func (s *PatchCellsGroupRequest) SetName(val OptString) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *PatchCellsGroupRequest) SetAlias(val OptString) {
+func (s *PatchCellsGroupRequest) SetAlias(val OptStorageAlias) {
 	s.Alias = val
 }
 
@@ -3015,6 +3374,12 @@ func (s *PatchCellsGroupResponse) GetData() CellGroupBase {
 func (s *PatchCellsGroupResponse) SetData(val CellGroupBase) {
 	s.Data = val
 }
+
+func (*PatchCellsGroupResponse) patchCellsGroupRes() {}
+
+type PatchCellsGroupUnauthorized ErrorContent
+
+func (*PatchCellsGroupUnauthorized) patchCellsGroupRes() {}
 
 // Ref: #/components/schemas/PatchCurrentUserRequest
 type PatchCurrentUserRequest struct {
@@ -3052,6 +3417,14 @@ func (s *PatchCurrentUserRequest) SetLastName(val string) {
 func (s *PatchCurrentUserRequest) SetMiddleName(val NilString) {
 	s.MiddleName = val
 }
+
+type PatchEmployeeByIdForbidden ErrorContent
+
+func (*PatchEmployeeByIdForbidden) patchEmployeeByIdRes() {}
+
+type PatchEmployeeByIdUnauthorized ErrorContent
+
+func (*PatchEmployeeByIdUnauthorized) patchEmployeeByIdRes() {}
 
 // Ref: #/components/schemas/PatchEmployeeRequest
 type PatchEmployeeRequest struct {
@@ -3131,46 +3504,9 @@ func (s *PatchItemResponse) SetData(val ItemFull) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/PatchOrganizationRequest
-type PatchOrganizationRequest struct {
-	Name      OptString `json:"name"`
-	Subdomain OptString `json:"subdomain"`
-}
+type PatchOrganizationUnitForbidden ErrorContent
 
-// GetName returns the value of Name.
-func (s *PatchOrganizationRequest) GetName() OptString {
-	return s.Name
-}
-
-// GetSubdomain returns the value of Subdomain.
-func (s *PatchOrganizationRequest) GetSubdomain() OptString {
-	return s.Subdomain
-}
-
-// SetName sets the value of Name.
-func (s *PatchOrganizationRequest) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetSubdomain sets the value of Subdomain.
-func (s *PatchOrganizationRequest) SetSubdomain(val OptString) {
-	s.Subdomain = val
-}
-
-// Ref: #/components/schemas/PatchOrganizationResponse
-type PatchOrganizationResponse struct {
-	Data []Organization `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchOrganizationResponse) GetData() []Organization {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchOrganizationResponse) SetData(val []Organization) {
-	s.Data = val
-}
+func (*PatchOrganizationUnitForbidden) patchOrganizationUnitRes() {}
 
 // Ref: #/components/schemas/PatchOrganizationUnitRequest
 type PatchOrganizationUnitRequest struct {
@@ -3223,6 +3559,16 @@ func (s *PatchOrganizationUnitResponse) GetData() []Unit {
 func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
 	s.Data = val
 }
+
+func (*PatchOrganizationUnitResponse) patchOrganizationUnitRes() {}
+
+type PatchOrganizationUnitUnauthorized ErrorContent
+
+func (*PatchOrganizationUnitUnauthorized) patchOrganizationUnitRes() {}
+
+type PatchStorageGroupForbidden ErrorContent
+
+func (*PatchStorageGroupForbidden) patchStorageGroupRes() {}
 
 // Ref: #/components/schemas/PatchStorageGroupRequest
 type PatchStorageGroupRequest struct {
@@ -3287,8 +3633,24 @@ func (s *PatchStorageGroupResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
 
+func (*PatchStorageGroupResponse) patchStorageGroupRes() {}
+
+type PatchStorageGroupUnauthorized ErrorContent
+
+func (*PatchStorageGroupUnauthorized) patchStorageGroupRes() {}
+
+type RevokeApiTokenForbidden ErrorContent
+
+func (*RevokeApiTokenForbidden) revokeApiTokenRes() {}
+
 // RevokeApiTokenOK is response for RevokeApiToken operation.
 type RevokeApiTokenOK struct{}
+
+func (*RevokeApiTokenOK) revokeApiTokenRes() {}
+
+type RevokeApiTokenUnauthorized ErrorContent
+
+func (*RevokeApiTokenUnauthorized) revokeApiTokenRes() {}
 
 // Ref: #/components/schemas/Role
 type Role struct {
@@ -3338,15 +3700,17 @@ func (s *Role) SetDescription(val string) {
 	s.Description = val
 }
 
+type StorageAlias string
+
 // Merged schema.
 // Ref: #/components/schemas/StorageGroup
 type StorageGroup struct {
 	ID uuid.UUID `json:"id"`
 	// Merged property.
-	ParentId NilUUID   `json:"parentId"`
-	Name     string    `json:"name"`
-	Alias    string    `json:"alias"`
-	UnitId   uuid.UUID `json:"unitId"`
+	ParentId NilUUID      `json:"parentId"`
+	Name     string       `json:"name"`
+	Alias    StorageAlias `json:"alias"`
+	UnitId   uuid.UUID    `json:"unitId"`
 }
 
 // GetID returns the value of ID.
@@ -3365,7 +3729,7 @@ func (s *StorageGroup) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *StorageGroup) GetAlias() string {
+func (s *StorageGroup) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -3390,7 +3754,7 @@ func (s *StorageGroup) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *StorageGroup) SetAlias(val string) {
+func (s *StorageGroup) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -3441,9 +3805,9 @@ func (s *Token) SetToken(val string) {
 // Merged schema.
 // Ref: #/components/schemas/Unit
 type Unit struct {
-	ID    uuid.UUID `json:"id"`
-	Name  string    `json:"name"`
-	Alias string    `json:"alias"`
+	ID    uuid.UUID    `json:"id"`
+	Name  string       `json:"name"`
+	Alias StorageAlias `json:"alias"`
 	// Merged property.
 	Address NilString `json:"address"`
 }
@@ -3459,7 +3823,7 @@ func (s *Unit) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *Unit) GetAlias() string {
+func (s *Unit) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -3479,7 +3843,7 @@ func (s *Unit) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *Unit) SetAlias(val string) {
+func (s *Unit) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -3487,6 +3851,10 @@ func (s *Unit) SetAlias(val string) {
 func (s *Unit) SetAddress(val NilString) {
 	s.Address = val
 }
+
+type UpdateCellForbidden ErrorContent
+
+func (*UpdateCellForbidden) updateCellRes() {}
 
 // Ref: #/components/schemas/UpdateCellRequest
 type UpdateCellRequest struct {
@@ -3562,12 +3930,22 @@ func (s *UpdateCellResponse) SetData(val CellBase) {
 	s.Data = val
 }
 
+func (*UpdateCellResponse) updateCellRes() {}
+
+type UpdateCellUnauthorized ErrorContent
+
+func (*UpdateCellUnauthorized) updateCellRes() {}
+
+type UpdateCellsGroupForbidden ErrorContent
+
+func (*UpdateCellsGroupForbidden) updateCellsGroupRes() {}
+
 // Ref: #/components/schemas/UpdateCellsGroupRequest
 type UpdateCellsGroupRequest struct {
-	ID             uuid.UUID `json:"id"`
-	Name           string    `json:"name"`
-	Alias          string    `json:"alias"`
-	StorageGroupID uuid.UUID `json:"storage_group_id"`
+	ID             uuid.UUID    `json:"id"`
+	Name           string       `json:"name"`
+	Alias          StorageAlias `json:"alias"`
+	StorageGroupID uuid.UUID    `json:"storage_group_id"`
 }
 
 // GetID returns the value of ID.
@@ -3581,7 +3959,7 @@ func (s *UpdateCellsGroupRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *UpdateCellsGroupRequest) GetAlias() string {
+func (s *UpdateCellsGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -3601,7 +3979,7 @@ func (s *UpdateCellsGroupRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *UpdateCellsGroupRequest) SetAlias(val string) {
+func (s *UpdateCellsGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -3624,6 +4002,12 @@ func (s *UpdateCellsGroupResponse) GetData() CellGroupBase {
 func (s *UpdateCellsGroupResponse) SetData(val CellGroupBase) {
 	s.Data = val
 }
+
+func (*UpdateCellsGroupResponse) updateCellsGroupRes() {}
+
+type UpdateCellsGroupUnauthorized ErrorContent
+
+func (*UpdateCellsGroupUnauthorized) updateCellsGroupRes() {}
 
 // Ref: #/components/schemas/UpdateCurrentUserRequest
 type UpdateCurrentUserRequest struct {
@@ -3778,17 +4162,13 @@ func (s *UpdateItemResponse) SetData(val ItemFull) {
 	s.Data = val
 }
 
-// Merged schema.
+type UpdateOrganizationForbidden ErrorContent
+
+func (*UpdateOrganizationForbidden) updateOrganizationRes() {}
+
 // Ref: #/components/schemas/UpdateOrganizationRequest
 type UpdateOrganizationRequest struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Subdomain string    `json:"subdomain"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateOrganizationRequest) GetID() uuid.UUID {
-	return s.ID
+	Name string `json:"name"`
 }
 
 // GetName returns the value of Name.
@@ -3796,24 +4176,9 @@ func (s *UpdateOrganizationRequest) GetName() string {
 	return s.Name
 }
 
-// GetSubdomain returns the value of Subdomain.
-func (s *UpdateOrganizationRequest) GetSubdomain() string {
-	return s.Subdomain
-}
-
-// SetID sets the value of ID.
-func (s *UpdateOrganizationRequest) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
 // SetName sets the value of Name.
 func (s *UpdateOrganizationRequest) SetName(val string) {
 	s.Name = val
-}
-
-// SetSubdomain sets the value of Subdomain.
-func (s *UpdateOrganizationRequest) SetSubdomain(val string) {
-	s.Subdomain = val
 }
 
 // Ref: #/components/schemas/UpdateOrganizationResponse
@@ -3831,10 +4196,20 @@ func (s *UpdateOrganizationResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
+func (*UpdateOrganizationResponse) updateOrganizationRes() {}
+
+type UpdateOrganizationUnauthorized ErrorContent
+
+func (*UpdateOrganizationUnauthorized) updateOrganizationRes() {}
+
+type UpdateOrganizationUnitForbidden ErrorContent
+
+func (*UpdateOrganizationUnitForbidden) updateOrganizationUnitRes() {}
+
 // Ref: #/components/schemas/UpdateOrganizationUnitRequest
 type UpdateOrganizationUnitRequest struct {
 	Name    string       `json:"name"`
-	Alias   string       `json:"alias"`
+	Alias   StorageAlias `json:"alias"`
 	Address OptNilString `json:"address"`
 }
 
@@ -3844,7 +4219,7 @@ func (s *UpdateOrganizationUnitRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *UpdateOrganizationUnitRequest) GetAlias() string {
+func (s *UpdateOrganizationUnitRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -3859,7 +4234,7 @@ func (s *UpdateOrganizationUnitRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *UpdateOrganizationUnitRequest) SetAlias(val string) {
+func (s *UpdateOrganizationUnitRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -3883,12 +4258,22 @@ func (s *UpdateOrganizationUnitResponse) SetData(val []Unit) {
 	s.Data = val
 }
 
+func (*UpdateOrganizationUnitResponse) updateOrganizationUnitRes() {}
+
+type UpdateOrganizationUnitUnauthorized ErrorContent
+
+func (*UpdateOrganizationUnitUnauthorized) updateOrganizationUnitRes() {}
+
+type UpdateStorageGroupForbidden ErrorContent
+
+func (*UpdateStorageGroupForbidden) updateStorageGroupRes() {}
+
 // Ref: #/components/schemas/UpdateStorageGroupRequest
 type UpdateStorageGroupRequest struct {
-	ParentId OptNilUUID `json:"parentId"`
-	Name     string     `json:"name"`
-	Alias    string     `json:"alias"`
-	UnitId   uuid.UUID  `json:"unitId"`
+	ParentId OptNilUUID   `json:"parentId"`
+	Name     string       `json:"name"`
+	Alias    StorageAlias `json:"alias"`
+	UnitId   uuid.UUID    `json:"unitId"`
 }
 
 // GetParentId returns the value of ParentId.
@@ -3902,7 +4287,7 @@ func (s *UpdateStorageGroupRequest) GetName() string {
 }
 
 // GetAlias returns the value of Alias.
-func (s *UpdateStorageGroupRequest) GetAlias() string {
+func (s *UpdateStorageGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
@@ -3922,7 +4307,7 @@ func (s *UpdateStorageGroupRequest) SetName(val string) {
 }
 
 // SetAlias sets the value of Alias.
-func (s *UpdateStorageGroupRequest) SetAlias(val string) {
+func (s *UpdateStorageGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
@@ -3945,3 +4330,9 @@ func (s *UpdateStorageGroupResponse) GetData() []StorageGroup {
 func (s *UpdateStorageGroupResponse) SetData(val []StorageGroup) {
 	s.Data = val
 }
+
+func (*UpdateStorageGroupResponse) updateStorageGroupRes() {}
+
+type UpdateStorageGroupUnauthorized ErrorContent
+
+func (*UpdateStorageGroupUnauthorized) updateStorageGroupRes() {}

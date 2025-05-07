@@ -108,7 +108,7 @@ func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstanc
 }
 
 // CreateItem implements api.Handler.
-func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateItemRequest) (*api.CreateItemResponse, error) {
+func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateItemRequest) (api.CreateItemRes, error) {
 	var description *string
 	if val, ok := req.Description.Get(); ok {
 		description = &val
@@ -172,7 +172,7 @@ func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetI
 }
 
 // // GetItems implements api.Handler.
-func (h *RestApiImplementation) GetItems(ctx context.Context) (*api.GetItemsResponse, error) {
+func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, error) {
 	items, err := h.itemUseCase.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func (h *RestApiImplementation) GetItems(ctx context.Context) (*api.GetItemsResp
 	dtoItems := make([]api.ItemForList, 0, len(items))
 	for _, item := range items {
 		if item.Variants == nil {
-			return nil, errors.New("variants are nil")
+			return &api.GetItemsResponse{}, errors.New("variants are nil")
 		}
 
 		var variants []api.ItemVariant

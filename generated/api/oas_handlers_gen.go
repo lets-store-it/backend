@@ -185,7 +185,7 @@ func (s *Server) handleCreateApiTokenRequest(args [0]string, argsEscaped bool, w
 		}
 	}()
 
-	var response *CreateApiTokenResponse
+	var response CreateApiTokenRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -200,7 +200,7 @@ func (s *Server) handleCreateApiTokenRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = *CreateApiTokenRequest
 			Params   = struct{}
-			Response = *CreateApiTokenResponse
+			Response = CreateApiTokenRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -409,7 +409,7 @@ func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response *CreateCellResponse
+	var response CreateCellRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -429,7 +429,7 @@ func (s *Server) handleCreateCellRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = *CreateCellRequest
 			Params   = CreateCellParams
-			Response = *CreateCellResponse
+			Response = CreateCellRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -628,7 +628,7 @@ func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool,
 		}
 	}()
 
-	var response *CreateCellsGroupResponse
+	var response CreateCellsGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -643,7 +643,7 @@ func (s *Server) handleCreateCellsGroupRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = *CreateCellsGroupRequest
 			Params   = struct{}
-			Response = *CreateCellsGroupResponse
+			Response = CreateCellsGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -852,7 +852,7 @@ func (s *Server) handleCreateInstanceForItemRequest(args [1]string, argsEscaped 
 		}
 	}()
 
-	var response *CreateInstanceForItemResponse
+	var response CreateInstanceForItemRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -872,7 +872,7 @@ func (s *Server) handleCreateInstanceForItemRequest(args [1]string, argsEscaped 
 		type (
 			Request  = *CreateInstanceForItemRequest
 			Params   = CreateInstanceForItemParams
-			Response = *CreateInstanceForItemResponse
+			Response = CreateInstanceForItemRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1071,7 +1071,7 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response *CreateItemResponse
+	var response CreateItemRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1086,7 +1086,7 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 		type (
 			Request  = *CreateItemRequest
 			Params   = struct{}
-			Response = *CreateItemResponse
+			Response = CreateItemRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1132,7 +1132,7 @@ func (s *Server) handleCreateItemRequest(args [0]string, argsEscaped bool, w htt
 
 // handleCreateOrganizationRequest handles createOrganization operation.
 //
-// Create Organization.
+// Create new Organization.
 //
 // POST /orgs
 func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1285,12 +1285,12 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 		}
 	}()
 
-	var response *CreateOrganizationResponse
+	var response CreateOrganizationRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CreateOrganizationOperation,
-			OperationSummary: "Create Organization",
+			OperationSummary: "Create new Organization",
 			OperationID:      "createOrganization",
 			Body:             request,
 			Params:           middleware.Parameters{},
@@ -1300,7 +1300,7 @@ func (s *Server) handleCreateOrganizationRequest(args [0]string, argsEscaped boo
 		type (
 			Request  = *CreateOrganizationRequest
 			Params   = struct{}
-			Response = *CreateOrganizationResponse
+			Response = CreateOrganizationRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1499,7 +1499,7 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 		}
 	}()
 
-	var response *CreateStorageGroupResponse
+	var response CreateStorageGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1514,7 +1514,7 @@ func (s *Server) handleCreateStorageGroupRequest(args [0]string, argsEscaped boo
 		type (
 			Request  = *CreateStorageGroupRequest
 			Params   = struct{}
-			Response = *CreateStorageGroupResponse
+			Response = CreateStorageGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1713,7 +1713,7 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response *CreateOrganizationUnitResponse
+	var response CreateUnitRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1728,7 +1728,7 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 		type (
 			Request  = *CreateOrganizationUnitRequest
 			Params   = struct{}
-			Response = *CreateOrganizationUnitResponse
+			Response = CreateUnitRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2140,7 +2140,7 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 		return
 	}
 
-	var response *DeleteCellsGroupOK
+	var response DeleteCellsGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -2160,7 +2160,7 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 		type (
 			Request  = struct{}
 			Params   = DeleteCellsGroupParams
-			Response = *DeleteCellsGroupOK
+			Response = DeleteCellsGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2171,12 +2171,12 @@ func (s *Server) handleDeleteCellsGroupRequest(args [1]string, argsEscaped bool,
 			mreq,
 			unpackDeleteCellsGroupParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteCellsGroup(ctx, params)
+				response, err = s.h.DeleteCellsGroup(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteCellsGroup(ctx, params)
+		response, err = s.h.DeleteCellsGroup(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -2354,7 +2354,7 @@ func (s *Server) handleDeleteEmployeeByIdRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	var response *DeleteEmployeeByIdOK
+	var response DeleteEmployeeByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -2374,7 +2374,7 @@ func (s *Server) handleDeleteEmployeeByIdRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = struct{}
 			Params   = DeleteEmployeeByIdParams
-			Response = *DeleteEmployeeByIdOK
+			Response = DeleteEmployeeByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2385,12 +2385,12 @@ func (s *Server) handleDeleteEmployeeByIdRequest(args [1]string, argsEscaped boo
 			mreq,
 			unpackDeleteEmployeeByIdParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteEmployeeById(ctx, params)
+				response, err = s.h.DeleteEmployeeById(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteEmployeeById(ctx, params)
+		response, err = s.h.DeleteEmployeeById(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -2568,7 +2568,7 @@ func (s *Server) handleDeleteInstanceByIdRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	var response *DeleteInstanceByIdOK
+	var response DeleteInstanceByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -2588,7 +2588,7 @@ func (s *Server) handleDeleteInstanceByIdRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = struct{}
 			Params   = DeleteInstanceByIdParams
-			Response = *DeleteInstanceByIdOK
+			Response = DeleteInstanceByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2599,12 +2599,12 @@ func (s *Server) handleDeleteInstanceByIdRequest(args [1]string, argsEscaped boo
 			mreq,
 			unpackDeleteInstanceByIdParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteInstanceById(ctx, params)
+				response, err = s.h.DeleteInstanceById(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteInstanceById(ctx, params)
+		response, err = s.h.DeleteInstanceById(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -2996,7 +2996,7 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	var response *DeleteOrganizationOK
+	var response DeleteOrganizationRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -3016,7 +3016,7 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = struct{}
 			Params   = DeleteOrganizationParams
-			Response = *DeleteOrganizationOK
+			Response = DeleteOrganizationRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -3027,12 +3027,12 @@ func (s *Server) handleDeleteOrganizationRequest(args [1]string, argsEscaped boo
 			mreq,
 			unpackDeleteOrganizationParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteOrganization(ctx, params)
+				response, err = s.h.DeleteOrganization(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteOrganization(ctx, params)
+		response, err = s.h.DeleteOrganization(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -3210,7 +3210,7 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 		return
 	}
 
-	var response *DeleteOrganizationUnitOK
+	var response DeleteOrganizationUnitRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -3230,7 +3230,7 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 		type (
 			Request  = struct{}
 			Params   = DeleteOrganizationUnitParams
-			Response = *DeleteOrganizationUnitOK
+			Response = DeleteOrganizationUnitRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -3241,12 +3241,12 @@ func (s *Server) handleDeleteOrganizationUnitRequest(args [1]string, argsEscaped
 			mreq,
 			unpackDeleteOrganizationUnitParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteOrganizationUnit(ctx, params)
+				response, err = s.h.DeleteOrganizationUnit(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteOrganizationUnit(ctx, params)
+		response, err = s.h.DeleteOrganizationUnit(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -3424,7 +3424,7 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 		return
 	}
 
-	var response *DeleteStorageGroupOK
+	var response DeleteStorageGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -3444,7 +3444,7 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = struct{}
 			Params   = DeleteStorageGroupParams
-			Response = *DeleteStorageGroupOK
+			Response = DeleteStorageGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -3455,12 +3455,12 @@ func (s *Server) handleDeleteStorageGroupRequest(args [1]string, argsEscaped boo
 			mreq,
 			unpackDeleteStorageGroupParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.DeleteStorageGroup(ctx, params)
+				response, err = s.h.DeleteStorageGroup(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.DeleteStorageGroup(ctx, params)
+		response, err = s.h.DeleteStorageGroup(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -3777,7 +3777,7 @@ func (s *Server) handleGetApiTokensRequest(args [0]string, argsEscaped bool, w h
 		}
 	}
 
-	var response *GetApiTokensResponse
+	var response GetApiTokensRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -3792,7 +3792,7 @@ func (s *Server) handleGetApiTokensRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetApiTokensResponse
+			Response = GetApiTokensRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -3986,7 +3986,7 @@ func (s *Server) handleGetAuditLogsRequest(args [0]string, argsEscaped bool, w h
 		return
 	}
 
-	var response *GetAuditLogsResponse
+	var response GetAuditLogsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -4010,7 +4010,7 @@ func (s *Server) handleGetAuditLogsRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = struct{}
 			Params   = GetAuditLogsParams
-			Response = *GetAuditLogsResponse
+			Response = GetAuditLogsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4422,7 +4422,7 @@ func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.
 		return
 	}
 
-	var response *GetCellsResponse
+	var response GetCellsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -4442,7 +4442,7 @@ func (s *Server) handleGetCellsRequest(args [1]string, argsEscaped bool, w http.
 		type (
 			Request  = struct{}
 			Params   = GetCellsParams
-			Response = *GetCellsResponse
+			Response = GetCellsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4636,7 +4636,7 @@ func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool
 		return
 	}
 
-	var response *GetCellsGroupByIdResponse
+	var response GetCellsGroupByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -4656,7 +4656,7 @@ func (s *Server) handleGetCellsGroupByIdRequest(args [1]string, argsEscaped bool
 		type (
 			Request  = struct{}
 			Params   = GetCellsGroupByIdParams
-			Response = *GetCellsGroupByIdResponse
+			Response = GetCellsGroupByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4840,7 +4840,7 @@ func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w
 		}
 	}
 
-	var response *GetCellsGroupsResponse
+	var response GetCellsGroupsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -4855,7 +4855,7 @@ func (s *Server) handleGetCellsGroupsRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetCellsGroupsResponse
+			Response = GetCellsGroupsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5248,7 +5248,7 @@ func (s *Server) handleGetEmployeeByIdRequest(args [1]string, argsEscaped bool, 
 		return
 	}
 
-	var response *GetEmployeeResponse
+	var response GetEmployeeByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -5268,7 +5268,7 @@ func (s *Server) handleGetEmployeeByIdRequest(args [1]string, argsEscaped bool, 
 		type (
 			Request  = struct{}
 			Params   = GetEmployeeByIdParams
-			Response = *GetEmployeeResponse
+			Response = GetEmployeeByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5452,7 +5452,7 @@ func (s *Server) handleGetEmployeesRequest(args [0]string, argsEscaped bool, w h
 		}
 	}
 
-	var response *GetEmployeesResponse
+	var response GetEmployeesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -5467,7 +5467,7 @@ func (s *Server) handleGetEmployeesRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetEmployeesResponse
+			Response = GetEmployeesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5651,7 +5651,7 @@ func (s *Server) handleGetInstancesRequest(args [0]string, argsEscaped bool, w h
 		}
 	}
 
-	var response *GetInstancesResponse
+	var response GetInstancesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -5666,7 +5666,7 @@ func (s *Server) handleGetInstancesRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetInstancesResponse
+			Response = GetInstancesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5860,7 +5860,7 @@ func (s *Server) handleGetInstancesByItemIdRequest(args [1]string, argsEscaped b
 		return
 	}
 
-	var response *GetInstancesByItemIdResponse
+	var response GetInstancesByItemIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -5880,7 +5880,7 @@ func (s *Server) handleGetInstancesByItemIdRequest(args [1]string, argsEscaped b
 		type (
 			Request  = struct{}
 			Params   = GetInstancesByItemIdParams
-			Response = *GetInstancesByItemIdResponse
+			Response = GetInstancesByItemIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -6278,7 +6278,7 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 		}
 	}
 
-	var response *GetItemsResponse
+	var response GetItemsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -6293,7 +6293,7 @@ func (s *Server) handleGetItemsRequest(args [0]string, argsEscaped bool, w http.
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetItemsResponse
+			Response = GetItemsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -6487,7 +6487,7 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 		return
 	}
 
-	var response *GetOrganizationByIdResponse
+	var response GetOrganizationByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -6507,7 +6507,7 @@ func (s *Server) handleGetOrganizationByIdRequest(args [1]string, argsEscaped bo
 		type (
 			Request  = struct{}
 			Params   = GetOrganizationByIdParams
-			Response = *GetOrganizationByIdResponse
+			Response = GetOrganizationByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -6701,7 +6701,7 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 		return
 	}
 
-	var response *GetOrganizationUnitByIdResponse
+	var response GetOrganizationUnitByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -6721,7 +6721,7 @@ func (s *Server) handleGetOrganizationUnitByIdRequest(args [1]string, argsEscape
 		type (
 			Request  = struct{}
 			Params   = GetOrganizationUnitByIdParams
-			Response = *GetOrganizationUnitByIdResponse
+			Response = GetOrganizationUnitByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -6905,7 +6905,7 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 		}
 	}
 
-	var response *GetOrganizationUnitsResponse
+	var response GetOrganizationUnitsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -6920,7 +6920,7 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetOrganizationUnitsResponse
+			Response = GetOrganizationUnitsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -6966,7 +6966,7 @@ func (s *Server) handleGetOrganizationUnitsRequest(args [0]string, argsEscaped b
 
 // handleGetOrganizationsRequest handles getOrganizations operation.
 //
-// Get list of Organizations.
+// Get list of user Organizations.
 //
 // GET /orgs
 func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -7104,12 +7104,12 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 		}
 	}
 
-	var response *GetOrganizationsResponse
+	var response GetOrganizationsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetOrganizationsOperation,
-			OperationSummary: "Get list of Organizations",
+			OperationSummary: "Get list of user Organizations",
 			OperationID:      "getOrganizations",
 			Body:             nil,
 			Params:           middleware.Parameters{},
@@ -7119,7 +7119,7 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetOrganizationsResponse
+			Response = GetOrganizationsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -7303,7 +7303,7 @@ func (s *Server) handleGetRolesRequest(args [0]string, argsEscaped bool, w http.
 		}
 	}
 
-	var response *GetRolesOK
+	var response GetRolesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -7318,7 +7318,7 @@ func (s *Server) handleGetRolesRequest(args [0]string, argsEscaped bool, w http.
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetRolesOK
+			Response = GetRolesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -7512,7 +7512,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 		return
 	}
 
-	var response *GetStorageGroupByIdResponse
+	var response GetStorageGroupByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -7532,7 +7532,7 @@ func (s *Server) handleGetStorageGroupByIdRequest(args [1]string, argsEscaped bo
 		type (
 			Request  = struct{}
 			Params   = GetStorageGroupByIdParams
-			Response = *GetStorageGroupByIdResponse
+			Response = GetStorageGroupByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -7716,7 +7716,7 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 		}
 	}
 
-	var response *GetStorageGroupsResponse
+	var response GetStorageGroupsRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -7731,7 +7731,7 @@ func (s *Server) handleGetStorageGroupsRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *GetStorageGroupsResponse
+			Response = GetStorageGroupsRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -7930,7 +7930,7 @@ func (s *Server) handleInviteEmployeeRequest(args [0]string, argsEscaped bool, w
 		}
 	}()
 
-	var response *GetEmployeeResponse
+	var response InviteEmployeeRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -7945,7 +7945,7 @@ func (s *Server) handleInviteEmployeeRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = *InviteEmployeeRequest
 			Params   = struct{}
-			Response = *GetEmployeeResponse
+			Response = InviteEmployeeRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -8129,7 +8129,7 @@ func (s *Server) handleLogoutRequest(args [0]string, argsEscaped bool, w http.Re
 		}
 	}
 
-	var response *LogoutResponse
+	var response LogoutRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -8144,7 +8144,7 @@ func (s *Server) handleLogoutRequest(args [0]string, argsEscaped bool, w http.Re
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *LogoutResponse
+			Response = LogoutRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -8353,7 +8353,7 @@ func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *PatchCellResponse
+	var response PatchCellRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -8377,7 +8377,7 @@ func (s *Server) handlePatchCellRequest(args [2]string, argsEscaped bool, w http
 		type (
 			Request  = *PatchCellRequest
 			Params   = PatchCellParams
-			Response = *PatchCellResponse
+			Response = PatchCellRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -8586,7 +8586,7 @@ func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, 
 		}
 	}()
 
-	var response *PatchCellsGroupResponse
+	var response PatchCellsGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -8606,7 +8606,7 @@ func (s *Server) handlePatchCellsGroupRequest(args [1]string, argsEscaped bool, 
 		type (
 			Request  = *PatchCellsGroupRequest
 			Params   = PatchCellsGroupParams
-			Response = *PatchCellsGroupResponse
+			Response = PatchCellsGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -8805,7 +8805,7 @@ func (s *Server) handlePatchCurrentUserRequest(args [0]string, argsEscaped bool,
 		}
 	}()
 
-	var response *GetCurrentUserResponse
+	var response PatchCurrentUserRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -8820,7 +8820,7 @@ func (s *Server) handlePatchCurrentUserRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = *PatchCurrentUserRequest
 			Params   = struct{}
-			Response = *GetCurrentUserResponse
+			Response = PatchCurrentUserRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -9029,7 +9029,7 @@ func (s *Server) handlePatchEmployeeByIdRequest(args [1]string, argsEscaped bool
 		}
 	}()
 
-	var response *GetEmployeeResponse
+	var response PatchEmployeeByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -9049,7 +9049,7 @@ func (s *Server) handlePatchEmployeeByIdRequest(args [1]string, argsEscaped bool
 		type (
 			Request  = *PatchEmployeeRequest
 			Params   = PatchEmployeeByIdParams
-			Response = *GetEmployeeResponse
+			Response = PatchEmployeeByIdRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -9322,235 +9322,6 @@ func (s *Server) handlePatchItemRequest(args [1]string, argsEscaped bool, w http
 	}
 }
 
-// handlePatchOrganizationRequest handles patchOrganization operation.
-//
-// Update Organization.
-//
-// PATCH /orgs/{id}
-func (s *Server) handlePatchOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("patchOrganization"),
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/orgs/{id}"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), PatchOrganizationOperation,
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Add Labeler to context.
-	labeler := &Labeler{attrs: otelAttrs}
-	ctx = contextWithLabeler(ctx, labeler)
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-
-		attrSet := labeler.AttributeSet()
-		attrs := attrSet.ToSlice()
-		code := statusWriter.status
-		if code != 0 {
-			codeAttr := semconv.HTTPResponseStatusCode(code)
-			attrs = append(attrs, codeAttr)
-			span.SetAttributes(codeAttr)
-		}
-		attrOpt := metric.WithAttributes(attrs...)
-
-		// Increment request counter.
-		s.requests.Add(ctx, 1, attrOpt)
-
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
-	}()
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-
-			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
-			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
-			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
-			// max redirects exceeded), in which case status MUST be set to Error.
-			code := statusWriter.status
-			if code >= 100 && code < 500 {
-				span.SetStatus(codes.Error, stage)
-			}
-
-			attrSet := labeler.AttributeSet()
-			attrs := attrSet.ToSlice()
-			if code != 0 {
-				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
-			}
-
-			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: PatchOrganizationOperation,
-			ID:   "patchOrganization",
-		}
-	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiToken(ctx, PatchOrganizationOperation, r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiToken",
-					Err:              err,
-				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:ApiToken", err)
-				}
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-		{
-			sctx, ok, err := s.securityCookie(ctx, PatchOrganizationOperation, r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "Cookie",
-					Err:              err,
-				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:Cookie", err)
-				}
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 1
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-				{0b00000010},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-				defer recordError("Security", err)
-			}
-			return
-		}
-	}
-	params, err := decodePatchOrganizationParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	request, close, err := s.decodePatchOrganizationRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response *PatchOrganizationResponse
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    PatchOrganizationOperation,
-			OperationSummary: "Update Organization",
-			OperationID:      "patchOrganization",
-			Body:             request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = *PatchOrganizationRequest
-			Params   = PatchOrganizationParams
-			Response = *PatchOrganizationResponse
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackPatchOrganizationParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.PatchOrganization(ctx, request, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.PatchOrganization(ctx, request, params)
-	}
-	if err != nil {
-		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
-		return
-	}
-
-	if err := encodePatchOrganizationResponse(response, w, span); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
 // handlePatchOrganizationUnitRequest handles patchOrganizationUnit operation.
 //
 // Patch Organization Unit.
@@ -9716,7 +9487,7 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 		}
 	}()
 
-	var response *PatchOrganizationUnitResponse
+	var response PatchOrganizationUnitRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -9736,7 +9507,7 @@ func (s *Server) handlePatchOrganizationUnitRequest(args [1]string, argsEscaped 
 		type (
 			Request  = *PatchOrganizationUnitRequest
 			Params   = PatchOrganizationUnitParams
-			Response = *PatchOrganizationUnitResponse
+			Response = PatchOrganizationUnitRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -9945,7 +9716,7 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 		}
 	}()
 
-	var response *PatchStorageGroupResponse
+	var response PatchStorageGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -9965,7 +9736,7 @@ func (s *Server) handlePatchStorageGroupRequest(args [1]string, argsEscaped bool
 		type (
 			Request  = *PatchStorageGroupRequest
 			Params   = PatchStorageGroupParams
-			Response = *PatchStorageGroupResponse
+			Response = PatchStorageGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -10164,7 +9935,7 @@ func (s *Server) handlePutCurrentUserRequest(args [0]string, argsEscaped bool, w
 		}
 	}()
 
-	var response *GetCurrentUserResponse
+	var response PutCurrentUserRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -10179,7 +9950,7 @@ func (s *Server) handlePutCurrentUserRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = *UpdateCurrentUserRequest
 			Params   = struct{}
-			Response = *GetCurrentUserResponse
+			Response = PutCurrentUserRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -10373,7 +10144,7 @@ func (s *Server) handleRevokeApiTokenRequest(args [1]string, argsEscaped bool, w
 		return
 	}
 
-	var response *RevokeApiTokenOK
+	var response RevokeApiTokenRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -10393,7 +10164,7 @@ func (s *Server) handleRevokeApiTokenRequest(args [1]string, argsEscaped bool, w
 		type (
 			Request  = struct{}
 			Params   = RevokeApiTokenParams
-			Response = *RevokeApiTokenOK
+			Response = RevokeApiTokenRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -10404,12 +10175,12 @@ func (s *Server) handleRevokeApiTokenRequest(args [1]string, argsEscaped bool, w
 			mreq,
 			unpackRevokeApiTokenParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.RevokeApiToken(ctx, params)
+				response, err = s.h.RevokeApiToken(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.RevokeApiToken(ctx, params)
+		response, err = s.h.RevokeApiToken(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*DefaultErrorStatusCode](err); ok {
@@ -10602,7 +10373,7 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response *UpdateCellResponse
+	var response UpdateCellRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -10626,7 +10397,7 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 		type (
 			Request  = *UpdateCellRequest
 			Params   = UpdateCellParams
-			Response = *UpdateCellResponse
+			Response = UpdateCellRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -10835,7 +10606,7 @@ func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool,
 		}
 	}()
 
-	var response *UpdateCellsGroupResponse
+	var response UpdateCellsGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -10855,7 +10626,7 @@ func (s *Server) handleUpdateCellsGroupRequest(args [1]string, argsEscaped bool,
 		type (
 			Request  = *UpdateCellsGroupRequest
 			Params   = UpdateCellsGroupParams
-			Response = *UpdateCellsGroupResponse
+			Response = UpdateCellsGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -11293,7 +11064,7 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 		}
 	}()
 
-	var response *UpdateOrganizationResponse
+	var response UpdateOrganizationRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -11313,7 +11084,7 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = *UpdateOrganizationRequest
 			Params   = UpdateOrganizationParams
-			Response = *UpdateOrganizationResponse
+			Response = UpdateOrganizationRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -11522,7 +11293,7 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 		}
 	}()
 
-	var response *UpdateOrganizationUnitResponse
+	var response UpdateOrganizationUnitRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -11542,7 +11313,7 @@ func (s *Server) handleUpdateOrganizationUnitRequest(args [1]string, argsEscaped
 		type (
 			Request  = *UpdateOrganizationUnitRequest
 			Params   = UpdateOrganizationUnitParams
-			Response = *UpdateOrganizationUnitResponse
+			Response = UpdateOrganizationUnitRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -11751,7 +11522,7 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 		}
 	}()
 
-	var response *UpdateStorageGroupResponse
+	var response UpdateStorageGroupRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -11771,7 +11542,7 @@ func (s *Server) handleUpdateStorageGroupRequest(args [1]string, argsEscaped boo
 		type (
 			Request  = *UpdateStorageGroupRequest
 			Params   = UpdateStorageGroupParams
-			Response = *UpdateStorageGroupResponse
+			Response = UpdateStorageGroupRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

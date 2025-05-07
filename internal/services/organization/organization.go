@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/database"
+	db "github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
@@ -19,11 +20,12 @@ import (
 )
 
 var (
-	ErrOrganizationNotFound     = errors.New("organization not found")
-	ErrOrganizationUnitNotFound = errors.New("organization unit not found")
-	ErrInvalidOrganization      = errors.New("invalid organization")
-	ErrInvalidOrganizationUnit  = errors.New("invalid organization unit")
-	ErrInvalidUserID            = errors.New("invalid user ID")
+	ErrOrganizationNotFound               = errors.New("organization not found")
+	ErrOrganizationUnitNotFound           = errors.New("organization unit not found")
+	ErrInvalidOrganization                = errors.New("invalid organization")
+	ErrInvalidOrganizationUnit            = errors.New("invalid organization unit")
+	ErrInvalidUserID                      = errors.New("invalid user ID")
+	ErrOrganizationSubdomainAlreadyExists = errors.New("organization already exists")
 
 	ErrValidationError = errors.New("validation error")
 )
@@ -111,6 +113,11 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 		Subdomain: subdomain,
 	})
 	if err != nil {
+		if db.IsUniqueViolation(err) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "organization already exists")
+			return nil, ErrOrganizationSubdomainAlreadyExists
+		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to create organization")
 		return nil, fmt.Errorf("failed to create organization: %w", err)

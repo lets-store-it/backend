@@ -19,6 +19,9 @@ post:
   responses:
     "201":
       description: Successful operation
-
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

@@ -345,7 +345,7 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 }
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, type, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
+INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
 `
 
 type CreateTaskParams struct {
@@ -371,6 +371,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 		&i.OrgID,
 		&i.UnitID,
 		&i.Type,
+		&i.Status,
 		&i.Name,
 		&i.Description,
 		&i.AssignedToUserID,

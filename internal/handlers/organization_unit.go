@@ -18,13 +18,13 @@ func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
 	return api.Unit{
 		ID:      unit.ID,
 		Name:    unit.Name,
-		Alias:   unit.Alias,
+		Alias:   api.StorageAlias(unit.Alias),
 		Address: address,
 	}
 }
 
 // GetOrganizationUnits implements api.Handler.
-func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (*api.GetOrganizationUnitsResponse, error) {
+func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (api.GetOrganizationUnitsRes, error) {
 	units, err := h.orgUnitUseCase.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -41,8 +41,8 @@ func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (*api.
 }
 
 // CreateUnit implements api.Handler.
-func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (*api.CreateOrganizationUnitResponse, error) {
-	unit, err := h.orgUnitUseCase.Create(ctx, req.Name, req.Alias, req.Address.Value)
+func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (api.CreateUnitRes, error) {
+	unit, err := h.orgUnitUseCase.Create(ctx, req.Name, string(req.Alias), req.Address.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +54,17 @@ func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateO
 }
 
 // DeleteOrganizationUnit implements api.Handler.
-func (h *RestApiImplementation) DeleteOrganizationUnit(ctx context.Context, params api.DeleteOrganizationUnitParams) error {
-	return h.orgUnitUseCase.Delete(ctx, params.ID)
+func (h *RestApiImplementation) DeleteOrganizationUnit(ctx context.Context, params api.DeleteOrganizationUnitParams) (api.DeleteOrganizationUnitRes, error) {
+	err := h.orgUnitUseCase.Delete(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.DeleteOrganizationUnitOK{}, nil
 }
 
 // GetOrganizationUnitById implements api.Handler.
-func (h *RestApiImplementation) GetOrganizationUnitById(ctx context.Context, params api.GetOrganizationUnitByIdParams) (*api.GetOrganizationUnitByIdResponse, error) {
+func (h *RestApiImplementation) GetOrganizationUnitById(ctx context.Context, params api.GetOrganizationUnitByIdParams) (api.GetOrganizationUnitByIdRes, error) {
 	unit, err := h.orgUnitUseCase.GetByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
@@ -71,7 +76,7 @@ func (h *RestApiImplementation) GetOrganizationUnitById(ctx context.Context, par
 }
 
 // PatchOrganizationUnit implements api.Handler.
-func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *api.PatchOrganizationUnitRequest, params api.PatchOrganizationUnitParams) (*api.PatchOrganizationUnitResponse, error) {
+func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *api.PatchOrganizationUnitRequest, params api.PatchOrganizationUnitParams) (api.PatchOrganizationUnitRes, error) {
 	updates := make(map[string]interface{})
 
 	if req.Name.IsSet() {
@@ -95,7 +100,7 @@ func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *
 }
 
 // UpdateOrganizationUnit implements api.Handler.
-func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req *api.UpdateOrganizationUnitRequest, params api.UpdateOrganizationUnitParams) (*api.UpdateOrganizationUnitResponse, error) {
+func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req *api.UpdateOrganizationUnitRequest, params api.UpdateOrganizationUnitParams) (api.UpdateOrganizationUnitRes, error) {
 	var address *string
 	if req.Address.IsSet() {
 		address = &req.Address.Value
@@ -103,7 +108,7 @@ func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req 
 	unit := &models.OrganizationUnit{
 		ID:      params.ID,
 		Name:    req.Name,
-		Alias:   req.Alias,
+		Alias:   string(req.Alias),
 		Address: address,
 	}
 

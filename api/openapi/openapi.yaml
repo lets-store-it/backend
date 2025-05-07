@@ -8,7 +8,7 @@ info:
     name: PRIVATE
     url: https://store-it.ru
 servers:
-  - url: http://localhost:8080/api/v0
+  - url: http://localhost:8080/
 security:
   - apiToken: []
   - cookie: []
@@ -23,15 +23,7 @@ components:
       type: apiKey
       in: cookie
       name: storeit_session
-tags:
-  - name: org
-    description: Organization management
-  - name: unit
-    description: Unit management
-  - name: storage-group
-    description: Storage group management
-  - name: item
-    description: Item management
+tags: []
 paths:
   /orgs:
     $ref: paths/orgs/orgs.yaml
@@ -54,16 +46,16 @@ paths:
   /cells-groups/{groupId}:
     $ref: paths/cells-groups/cells-groups_{id}.yaml
 
-  /items:
-    $ref: paths/items/items.yaml
-  /items/{id}:
-    $ref: paths/items/items_{id}.yaml
-
   /cells-groups/{groupId}/cells:
     $ref: paths/cells-groups/cells-groups_{id}_cells.yaml
 
   /cells-groups/{groupId}/cells/{cellId}:
     $ref: paths/cells-groups/cells-groups_{id}_cells_{cellId}.yaml
+
+  /items:
+    $ref: paths/items/items.yaml
+  /items/{id}:
+    $ref: paths/items/items_{id}.yaml
 
   /instances:
     $ref: paths/instances/instances.yaml
@@ -92,15 +84,22 @@ paths:
   # /tasks:
   #   $ref: paths/tasks/tasks.yaml
 
-  # /tasks/{id}/pick-item:
-  #   $ref: paths/tasks/tasks_{id}_pick-item.yaml
-  # /tasks/{id}/ready:
-  #   $ref: paths/tasks/tasks_{id}_ready.yaml
-  # /tasks/{id}/cancel:
-  #   $ref: paths/tasks/tasks_{id}_cancel.yaml
-
   # /tasks/{id}:
   #   $ref: paths/tasks/tasks_{id}.yaml
+
+  # /tasks/{id}/pick-item:
+  #   $ref: paths/tasks/tasks_{id}_pick-item.yaml
+  # /tasks/{id}/put-item:
+  #   $ref: paths/tasks/tasks_{id}_put-item.yaml
+
+  # /tasks/{id}/awaiting:
+  #   $ref: paths/tasks/tasks_{id}_awaiting.yaml
+
+  # /tasks/{id}/done:
+  #   $ref: paths/tasks/tasks_{id}_done.yaml
+
+  # /tasks/{id}/cancel:
+  #   $ref: paths/tasks/tasks_{id}_cancel.yaml
 
   /employees:
     $ref: paths/employees/employees.yaml

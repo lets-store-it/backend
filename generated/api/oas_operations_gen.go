@@ -50,7 +50,6 @@ const (
 	PatchCurrentUserOperation          OperationName = "PatchCurrentUser"
 	PatchEmployeeByIdOperation         OperationName = "PatchEmployeeById"
 	PatchItemOperation                 OperationName = "PatchItem"
-	PatchOrganizationOperation         OperationName = "PatchOrganization"
 	PatchOrganizationUnitOperation     OperationName = "PatchOrganizationUnit"
 	PatchStorageGroupOperation         OperationName = "PatchStorageGroup"
 	PutCurrentUserOperation            OperationName = "PutCurrentUser"

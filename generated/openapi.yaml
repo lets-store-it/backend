@@ -8,25 +8,17 @@ info:
     name: PRIVATE
     url: https://store-it.ru
 servers:
-  - url: http://localhost:8080/api/v0
+  - url: http://localhost:8080/
 security:
   - apiToken: []
   - cookie: []
-tags:
-  - name: org
-    description: Organization management
-  - name: unit
-    description: Unit management
-  - name: storage-group
-    description: Storage group management
-  - name: item
-    description: Item management
+tags: []
 paths:
   /orgs:
     get:
       tags:
         - org
-      summary: Get list of Organizations
+      summary: Get list of user Organizations
       operationId: getOrganizations
       responses:
         '200':
@@ -35,12 +27,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetOrganizationsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
     post:
       tags:
         - org
-      summary: Create Organization
+      summary: Create new Organization
       operationId: createOrganization
       requestBody:
         required: true
@@ -55,6 +49,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateOrganizationResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '409':
+          $ref: '#/components/responses/default-conflict'
         default:
           $ref: '#/components/responses/default-error'
   /orgs/{id}:
@@ -78,6 +76,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetOrganizationByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -88,6 +90,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -108,26 +114,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOrganizationResponse'
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - org
-      summary: Update Organization
-      operationId: patchOrganization
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchOrganizationRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchOrganizationResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /units:
@@ -143,6 +133,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetOrganizationUnitsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -163,6 +157,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateOrganizationUnitResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /units/{id}:
@@ -186,6 +184,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetOrganizationUnitByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -196,6 +198,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -216,6 +222,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOrganizationUnitResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -236,6 +246,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchOrganizationUnitResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /storage-groups:
@@ -251,6 +265,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetStorageGroupsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -271,6 +289,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateStorageGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /storage-groups/{id}:
@@ -294,6 +316,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetStorageGroupByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -304,6 +330,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -324,6 +354,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchStorageGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -344,6 +378,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateStorageGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /cells-groups:
@@ -359,6 +397,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCellsGroupsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -379,6 +421,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateCellsGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /cells-groups/{groupId}:
@@ -402,6 +448,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCellsGroupByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -412,6 +462,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -432,6 +486,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchCellsGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -452,6 +510,146 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateCellsGroupResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /cells-groups/{groupId}/cells:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cells-group
+      summary: Get list of Cells
+      operationId: getCells
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - cells-group
+      summary: Create Cells
+      operationId: createCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCellResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /cells-groups/{groupId}/cells/{cellId}:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cellId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cells-group
+      summary: Get Cell by ID
+      operationId: getCellById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellByIdResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    delete:
+      tags:
+        - cells-group
+      summary: Delete Cell
+      operationId: deleteCell
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          $ref: '#/components/responses/default-error'
+    patch:
+      tags:
+        - cells-group
+      summary: Patch Cell
+      operationId: patchCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchCellResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - cells-group
+      summary: Update Cell
+      operationId: updateCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCellResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /items:
@@ -467,6 +665,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetItemsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -487,6 +689,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateItemResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /items/{id}:
@@ -562,126 +768,6 @@ paths:
                 $ref: '#/components/schemas/UpdateItemResponse'
         default:
           $ref: '#/components/responses/default-error'
-  /cells-groups/{groupId}/cells:
-    parameters:
-      - name: groupId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      tags:
-        - cells-group
-      summary: Get list of Cells
-      operationId: getCells
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetCellsResponse'
-        default:
-          $ref: '#/components/responses/default-error'
-    post:
-      tags:
-        - cells-group
-      summary: Create Cells
-      operationId: createCell
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCellRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateCellResponse'
-        default:
-          $ref: '#/components/responses/default-error'
-  /cells-groups/{groupId}/cells/{cellId}:
-    parameters:
-      - name: groupId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: cellId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      tags:
-        - cells-group
-      summary: Get Cell by ID
-      operationId: getCellById
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetCellByIdResponse'
-        default:
-          $ref: '#/components/responses/default-error'
-    delete:
-      tags:
-        - cells-group
-      summary: Delete Cell
-      operationId: deleteCell
-      responses:
-        '200':
-          description: Successful operation
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - cells-group
-      summary: Patch Cell
-      operationId: patchCell
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCellRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchCellResponse'
-        default:
-          $ref: '#/components/responses/default-error'
-    put:
-      tags:
-        - cells-group
-      summary: Update Cell
-      operationId: updateCell
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCellRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdateCellResponse'
-        default:
-          $ref: '#/components/responses/default-error'
   /instances:
     get:
       tags:
@@ -695,6 +781,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetInstancesResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /items/{itemId}/instances:
@@ -718,6 +808,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetInstancesByItemIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -738,6 +832,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateInstanceForItemResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /instances/{instanceId}:
@@ -757,6 +855,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /api-tokens:
@@ -772,6 +874,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetApiTokensResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -792,6 +898,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateApiTokenResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /api-tokens/{id}:
@@ -810,6 +920,10 @@ paths:
       responses:
         '200':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /auth/oauth2/yandex:
@@ -847,6 +961,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/LogoutResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
   /me:
@@ -884,11 +1000,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
     put:
       tags:
-        - unit
+        - user
       summary: Update Current User
       operationId: putCurrentUser
       requestBody:
@@ -904,6 +1022,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
   /employees:
@@ -920,6 +1040,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeesResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /employees/{id}:
@@ -942,6 +1066,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeeResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -962,6 +1090,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeeResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -972,6 +1104,10 @@ paths:
       responses:
         '200':
           description: Employee deleted successfully
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /employees/invite:
@@ -994,6 +1130,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeeResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /app/roles:
@@ -1016,6 +1156,8 @@ paths:
                       $ref: '#/components/schemas/Role'
                 required:
                   - data
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
   /audit-logs:
@@ -1046,6 +1188,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetAuditLogsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
 components:
@@ -1081,11 +1227,13 @@ components:
         name:
           type: string
           example: Exotic
+          minLength: 1
+          maxLength: 100
         subdomain:
           type: string
           example: exotic
           minLength: 1
-          maxLength: 255
+          maxLength: 100
           pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
       required:
         - name
@@ -1138,10 +1286,20 @@ components:
               $ref: '#/components/schemas/Organization'
           required:
             - data
+    OrganizationUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Exotic
+          minLength: 1
+          maxLength: 100
+      required:
+        - name
     UpdateOrganizationRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Organization'
+        - $ref: '#/components/schemas/OrganizationUpdate'
     UpdateOrganizationResponse:
       type: object
       allOf:
@@ -1153,30 +1311,11 @@ components:
                 $ref: '#/components/schemas/Organization'
           required:
             - data
-    OrganizationPatch:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Exotic
-        subdomain:
-          type: string
-          example: exotic
-          minLength: 1
-          maxLength: 255
-          pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
-    PatchOrganizationRequest:
-      allOf:
-        - $ref: '#/components/schemas/OrganizationPatch'
-    PatchOrganizationResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Organization'
+    storage-alias:
+      type: string
+      minLength: 1
+      maxLength: 100
+      example: A1
     UnitBase:
       type: object
       properties:
@@ -1186,10 +1325,7 @@ components:
           maxLength: 100
           example: Moscow
         alias:
-          type: string
-          minLength: 1
-          maxLength: 100
-          example: MWS
+          $ref: '#/components/schemas/storage-alias'
         address:
           type: string
           nullable: true
@@ -1302,17 +1438,16 @@ components:
           type: string
           format: uuid
           nullable: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
         name:
           type: string
+          minLength: 1
+          maxLength: 100
           example: Main Warehouse
         alias:
-          type: string
-          example: MW
+          $ref: '#/components/schemas/storage-alias'
         unitId:
           type: string
           format: uuid
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
       required:
         - name
         - alias
@@ -1325,12 +1460,10 @@ components:
               type: string
               format: uuid
               readOnly: true
-              example: def3df1a-7b8f-4552-b437-a1eab851403f
             parentId:
               type: string
               format: uuid
               nullable: true
-              example: def3df1a-7b8f-4552-b437-a1eab851403f
           required:
             - id
             - parentId
@@ -1427,7 +1560,7 @@ components:
         name:
           type: string
         alias:
-          type: string
+          $ref: '#/components/schemas/storage-alias'
         storage_group_id:
           type: string
           format: uuid
@@ -1478,7 +1611,7 @@ components:
         name:
           type: string
         alias:
-          type: string
+          $ref: '#/components/schemas/storage-alias'
         storage_group_id:
           type: string
           format: uuid
@@ -1490,6 +1623,86 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    CellBase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        alias:
+          type: string
+        row:
+          type: integer
+          minimum: 1
+        level:
+          type: integer
+          minimum: 1
+        position:
+          type: integer
+          minimum: 1
+      required:
+        - id
+        - alias
+        - row
+        - level
+        - position
+    GetCellsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    CreateCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    CreateCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    GetCellByIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    UpdateCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    UpdateCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    CellPatch:
+      type: object
+      properties:
+        alias:
+          type: string
+        row:
+          type: integer
+          minimum: 1
+        level:
+          type: integer
+          minimum: 1
+        position:
+          type: integer
+          minimum: 1
+    PatchCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellPatch'
+    PatchCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
       required:
         - data
     ItemBase:
@@ -1603,30 +1816,6 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ItemCreate'
-    CellBase:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        alias:
-          type: string
-        row:
-          type: integer
-          minimum: 1
-        level:
-          type: integer
-          minimum: 1
-        position:
-          type: integer
-          minimum: 1
-      required:
-        - id
-        - alias
-        - row
-        - level
-        - position
     CellForInstance:
       allOf:
         - $ref: '#/components/schemas/CellBase'
@@ -1796,62 +1985,6 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
-    GetCellsResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CellBase'
-      required:
-        - data
-    CreateCellRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellBase'
-    CreateCellResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellBase'
-      required:
-        - data
-    GetCellByIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/CellBase'
-    UpdateCellRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellBase'
-    UpdateCellResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellBase'
-      required:
-        - data
-    CellPatch:
-      type: object
-      properties:
-        alias:
-          type: string
-        row:
-          type: integer
-          minimum: 1
-        level:
-          type: integer
-          minimum: 1
-        position:
-          type: integer
-          minimum: 1
-    PatchCellRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellPatch'
-    PatchCellResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellBase'
-      required:
-        - data
     InstanceFull:
       type: object
       properties:
@@ -1885,7 +2018,7 @@ components:
         data:
           type: array
           items:
-            - $ref: '#/components/schemas/InstanceFull'
+            $ref: '#/components/schemas/InstanceFull'
       required:
         - data
     GetInstancesByItemIdResponse:
@@ -2169,6 +2302,24 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorContent'
+    default-unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
+    default-conflict:
+      description: Conflict, resource duplication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
+    default-forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
     AuthResponse:
       description: Auth response
       headers:
@@ -2191,9 +2342,3 @@ components:
             type: string
             description: Cleared auth cookie
           required: true
-    default-unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorContent'

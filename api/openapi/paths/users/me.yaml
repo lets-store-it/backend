@@ -32,11 +32,13 @@ patch:
         application/json:
           schema:
             $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
-    - unit
+    - user
   summary: Update Current User
   operationId: putCurrentUser
   requestBody:
@@ -52,5 +54,7 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/users/GetCurrentUserResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

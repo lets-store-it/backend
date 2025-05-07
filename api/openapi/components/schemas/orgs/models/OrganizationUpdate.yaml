@@ -1,0 +1,9 @@
+type: object
+properties:
+  name:
+    type: string
+    example: Exotic
+    minLength: 1
+    maxLength: 100
+required:
+  - name

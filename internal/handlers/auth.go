@@ -80,7 +80,7 @@ func (h *RestApiImplementation) ExchangeYandexAccessToken(ctx context.Context, r
 	}, nil
 }
 
-func (h *RestApiImplementation) Logout(ctx context.Context) (*api.LogoutResponse, error) {
+func (h *RestApiImplementation) Logout(ctx context.Context) (api.LogoutRes, error) {
 	cookie := &http.Cookie{
 		Name:     "storeit_session",
 		Value:    "",
@@ -104,7 +104,7 @@ func toApiToken(token *models.ApiToken) api.Token {
 }
 
 // GetApiTokens implements api.Handler.
-func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (*api.GetApiTokensResponse, error) {
+func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (api.GetApiTokensRes, error) {
 	apiTokens, err := h.authUseCase.GetApiTokens(ctx)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -120,7 +120,7 @@ func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (*api.GetApiTo
 }
 
 // CreateApiToken implements api.Handler.
-func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.CreateApiTokenRequest) (*api.CreateApiTokenResponse, error) {
+func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.CreateApiTokenRequest) (api.CreateApiTokenRes, error) {
 	apiToken, err := h.authUseCase.CreateApiToken(ctx, req.Name)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -131,12 +131,12 @@ func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.Cre
 }
 
 // RevokeApiToken implements api.Handler.
-func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.RevokeApiTokenParams) error {
+func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.RevokeApiTokenParams) (api.RevokeApiTokenRes, error) {
 	err := h.authUseCase.RevokeApiToken(ctx, params.ID)
 	if err != nil {
-		return h.NewError(ctx, err)
+		return nil, h.NewError(ctx, err)
 	}
-	return nil
+	return nil, nil
 }
 
 func toRoleDTO(role *models.Role) api.Role {
@@ -164,7 +164,7 @@ func toEmployeeDTO(employee *models.Employee) api.Employee {
 }
 
 // GetEmployees implements api.Handler.
-func (h *RestApiImplementation) GetEmployees(ctx context.Context) (*api.GetEmployeesResponse, error) {
+func (h *RestApiImplementation) GetEmployees(ctx context.Context) (api.GetEmployeesRes, error) {
 	employees, err := h.authUseCase.GetEmployees(ctx)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -179,16 +179,16 @@ func (h *RestApiImplementation) GetEmployees(ctx context.Context) (*api.GetEmplo
 }
 
 // DeleteEmployeeById implements api.Handler.
-func (h *RestApiImplementation) DeleteEmployeeById(ctx context.Context, params api.DeleteEmployeeByIdParams) error {
+func (h *RestApiImplementation) DeleteEmployeeById(ctx context.Context, params api.DeleteEmployeeByIdParams) (api.DeleteEmployeeByIdRes, error) {
 	err := h.authUseCase.DeleteEmployee(ctx, params.ID)
 	if err != nil {
-		return h.NewError(ctx, err)
+		return nil, h.NewError(ctx, err)
 	}
-	return nil
+	return &api.DeleteEmployeeByIdOK{}, nil
 }
 
 // GetEmployeeById implements api.Handler.
-func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.GetEmployeeByIdParams) (*api.GetEmployeeResponse, error) {
+func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.GetEmployeeByIdParams) (api.GetEmployeeByIdRes, error) {
 	employee, err := h.authUseCase.GetEmployee(ctx, params.ID)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -199,7 +199,7 @@ func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.
 }
 
 // GetRoles implements api.Handler.
-func (h *RestApiImplementation) GetRoles(ctx context.Context) (*api.GetRolesOK, error) {
+func (h *RestApiImplementation) GetRoles(ctx context.Context) (api.GetRolesRes, error) {
 	roles, err := h.authUseCase.GetRoles(ctx)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -214,7 +214,7 @@ func (h *RestApiImplementation) GetRoles(ctx context.Context) (*api.GetRolesOK, 
 }
 
 // InviteEmployee implements api.Handler.
-func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.InviteEmployeeRequest) (*api.GetEmployeeResponse, error) {
+func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.InviteEmployeeRequest) (api.InviteEmployeeRes, error) {
 	employee, err := h.authUseCase.InviteEmployee(ctx, req.Email, req.RoleId)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
@@ -225,7 +225,7 @@ func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.Inv
 }
 
 // PatchEmployeeById implements api.Handler.
-func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.PatchEmployeeRequest, params api.PatchEmployeeByIdParams) (*api.GetEmployeeResponse, error) {
+func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.PatchEmployeeRequest, params api.PatchEmployeeByIdParams) (api.PatchEmployeeByIdRes, error) {
 	roleID := req.RoleId.Value
 	employee, err := h.authUseCase.SetEmployeeRole(ctx, params.ID, roleID)
 	if err != nil {

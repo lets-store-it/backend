@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/organization"
 )
 
 func convertToDTO(org *models.Organization) *api.Organization {
@@ -16,9 +18,12 @@ func convertToDTO(org *models.Organization) *api.Organization {
 }
 
 // CreateOrganization implements api.Handler.
-func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api.CreateOrganizationRequest) (*api.CreateOrganizationResponse, error) {
+func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api.CreateOrganizationRequest) (api.CreateOrganizationRes, error) {
 	org, err := h.orgUseCase.Create(ctx, req.Name, req.Subdomain)
 	if err != nil {
+		if errors.Is(err, organization.ErrOrganizationSubdomainAlreadyExists) {
+			return nil, h.NewConflictError(ctx, "subdomain already exists")
+		}
 		return nil, err
 	}
 
@@ -28,7 +33,7 @@ func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api
 }
 
 // GetOrganizations implements api.Handler.
-func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetOrganizationsResponse, error) {
+func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (api.GetOrganizationsRes, error) {
 	orgs, err := h.orgUseCase.GetUsersOrgs(ctx)
 	if err != nil {
 		return nil, err
@@ -45,12 +50,17 @@ func (h *RestApiImplementation) GetOrganizations(ctx context.Context) (*api.GetO
 }
 
 // DeleteOrganization implements api.Handler.
-func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params api.DeleteOrganizationParams) error {
-	return h.orgUseCase.Delete(ctx, params.ID)
+func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params api.DeleteOrganizationParams) (api.DeleteOrganizationRes, error) {
+	err := h.orgUseCase.Delete(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.DeleteOrganizationOK{}, nil
 }
 
 // GetOrganizationById implements api.Handler.
-func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params api.GetOrganizationByIdParams) (*api.GetOrganizationByIdResponse, error) {
+func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params api.GetOrganizationByIdParams) (api.GetOrganizationByIdRes, error) {
 	org, err := h.orgUseCase.GetByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
@@ -61,33 +71,32 @@ func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params 
 	}, nil
 }
 
-// PatchOrganization implements api.Handler.
-func (h *RestApiImplementation) PatchOrganization(ctx context.Context, req *api.PatchOrganizationRequest, params api.PatchOrganizationParams) (*api.PatchOrganizationResponse, error) {
-	updates := make(map[string]interface{})
+// // PatchOrganization implements api.Handler.
+// func (h *RestApiImplementation) PatchOrganization(ctx context.Context, req *api.PatchOrganizationRequest, params api.PatchOrganizationParams) (*api.PatchOrganizationResponse, error) {
+// 	updates := make(map[string]interface{})
 
-	if req.Name.IsSet() {
-		updates["name"] = req.Name.Value
-	}
-	if req.Subdomain.IsSet() {
-		updates["subdomain"] = req.Subdomain.Value
-	}
+// 	if req.Name.IsSet() {
+// 		updates["name"] = req.Name.Value
+// 	}
+// 	if req.Subdomain.IsSet() {
+// 		updates["subdomain"] = req.Subdomain.Value
+// 	}
 
-	org, err := h.orgUseCase.Patch(ctx, params.ID, updates)
-	if err != nil {
-		return nil, err
-	}
+// 	org, err := h.orgUseCase.Patch(ctx, params.ID, updates)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &api.PatchOrganizationResponse{
-		Data: []api.Organization{*convertToDTO(org)},
-	}, nil
-}
+// 	return &api.PatchOrganizationResponse{
+// 		Data: []api.Organization{*convertToDTO(org)},
+// 	}, nil
+// }
 
 // UpdateOrganization implements api.Handler.
-func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.UpdateOrganizationRequest, params api.UpdateOrganizationParams) (*api.UpdateOrganizationResponse, error) {
+func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.UpdateOrganizationRequest, params api.UpdateOrganizationParams) (api.UpdateOrganizationRes, error) {
 	org := &models.Organization{
-		ID:        params.ID,
-		Name:      req.Name,
-		Subdomain: req.Subdomain,
+		ID:   params.ID,
+		Name: req.Name,
 	}
 
 	updatedOrg, err := h.orgUseCase.Update(ctx, org)

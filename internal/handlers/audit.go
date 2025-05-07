@@ -88,7 +88,7 @@ func toAuditLog(objectChange *models.ObjectChange) (*api.AuditLog, error) {
 	}, nil
 }
 
-func (h *RestApiImplementation) GetAuditLogs(ctx context.Context, params api.GetAuditLogsParams) (*api.GetAuditLogsResponse, error) {
+func (h *RestApiImplementation) GetAuditLogs(ctx context.Context, params api.GetAuditLogsParams) (api.GetAuditLogsRes, error) {
 	if !params.ObjectTypeID.Set || !params.ObjectID.Set {
 		return nil, h.NewError(ctx, errors.New("object type id and object id are required"))
 	}

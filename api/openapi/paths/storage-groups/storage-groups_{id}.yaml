@@ -18,6 +18,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/storage-groups/GetStorageGroupByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 delete:
@@ -28,6 +32,10 @@ delete:
   responses:
     "200":
       description: Successful operation
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 patch:
@@ -48,6 +56,10 @@ patch:
         application/json:
           schema:
             $ref: ../../components/schemas/storage-groups/PatchStorageGroupResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 put:
@@ -68,5 +80,9 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/storage-groups/UpdateStorageGroupResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

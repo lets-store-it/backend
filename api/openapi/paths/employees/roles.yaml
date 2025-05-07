@@ -17,5 +17,7 @@ get:
                   $ref: ../../components/schemas/employees/models/Role.yaml
             required:
               - data
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

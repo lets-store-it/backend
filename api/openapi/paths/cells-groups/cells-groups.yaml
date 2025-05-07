@@ -10,6 +10,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/cells-groups/GetCellsGroupsResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 post:
@@ -30,5 +34,9 @@ post:
         application/json:
           schema:
             $ref: ../../components/schemas/cells-groups/CreateCellsGroupResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

@@ -7,9 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-
 	"github.com/let-store-it/backend/generated/database"
+	db "github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/utils"
 
@@ -97,7 +96,7 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 		YandexID:   utils.PgTextPtr(user.YandexID),
 	})
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
+		if db.IsUniqueViolation(err) {
 			span.RecordError(ErrDuplicateUser)
 			span.SetStatus(codes.Error, "user already exists")
 			return nil, ErrDuplicateUser
