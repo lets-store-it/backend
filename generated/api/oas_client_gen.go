@@ -34,49 +34,49 @@ type Invoker interface {
 	// Create Service API Token.
 	//
 	// POST /api-tokens
-	CreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (*CreateApiTokenResponse, error)
+	CreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (CreateApiTokenRes, error)
 	// CreateCell invokes createCell operation.
 	//
 	// Create Cells.
 	//
 	// POST /cells-groups/{groupId}/cells
-	CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error)
+	CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (CreateCellRes, error)
 	// CreateCellsGroup invokes createCellsGroup operation.
 	//
 	// Create Cells Group.
 	//
 	// POST /cells-groups
-	CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error)
+	CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (CreateCellsGroupRes, error)
 	// CreateInstanceForItem invokes createInstanceForItem operation.
 	//
 	// Create Instance For Item.
 	//
 	// POST /items/{itemId}/instances
-	CreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (*CreateInstanceForItemResponse, error)
+	CreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (CreateInstanceForItemRes, error)
 	// CreateItem invokes createItem operation.
 	//
 	// Create Item.
 	//
 	// POST /items
-	CreateItem(ctx context.Context, request *CreateItemRequest) (*CreateItemResponse, error)
+	CreateItem(ctx context.Context, request *CreateItemRequest) (CreateItemRes, error)
 	// CreateOrganization invokes createOrganization operation.
 	//
-	// Create Organization.
+	// Create new Organization.
 	//
 	// POST /orgs
-	CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (CreateOrganizationRes, error)
 	// CreateStorageGroup invokes createStorageGroup operation.
 	//
 	// Create Storage Group.
 	//
 	// POST /storage-groups
-	CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
+	CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (CreateStorageGroupRes, error)
 	// CreateUnit invokes createUnit operation.
 	//
 	// Create Organization Unit.
 	//
 	// POST /units
-	CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (CreateUnitRes, error)
 	// DeleteCell invokes deleteCell operation.
 	//
 	// Delete Cell.
@@ -88,19 +88,19 @@ type Invoker interface {
 	// Delete Cells Group.
 	//
 	// DELETE /cells-groups/{groupId}
-	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
+	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (DeleteCellsGroupRes, error)
 	// DeleteEmployeeById invokes deleteEmployeeById operation.
 	//
 	// Delete employee by id.
 	//
 	// DELETE /employees/{id}
-	DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error
+	DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (DeleteEmployeeByIdRes, error)
 	// DeleteInstanceById invokes deleteInstanceById operation.
 	//
 	// Delete Instance by ID.
 	//
 	// DELETE /instances/{instanceId}
-	DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error
+	DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (DeleteInstanceByIdRes, error)
 	// DeleteItem invokes deleteItem operation.
 	//
 	// Delete Item.
@@ -112,19 +112,19 @@ type Invoker interface {
 	// Delete Organization.
 	//
 	// DELETE /orgs/{id}
-	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error
+	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (DeleteOrganizationRes, error)
 	// DeleteOrganizationUnit invokes deleteOrganizationUnit operation.
 	//
 	// Delete Organization Unit.
 	//
 	// DELETE /units/{id}
-	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
+	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (DeleteOrganizationUnitRes, error)
 	// DeleteStorageGroup invokes deleteStorageGroup operation.
 	//
 	// Delete Storage Group.
 	//
 	// DELETE /storage-groups/{id}
-	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (DeleteStorageGroupRes, error)
 	// ExchangeYandexAccessToken invokes exchangeYandexAccessToken operation.
 	//
 	// Exchange Yandex Access token for Session token.
@@ -136,13 +136,13 @@ type Invoker interface {
 	// Get list of Service API Tokens.
 	//
 	// GET /api-tokens
-	GetApiTokens(ctx context.Context) (*GetApiTokensResponse, error)
+	GetApiTokens(ctx context.Context) (GetApiTokensRes, error)
 	// GetAuditLogs invokes getAuditLogs operation.
 	//
 	// Get audit logs.
 	//
 	// GET /audit-logs
-	GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (*GetAuditLogsResponse, error)
+	GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (GetAuditLogsRes, error)
 	// GetCellById invokes getCellById operation.
 	//
 	// Get Cell by ID.
@@ -154,19 +154,19 @@ type Invoker interface {
 	// Get list of Cells.
 	//
 	// GET /cells-groups/{groupId}/cells
-	GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error)
+	GetCells(ctx context.Context, params GetCellsParams) (GetCellsRes, error)
 	// GetCellsGroupById invokes getCellsGroupById operation.
 	//
 	// Get Cells Group by ID.
 	//
 	// GET /cells-groups/{groupId}
-	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error)
+	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (GetCellsGroupByIdRes, error)
 	// GetCellsGroups invokes getCellsGroups operation.
 	//
 	// Get list of Cells Groups.
 	//
 	// GET /cells-groups
-	GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error)
+	GetCellsGroups(ctx context.Context) (GetCellsGroupsRes, error)
 	// GetCurrentUser invokes getCurrentUser operation.
 	//
 	// Get Current User.
@@ -178,25 +178,25 @@ type Invoker interface {
 	// Get employee by id.
 	//
 	// GET /employees/{id}
-	GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (*GetEmployeeResponse, error)
+	GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (GetEmployeeByIdRes, error)
 	// GetEmployees invokes getEmployees operation.
 	//
 	// Get all employees.
 	//
 	// GET /employees
-	GetEmployees(ctx context.Context) (*GetEmployeesResponse, error)
+	GetEmployees(ctx context.Context) (GetEmployeesRes, error)
 	// GetInstances invokes getInstances operation.
 	//
 	// Get list of Instances.
 	//
 	// GET /instances
-	GetInstances(ctx context.Context) (*GetInstancesResponse, error)
+	GetInstances(ctx context.Context) (GetInstancesRes, error)
 	// GetInstancesByItemId invokes getInstancesByItemId operation.
 	//
 	// Get list of Instances For Item.
 	//
 	// GET /items/{itemId}/instances
-	GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (*GetInstancesByItemIdResponse, error)
+	GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (GetInstancesByItemIdRes, error)
 	// GetItemById invokes getItemById operation.
 	//
 	// Get Item by ID.
@@ -208,133 +208,127 @@ type Invoker interface {
 	// Get list of Items.
 	//
 	// GET /items
-	GetItems(ctx context.Context) (*GetItemsResponse, error)
+	GetItems(ctx context.Context) (GetItemsRes, error)
 	// GetOrganizationById invokes getOrganizationById operation.
 	//
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
+	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (GetOrganizationByIdRes, error)
 	// GetOrganizationUnitById invokes getOrganizationUnitById operation.
 	//
 	// Get Unit by ID.
 	//
 	// GET /units/{id}
-	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error)
+	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (GetOrganizationUnitByIdRes, error)
 	// GetOrganizationUnits invokes getOrganizationUnits operation.
 	//
 	// Get list of Organization Units.
 	//
 	// GET /units
-	GetOrganizationUnits(ctx context.Context) (*GetOrganizationUnitsResponse, error)
+	GetOrganizationUnits(ctx context.Context) (GetOrganizationUnitsRes, error)
 	// GetOrganizations invokes getOrganizations operation.
 	//
-	// Get list of Organizations.
+	// Get list of user Organizations.
 	//
 	// GET /orgs
-	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
+	GetOrganizations(ctx context.Context) (GetOrganizationsRes, error)
 	// GetRoles invokes getRoles operation.
 	//
 	// Get all roles in system.
 	//
 	// GET /app/roles
-	GetRoles(ctx context.Context) (*GetRolesOK, error)
+	GetRoles(ctx context.Context) (GetRolesRes, error)
 	// GetStorageGroupById invokes getStorageGroupById operation.
 	//
 	// Get Storage Group by ID.
 	//
 	// GET /storage-groups/{id}
-	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
+	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (GetStorageGroupByIdRes, error)
 	// GetStorageGroups invokes getStorageGroups operation.
 	//
 	// Get list of Storage Groups.
 	//
 	// GET /storage-groups
-	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	GetStorageGroups(ctx context.Context) (GetStorageGroupsRes, error)
 	// InviteEmployee invokes inviteEmployee operation.
 	//
 	// Invite employee to the organization.
 	//
 	// POST /employees/invite
-	InviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (*GetEmployeeResponse, error)
+	InviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (InviteEmployeeRes, error)
 	// Logout invokes logout operation.
 	//
 	// Logout user.
 	//
 	// GET /auth/logout
-	Logout(ctx context.Context) (*LogoutResponse, error)
+	Logout(ctx context.Context) (LogoutRes, error)
 	// PatchCell invokes patchCell operation.
 	//
 	// Patch Cell.
 	//
 	// PATCH /cells-groups/{groupId}/cells/{cellId}
-	PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error)
+	PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (PatchCellRes, error)
 	// PatchCellsGroup invokes patchCellsGroup operation.
 	//
 	// Patch Cells Group.
 	//
 	// PATCH /cells-groups/{groupId}
-	PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error)
+	PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (PatchCellsGroupRes, error)
 	// PatchCurrentUser invokes patchCurrentUser operation.
 	//
 	// Update Current User.
 	//
 	// PATCH /me
-	PatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (*GetCurrentUserResponse, error)
+	PatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (PatchCurrentUserRes, error)
 	// PatchEmployeeById invokes patchEmployeeById operation.
 	//
 	// Update employee by id.
 	//
 	// PATCH /employees/{id}
-	PatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (*GetEmployeeResponse, error)
+	PatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error)
 	// PatchItem invokes patchItem operation.
 	//
 	// Patch Item.
 	//
 	// PATCH /items/{id}
 	PatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
-	// PatchOrganization invokes patchOrganization operation.
-	//
-	// Update Organization.
-	//
-	// PATCH /orgs/{id}
-	PatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error)
 	// PatchOrganizationUnit invokes patchOrganizationUnit operation.
 	//
 	// Patch Organization Unit.
 	//
 	// PATCH /units/{id}
-	PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
+	PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error)
 	// PatchStorageGroup invokes patchStorageGroup operation.
 	//
 	// Patch Storage Group.
 	//
 	// PATCH /storage-groups/{id}
-	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (PatchStorageGroupRes, error)
 	// PutCurrentUser invokes putCurrentUser operation.
 	//
 	// Update Current User.
 	//
 	// PUT /me
-	PutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (*GetCurrentUserResponse, error)
+	PutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (PutCurrentUserRes, error)
 	// RevokeApiToken invokes revokeApiToken operation.
 	//
 	// Revoke Service API Token.
 	//
 	// DELETE /api-tokens/{id}
-	RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error
+	RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (RevokeApiTokenRes, error)
 	// UpdateCell invokes updateCell operation.
 	//
 	// Update Cell.
 	//
 	// PUT /cells-groups/{groupId}/cells/{cellId}
-	UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error)
+	UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (UpdateCellRes, error)
 	// UpdateCellsGroup invokes updateCellsGroup operation.
 	//
 	// Update Cells Group.
 	//
 	// PUT /cells-groups/{groupId}
-	UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error)
+	UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (UpdateCellsGroupRes, error)
 	// UpdateItem invokes updateItem operation.
 	//
 	// Update Item.
@@ -346,19 +340,19 @@ type Invoker interface {
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error)
+	UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (UpdateOrganizationRes, error)
 	// UpdateOrganizationUnit invokes updateOrganizationUnit operation.
 	//
 	// Update Organization Unit.
 	//
 	// PUT /units/{id}
-	UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
+	UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (UpdateOrganizationUnitRes, error)
 	// UpdateStorageGroup invokes updateStorageGroup operation.
 	//
 	// Update Storage Group.
 	//
 	// PUT /storage-groups/{id}
-	UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
+	UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (UpdateStorageGroupRes, error)
 }
 
 // Client implements OAS client.
@@ -415,12 +409,12 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 // Create Service API Token.
 //
 // POST /api-tokens
-func (c *Client) CreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (*CreateApiTokenResponse, error) {
+func (c *Client) CreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (CreateApiTokenRes, error) {
 	res, err := c.sendCreateApiToken(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (res *CreateApiTokenResponse, err error) {
+func (c *Client) sendCreateApiToken(ctx context.Context, request *CreateApiTokenRequest) (res CreateApiTokenRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createApiToken"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -535,12 +529,12 @@ func (c *Client) sendCreateApiToken(ctx context.Context, request *CreateApiToken
 // Create Cells.
 //
 // POST /cells-groups/{groupId}/cells
-func (c *Client) CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error) {
+func (c *Client) CreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (CreateCellRes, error) {
 	res, err := c.sendCreateCell(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendCreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (res *CreateCellResponse, err error) {
+func (c *Client) sendCreateCell(ctx context.Context, request *CreateCellRequest, params CreateCellParams) (res CreateCellRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createCell"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -674,12 +668,12 @@ func (c *Client) sendCreateCell(ctx context.Context, request *CreateCellRequest,
 // Create Cells Group.
 //
 // POST /cells-groups
-func (c *Client) CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error) {
+func (c *Client) CreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (CreateCellsGroupRes, error) {
 	res, err := c.sendCreateCellsGroup(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (res *CreateCellsGroupResponse, err error) {
+func (c *Client) sendCreateCellsGroup(ctx context.Context, request *CreateCellsGroupRequest) (res CreateCellsGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createCellsGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -794,12 +788,12 @@ func (c *Client) sendCreateCellsGroup(ctx context.Context, request *CreateCellsG
 // Create Instance For Item.
 //
 // POST /items/{itemId}/instances
-func (c *Client) CreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (*CreateInstanceForItemResponse, error) {
+func (c *Client) CreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (CreateInstanceForItemRes, error) {
 	res, err := c.sendCreateInstanceForItem(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendCreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (res *CreateInstanceForItemResponse, err error) {
+func (c *Client) sendCreateInstanceForItem(ctx context.Context, request *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (res CreateInstanceForItemRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createInstanceForItem"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -933,12 +927,12 @@ func (c *Client) sendCreateInstanceForItem(ctx context.Context, request *CreateI
 // Create Item.
 //
 // POST /items
-func (c *Client) CreateItem(ctx context.Context, request *CreateItemRequest) (*CreateItemResponse, error) {
+func (c *Client) CreateItem(ctx context.Context, request *CreateItemRequest) (CreateItemRes, error) {
 	res, err := c.sendCreateItem(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateItem(ctx context.Context, request *CreateItemRequest) (res *CreateItemResponse, err error) {
+func (c *Client) sendCreateItem(ctx context.Context, request *CreateItemRequest) (res CreateItemRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createItem"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -1050,15 +1044,15 @@ func (c *Client) sendCreateItem(ctx context.Context, request *CreateItemRequest)
 
 // CreateOrganization invokes createOrganization operation.
 //
-// Create Organization.
+// Create new Organization.
 //
 // POST /orgs
-func (c *Client) CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (*CreateOrganizationResponse, error) {
+func (c *Client) CreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (CreateOrganizationRes, error) {
 	res, err := c.sendCreateOrganization(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (res *CreateOrganizationResponse, err error) {
+func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrganizationRequest) (res CreateOrganizationRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createOrganization"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -1173,12 +1167,12 @@ func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrga
 // Create Storage Group.
 //
 // POST /storage-groups
-func (c *Client) CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error) {
+func (c *Client) CreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (CreateStorageGroupRes, error) {
 	res, err := c.sendCreateStorageGroup(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (res *CreateStorageGroupResponse, err error) {
+func (c *Client) sendCreateStorageGroup(ctx context.Context, request *CreateStorageGroupRequest) (res CreateStorageGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createStorageGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -1293,12 +1287,12 @@ func (c *Client) sendCreateStorageGroup(ctx context.Context, request *CreateStor
 // Create Organization Unit.
 //
 // POST /units
-func (c *Client) CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error) {
+func (c *Client) CreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (CreateUnitRes, error) {
 	res, err := c.sendCreateUnit(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (res *CreateOrganizationUnitResponse, err error) {
+func (c *Client) sendCreateUnit(ctx context.Context, request *CreateOrganizationUnitRequest) (res CreateUnitRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createUnit"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -1567,12 +1561,12 @@ func (c *Client) sendDeleteCell(ctx context.Context, params DeleteCellParams) (r
 // Delete Cells Group.
 //
 // DELETE /cells-groups/{groupId}
-func (c *Client) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error {
-	_, err := c.sendDeleteCellsGroup(ctx, params)
-	return err
+func (c *Client) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (DeleteCellsGroupRes, error) {
+	res, err := c.sendDeleteCellsGroup(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (res *DeleteCellsGroupOK, err error) {
+func (c *Client) sendDeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (res DeleteCellsGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteCellsGroup"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -1702,12 +1696,12 @@ func (c *Client) sendDeleteCellsGroup(ctx context.Context, params DeleteCellsGro
 // Delete employee by id.
 //
 // DELETE /employees/{id}
-func (c *Client) DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error {
-	_, err := c.sendDeleteEmployeeById(ctx, params)
-	return err
+func (c *Client) DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (DeleteEmployeeByIdRes, error) {
+	res, err := c.sendDeleteEmployeeById(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (res *DeleteEmployeeByIdOK, err error) {
+func (c *Client) sendDeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (res DeleteEmployeeByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteEmployeeById"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -1837,12 +1831,12 @@ func (c *Client) sendDeleteEmployeeById(ctx context.Context, params DeleteEmploy
 // Delete Instance by ID.
 //
 // DELETE /instances/{instanceId}
-func (c *Client) DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error {
-	_, err := c.sendDeleteInstanceById(ctx, params)
-	return err
+func (c *Client) DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (DeleteInstanceByIdRes, error) {
+	res, err := c.sendDeleteInstanceById(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (res *DeleteInstanceByIdOK, err error) {
+func (c *Client) sendDeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (res DeleteInstanceByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteInstanceById"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -2107,12 +2101,12 @@ func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (r
 // Delete Organization.
 //
 // DELETE /orgs/{id}
-func (c *Client) DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error {
-	_, err := c.sendDeleteOrganization(ctx, params)
-	return err
+func (c *Client) DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (DeleteOrganizationRes, error) {
+	res, err := c.sendDeleteOrganization(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (res *DeleteOrganizationOK, err error) {
+func (c *Client) sendDeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (res DeleteOrganizationRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteOrganization"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -2242,12 +2236,12 @@ func (c *Client) sendDeleteOrganization(ctx context.Context, params DeleteOrgani
 // Delete Organization Unit.
 //
 // DELETE /units/{id}
-func (c *Client) DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error {
-	_, err := c.sendDeleteOrganizationUnit(ctx, params)
-	return err
+func (c *Client) DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (DeleteOrganizationUnitRes, error) {
+	res, err := c.sendDeleteOrganizationUnit(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (res *DeleteOrganizationUnitOK, err error) {
+func (c *Client) sendDeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (res DeleteOrganizationUnitRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteOrganizationUnit"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -2377,12 +2371,12 @@ func (c *Client) sendDeleteOrganizationUnit(ctx context.Context, params DeleteOr
 // Delete Storage Group.
 //
 // DELETE /storage-groups/{id}
-func (c *Client) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
-	_, err := c.sendDeleteStorageGroup(ctx, params)
-	return err
+func (c *Client) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (DeleteStorageGroupRes, error) {
+	res, err := c.sendDeleteStorageGroup(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (res *DeleteStorageGroupOK, err error) {
+func (c *Client) sendDeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (res DeleteStorageGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteStorageGroup"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -2587,12 +2581,12 @@ func (c *Client) sendExchangeYandexAccessToken(ctx context.Context, request *Exc
 // Get list of Service API Tokens.
 //
 // GET /api-tokens
-func (c *Client) GetApiTokens(ctx context.Context) (*GetApiTokensResponse, error) {
+func (c *Client) GetApiTokens(ctx context.Context) (GetApiTokensRes, error) {
 	res, err := c.sendGetApiTokens(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetApiTokens(ctx context.Context) (res *GetApiTokensResponse, err error) {
+func (c *Client) sendGetApiTokens(ctx context.Context) (res GetApiTokensRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getApiTokens"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -2704,12 +2698,12 @@ func (c *Client) sendGetApiTokens(ctx context.Context) (res *GetApiTokensRespons
 // Get audit logs.
 //
 // GET /audit-logs
-func (c *Client) GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (*GetAuditLogsResponse, error) {
+func (c *Client) GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (GetAuditLogsRes, error) {
 	res, err := c.sendGetAuditLogs(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetAuditLogs(ctx context.Context, params GetAuditLogsParams) (res *GetAuditLogsResponse, err error) {
+func (c *Client) sendGetAuditLogs(ctx context.Context, params GetAuditLogsParams) (res GetAuditLogsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getAuditLogs"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3013,12 +3007,12 @@ func (c *Client) sendGetCellById(ctx context.Context, params GetCellByIdParams) 
 // Get list of Cells.
 //
 // GET /cells-groups/{groupId}/cells
-func (c *Client) GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error) {
+func (c *Client) GetCells(ctx context.Context, params GetCellsParams) (GetCellsRes, error) {
 	res, err := c.sendGetCells(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetCells(ctx context.Context, params GetCellsParams) (res *GetCellsResponse, err error) {
+func (c *Client) sendGetCells(ctx context.Context, params GetCellsParams) (res GetCellsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCells"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3149,12 +3143,12 @@ func (c *Client) sendGetCells(ctx context.Context, params GetCellsParams) (res *
 // Get Cells Group by ID.
 //
 // GET /cells-groups/{groupId}
-func (c *Client) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error) {
+func (c *Client) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (GetCellsGroupByIdRes, error) {
 	res, err := c.sendGetCellsGroupById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (res *GetCellsGroupByIdResponse, err error) {
+func (c *Client) sendGetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (res GetCellsGroupByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCellsGroupById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3284,12 +3278,12 @@ func (c *Client) sendGetCellsGroupById(ctx context.Context, params GetCellsGroup
 // Get list of Cells Groups.
 //
 // GET /cells-groups
-func (c *Client) GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error) {
+func (c *Client) GetCellsGroups(ctx context.Context) (GetCellsGroupsRes, error) {
 	res, err := c.sendGetCellsGroups(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetCellsGroups(ctx context.Context) (res *GetCellsGroupsResponse, err error) {
+func (c *Client) sendGetCellsGroups(ctx context.Context) (res GetCellsGroupsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCellsGroups"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3518,12 +3512,12 @@ func (c *Client) sendGetCurrentUser(ctx context.Context) (res GetCurrentUserRes,
 // Get employee by id.
 //
 // GET /employees/{id}
-func (c *Client) GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (*GetEmployeeResponse, error) {
+func (c *Client) GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (GetEmployeeByIdRes, error) {
 	res, err := c.sendGetEmployeeById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (res *GetEmployeeResponse, err error) {
+func (c *Client) sendGetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (res GetEmployeeByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getEmployeeById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3653,12 +3647,12 @@ func (c *Client) sendGetEmployeeById(ctx context.Context, params GetEmployeeById
 // Get all employees.
 //
 // GET /employees
-func (c *Client) GetEmployees(ctx context.Context) (*GetEmployeesResponse, error) {
+func (c *Client) GetEmployees(ctx context.Context) (GetEmployeesRes, error) {
 	res, err := c.sendGetEmployees(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetEmployees(ctx context.Context) (res *GetEmployeesResponse, err error) {
+func (c *Client) sendGetEmployees(ctx context.Context) (res GetEmployeesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getEmployees"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3770,12 +3764,12 @@ func (c *Client) sendGetEmployees(ctx context.Context) (res *GetEmployeesRespons
 // Get list of Instances.
 //
 // GET /instances
-func (c *Client) GetInstances(ctx context.Context) (*GetInstancesResponse, error) {
+func (c *Client) GetInstances(ctx context.Context) (GetInstancesRes, error) {
 	res, err := c.sendGetInstances(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetInstances(ctx context.Context) (res *GetInstancesResponse, err error) {
+func (c *Client) sendGetInstances(ctx context.Context) (res GetInstancesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getInstances"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -3887,12 +3881,12 @@ func (c *Client) sendGetInstances(ctx context.Context) (res *GetInstancesRespons
 // Get list of Instances For Item.
 //
 // GET /items/{itemId}/instances
-func (c *Client) GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (*GetInstancesByItemIdResponse, error) {
+func (c *Client) GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (GetInstancesByItemIdRes, error) {
 	res, err := c.sendGetInstancesByItemId(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (res *GetInstancesByItemIdResponse, err error) {
+func (c *Client) sendGetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (res GetInstancesByItemIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getInstancesByItemId"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4158,12 +4152,12 @@ func (c *Client) sendGetItemById(ctx context.Context, params GetItemByIdParams) 
 // Get list of Items.
 //
 // GET /items
-func (c *Client) GetItems(ctx context.Context) (*GetItemsResponse, error) {
+func (c *Client) GetItems(ctx context.Context) (GetItemsRes, error) {
 	res, err := c.sendGetItems(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetItems(ctx context.Context) (res *GetItemsResponse, err error) {
+func (c *Client) sendGetItems(ctx context.Context) (res GetItemsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getItems"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4275,12 +4269,12 @@ func (c *Client) sendGetItems(ctx context.Context) (res *GetItemsResponse, err e
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (c *Client) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error) {
+func (c *Client) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (GetOrganizationByIdRes, error) {
 	res, err := c.sendGetOrganizationById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (res *GetOrganizationByIdResponse, err error) {
+func (c *Client) sendGetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (res GetOrganizationByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizationById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4410,12 +4404,12 @@ func (c *Client) sendGetOrganizationById(ctx context.Context, params GetOrganiza
 // Get Unit by ID.
 //
 // GET /units/{id}
-func (c *Client) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error) {
+func (c *Client) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (GetOrganizationUnitByIdRes, error) {
 	res, err := c.sendGetOrganizationUnitById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (res *GetOrganizationUnitByIdResponse, err error) {
+func (c *Client) sendGetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (res GetOrganizationUnitByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizationUnitById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4545,12 +4539,12 @@ func (c *Client) sendGetOrganizationUnitById(ctx context.Context, params GetOrga
 // Get list of Organization Units.
 //
 // GET /units
-func (c *Client) GetOrganizationUnits(ctx context.Context) (*GetOrganizationUnitsResponse, error) {
+func (c *Client) GetOrganizationUnits(ctx context.Context) (GetOrganizationUnitsRes, error) {
 	res, err := c.sendGetOrganizationUnits(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetOrganizationUnits(ctx context.Context) (res *GetOrganizationUnitsResponse, err error) {
+func (c *Client) sendGetOrganizationUnits(ctx context.Context) (res GetOrganizationUnitsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizationUnits"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4659,15 +4653,15 @@ func (c *Client) sendGetOrganizationUnits(ctx context.Context) (res *GetOrganiza
 
 // GetOrganizations invokes getOrganizations operation.
 //
-// Get list of Organizations.
+// Get list of user Organizations.
 //
 // GET /orgs
-func (c *Client) GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error) {
+func (c *Client) GetOrganizations(ctx context.Context) (GetOrganizationsRes, error) {
 	res, err := c.sendGetOrganizations(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetOrganizations(ctx context.Context) (res *GetOrganizationsResponse, err error) {
+func (c *Client) sendGetOrganizations(ctx context.Context) (res GetOrganizationsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizations"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4779,12 +4773,12 @@ func (c *Client) sendGetOrganizations(ctx context.Context) (res *GetOrganization
 // Get all roles in system.
 //
 // GET /app/roles
-func (c *Client) GetRoles(ctx context.Context) (*GetRolesOK, error) {
+func (c *Client) GetRoles(ctx context.Context) (GetRolesRes, error) {
 	res, err := c.sendGetRoles(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetRoles(ctx context.Context) (res *GetRolesOK, err error) {
+func (c *Client) sendGetRoles(ctx context.Context) (res GetRolesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getRoles"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4896,12 +4890,12 @@ func (c *Client) sendGetRoles(ctx context.Context) (res *GetRolesOK, err error) 
 // Get Storage Group by ID.
 //
 // GET /storage-groups/{id}
-func (c *Client) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error) {
+func (c *Client) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (GetStorageGroupByIdRes, error) {
 	res, err := c.sendGetStorageGroupById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (res *GetStorageGroupByIdResponse, err error) {
+func (c *Client) sendGetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (res GetStorageGroupByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getStorageGroupById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -5031,12 +5025,12 @@ func (c *Client) sendGetStorageGroupById(ctx context.Context, params GetStorageG
 // Get list of Storage Groups.
 //
 // GET /storage-groups
-func (c *Client) GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error) {
+func (c *Client) GetStorageGroups(ctx context.Context) (GetStorageGroupsRes, error) {
 	res, err := c.sendGetStorageGroups(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetStorageGroups(ctx context.Context) (res *GetStorageGroupsResponse, err error) {
+func (c *Client) sendGetStorageGroups(ctx context.Context) (res GetStorageGroupsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getStorageGroups"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -5148,12 +5142,12 @@ func (c *Client) sendGetStorageGroups(ctx context.Context) (res *GetStorageGroup
 // Invite employee to the organization.
 //
 // POST /employees/invite
-func (c *Client) InviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (*GetEmployeeResponse, error) {
+func (c *Client) InviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (InviteEmployeeRes, error) {
 	res, err := c.sendInviteEmployee(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendInviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (res *GetEmployeeResponse, err error) {
+func (c *Client) sendInviteEmployee(ctx context.Context, request *InviteEmployeeRequest) (res InviteEmployeeRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("inviteEmployee"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -5268,12 +5262,12 @@ func (c *Client) sendInviteEmployee(ctx context.Context, request *InviteEmployee
 // Logout user.
 //
 // GET /auth/logout
-func (c *Client) Logout(ctx context.Context) (*LogoutResponse, error) {
+func (c *Client) Logout(ctx context.Context) (LogoutRes, error) {
 	res, err := c.sendLogout(ctx)
 	return res, err
 }
 
-func (c *Client) sendLogout(ctx context.Context) (res *LogoutResponse, err error) {
+func (c *Client) sendLogout(ctx context.Context) (res LogoutRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("logout"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -5385,12 +5379,12 @@ func (c *Client) sendLogout(ctx context.Context) (res *LogoutResponse, err error
 // Patch Cell.
 //
 // PATCH /cells-groups/{groupId}/cells/{cellId}
-func (c *Client) PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error) {
+func (c *Client) PatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (PatchCellRes, error) {
 	res, err := c.sendPatchCell(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (res *PatchCellResponse, err error) {
+func (c *Client) sendPatchCell(ctx context.Context, request *PatchCellRequest, params PatchCellParams) (res PatchCellRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchCell"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -5542,12 +5536,12 @@ func (c *Client) sendPatchCell(ctx context.Context, request *PatchCellRequest, p
 // Patch Cells Group.
 //
 // PATCH /cells-groups/{groupId}
-func (c *Client) PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error) {
+func (c *Client) PatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (PatchCellsGroupRes, error) {
 	res, err := c.sendPatchCellsGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (res *PatchCellsGroupResponse, err error) {
+func (c *Client) sendPatchCellsGroup(ctx context.Context, request *PatchCellsGroupRequest, params PatchCellsGroupParams) (res PatchCellsGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchCellsGroup"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -5680,12 +5674,12 @@ func (c *Client) sendPatchCellsGroup(ctx context.Context, request *PatchCellsGro
 // Update Current User.
 //
 // PATCH /me
-func (c *Client) PatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (*GetCurrentUserResponse, error) {
+func (c *Client) PatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (PatchCurrentUserRes, error) {
 	res, err := c.sendPatchCurrentUser(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendPatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (res *GetCurrentUserResponse, err error) {
+func (c *Client) sendPatchCurrentUser(ctx context.Context, request *PatchCurrentUserRequest) (res PatchCurrentUserRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchCurrentUser"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -5800,12 +5794,12 @@ func (c *Client) sendPatchCurrentUser(ctx context.Context, request *PatchCurrent
 // Update employee by id.
 //
 // PATCH /employees/{id}
-func (c *Client) PatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (*GetEmployeeResponse, error) {
+func (c *Client) PatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error) {
 	res, err := c.sendPatchEmployeeById(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (res *GetEmployeeResponse, err error) {
+func (c *Client) sendPatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (res PatchEmployeeByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchEmployeeById"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -6071,155 +6065,17 @@ func (c *Client) sendPatchItem(ctx context.Context, request *PatchItemRequest, p
 	return result, nil
 }
 
-// PatchOrganization invokes patchOrganization operation.
-//
-// Update Organization.
-//
-// PATCH /orgs/{id}
-func (c *Client) PatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error) {
-	res, err := c.sendPatchOrganization(ctx, request, params)
-	return res, err
-}
-
-func (c *Client) sendPatchOrganization(ctx context.Context, request *PatchOrganizationRequest, params PatchOrganizationParams) (res *PatchOrganizationResponse, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("patchOrganization"),
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/orgs/{id}"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, PatchOrganizationOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/orgs/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PATCH", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodePatchOrganizationRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiToken"
-			switch err := c.securityApiToken(ctx, PatchOrganizationOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiToken\"")
-			}
-		}
-		{
-			stage = "Security:Cookie"
-			switch err := c.securityCookie(ctx, PatchOrganizationOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 1
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"Cookie\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-				{0b00000010},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodePatchOrganizationResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // PatchOrganizationUnit invokes patchOrganizationUnit operation.
 //
 // Patch Organization Unit.
 //
 // PATCH /units/{id}
-func (c *Client) PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error) {
+func (c *Client) PatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error) {
 	res, err := c.sendPatchOrganizationUnit(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (res *PatchOrganizationUnitResponse, err error) {
+func (c *Client) sendPatchOrganizationUnit(ctx context.Context, request *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (res PatchOrganizationUnitRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchOrganizationUnit"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -6352,12 +6208,12 @@ func (c *Client) sendPatchOrganizationUnit(ctx context.Context, request *PatchOr
 // Patch Storage Group.
 //
 // PATCH /storage-groups/{id}
-func (c *Client) PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error) {
+func (c *Client) PatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (PatchStorageGroupRes, error) {
 	res, err := c.sendPatchStorageGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (res *PatchStorageGroupResponse, err error) {
+func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorageGroupRequest, params PatchStorageGroupParams) (res PatchStorageGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("patchStorageGroup"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -6490,12 +6346,12 @@ func (c *Client) sendPatchStorageGroup(ctx context.Context, request *PatchStorag
 // Update Current User.
 //
 // PUT /me
-func (c *Client) PutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (*GetCurrentUserResponse, error) {
+func (c *Client) PutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (PutCurrentUserRes, error) {
 	res, err := c.sendPutCurrentUser(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendPutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (res *GetCurrentUserResponse, err error) {
+func (c *Client) sendPutCurrentUser(ctx context.Context, request *UpdateCurrentUserRequest) (res PutCurrentUserRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("putCurrentUser"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -6610,12 +6466,12 @@ func (c *Client) sendPutCurrentUser(ctx context.Context, request *UpdateCurrentU
 // Revoke Service API Token.
 //
 // DELETE /api-tokens/{id}
-func (c *Client) RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error {
-	_, err := c.sendRevokeApiToken(ctx, params)
-	return err
+func (c *Client) RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (RevokeApiTokenRes, error) {
+	res, err := c.sendRevokeApiToken(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendRevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (res *RevokeApiTokenOK, err error) {
+func (c *Client) sendRevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (res RevokeApiTokenRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("revokeApiToken"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -6745,12 +6601,12 @@ func (c *Client) sendRevokeApiToken(ctx context.Context, params RevokeApiTokenPa
 // Update Cell.
 //
 // PUT /cells-groups/{groupId}/cells/{cellId}
-func (c *Client) UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error) {
+func (c *Client) UpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (UpdateCellRes, error) {
 	res, err := c.sendUpdateCell(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (res *UpdateCellResponse, err error) {
+func (c *Client) sendUpdateCell(ctx context.Context, request *UpdateCellRequest, params UpdateCellParams) (res UpdateCellRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateCell"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -6902,12 +6758,12 @@ func (c *Client) sendUpdateCell(ctx context.Context, request *UpdateCellRequest,
 // Update Cells Group.
 //
 // PUT /cells-groups/{groupId}
-func (c *Client) UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error) {
+func (c *Client) UpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (UpdateCellsGroupRes, error) {
 	res, err := c.sendUpdateCellsGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (res *UpdateCellsGroupResponse, err error) {
+func (c *Client) sendUpdateCellsGroup(ctx context.Context, request *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (res UpdateCellsGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateCellsGroup"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -7178,12 +7034,12 @@ func (c *Client) sendUpdateItem(ctx context.Context, request *UpdateItemRequest,
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (c *Client) UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error) {
+func (c *Client) UpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (UpdateOrganizationRes, error) {
 	res, err := c.sendUpdateOrganization(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (res *UpdateOrganizationResponse, err error) {
+func (c *Client) sendUpdateOrganization(ctx context.Context, request *UpdateOrganizationRequest, params UpdateOrganizationParams) (res UpdateOrganizationRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateOrganization"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -7316,12 +7172,12 @@ func (c *Client) sendUpdateOrganization(ctx context.Context, request *UpdateOrga
 // Update Organization Unit.
 //
 // PUT /units/{id}
-func (c *Client) UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error) {
+func (c *Client) UpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (UpdateOrganizationUnitRes, error) {
 	res, err := c.sendUpdateOrganizationUnit(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (res *UpdateOrganizationUnitResponse, err error) {
+func (c *Client) sendUpdateOrganizationUnit(ctx context.Context, request *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (res UpdateOrganizationUnitRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateOrganizationUnit"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -7454,12 +7310,12 @@ func (c *Client) sendUpdateOrganizationUnit(ctx context.Context, request *Update
 // Update Storage Group.
 //
 // PUT /storage-groups/{id}
-func (c *Client) UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error) {
+func (c *Client) UpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (UpdateStorageGroupRes, error) {
 	res, err := c.sendUpdateStorageGroup(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (res *UpdateStorageGroupResponse, err error) {
+func (c *Client) sendUpdateStorageGroup(ctx context.Context, request *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (res UpdateStorageGroupRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateStorageGroup"),
 		semconv.HTTPRequestMethodKey.String("PUT"),

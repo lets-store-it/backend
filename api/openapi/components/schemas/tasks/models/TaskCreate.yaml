@@ -2,21 +2,24 @@ type: object
 properties:
   name:
     type: string
+  description:
+    type: string
+    nullable: true
   type:
     type: string
     enum:
       - pick
       - movement
-  description:
-    type: string
   unitId:
     type: string
     format: uuid
   assignedTo:
     type: string
+    nullable: true
     format: uuid
-  items:
+  instances:
     type: array
+    minItems: 1
     items:
       type: object
       properties:
@@ -33,4 +36,4 @@ required:
   - type
   - unitId
   - assignedTo
-  - items
+  - instances

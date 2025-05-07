@@ -1,7 +1,7 @@
 [project]
-name = "playwright"
+name = "e2e"
 version = "0.1.0"
-description = "Add your description here"
+description = "Testing of store-it backend"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

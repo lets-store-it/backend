@@ -20,32 +20,35 @@ type RestApiImplementation struct {
 }
 
 // CreateInstanceForItem implements api.Handler.
-func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (*api.CreateInstanceForItemResponse, error) {
+func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (api.CreateInstanceForItemRes, error) {
 	panic("unimplemented")
 }
 
 // DeleteInstanceById implements api.Handler.
-func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) error {
+func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) (api.DeleteInstanceByIdRes, error) {
 	panic("unimplemented")
+	return &api.DeleteInstanceByIdOK{}, nil
 }
 
 // GetInstances implements api.Handler.
-func (h *RestApiImplementation) GetInstances(ctx context.Context) (*api.GetInstancesResponse, error) {
+func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstancesRes, error) {
 	panic("unimplemented")
+	// return api.GetInstancesByItemIdResponse, nil
 }
 
 // GetInstancesByItemId implements api.Handler.
-func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (*api.GetInstancesByItemIdResponse, error) {
+func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
 	panic("unimplemented")
+
 }
 
 // PatchCurrentUser implements api.Handler.
-func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (*api.GetCurrentUserResponse, error) {
+func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (api.PatchCurrentUserRes, error) {
 	panic("unimplemented")
 }
 
 // PutCurrentUser implements api.Handler.
-func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.UpdateCurrentUserRequest) (*api.GetCurrentUserResponse, error) {
+func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.UpdateCurrentUserRequest) (api.PutCurrentUserRes, error) {
 	panic("unimplemented")
 }
 
@@ -64,6 +67,18 @@ func NewRestApiImplementation(
 		itemUseCase:         itemUseCase,
 		authUseCase:         authUseCase,
 		auditUseCase:        auditUseCase,
+	}
+}
+
+func (h *RestApiImplementation) NewConflictError(ctx context.Context, message string) *api.DefaultErrorStatusCode {
+	return &api.DefaultErrorStatusCode{
+		StatusCode: http.StatusConflict,
+		Response: api.ErrorContent{
+			Error: api.ErrorContentError{
+				Code:    "conflict",
+				Message: message,
+			},
+		},
 	}
 }
 

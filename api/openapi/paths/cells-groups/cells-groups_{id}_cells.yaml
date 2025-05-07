@@ -17,6 +17,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/cells-groups/GetCellsResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 post:
@@ -37,5 +41,9 @@ post:
         application/json:
           schema:
             $ref: ../../components/schemas/cells-groups/CreateCellResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

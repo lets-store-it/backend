@@ -8,8 +8,8 @@ parameters:
 post:
   tags:
     - tasks
-  summary: Cancel task
-  operationId: cancelTask
+  summary: Mark task as awaiting to collect
+  operationId: markTaskAsAwaitingToCollect
   responses:
     "201":
       description: Successful operation

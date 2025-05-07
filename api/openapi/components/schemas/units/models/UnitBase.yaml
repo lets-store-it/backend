@@ -6,10 +6,7 @@ properties:
     maxLength: 100
     example: Moscow
   alias:
-    type: string
-    minLength: 1
-    maxLength: 100
-    example: MWS
+    $ref: ../../common/storage-alias.yaml
   address:
     type: string
     nullable: true

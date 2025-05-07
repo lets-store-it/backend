@@ -18,6 +18,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/units/GetOrganizationUnitByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 delete:
@@ -28,6 +32,10 @@ delete:
   responses:
     "200":
       description: Successful operation
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 put:
@@ -48,6 +56,10 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/units/UpdateOrganizationUnitResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 patch:
@@ -68,5 +80,9 @@ patch:
         application/json:
           schema:
             $ref: ../../components/schemas/units/PatchOrganizationUnitResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

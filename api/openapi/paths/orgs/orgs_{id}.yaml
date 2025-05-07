@@ -18,6 +18,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/orgs/GetOrganizationByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 delete:
@@ -28,6 +32,10 @@ delete:
   responses:
     "200":
       description: Successful operation
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 put:
@@ -48,25 +56,9 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/orgs/UpdateOrganizationResponse.yaml
-    default:
-      $ref: ../../components/responses/default-error.yaml
-patch:
-  tags:
-    - org
-  summary: Update Organization
-  operationId: patchOrganization
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: ../../components/schemas/orgs/PatchOrganizationRequest.yaml
-  responses:
-    "200":
-      description: Successful operation
-      content:
-        application/json:
-          schema:
-            $ref: ../../components/schemas/orgs/PatchOrganizationResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

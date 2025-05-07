@@ -18,6 +18,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/instances/GetInstancesByItemIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 post:
@@ -38,5 +42,9 @@ post:
         application/json:
           schema:
             $ref: ../../components/schemas/instances/CreateInstanceForItemResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

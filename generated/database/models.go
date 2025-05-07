@@ -160,6 +160,7 @@ type Task struct {
 	OrgID            pgtype.UUID
 	UnitID           pgtype.UUID
 	Type             string
+	Status           string
 	Name             string
 	Description      pgtype.Text
 	AssignedToUserID pgtype.UUID

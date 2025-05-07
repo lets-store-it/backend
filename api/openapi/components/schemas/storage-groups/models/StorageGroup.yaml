@@ -5,12 +5,10 @@ allOf:
         type: string
         format: uuid
         readOnly: true
-        example: def3df1a-7b8f-4552-b437-a1eab851403f
       parentId:
         type: string
         format: uuid
         nullable: true
-        example: def3df1a-7b8f-4552-b437-a1eab851403f
     required:
       - id
       - parentId

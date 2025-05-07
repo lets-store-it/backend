@@ -1,7 +1,7 @@
 get:
   tags:
     - org
-  summary: Get list of Organizations
+  summary: Get list of user Organizations
   operationId: getOrganizations
   responses:
     "200":
@@ -10,12 +10,14 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/orgs/GetOrganizationsResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 post:
   tags:
     - org
-  summary: Create Organization
+  summary: Create new Organization
   operationId: createOrganization
   requestBody:
     required: true
@@ -30,5 +32,9 @@ post:
         application/json:
           schema:
             $ref: ../../components/schemas/orgs/CreateOrganizationResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "409":
+      $ref: ../../components/responses/default-conflict.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

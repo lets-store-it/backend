@@ -1,0 +1,5 @@
+description: Conflict, resource duplication
+content:
+  application/json:
+    schema:
+      $ref: ../schemas/ErrorContent.yaml

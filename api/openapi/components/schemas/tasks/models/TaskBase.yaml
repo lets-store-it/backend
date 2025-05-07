@@ -1,0 +1,42 @@
+type: object
+properties:
+  id:
+    type: string
+    readOnly: true
+    format: uuid
+  name:
+    type: string
+  description:
+    type: string
+    nullable: true
+  type:
+    type: string
+    enum:
+      - pick
+      - movement
+  status:
+    type: string
+    enum:
+      - pending
+      - in_progress
+      - awaiting_to_collect
+      - completed
+      - failed
+  createdAt:
+    type: string
+    format: date-time
+  unit:
+    type: object
+    $ref: ../../units/models/Unit.yaml
+  assignedTo:
+    type: object
+    nullable: true
+    $ref: ../../users/models/User.yaml
+required:
+  - id
+  - status
+  - unit
+  - name
+  - type
+  - createdAt
+  - description

@@ -1,7 +1,7 @@
 get:
   tags:
     - tasks
-  summary: Get all tasks
+  summary: Get all tasks for organization
   operationId: getTasks
   responses:
     "200":
@@ -10,6 +10,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/tasks/GetTasksResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 
@@ -31,5 +35,9 @@ post:
         application/json:
           schema:
             $ref: ../../components/schemas/tasks/CreateTaskResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

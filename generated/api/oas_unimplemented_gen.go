@@ -18,7 +18,7 @@ var _ Handler = UnimplementedHandler{}
 // Create Service API Token.
 //
 // POST /api-tokens
-func (UnimplementedHandler) CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (r *CreateApiTokenResponse, _ error) {
+func (UnimplementedHandler) CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (r CreateApiTokenRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -27,7 +27,7 @@ func (UnimplementedHandler) CreateApiToken(ctx context.Context, req *CreateApiTo
 // Create Cells.
 //
 // POST /cells-groups/{groupId}/cells
-func (UnimplementedHandler) CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (r *CreateCellResponse, _ error) {
+func (UnimplementedHandler) CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (r CreateCellRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -36,7 +36,7 @@ func (UnimplementedHandler) CreateCell(ctx context.Context, req *CreateCellReque
 // Create Cells Group.
 //
 // POST /cells-groups
-func (UnimplementedHandler) CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (r *CreateCellsGroupResponse, _ error) {
+func (UnimplementedHandler) CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (r CreateCellsGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -45,7 +45,7 @@ func (UnimplementedHandler) CreateCellsGroup(ctx context.Context, req *CreateCel
 // Create Instance For Item.
 //
 // POST /items/{itemId}/instances
-func (UnimplementedHandler) CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (r *CreateInstanceForItemResponse, _ error) {
+func (UnimplementedHandler) CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (r CreateInstanceForItemRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -54,16 +54,16 @@ func (UnimplementedHandler) CreateInstanceForItem(ctx context.Context, req *Crea
 // Create Item.
 //
 // POST /items
-func (UnimplementedHandler) CreateItem(ctx context.Context, req *CreateItemRequest) (r *CreateItemResponse, _ error) {
+func (UnimplementedHandler) CreateItem(ctx context.Context, req *CreateItemRequest) (r CreateItemRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // CreateOrganization implements createOrganization operation.
 //
-// Create Organization.
+// Create new Organization.
 //
 // POST /orgs
-func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (r *CreateOrganizationResponse, _ error) {
+func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (r CreateOrganizationRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -72,7 +72,7 @@ func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateO
 // Create Storage Group.
 //
 // POST /storage-groups
-func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (r *CreateStorageGroupResponse, _ error) {
+func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (r CreateStorageGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -81,7 +81,7 @@ func (UnimplementedHandler) CreateStorageGroup(ctx context.Context, req *CreateS
 // Create Organization Unit.
 //
 // POST /units
-func (UnimplementedHandler) CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (r *CreateOrganizationUnitResponse, _ error) {
+func (UnimplementedHandler) CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (r CreateUnitRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -99,8 +99,8 @@ func (UnimplementedHandler) DeleteCell(ctx context.Context, params DeleteCellPar
 // Delete Cells Group.
 //
 // DELETE /cells-groups/{groupId}
-func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (r DeleteCellsGroupRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteEmployeeById implements deleteEmployeeById operation.
@@ -108,8 +108,8 @@ func (UnimplementedHandler) DeleteCellsGroup(ctx context.Context, params DeleteC
 // Delete employee by id.
 //
 // DELETE /employees/{id}
-func (UnimplementedHandler) DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (r DeleteEmployeeByIdRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteInstanceById implements deleteInstanceById operation.
@@ -117,8 +117,8 @@ func (UnimplementedHandler) DeleteEmployeeById(ctx context.Context, params Delet
 // Delete Instance by ID.
 //
 // DELETE /instances/{instanceId}
-func (UnimplementedHandler) DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (r DeleteInstanceByIdRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteItem implements deleteItem operation.
@@ -135,8 +135,8 @@ func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemPar
 // Delete Organization.
 //
 // DELETE /orgs/{id}
-func (UnimplementedHandler) DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (r DeleteOrganizationRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteOrganizationUnit implements deleteOrganizationUnit operation.
@@ -144,8 +144,8 @@ func (UnimplementedHandler) DeleteOrganization(ctx context.Context, params Delet
 // Delete Organization Unit.
 //
 // DELETE /units/{id}
-func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (r DeleteOrganizationUnitRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteStorageGroup implements deleteStorageGroup operation.
@@ -153,8 +153,8 @@ func (UnimplementedHandler) DeleteOrganizationUnit(ctx context.Context, params D
 // Delete Storage Group.
 //
 // DELETE /storage-groups/{id}
-func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (r DeleteStorageGroupRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // ExchangeYandexAccessToken implements exchangeYandexAccessToken operation.
@@ -171,7 +171,7 @@ func (UnimplementedHandler) ExchangeYandexAccessToken(ctx context.Context, req *
 // Get list of Service API Tokens.
 //
 // GET /api-tokens
-func (UnimplementedHandler) GetApiTokens(ctx context.Context) (r *GetApiTokensResponse, _ error) {
+func (UnimplementedHandler) GetApiTokens(ctx context.Context) (r GetApiTokensRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -180,7 +180,7 @@ func (UnimplementedHandler) GetApiTokens(ctx context.Context) (r *GetApiTokensRe
 // Get audit logs.
 //
 // GET /audit-logs
-func (UnimplementedHandler) GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (r *GetAuditLogsResponse, _ error) {
+func (UnimplementedHandler) GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (r GetAuditLogsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -198,7 +198,7 @@ func (UnimplementedHandler) GetCellById(ctx context.Context, params GetCellByIdP
 // Get list of Cells.
 //
 // GET /cells-groups/{groupId}/cells
-func (UnimplementedHandler) GetCells(ctx context.Context, params GetCellsParams) (r *GetCellsResponse, _ error) {
+func (UnimplementedHandler) GetCells(ctx context.Context, params GetCellsParams) (r GetCellsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -207,7 +207,7 @@ func (UnimplementedHandler) GetCells(ctx context.Context, params GetCellsParams)
 // Get Cells Group by ID.
 //
 // GET /cells-groups/{groupId}
-func (UnimplementedHandler) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (r *GetCellsGroupByIdResponse, _ error) {
+func (UnimplementedHandler) GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (r GetCellsGroupByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -216,7 +216,7 @@ func (UnimplementedHandler) GetCellsGroupById(ctx context.Context, params GetCel
 // Get list of Cells Groups.
 //
 // GET /cells-groups
-func (UnimplementedHandler) GetCellsGroups(ctx context.Context) (r *GetCellsGroupsResponse, _ error) {
+func (UnimplementedHandler) GetCellsGroups(ctx context.Context) (r GetCellsGroupsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -234,7 +234,7 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUse
 // Get employee by id.
 //
 // GET /employees/{id}
-func (UnimplementedHandler) GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (r *GetEmployeeResponse, _ error) {
+func (UnimplementedHandler) GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (r GetEmployeeByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -243,7 +243,7 @@ func (UnimplementedHandler) GetEmployeeById(ctx context.Context, params GetEmplo
 // Get all employees.
 //
 // GET /employees
-func (UnimplementedHandler) GetEmployees(ctx context.Context) (r *GetEmployeesResponse, _ error) {
+func (UnimplementedHandler) GetEmployees(ctx context.Context) (r GetEmployeesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -252,7 +252,7 @@ func (UnimplementedHandler) GetEmployees(ctx context.Context) (r *GetEmployeesRe
 // Get list of Instances.
 //
 // GET /instances
-func (UnimplementedHandler) GetInstances(ctx context.Context) (r *GetInstancesResponse, _ error) {
+func (UnimplementedHandler) GetInstances(ctx context.Context) (r GetInstancesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -261,7 +261,7 @@ func (UnimplementedHandler) GetInstances(ctx context.Context) (r *GetInstancesRe
 // Get list of Instances For Item.
 //
 // GET /items/{itemId}/instances
-func (UnimplementedHandler) GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (r *GetInstancesByItemIdResponse, _ error) {
+func (UnimplementedHandler) GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (r GetInstancesByItemIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -279,7 +279,7 @@ func (UnimplementedHandler) GetItemById(ctx context.Context, params GetItemByIdP
 // Get list of Items.
 //
 // GET /items
-func (UnimplementedHandler) GetItems(ctx context.Context) (r *GetItemsResponse, _ error) {
+func (UnimplementedHandler) GetItems(ctx context.Context) (r GetItemsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -288,7 +288,7 @@ func (UnimplementedHandler) GetItems(ctx context.Context) (r *GetItemsResponse, 
 // Get Organization by ID.
 //
 // GET /orgs/{id}
-func (UnimplementedHandler) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (r *GetOrganizationByIdResponse, _ error) {
+func (UnimplementedHandler) GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (r GetOrganizationByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -297,7 +297,7 @@ func (UnimplementedHandler) GetOrganizationById(ctx context.Context, params GetO
 // Get Unit by ID.
 //
 // GET /units/{id}
-func (UnimplementedHandler) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (r *GetOrganizationUnitByIdResponse, _ error) {
+func (UnimplementedHandler) GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (r GetOrganizationUnitByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -306,16 +306,16 @@ func (UnimplementedHandler) GetOrganizationUnitById(ctx context.Context, params 
 // Get list of Organization Units.
 //
 // GET /units
-func (UnimplementedHandler) GetOrganizationUnits(ctx context.Context) (r *GetOrganizationUnitsResponse, _ error) {
+func (UnimplementedHandler) GetOrganizationUnits(ctx context.Context) (r GetOrganizationUnitsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // GetOrganizations implements getOrganizations operation.
 //
-// Get list of Organizations.
+// Get list of user Organizations.
 //
 // GET /orgs
-func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r *GetOrganizationsResponse, _ error) {
+func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r GetOrganizationsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -324,7 +324,7 @@ func (UnimplementedHandler) GetOrganizations(ctx context.Context) (r *GetOrganiz
 // Get all roles in system.
 //
 // GET /app/roles
-func (UnimplementedHandler) GetRoles(ctx context.Context) (r *GetRolesOK, _ error) {
+func (UnimplementedHandler) GetRoles(ctx context.Context) (r GetRolesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -333,7 +333,7 @@ func (UnimplementedHandler) GetRoles(ctx context.Context) (r *GetRolesOK, _ erro
 // Get Storage Group by ID.
 //
 // GET /storage-groups/{id}
-func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (r *GetStorageGroupByIdResponse, _ error) {
+func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (r GetStorageGroupByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -342,7 +342,7 @@ func (UnimplementedHandler) GetStorageGroupById(ctx context.Context, params GetS
 // Get list of Storage Groups.
 //
 // GET /storage-groups
-func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorageGroupsResponse, _ error) {
+func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r GetStorageGroupsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -351,7 +351,7 @@ func (UnimplementedHandler) GetStorageGroups(ctx context.Context) (r *GetStorage
 // Invite employee to the organization.
 //
 // POST /employees/invite
-func (UnimplementedHandler) InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (r *GetEmployeeResponse, _ error) {
+func (UnimplementedHandler) InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (r InviteEmployeeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -360,7 +360,7 @@ func (UnimplementedHandler) InviteEmployee(ctx context.Context, req *InviteEmplo
 // Logout user.
 //
 // GET /auth/logout
-func (UnimplementedHandler) Logout(ctx context.Context) (r *LogoutResponse, _ error) {
+func (UnimplementedHandler) Logout(ctx context.Context) (r LogoutRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -369,7 +369,7 @@ func (UnimplementedHandler) Logout(ctx context.Context) (r *LogoutResponse, _ er
 // Patch Cell.
 //
 // PATCH /cells-groups/{groupId}/cells/{cellId}
-func (UnimplementedHandler) PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (r *PatchCellResponse, _ error) {
+func (UnimplementedHandler) PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (r PatchCellRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -378,7 +378,7 @@ func (UnimplementedHandler) PatchCell(ctx context.Context, req *PatchCellRequest
 // Patch Cells Group.
 //
 // PATCH /cells-groups/{groupId}
-func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (r *PatchCellsGroupResponse, _ error) {
+func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (r PatchCellsGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -387,7 +387,7 @@ func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCells
 // Update Current User.
 //
 // PATCH /me
-func (UnimplementedHandler) PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (r *GetCurrentUserResponse, _ error) {
+func (UnimplementedHandler) PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (r PatchCurrentUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -396,7 +396,7 @@ func (UnimplementedHandler) PatchCurrentUser(ctx context.Context, req *PatchCurr
 // Update employee by id.
 //
 // PATCH /employees/{id}
-func (UnimplementedHandler) PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (r *GetEmployeeResponse, _ error) {
+func (UnimplementedHandler) PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (r PatchEmployeeByIdRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -409,21 +409,12 @@ func (UnimplementedHandler) PatchItem(ctx context.Context, req *PatchItemRequest
 	return r, ht.ErrNotImplemented
 }
 
-// PatchOrganization implements patchOrganization operation.
-//
-// Update Organization.
-//
-// PATCH /orgs/{id}
-func (UnimplementedHandler) PatchOrganization(ctx context.Context, req *PatchOrganizationRequest, params PatchOrganizationParams) (r *PatchOrganizationResponse, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // PatchOrganizationUnit implements patchOrganizationUnit operation.
 //
 // Patch Organization Unit.
 //
 // PATCH /units/{id}
-func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (r *PatchOrganizationUnitResponse, _ error) {
+func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (r PatchOrganizationUnitRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -432,7 +423,7 @@ func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *Patc
 // Patch Storage Group.
 //
 // PATCH /storage-groups/{id}
-func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r *PatchStorageGroupResponse, _ error) {
+func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r PatchStorageGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -441,7 +432,7 @@ func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchSto
 // Update Current User.
 //
 // PUT /me
-func (UnimplementedHandler) PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (r *GetCurrentUserResponse, _ error) {
+func (UnimplementedHandler) PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (r PutCurrentUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -450,8 +441,8 @@ func (UnimplementedHandler) PutCurrentUser(ctx context.Context, req *UpdateCurre
 // Revoke Service API Token.
 //
 // DELETE /api-tokens/{id}
-func (UnimplementedHandler) RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (r RevokeApiTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // UpdateCell implements updateCell operation.
@@ -459,7 +450,7 @@ func (UnimplementedHandler) RevokeApiToken(ctx context.Context, params RevokeApi
 // Update Cell.
 //
 // PUT /cells-groups/{groupId}/cells/{cellId}
-func (UnimplementedHandler) UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (r *UpdateCellResponse, _ error) {
+func (UnimplementedHandler) UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (r UpdateCellRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -468,7 +459,7 @@ func (UnimplementedHandler) UpdateCell(ctx context.Context, req *UpdateCellReque
 // Update Cells Group.
 //
 // PUT /cells-groups/{groupId}
-func (UnimplementedHandler) UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (r *UpdateCellsGroupResponse, _ error) {
+func (UnimplementedHandler) UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (r UpdateCellsGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -486,7 +477,7 @@ func (UnimplementedHandler) UpdateItem(ctx context.Context, req *UpdateItemReque
 // Update Organization.
 //
 // PUT /orgs/{id}
-func (UnimplementedHandler) UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (r *UpdateOrganizationResponse, _ error) {
+func (UnimplementedHandler) UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (r UpdateOrganizationRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -495,7 +486,7 @@ func (UnimplementedHandler) UpdateOrganization(ctx context.Context, req *UpdateO
 // Update Organization Unit.
 //
 // PUT /units/{id}
-func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (r *UpdateOrganizationUnitResponse, _ error) {
+func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (r UpdateOrganizationUnitRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -504,7 +495,7 @@ func (UnimplementedHandler) UpdateOrganizationUnit(ctx context.Context, req *Upd
 // Update Storage Group.
 //
 // PUT /storage-groups/{id}
-func (UnimplementedHandler) UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (r *UpdateStorageGroupResponse, _ error) {
+func (UnimplementedHandler) UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (r UpdateStorageGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

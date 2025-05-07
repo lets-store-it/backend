@@ -130,6 +130,7 @@ CREATE TABLE task (
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
     type VARCHAR(255) NOT NULL CHECK (type IN ('pick', 'movement')),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'in_progress', 'awaiting_to_collect', 'completed', 'failed')),
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
     

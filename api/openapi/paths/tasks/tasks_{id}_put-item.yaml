@@ -8,8 +8,14 @@ parameters:
 post:
   tags:
     - tasks
-  summary: Cancel task
-  operationId: cancelTask
+  summary: Put an item in target cell
+  operationId: putItemInTargetCell
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/tasks/PutItemInCellRequest.yaml
   responses:
     "201":
       description: Successful operation

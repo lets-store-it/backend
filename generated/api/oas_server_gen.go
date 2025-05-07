@@ -13,49 +13,49 @@ type Handler interface {
 	// Create Service API Token.
 	//
 	// POST /api-tokens
-	CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (*CreateApiTokenResponse, error)
+	CreateApiToken(ctx context.Context, req *CreateApiTokenRequest) (CreateApiTokenRes, error)
 	// CreateCell implements createCell operation.
 	//
 	// Create Cells.
 	//
 	// POST /cells-groups/{groupId}/cells
-	CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (*CreateCellResponse, error)
+	CreateCell(ctx context.Context, req *CreateCellRequest, params CreateCellParams) (CreateCellRes, error)
 	// CreateCellsGroup implements createCellsGroup operation.
 	//
 	// Create Cells Group.
 	//
 	// POST /cells-groups
-	CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (*CreateCellsGroupResponse, error)
+	CreateCellsGroup(ctx context.Context, req *CreateCellsGroupRequest) (CreateCellsGroupRes, error)
 	// CreateInstanceForItem implements createInstanceForItem operation.
 	//
 	// Create Instance For Item.
 	//
 	// POST /items/{itemId}/instances
-	CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (*CreateInstanceForItemResponse, error)
+	CreateInstanceForItem(ctx context.Context, req *CreateInstanceForItemRequest, params CreateInstanceForItemParams) (CreateInstanceForItemRes, error)
 	// CreateItem implements createItem operation.
 	//
 	// Create Item.
 	//
 	// POST /items
-	CreateItem(ctx context.Context, req *CreateItemRequest) (*CreateItemResponse, error)
+	CreateItem(ctx context.Context, req *CreateItemRequest) (CreateItemRes, error)
 	// CreateOrganization implements createOrganization operation.
 	//
-	// Create Organization.
+	// Create new Organization.
 	//
 	// POST /orgs
-	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	CreateOrganization(ctx context.Context, req *CreateOrganizationRequest) (CreateOrganizationRes, error)
 	// CreateStorageGroup implements createStorageGroup operation.
 	//
 	// Create Storage Group.
 	//
 	// POST /storage-groups
-	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (*CreateStorageGroupResponse, error)
+	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (CreateStorageGroupRes, error)
 	// CreateUnit implements createUnit operation.
 	//
 	// Create Organization Unit.
 	//
 	// POST /units
-	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (*CreateOrganizationUnitResponse, error)
+	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (CreateUnitRes, error)
 	// DeleteCell implements deleteCell operation.
 	//
 	// Delete Cell.
@@ -67,19 +67,19 @@ type Handler interface {
 	// Delete Cells Group.
 	//
 	// DELETE /cells-groups/{groupId}
-	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) error
+	DeleteCellsGroup(ctx context.Context, params DeleteCellsGroupParams) (DeleteCellsGroupRes, error)
 	// DeleteEmployeeById implements deleteEmployeeById operation.
 	//
 	// Delete employee by id.
 	//
 	// DELETE /employees/{id}
-	DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) error
+	DeleteEmployeeById(ctx context.Context, params DeleteEmployeeByIdParams) (DeleteEmployeeByIdRes, error)
 	// DeleteInstanceById implements deleteInstanceById operation.
 	//
 	// Delete Instance by ID.
 	//
 	// DELETE /instances/{instanceId}
-	DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) error
+	DeleteInstanceById(ctx context.Context, params DeleteInstanceByIdParams) (DeleteInstanceByIdRes, error)
 	// DeleteItem implements deleteItem operation.
 	//
 	// Delete Item.
@@ -91,19 +91,19 @@ type Handler interface {
 	// Delete Organization.
 	//
 	// DELETE /orgs/{id}
-	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) error
+	DeleteOrganization(ctx context.Context, params DeleteOrganizationParams) (DeleteOrganizationRes, error)
 	// DeleteOrganizationUnit implements deleteOrganizationUnit operation.
 	//
 	// Delete Organization Unit.
 	//
 	// DELETE /units/{id}
-	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) error
+	DeleteOrganizationUnit(ctx context.Context, params DeleteOrganizationUnitParams) (DeleteOrganizationUnitRes, error)
 	// DeleteStorageGroup implements deleteStorageGroup operation.
 	//
 	// Delete Storage Group.
 	//
 	// DELETE /storage-groups/{id}
-	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) error
+	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (DeleteStorageGroupRes, error)
 	// ExchangeYandexAccessToken implements exchangeYandexAccessToken operation.
 	//
 	// Exchange Yandex Access token for Session token.
@@ -115,13 +115,13 @@ type Handler interface {
 	// Get list of Service API Tokens.
 	//
 	// GET /api-tokens
-	GetApiTokens(ctx context.Context) (*GetApiTokensResponse, error)
+	GetApiTokens(ctx context.Context) (GetApiTokensRes, error)
 	// GetAuditLogs implements getAuditLogs operation.
 	//
 	// Get audit logs.
 	//
 	// GET /audit-logs
-	GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (*GetAuditLogsResponse, error)
+	GetAuditLogs(ctx context.Context, params GetAuditLogsParams) (GetAuditLogsRes, error)
 	// GetCellById implements getCellById operation.
 	//
 	// Get Cell by ID.
@@ -133,19 +133,19 @@ type Handler interface {
 	// Get list of Cells.
 	//
 	// GET /cells-groups/{groupId}/cells
-	GetCells(ctx context.Context, params GetCellsParams) (*GetCellsResponse, error)
+	GetCells(ctx context.Context, params GetCellsParams) (GetCellsRes, error)
 	// GetCellsGroupById implements getCellsGroupById operation.
 	//
 	// Get Cells Group by ID.
 	//
 	// GET /cells-groups/{groupId}
-	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (*GetCellsGroupByIdResponse, error)
+	GetCellsGroupById(ctx context.Context, params GetCellsGroupByIdParams) (GetCellsGroupByIdRes, error)
 	// GetCellsGroups implements getCellsGroups operation.
 	//
 	// Get list of Cells Groups.
 	//
 	// GET /cells-groups
-	GetCellsGroups(ctx context.Context) (*GetCellsGroupsResponse, error)
+	GetCellsGroups(ctx context.Context) (GetCellsGroupsRes, error)
 	// GetCurrentUser implements getCurrentUser operation.
 	//
 	// Get Current User.
@@ -157,25 +157,25 @@ type Handler interface {
 	// Get employee by id.
 	//
 	// GET /employees/{id}
-	GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (*GetEmployeeResponse, error)
+	GetEmployeeById(ctx context.Context, params GetEmployeeByIdParams) (GetEmployeeByIdRes, error)
 	// GetEmployees implements getEmployees operation.
 	//
 	// Get all employees.
 	//
 	// GET /employees
-	GetEmployees(ctx context.Context) (*GetEmployeesResponse, error)
+	GetEmployees(ctx context.Context) (GetEmployeesRes, error)
 	// GetInstances implements getInstances operation.
 	//
 	// Get list of Instances.
 	//
 	// GET /instances
-	GetInstances(ctx context.Context) (*GetInstancesResponse, error)
+	GetInstances(ctx context.Context) (GetInstancesRes, error)
 	// GetInstancesByItemId implements getInstancesByItemId operation.
 	//
 	// Get list of Instances For Item.
 	//
 	// GET /items/{itemId}/instances
-	GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (*GetInstancesByItemIdResponse, error)
+	GetInstancesByItemId(ctx context.Context, params GetInstancesByItemIdParams) (GetInstancesByItemIdRes, error)
 	// GetItemById implements getItemById operation.
 	//
 	// Get Item by ID.
@@ -187,133 +187,127 @@ type Handler interface {
 	// Get list of Items.
 	//
 	// GET /items
-	GetItems(ctx context.Context) (*GetItemsResponse, error)
+	GetItems(ctx context.Context) (GetItemsRes, error)
 	// GetOrganizationById implements getOrganizationById operation.
 	//
 	// Get Organization by ID.
 	//
 	// GET /orgs/{id}
-	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (*GetOrganizationByIdResponse, error)
+	GetOrganizationById(ctx context.Context, params GetOrganizationByIdParams) (GetOrganizationByIdRes, error)
 	// GetOrganizationUnitById implements getOrganizationUnitById operation.
 	//
 	// Get Unit by ID.
 	//
 	// GET /units/{id}
-	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (*GetOrganizationUnitByIdResponse, error)
+	GetOrganizationUnitById(ctx context.Context, params GetOrganizationUnitByIdParams) (GetOrganizationUnitByIdRes, error)
 	// GetOrganizationUnits implements getOrganizationUnits operation.
 	//
 	// Get list of Organization Units.
 	//
 	// GET /units
-	GetOrganizationUnits(ctx context.Context) (*GetOrganizationUnitsResponse, error)
+	GetOrganizationUnits(ctx context.Context) (GetOrganizationUnitsRes, error)
 	// GetOrganizations implements getOrganizations operation.
 	//
-	// Get list of Organizations.
+	// Get list of user Organizations.
 	//
 	// GET /orgs
-	GetOrganizations(ctx context.Context) (*GetOrganizationsResponse, error)
+	GetOrganizations(ctx context.Context) (GetOrganizationsRes, error)
 	// GetRoles implements getRoles operation.
 	//
 	// Get all roles in system.
 	//
 	// GET /app/roles
-	GetRoles(ctx context.Context) (*GetRolesOK, error)
+	GetRoles(ctx context.Context) (GetRolesRes, error)
 	// GetStorageGroupById implements getStorageGroupById operation.
 	//
 	// Get Storage Group by ID.
 	//
 	// GET /storage-groups/{id}
-	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (*GetStorageGroupByIdResponse, error)
+	GetStorageGroupById(ctx context.Context, params GetStorageGroupByIdParams) (GetStorageGroupByIdRes, error)
 	// GetStorageGroups implements getStorageGroups operation.
 	//
 	// Get list of Storage Groups.
 	//
 	// GET /storage-groups
-	GetStorageGroups(ctx context.Context) (*GetStorageGroupsResponse, error)
+	GetStorageGroups(ctx context.Context) (GetStorageGroupsRes, error)
 	// InviteEmployee implements inviteEmployee operation.
 	//
 	// Invite employee to the organization.
 	//
 	// POST /employees/invite
-	InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (*GetEmployeeResponse, error)
+	InviteEmployee(ctx context.Context, req *InviteEmployeeRequest) (InviteEmployeeRes, error)
 	// Logout implements logout operation.
 	//
 	// Logout user.
 	//
 	// GET /auth/logout
-	Logout(ctx context.Context) (*LogoutResponse, error)
+	Logout(ctx context.Context) (LogoutRes, error)
 	// PatchCell implements patchCell operation.
 	//
 	// Patch Cell.
 	//
 	// PATCH /cells-groups/{groupId}/cells/{cellId}
-	PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (*PatchCellResponse, error)
+	PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (PatchCellRes, error)
 	// PatchCellsGroup implements patchCellsGroup operation.
 	//
 	// Patch Cells Group.
 	//
 	// PATCH /cells-groups/{groupId}
-	PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (*PatchCellsGroupResponse, error)
+	PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (PatchCellsGroupRes, error)
 	// PatchCurrentUser implements patchCurrentUser operation.
 	//
 	// Update Current User.
 	//
 	// PATCH /me
-	PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (*GetCurrentUserResponse, error)
+	PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (PatchCurrentUserRes, error)
 	// PatchEmployeeById implements patchEmployeeById operation.
 	//
 	// Update employee by id.
 	//
 	// PATCH /employees/{id}
-	PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (*GetEmployeeResponse, error)
+	PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error)
 	// PatchItem implements patchItem operation.
 	//
 	// Patch Item.
 	//
 	// PATCH /items/{id}
 	PatchItem(ctx context.Context, req *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
-	// PatchOrganization implements patchOrganization operation.
-	//
-	// Update Organization.
-	//
-	// PATCH /orgs/{id}
-	PatchOrganization(ctx context.Context, req *PatchOrganizationRequest, params PatchOrganizationParams) (*PatchOrganizationResponse, error)
 	// PatchOrganizationUnit implements patchOrganizationUnit operation.
 	//
 	// Patch Organization Unit.
 	//
 	// PATCH /units/{id}
-	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (*PatchOrganizationUnitResponse, error)
+	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error)
 	// PatchStorageGroup implements patchStorageGroup operation.
 	//
 	// Patch Storage Group.
 	//
 	// PATCH /storage-groups/{id}
-	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (*PatchStorageGroupResponse, error)
+	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (PatchStorageGroupRes, error)
 	// PutCurrentUser implements putCurrentUser operation.
 	//
 	// Update Current User.
 	//
 	// PUT /me
-	PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (*GetCurrentUserResponse, error)
+	PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (PutCurrentUserRes, error)
 	// RevokeApiToken implements revokeApiToken operation.
 	//
 	// Revoke Service API Token.
 	//
 	// DELETE /api-tokens/{id}
-	RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) error
+	RevokeApiToken(ctx context.Context, params RevokeApiTokenParams) (RevokeApiTokenRes, error)
 	// UpdateCell implements updateCell operation.
 	//
 	// Update Cell.
 	//
 	// PUT /cells-groups/{groupId}/cells/{cellId}
-	UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (*UpdateCellResponse, error)
+	UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (UpdateCellRes, error)
 	// UpdateCellsGroup implements updateCellsGroup operation.
 	//
 	// Update Cells Group.
 	//
 	// PUT /cells-groups/{groupId}
-	UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (*UpdateCellsGroupResponse, error)
+	UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (UpdateCellsGroupRes, error)
 	// UpdateItem implements updateItem operation.
 	//
 	// Update Item.
@@ -325,19 +319,19 @@ type Handler interface {
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (*UpdateOrganizationResponse, error)
+	UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (UpdateOrganizationRes, error)
 	// UpdateOrganizationUnit implements updateOrganizationUnit operation.
 	//
 	// Update Organization Unit.
 	//
 	// PUT /units/{id}
-	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (*UpdateOrganizationUnitResponse, error)
+	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (UpdateOrganizationUnitRes, error)
 	// UpdateStorageGroup implements updateStorageGroup operation.
 	//
 	// Update Storage Group.
 	//
 	// PUT /storage-groups/{id}
-	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (*UpdateStorageGroupResponse, error)
+	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (UpdateStorageGroupRes, error)
 	// NewError creates *DefaultErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
