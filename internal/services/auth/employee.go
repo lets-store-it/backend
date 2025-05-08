@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -22,7 +22,7 @@ func (s *AuthService) GetEmployees(ctx context.Context, orgID uuid.UUID) ([]*mod
 	)
 	defer span.End()
 
-	employees, err := s.queries.GetEmployees(ctx, utils.PgUUID(orgID))
+	employees, err := s.queries.GetEmployees(ctx, database.PgUUID(orgID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get employees")
@@ -48,15 +48,15 @@ func (s *AuthService) DeleteEmployee(ctx context.Context, orgID uuid.UUID, userI
 	)
 	defer span.End()
 
-	if !utils.IsValidUUID(userID) {
+	if userID == uuid.Nil {
 		span.RecordError(ErrInvalidUserId)
 		span.SetStatus(codes.Error, "invalid user ID")
 		return ErrInvalidUserId
 	}
 
-	err := s.queries.UnassignRoleFromUser(ctx, database.UnassignRoleFromUserParams{
-		OrgID:  utils.PgUUID(orgID),
-		UserID: utils.PgUUID(userID),
+	err := s.queries.UnassignRoleFromUser(ctx, sqlc.UnassignRoleFromUserParams{
+		OrgID:  database.PgUUID(orgID),
+		UserID: database.PgUUID(userID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -77,15 +77,15 @@ func (s *AuthService) GetEmployee(ctx context.Context, orgID uuid.UUID, userID u
 	)
 	defer span.End()
 
-	if !utils.IsValidUUID(userID) {
+	if userID == uuid.Nil {
 		span.RecordError(ErrInvalidUserId)
 		span.SetStatus(codes.Error, "invalid user ID")
 		return nil, ErrInvalidUserId
 	}
 
-	employee, err := s.queries.GetEmployee(ctx, database.GetEmployeeParams{
-		OrgID:  utils.PgUUID(orgID),
-		UserID: utils.PgUUID(userID),
+	employee, err := s.queries.GetEmployee(ctx, sqlc.GetEmployeeParams{
+		OrgID:  database.PgUUID(orgID),
+		UserID: database.PgUUID(userID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -113,9 +113,9 @@ func (s *AuthService) SetEmployeeRole(ctx context.Context, orgID uuid.UUID, user
 		return ErrInvalidRole
 	}
 
-	err := s.queries.AssignRoleToUser(ctx, database.AssignRoleToUserParams{
-		OrgID:  utils.PgUUID(orgID),
-		UserID: utils.PgUUID(userID),
+	err := s.queries.AssignRoleToUser(ctx, sqlc.AssignRoleToUserParams{
+		OrgID:  database.PgUUID(orgID),
+		UserID: database.PgUUID(userID),
 		RoleID: int32(roleID),
 	})
 	if err != nil {
@@ -137,9 +137,9 @@ func (s *AuthService) GetEmployeeWithRole(ctx context.Context, orgID, userID uui
 	)
 	defer span.End()
 
-	employee, err := s.queries.GetEmployeeByUserId(ctx, database.GetEmployeeByUserIdParams{
-		OrgID:  utils.PgUUID(orgID),
-		UserID: utils.PgUUID(userID),
+	employee, err := s.queries.GetEmployeeByUserId(ctx, sqlc.GetEmployeeByUserIdParams{
+		OrgID:  database.PgUUID(orgID),
+		UserID: database.PgUUID(userID),
 	})
 	if err != nil {
 		span.RecordError(err)

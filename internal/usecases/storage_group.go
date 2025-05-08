@@ -104,7 +104,7 @@ func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGr
 		return nil, err
 	}
 
-	return uc.service.GetAllCellsGroups(ctx, orgID)
+	return uc.service.GetCellsGroups(ctx, orgID)
 }
 
 func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID, storageGroupID *uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
@@ -113,13 +113,21 @@ func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID
 		return nil, err
 	}
 
-	return uc.service.CreateCellsGroup(ctx, models.StorageGroup{
-		OrgID:    orgID,
-		UnitID:   unitID,
-		ParentID: storageGroupID,
-		Name:     name,
-		Alias:    alias,
-	})
+	var id uuid.UUID
+	if storageGroupID != nil {
+		id = *storageGroupID
+	}
+
+	storageGroup := &models.CellsGroup{
+		ID:             id,
+		OrgID:          orgID,
+		UnitID:         unitID,
+		Name:           name,
+		Alias:          alias,
+		StorageGroupID: storageGroupID,
+	}
+
+	return uc.service.CreateCellsGroup(ctx, storageGroup, name, alias)
 }
 
 func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {
@@ -128,7 +136,7 @@ func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (
 		return nil, err
 	}
 
-	return uc.service.GetCellsGroupByID(ctx, orgID, id)
+	return uc.service.GetCellsGroup(ctx, orgID, id)
 }
 
 func (uc *StorageUseCase) UpdateCellsGroup(ctx context.Context, cellGroup *models.CellsGroup) (*models.CellsGroup, error) {

@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/sqlc"
-	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/database"
+	"github.com/let-store-it/backend/internal/models"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -21,7 +21,7 @@ func (s *StorageService) GetCells(ctx context.Context, orgID uuid.UUID, cellsGro
 		attribute.String("cells_group_id", cellsGroupID.String()),
 	)
 
-	cells, err := s.queries.GetCells(ctx, database.GetCellsParams{
+	cells, err := s.queries.GetCells(ctx, sqlc.GetCellsParams{
 		OrgID:        database.PgUUID(orgID),
 		CellsGroupID: database.PgUUID(cellsGroupID),
 	})
@@ -54,9 +54,9 @@ func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uu
 		attribute.String("cell_id", id.String()),
 	)
 
-	cell, err := s.queries.GetCell(ctx, database.GetCellParams{
-		OrgID: utils.PgUUID(orgID),
-		ID:    utils.PgUUID(id),
+	cell, err := s.queries.GetCell(ctx, sqlc.GetCellParams{
+		OrgID: database.PgUUID(orgID),
+		ID:    database.PgUUID(id),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -94,9 +94,9 @@ func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsG
 		attribute.Int("position", position),
 	)
 
-	cell, err := s.queries.CreateCell(ctx, database.CreateCellParams{
-		OrgID:        utils.PgUUID(orgID),
-		CellsGroupID: utils.PgUUID(cellsGroupID),
+	cell, err := s.queries.CreateCell(ctx, sqlc.CreateCellParams{
+		OrgID:        database.PgUUID(orgID),
+		CellsGroupID: database.PgUUID(cellsGroupID),
 		Alias:        alias,
 		Row:          int32(row),
 		Level:        int32(level),
@@ -144,10 +144,10 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 		attribute.Int("position", cell.Position),
 	)
 
-	updatedCell, err := s.queries.UpdateCell(ctx, database.UpdateCellParams{
-		ID:           utils.PgUUID(cell.ID),
-		OrgID:        utils.PgUUID(cell.OrgID),
-		CellsGroupID: utils.PgUUID(cell.CellsGroupID),
+	updatedCell, err := s.queries.UpdateCell(ctx, sqlc.UpdateCellParams{
+		ID:           database.PgUUID(cell.ID),
+		OrgID:        database.PgUUID(cell.OrgID),
+		CellsGroupID: database.PgUUID(cell.CellsGroupID),
 		Alias:        cell.Alias,
 		Row:          int32(cell.Row),
 		Level:        int32(cell.Level),
@@ -180,10 +180,10 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsG
 		attribute.String("cell_id", id.String()),
 	)
 
-	err := s.queries.DeleteCell(ctx, database.DeleteCellParams{
-		ID:           utils.PgUUID(id),
-		OrgID:        utils.PgUUID(orgID),
-		CellsGroupID: utils.PgUUID(cellsGroupID),
+	err := s.queries.DeleteCell(ctx, sqlc.DeleteCellParams{
+		ID:           database.PgUUID(id),
+		OrgID:        database.PgUUID(orgID),
+		CellsGroupID: database.PgUUID(cellsGroupID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -204,9 +204,9 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 		attribute.String("cell_id", cellID.String()),
 	)
 
-	segments, err := s.queries.GetCellPath(ctx, database.GetCellPathParams{
-		ID:    utils.PgUUID(cellID),
-		OrgID: utils.PgUUID(orgID),
+	segments, err := s.queries.GetCellPath(ctx, sqlc.GetCellPathParams{
+		ID:    database.PgUUID(cellID),
+		OrgID: database.PgUUID(orgID),
 	})
 
 	if err != nil {
@@ -218,7 +218,7 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 	result := make([]models.CellPathSegment, len(segments))
 	for i, segment := range segments {
 		result[i] = models.CellPathSegment{
-			ID:         *utils.UuidFromPgx(segment.ID),
+			ID:         database.UuidFromPgx(segment.ID),
 			Name:       segment.Name,
 			ObjectType: models.CellPathObjectType(segment.Type),
 			Alias:      segment.Alias,

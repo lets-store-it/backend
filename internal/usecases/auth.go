@@ -22,7 +22,7 @@ func NewAuthUseCase(authService *auth.AuthService, yandexOAuthService *yandex.Ya
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
 	userID := ctx.Value(UserIDKey).(uuid.UUID)
-	user, err := u.authService.GetUserById(ctx, userID)
+	user, err := u.authService.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (u *AuthUseCase) CreateSessionByEmail(ctx context.Context, email string) (*
 		return nil, err
 	}
 
-	session, err := u.authService.CreateUserSession(ctx, user.ID)
+	session, err := u.authService.CreateSession(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 		}
 	}
 
-	session, err := u.authService.CreateUserSession(ctx, user.ID)
+	session, err := u.authService.CreateSession(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
