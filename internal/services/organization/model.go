@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
 )
 
-func toOrganization(org database.Org) (*models.Organization, error) {
-	id := utils.UuidFromPgx(org.ID)
+func toOrganization(org sqlc.Org) (*models.Organization, error) {
+	id := database.UuidPtrFromPgx(org.ID)
 	if id == nil {
 		return nil, fmt.Errorf("failed to convert organization: %w", ErrInvalidOrganization)
 	}
@@ -21,12 +21,12 @@ func toOrganization(org database.Org) (*models.Organization, error) {
 	}, nil
 }
 
-func toOrganizationUnit(unit database.OrgUnit) (*models.OrganizationUnit, error) {
-	id := utils.UuidFromPgx(unit.ID)
+func toOrganizationUnit(unit sqlc.OrgUnit) (*models.OrganizationUnit, error) {
+	id := database.UuidPtrFromPgx(unit.ID)
 	if id == nil {
 		return nil, fmt.Errorf("failed to convert organization unit: %w", ErrInvalidOrganizationUnit)
 	}
-	orgID := utils.UuidFromPgx(unit.OrgID)
+	orgID := database.UuidPtrFromPgx(unit.OrgID)
 	if orgID == nil {
 		return nil, fmt.Errorf("failed to convert organization unit: %w", ErrInvalidOrganization)
 	}

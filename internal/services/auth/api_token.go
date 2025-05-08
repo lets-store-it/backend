@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -52,8 +52,8 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 		return nil, ErrValidationError
 	}
 
-	token, err := s.queries.CreateApiToken(ctx, database.CreateApiTokenParams{
-		OrgID: utils.PgUUID(orgID),
+	token, err := s.queries.CreateApiToken(ctx, sqlc.CreateApiTokenParams{
+		OrgID: database.PgUUID(orgID),
 		Token: uuid.New().String(),
 		Name:  name,
 	})
@@ -77,9 +77,9 @@ func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uu
 	)
 	defer span.End()
 
-	err := s.queries.RevokeApiToken(ctx, database.RevokeApiTokenParams{
-		OrgID: utils.PgUUID(orgID),
-		ID:    utils.PgUUID(id),
+	err := s.queries.RevokeApiToken(ctx, sqlc.RevokeApiTokenParams{
+		OrgID: database.PgUUID(orgID),
+		ID:    database.PgUUID(id),
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -104,7 +104,7 @@ func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*mod
 	)
 	defer span.End()
 
-	tokens, err := s.queries.GetApiTokens(ctx, utils.PgUUID(orgID))
+	tokens, err := s.queries.GetApiTokens(ctx, database.PgUUID(orgID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get API tokens")

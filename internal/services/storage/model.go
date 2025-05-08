@@ -3,71 +3,74 @@ package storage
 import (
 	"errors"
 
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/google/uuid"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
 )
 
-func toStorageGroup(group database.StorageGroup) (*models.StorageGroup, error) {
-	id := utils.UuidFromPgx(group.ID)
-	if id == nil {
-		return nil, errors.New("failed to convert storage group")
+func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
+	if !group.ID.Valid {
+		return nil, errors.New("failed to convert storage group: invalid ID")
 	}
-	unitID := utils.UuidFromPgx(group.UnitID)
-	if unitID == nil {
-		return nil, errors.New("failed to convert storage group")
+	if !group.UnitID.Valid {
+		return nil, errors.New("failed to convert storage group: invalid unit ID")
+	}
+
+	var parentID *uuid.UUID
+	if group.ParentID.Valid {
+		id := database.UuidFromPgx(group.ParentID)
+		parentID = &id
 	}
 
 	return &models.StorageGroup{
-		ID:       *id,
-		UnitID:   *unitID,
-		ParentID: utils.UuidFromPgx(group.ParentID),
+		ID:       database.UuidFromPgx(group.ID),
+		UnitID:   database.UuidFromPgx(group.UnitID),
+		ParentID: parentID,
 		Name:     group.Name,
 		Alias:    group.Alias,
 		OrgID:    group.OrgID.Bytes,
 	}, nil
 }
 
-func toCellsGroup(group database.CellsGroup) (*models.CellsGroup, error) {
-	id := utils.UuidFromPgx(group.ID)
-	if id == nil {
-		return nil, errors.New("failed to convert cells group")
+func toCellsGroup(group sqlc.CellsGroup) (*models.CellsGroup, error) {
+	if !group.ID.Valid {
+		return nil, errors.New("failed to convert cells group: invalid ID")
 	}
-	storageGroupID := utils.UuidFromPgx(group.StorageGroupID)
-
-	orgID := utils.UuidFromPgx(group.OrgID)
-	if orgID == nil {
-		return nil, errors.New("failed to convert cells group")
+	if !group.OrgID.Valid {
+		return nil, errors.New("failed to convert cells group: invalid org ID")
+	}
+	if !group.UnitID.Valid {
+		return nil, errors.New("failed to convert cells group: invalid unit ID")
 	}
 
-	unitID := utils.UuidFromPgx(group.UnitID)
-	if unitID == nil {
-		return nil, errors.New("failed to convert cells group")
+	var storageGroupID *uuid.UUID
+	if group.StorageGroupID.Valid {
+		id := database.UuidFromPgx(group.StorageGroupID)
+		storageGroupID = &id
 	}
 
 	return &models.CellsGroup{
-		ID:             *id,
-		OrgID:          *orgID,
-		UnitID:         *unitID,
+		ID:             database.UuidFromPgx(group.ID),
+		OrgID:          database.UuidFromPgx(group.OrgID),
+		UnitID:         database.UuidFromPgx(group.UnitID),
 		StorageGroupID: storageGroupID,
 		Name:           group.Name,
 		Alias:          group.Alias,
 	}, nil
 }
 
-func toCell(cell database.Cell) (*models.Cell, error) {
-	id := utils.UuidFromPgx(cell.ID)
-	if id == nil {
-		return nil, errors.New("failed to convert cell")
+func toCell(cell sqlc.Cell) (*models.Cell, error) {
+	if !cell.ID.Valid {
+		return nil, errors.New("failed to convert cell: invalid ID")
 	}
-	cellsGroupID := utils.UuidFromPgx(cell.CellsGroupID)
-	if cellsGroupID == nil {
-		return nil, errors.New("failed to convert cell")
+	if !cell.CellsGroupID.Valid {
+		return nil, errors.New("failed to convert cell: invalid cells group ID")
 	}
 
 	return &models.Cell{
-		ID:           *id,
-		CellsGroupID: *cellsGroupID,
+		ID:           database.UuidFromPgx(cell.ID),
+		CellsGroupID: database.UuidFromPgx(cell.CellsGroupID),
 		Alias:        cell.Alias,
 		Row:          int(cell.Row),
 		Level:        int(cell.Level),

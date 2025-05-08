@@ -8,15 +8,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/storage"
-	"github.com/let-store-it/backend/internal/utils"
 )
 
-func toItemModel(item database.Item) (*models.Item, error) {
-	id := utils.UuidFromPgx(item.ID)
-	if id == nil {
+func toItemModel(item sqlc.Item) (*models.Item, error) {
+	id := database.UuidFromPgx(item.ID)
+	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert item: %w", ErrInvalidItemID)
 	}
 
@@ -26,19 +26,19 @@ func toItemModel(item database.Item) (*models.Item, error) {
 	}
 
 	return &models.Item{
-		ID:          *id,
+		ID:          id,
 		Name:        item.Name,
 		Description: description,
 	}, nil
 }
 
-func toItemVariantModel(variant database.ItemVariant) (*models.ItemVariant, error) {
-	id := utils.UuidFromPgx(variant.ID)
-	if id == nil {
+func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
+	id := database.UuidFromPgx(variant.ID)
+	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidVariant)
 	}
-	itemID := utils.UuidFromPgx(variant.ItemID)
-	if itemID == nil {
+	itemID := database.UuidFromPgx(variant.ItemID)
+	if itemID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidItemID)
 	}
 
@@ -59,8 +59,8 @@ func toItemVariantModel(variant database.ItemVariant) (*models.ItemVariant, erro
 	}
 
 	return &models.ItemVariant{
-		ID:        *id,
-		ItemID:    *itemID,
+		ID:        id,
+		ItemID:    itemID,
 		Name:      variant.Name,
 		Article:   article,
 		EAN13:     ean13,
@@ -69,46 +69,46 @@ func toItemVariantModel(variant database.ItemVariant) (*models.ItemVariant, erro
 	}, nil
 }
 
-func toItemInstanceModel(instance database.ItemInstance) (*models.ItemInstance, error) {
-	id := utils.UuidFromPgx(instance.ID)
-	if id == nil {
+func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, error) {
+	id := database.UuidFromPgx(instance.ID)
+	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid instance ID")
 	}
 
-	orgID := utils.UuidFromPgx(instance.OrgID)
-	if orgID == nil {
+	orgID := database.UuidFromPgx(instance.OrgID)
+	if orgID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid organization ID")
 	}
 
-	itemID := utils.UuidFromPgx(instance.ItemID)
-	if itemID == nil {
+	itemID := database.UuidFromPgx(instance.ItemID)
+	if itemID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid item ID")
 	}
 
-	variantID := utils.UuidFromPgx(instance.VariantID)
-	if variantID == nil {
+	variantID := database.UuidFromPgx(instance.VariantID)
+	if variantID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid variant ID")
 	}
 
-	cellID := utils.UuidFromPgx(instance.CellID)
-	if cellID == nil {
+	cellID := database.UuidFromPgx(instance.CellID)
+	if cellID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid cell ID")
 	}
 
 	return &models.ItemInstance{
-		ID:        *id,
-		OrgID:     *orgID,
-		ItemID:    *itemID,
-		VariantID: *variantID,
-		CellID:    *cellID,
+		ID:        id,
+		OrgID:     orgID,
+		ItemID:    itemID,
+		VariantID: variantID,
+		CellID:    cellID,
 		Status:    models.ItemInstanceStatus(instance.Status),
 	}, nil
 }
 
 type toFullItemModelParams struct {
-	item           database.Item
-	variants       []database.ItemVariant
-	instances      []database.ItemInstance
+	item           sqlc.Item
+	variants       []sqlc.ItemVariant
+	instances      []sqlc.ItemInstance
 	storageService *storage.StorageService
 	orgID          uuid.UUID
 }

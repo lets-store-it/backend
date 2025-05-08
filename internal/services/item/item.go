@@ -9,10 +9,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/storage"
-	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -29,12 +29,12 @@ var (
 
 type ItemService struct {
 	storageService *storage.StorageService
-	queries        *database.Queries
+	queries        *sqlc.Queries
 	pgxPool        *pgxpool.Pool
 	tracer         trace.Tracer
 }
 
-func New(queries *database.Queries, pgxPool *pgxpool.Pool, storageService *storage.StorageService) *ItemService {
+func New(queries *sqlc.Queries, pgxPool *pgxpool.Pool, storageService *storage.StorageService) *ItemService {
 	return &ItemService{
 		queries:        queries,
 		pgxPool:        pgxPool,
@@ -73,12 +73,17 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	createdItem, err := qtx.CreateItem(ctx, database.CreateItemParams{
-		OrgID:       utils.PgUUID(orgID),
+	var description string
+	if item.Description != nil {
+		description = *item.Description
+	}
+
+	createdItem, err := qtx.CreateItem(ctx, sqlc.CreateItemParams{
+		OrgID:       database.PgUUID(orgID),
 		Name:        item.Name,
-		Description: utils.PgTextPtr(item.Description),
+		Description: database.PgText(description),
 	})
-	item.ID = *utils.UuidFromPgx(createdItem.ID)
+	item.ID = database.UuidFromPgx(createdItem.ID)
 
 	if err != nil {
 		span.RecordError(err)
@@ -90,10 +95,15 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 		createdVariants := make([]models.ItemVariant, len(*item.Variants))
 
 		for i, variant := range *item.Variants {
-			createdVariant, err := qtx.CreateItemVariant(ctx, database.CreateItemVariantParams{
+			var article string
+			if variant.Article != nil {
+				article = *variant.Article
+			}
+
+			createdVariant, err := qtx.CreateItemVariant(ctx, sqlc.CreateItemVariantParams{
 				ItemID:  createdItem.ID,
 				Name:    variant.Name,
-				Article: utils.PgTextPtr(variant.Article),
+				Article: database.PgText(article),
 				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
 			})
 
@@ -135,7 +145,7 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 
 	span.SetAttributes(attribute.String("org_id", orgID.String()))
 
-	results, err := s.queries.GetItems(ctx, utils.PgUUID(orgID))
+	results, err := s.queries.GetItems(ctx, database.PgUUID(orgID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get items")
@@ -145,9 +155,9 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 	itemsModels := make([]*models.Item, len(results))
 
 	for i, item := range results {
-		variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
-			OrgID:  utils.PgUUID(orgID),
-			ItemID: utils.PgUUID(uuid.UUID(item.ID.Bytes)),
+		variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
+			OrgID:  database.PgUUID(orgID),
+			ItemID: database.PgUUID(uuid.UUID(item.ID.Bytes)),
 		})
 		if err != nil {
 			span.RecordError(err)
@@ -196,9 +206,9 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 		attribute.String("item_id", id.String()),
 	)
 
-	item, err := s.queries.GetItem(ctx, database.GetItemParams{
-		ID:    utils.PgUUID(id),
-		OrgID: utils.PgUUID(orgID),
+	item, err := s.queries.GetItem(ctx, sqlc.GetItemParams{
+		ID:    database.PgUUID(id),
+		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -210,9 +220,9 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 		return nil, fmt.Errorf("failed to get item: %w", err)
 	}
 
-	variants, err := s.queries.GetItemVariants(ctx, database.GetItemVariantsParams{
-		OrgID:  utils.PgUUID(orgID),
-		ItemID: utils.PgUUID(id),
+	variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(id),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -220,9 +230,9 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 		return nil, fmt.Errorf("failed to get item variants: %w", err)
 	}
 
-	instances, err := s.queries.GetItemInstancesForItem(ctx, database.GetItemInstancesForItemParams{
-		OrgID:  utils.PgUUID(orgID),
-		ItemID: utils.PgUUID(id),
+	instances, err := s.queries.GetItemInstancesForItem(ctx, sqlc.GetItemInstancesForItemParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(id),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -301,9 +311,9 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	if existingItem.Variants != nil {
 		for _, v := range *existingItem.Variants {
 			if !remainingVariants[v.ID] {
-				err := s.queries.DeleteItemVariant(ctx, database.DeleteItemVariantParams{
-					ItemID: utils.PgUUID(item.ID),
-					ID:     utils.PgUUID(v.ID),
+				err := s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
+					ItemID: database.PgUUID(item.ID),
+					ID:     database.PgUUID(v.ID),
 				})
 				if err != nil {
 					span.RecordError(err)
@@ -323,11 +333,16 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	_, err = qtx.UpdateItem(ctx, database.UpdateItemParams{
-		OrgID:       utils.PgUUID(orgID),
-		ID:          utils.PgUUID(item.ID),
+	var description string
+	if item.Description != nil {
+		description = *item.Description
+	}
+
+	_, err = qtx.UpdateItem(ctx, sqlc.UpdateItemParams{
+		OrgID:       database.PgUUID(orgID),
+		ID:          database.PgUUID(item.ID),
 		Name:        item.Name,
-		Description: utils.PgTextPtr(item.Description),
+		Description: database.PgText(description),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -337,10 +352,15 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 
 	if item.Variants != nil {
 		for _, variant := range *item.Variants {
-			_, err = qtx.UpdateItemVariant(ctx, database.UpdateItemVariantParams{
-				ItemID:  utils.PgUUID(item.ID),
+			var article string
+			if variant.Article != nil {
+				article = *variant.Article
+			}
+
+			_, err = qtx.UpdateItemVariant(ctx, sqlc.UpdateItemVariantParams{
+				ItemID:  database.PgUUID(item.ID),
 				Name:    variant.Name,
-				Article: utils.PgTextPtr(variant.Article),
+				Article: database.PgText(article),
 				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
 			})
 			if err != nil {
@@ -379,9 +399,9 @@ func (s *ItemService) Delete(ctx context.Context, orgID uuid.UUID, id uuid.UUID)
 		attribute.String("item_id", id.String()),
 	)
 
-	err := s.queries.DeleteItem(ctx, database.DeleteItemParams{
-		ID:    utils.PgUUID(id),
-		OrgID: utils.PgUUID(orgID),
+	err := s.queries.DeleteItem(ctx, sqlc.DeleteItemParams{
+		ID:    database.PgUUID(id),
+		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -411,9 +431,9 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 		attribute.String("item_id", id.String()),
 	)
 
-	exists, err := s.queries.IsItemExists(ctx, database.IsItemExistsParams{
-		ID:    utils.PgUUID(id),
-		OrgID: utils.PgUUID(orgID),
+	exists, err := s.queries.IsItemExists(ctx, sqlc.IsItemExistsParams{
+		ID:    database.PgUUID(id),
+		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -445,11 +465,11 @@ func (s *ItemService) CreateInstance(ctx context.Context, orgID uuid.UUID, itemI
 		attribute.String("cell_id", itemInstance.CellID.String()),
 	)
 
-	createdInstance, err := s.queries.CreateItemInstance(ctx, database.CreateItemInstanceParams{
-		OrgID:     utils.PgUUID(orgID),
-		ItemID:    utils.PgUUID(itemInstance.ItemID),
-		VariantID: utils.PgUUID(itemInstance.VariantID),
-		CellID:    utils.PgUUID(itemInstance.CellID),
+	createdInstance, err := s.queries.CreateItemInstance(ctx, sqlc.CreateItemInstanceParams{
+		OrgID:     database.PgUUID(orgID),
+		ItemID:    database.PgUUID(itemInstance.ItemID),
+		VariantID: database.PgUUID(itemInstance.VariantID),
+		CellID:    database.PgUUID(itemInstance.CellID),
 		Status:    string(itemInstance.Status),
 	})
 	if err != nil {

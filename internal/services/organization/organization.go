@@ -9,10 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/let-store-it/backend/generated/sqlc"
-	db "github.com/let-store-it/backend/internal/database"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -75,12 +74,12 @@ func validateAlias(alias string) error {
 }
 
 type OrganizationService struct {
-	queries *database.Queries
+	queries *sqlc.Queries
 	pgxPool *pgxpool.Pool
 	tracer  trace.Tracer
 }
 
-func New(queries *database.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
+func New(queries *sqlc.Queries, pgxPool *pgxpool.Pool) *OrganizationService {
 	return &OrganizationService{
 		queries: queries,
 		pgxPool: pgxPool,
@@ -108,12 +107,12 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 		return nil, err
 	}
 
-	org, err := s.queries.CreateOrg(ctx, database.CreateOrgParams{
+	org, err := s.queries.CreateOrg(ctx, sqlc.CreateOrgParams{
 		Name:      name,
 		Subdomain: subdomain,
 	})
 	if err != nil {
-		if db.IsUniqueViolation(err) {
+		if database.IsUniqueViolation(err) {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "organization already exists")
 			return nil, ErrOrganizationSubdomainAlreadyExists
@@ -142,7 +141,7 @@ func (s *OrganizationService) GetUsersOrgs(ctx context.Context, userID uuid.UUID
 		return nil, ErrInvalidUserID
 	}
 
-	res, err := s.queries.GetUserOrgs(ctx, utils.PgUUID(userID))
+	res, err := s.queries.GetUserOrgs(ctx, database.PgUUID(userID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get user organizations")
@@ -176,7 +175,7 @@ func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*model
 		return nil, ErrInvalidOrganization
 	}
 
-	org, err := s.queries.GetOrg(ctx, utils.PgUUID(id))
+	org, err := s.queries.GetOrg(ctx, database.PgUUID(id))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get organization")
@@ -200,7 +199,7 @@ func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
 		return ErrInvalidOrganization
 	}
 
-	err := s.queries.DeleteOrg(ctx, utils.PgUUID(id))
+	err := s.queries.DeleteOrg(ctx, database.PgUUID(id))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to delete organization")
@@ -212,25 +211,16 @@ func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *OrganizationService) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	ctx, span := s.tracer.Start(ctx, "Update")
+	ctx, span := s.tracer.Start(ctx, "Update",
+		trace.WithAttributes(
+			attribute.String("org.id", org.ID.String()),
+		),
+	)
 	defer span.End()
 
-	if org == nil || org.ID == uuid.Nil {
+	if org == nil {
 		span.SetStatus(codes.Error, "invalid organization")
 		return nil, ErrInvalidOrganization
-	}
-
-	span.SetAttributes(attribute.String("org.id", org.ID.String()))
-
-	exists, err := s.IsOrganizationExists(ctx, org.ID)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to check organization existence")
-		return nil, fmt.Errorf("failed to check organization existence: %w", err)
-	}
-	if !exists {
-		span.SetStatus(codes.Error, "organization not found")
-		return nil, ErrOrganizationNotFound
 	}
 
 	if err := validateName(org.Name); err != nil {
@@ -239,8 +229,8 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 		return nil, err
 	}
 
-	res, err := s.queries.UpdateOrg(ctx, database.UpdateOrgParams{
-		ID:   utils.PgUUID(org.ID),
+	updatedOrg, err := s.queries.UpdateOrg(ctx, sqlc.UpdateOrgParams{
+		ID:   database.PgUUID(org.ID),
 		Name: org.Name,
 	})
 	if err != nil {
@@ -250,7 +240,7 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 	}
 
 	span.SetStatus(codes.Ok, "organization updated successfully")
-	return toOrganization(res)
+	return toOrganization(updatedOrg)
 }
 
 func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
@@ -266,7 +256,7 @@ func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.
 		return false, ErrInvalidOrganization
 	}
 
-	exists, err := s.queries.IsOrgExists(ctx, utils.PgUUID(id))
+	exists, err := s.queries.IsOrgExists(ctx, database.PgUUID(id))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to check organization existence")
@@ -284,14 +274,11 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 			attribute.String("org.id", orgID.String()),
 			attribute.String("name", name),
 			attribute.String("alias", alias),
+			attribute.String("address", address),
 		),
 	)
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
 	if err := validateName(name); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "name validation failed")
@@ -303,11 +290,11 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 		return nil, err
 	}
 
-	unit, err := s.queries.CreateOrgUnit(ctx, database.CreateOrgUnitParams{
-		OrgID:   utils.PgUUID(orgID),
+	unit, err := s.queries.CreateOrgUnit(ctx, sqlc.CreateOrgUnitParams{
+		OrgID:   database.PgUUID(orgID),
 		Name:    name,
 		Alias:   alias,
-		Address: utils.PgText(address),
+		Address: database.PgText(address),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -315,9 +302,7 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 		return nil, fmt.Errorf("failed to create organization unit: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("unit.id", unit.ID.String()))
 	span.SetStatus(codes.Ok, "organization unit created successfully")
-
 	return toOrganizationUnit(unit)
 }
 
@@ -334,7 +319,7 @@ func (s *OrganizationService) GetAllUnits(ctx context.Context, orgID uuid.UUID) 
 		return nil, ErrInvalidOrganization
 	}
 
-	units, err := s.queries.GetOrgUnits(ctx, utils.PgUUID(orgID))
+	units, err := s.queries.GetOrgUnits(ctx, database.PgUUID(orgID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get organization units")
@@ -369,13 +354,13 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 		return nil, ErrInvalidOrganization
 	}
 	if id == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid unit ID")
+		span.SetStatus(codes.Error, "invalid organization unit ID")
 		return nil, ErrInvalidOrganizationUnit
 	}
 
-	unit, err := s.queries.GetOrgUnit(ctx, database.GetOrgUnitParams{
-		OrgID: utils.PgUUID(orgID),
-		ID:    utils.PgUUID(id),
+	unit, err := s.queries.GetOrgUnit(ctx, sqlc.GetOrgUnitParams{
+		OrgID: database.PgUUID(orgID),
+		ID:    database.PgUUID(id),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -383,19 +368,8 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 		return nil, fmt.Errorf("failed to get organization unit: %w", err)
 	}
 
-	unitModel, err := toOrganizationUnit(unit)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to convert organization unit")
-		return nil, err
-	}
-	if unitModel == nil {
-		span.SetStatus(codes.Error, "organization unit not found")
-		return nil, ErrOrganizationUnitNotFound
-	}
-
-	span.SetStatus(codes.Ok, "successfully retrieved organization unit")
-	return unitModel, nil
+	span.SetStatus(codes.Ok, "organization unit retrieved successfully")
+	return toOrganizationUnit(unit)
 }
 
 func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
@@ -412,13 +386,13 @@ func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, i
 		return ErrInvalidOrganization
 	}
 	if id == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid unit ID")
+		span.SetStatus(codes.Error, "invalid organization unit ID")
 		return ErrInvalidOrganizationUnit
 	}
 
-	err := s.queries.DeleteOrgUnit(ctx, database.DeleteOrgUnitParams{
-		OrgID: utils.PgUUID(orgID),
-		ID:    utils.PgUUID(id),
+	err := s.queries.DeleteOrgUnit(ctx, sqlc.DeleteOrgUnitParams{
+		OrgID: database.PgUUID(orgID),
+		ID:    database.PgUUID(id),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -460,12 +434,12 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 		address = *unit.Address
 	}
 
-	updatedUnit, err := s.queries.UpdateOrgUnit(ctx, database.UpdateOrgUnitParams{
-		ID:      utils.PgUUID(unit.ID),
-		OrgID:   utils.PgUUID(unit.OrgID),
+	updatedUnit, err := s.queries.UpdateOrgUnit(ctx, sqlc.UpdateOrgUnitParams{
+		ID:      database.PgUUID(unit.ID),
+		OrgID:   database.PgUUID(unit.OrgID),
 		Name:    unit.Name,
 		Alias:   unit.Alias,
-		Address: utils.PgText(address),
+		Address: database.PgText(address),
 	})
 	if err != nil {
 		span.RecordError(err)
