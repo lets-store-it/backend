@@ -238,7 +238,7 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 }
 
 func (uc *AuthUseCase) GetRoles(ctx context.Context) ([]*models.Role, error) {
-	roles, err := uc.authService.GetRoles(ctx)
+	roles, err := uc.authService.GetAvaiableRoles(ctx)
 	if err != nil {
 		return nil, err
 	}

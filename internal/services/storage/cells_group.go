@@ -12,28 +12,29 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-func (s *StorageService) CreateCellsGroup(ctx context.Context, orgID uuid.UUID, storageGroupID uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
+func (s *StorageService) CreateCellsGroup(ctx context.Context, group models.StorageGroup) (*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateCellsGroup")
 	defer span.End()
 
-	if err := s.validateStorageGroupData(name, alias); err != nil {
+	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "validation failed")
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("storage_group_id", storageGroupID.String()),
-		attribute.String("name", name),
-		attribute.String("alias", alias),
+		attribute.String("org_id", group.OrgID.String()),
+		attribute.String("storage_group_id", group.ID.String()),
+		attribute.String("name", group.Name),
+		attribute.String("alias", group.Alias),
 	)
 
-	group, err := s.queries.CreateCellsGroup(ctx, database.CreateCellsGroupParams{
-		OrgID:          utils.PgUUID(orgID),
-		StorageGroupID: utils.PgUUID(storageGroupID),
-		Name:           name,
-		Alias:          alias,
+	createdGroup, err := s.queries.CreateCellsGroup(ctx, database.CreateCellsGroupParams{
+		OrgID:          utils.PgUUID(group.OrgID),
+		StorageGroupID: utils.PgUUID(group.ID),
+		UnitID:         utils.PgUUID(group.UnitID),
+		Name:           group.Name,
+		Alias:          group.Alias,
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -41,7 +42,7 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, orgID uuid.UUID, 
 		return nil, fmt.Errorf("failed to create cells group: %w", err)
 	}
 
-	result, err := toCellsGroup(group)
+	result, err := toCellsGroup(createdGroup)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to convert cells group")

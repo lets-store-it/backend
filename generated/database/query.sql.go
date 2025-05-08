@@ -12,7 +12,10 @@ import (
 )
 
 const assignRoleToUser = `-- name: AssignRoleToUser :exec
-INSERT INTO app_role_binding (role_id, user_id, org_id) VALUES ($1, $2, $3)
+INSERT INTO app_role_binding (role_id, user_id, org_id) 
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, org_id) 
+DO UPDATE SET role_id = EXCLUDED.role_id
 `
 
 type AssignRoleToUserParams struct {
@@ -89,11 +92,12 @@ func (q *Queries) CreateCell(ctx context.Context, arg CreateCellParams) (Cell, e
 }
 
 const createCellsGroup = `-- name: CreateCellsGroup :one
-INSERT INTO cells_group (org_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4) RETURNING id, org_id, storage_group_id, name, alias, created_at, deleted_at
+INSERT INTO cells_group (org_id, unit_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at
 `
 
 type CreateCellsGroupParams struct {
 	OrgID          pgtype.UUID
+	UnitID         pgtype.UUID
 	StorageGroupID pgtype.UUID
 	Name           string
 	Alias          string
@@ -102,6 +106,7 @@ type CreateCellsGroupParams struct {
 func (q *Queries) CreateCellsGroup(ctx context.Context, arg CreateCellsGroupParams) (CellsGroup, error) {
 	row := q.db.QueryRow(ctx, createCellsGroup,
 		arg.OrgID,
+		arg.UnitID,
 		arg.StorageGroupID,
 		arg.Name,
 		arg.Alias,
@@ -110,6 +115,7 @@ func (q *Queries) CreateCellsGroup(ctx context.Context, arg CreateCellsGroupPara
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
+		&i.UnitID,
 		&i.StorageGroupID,
 		&i.Name,
 		&i.Alias,
@@ -725,7 +731,7 @@ func (q *Queries) GetCells(ctx context.Context, arg GetCellsParams) ([]Cell, err
 }
 
 const getCellsGroup = `-- name: GetCellsGroup :one
-SELECT id, org_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetCellsGroupParams struct {
@@ -739,6 +745,7 @@ func (q *Queries) GetCellsGroup(ctx context.Context, arg GetCellsGroupParams) (C
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
+		&i.UnitID,
 		&i.StorageGroupID,
 		&i.Name,
 		&i.Alias,
@@ -749,7 +756,7 @@ func (q *Queries) GetCellsGroup(ctx context.Context, arg GetCellsGroupParams) (C
 }
 
 const getCellsGroups = `-- name: GetCellsGroups :many
-SELECT id, org_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL
 `
 
 // CellsGroups
@@ -765,6 +772,7 @@ func (q *Queries) GetCellsGroups(ctx context.Context, orgID pgtype.UUID) ([]Cell
 		if err := rows.Scan(
 			&i.ID,
 			&i.OrgID,
+			&i.UnitID,
 			&i.StorageGroupID,
 			&i.Name,
 			&i.Alias,
@@ -1640,14 +1648,15 @@ func (q *Queries) UpdateCell(ctx context.Context, arg UpdateCellParams) (Cell, e
 }
 
 const updateCellsGroup = `-- name: UpdateCellsGroup :one
-UPDATE cells_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, storage_group_id, name, alias, created_at, deleted_at
+UPDATE cells_group SET name = $3, alias = $4, unit_id = $5 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at
 `
 
 type UpdateCellsGroupParams struct {
-	OrgID pgtype.UUID
-	ID    pgtype.UUID
-	Name  string
-	Alias string
+	OrgID  pgtype.UUID
+	ID     pgtype.UUID
+	Name   string
+	Alias  string
+	UnitID pgtype.UUID
 }
 
 func (q *Queries) UpdateCellsGroup(ctx context.Context, arg UpdateCellsGroupParams) (CellsGroup, error) {
@@ -1656,11 +1665,13 @@ func (q *Queries) UpdateCellsGroup(ctx context.Context, arg UpdateCellsGroupPara
 		arg.ID,
 		arg.Name,
 		arg.Alias,
+		arg.UnitID,
 	)
 	var i CellsGroup
 	err := row.Scan(
 		&i.ID,
 		&i.OrgID,
+		&i.UnitID,
 		&i.StorageGroupID,
 		&i.Name,
 		&i.Alias,
@@ -1739,17 +1750,16 @@ func (q *Queries) UpdateItemVariant(ctx context.Context, arg UpdateItemVariantPa
 }
 
 const updateOrg = `-- name: UpdateOrg :one
-UPDATE org SET name = $2, subdomain = $3 WHERE id = $1 RETURNING id, name, subdomain, created_at, deleted_at
+UPDATE org SET name = $2 WHERE id = $1 RETURNING id, name, subdomain, created_at, deleted_at
 `
 
 type UpdateOrgParams struct {
-	ID        pgtype.UUID
-	Name      string
-	Subdomain string
+	ID   pgtype.UUID
+	Name string
 }
 
 func (q *Queries) UpdateOrg(ctx context.Context, arg UpdateOrgParams) (Org, error) {
-	row := q.db.QueryRow(ctx, updateOrg, arg.ID, arg.Name, arg.Subdomain)
+	row := q.db.QueryRow(ctx, updateOrg, arg.ID, arg.Name)
 	var i Org
 	err := row.Scan(
 		&i.ID,
@@ -1795,14 +1805,15 @@ func (q *Queries) UpdateOrgUnit(ctx context.Context, arg UpdateOrgUnitParams) (O
 }
 
 const updateStorageGroup = `-- name: UpdateStorageGroup :one
-UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at
+UPDATE storage_group SET name = $3, alias = $4, unit_id = $5 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at
 `
 
 type UpdateStorageGroupParams struct {
-	OrgID pgtype.UUID
-	ID    pgtype.UUID
-	Name  string
-	Alias string
+	OrgID  pgtype.UUID
+	ID     pgtype.UUID
+	Name   string
+	Alias  string
+	UnitID pgtype.UUID
 }
 
 func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroupParams) (StorageGroup, error) {
@@ -1811,6 +1822,7 @@ func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroup
 		arg.ID,
 		arg.Name,
 		arg.Alias,
+		arg.UnitID,
 	)
 	var i StorageGroup
 	err := row.Scan(

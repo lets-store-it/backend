@@ -107,13 +107,19 @@ func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGr
 	return uc.service.GetAllCellsGroups(ctx, orgID)
 }
 
-func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, storageGroupID uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
+func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID, storageGroupID *uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
 	orgID, err := uc.validateOrganizationAccess(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.CreateCellsGroup(ctx, orgID, storageGroupID, name, alias)
+	return uc.service.CreateCellsGroup(ctx, models.StorageGroup{
+		OrgID:    orgID,
+		UnitID:   unitID,
+		ParentID: storageGroupID,
+		Name:     name,
+		Alias:    alias,
+	})
 }
 
 func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {

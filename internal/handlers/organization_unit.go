@@ -60,7 +60,7 @@ func (h *RestApiImplementation) DeleteOrganizationUnit(ctx context.Context, para
 		return nil, err
 	}
 
-	return &api.DeleteOrganizationUnitOK{}, nil
+	return &api.DeleteOrganizationUnitNoContent{}, nil
 }
 
 // GetOrganizationUnitById implements api.Handler.
@@ -95,7 +95,7 @@ func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *
 	}
 
 	return &api.PatchOrganizationUnitResponse{
-		Data: []api.Unit{convertUnitToDTO(unit)},
+		Data: convertUnitToDTO(unit),
 	}, nil
 }
 
@@ -118,6 +118,6 @@ func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req 
 	}
 
 	return &api.UpdateOrganizationUnitResponse{
-		Data: []api.Unit{convertUnitToDTO(updatedUnit)},
+		Data: convertUnitToDTO(updatedUnit),
 	}, nil
 }

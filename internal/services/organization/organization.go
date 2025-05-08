@@ -238,16 +238,10 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 		span.SetStatus(codes.Error, "name validation failed")
 		return nil, err
 	}
-	if err := validateSubdomain(org.Subdomain); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "subdomain validation failed")
-		return nil, err
-	}
 
 	res, err := s.queries.UpdateOrg(ctx, database.UpdateOrgParams{
-		ID:        utils.PgUUID(org.ID),
-		Name:      org.Name,
-		Subdomain: org.Subdomain,
+		ID:   utils.PgUUID(org.ID),
+		Name: org.Name,
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -468,6 +462,7 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 
 	updatedUnit, err := s.queries.UpdateOrgUnit(ctx, database.UpdateOrgUnitParams{
 		ID:      utils.PgUUID(unit.ID),
+		OrgID:   utils.PgUUID(unit.OrgID),
 		Name:    unit.Name,
 		Alias:   unit.Alias,
 		Address: utils.PgText(address),

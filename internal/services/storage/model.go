@@ -24,6 +24,7 @@ func toStorageGroup(group database.StorageGroup) (*models.StorageGroup, error) {
 		ParentID: utils.UuidFromPgx(group.ParentID),
 		Name:     group.Name,
 		Alias:    group.Alias,
+		OrgID:    group.OrgID.Bytes,
 	}, nil
 }
 
@@ -33,18 +34,22 @@ func toCellsGroup(group database.CellsGroup) (*models.CellsGroup, error) {
 		return nil, errors.New("failed to convert cells group")
 	}
 	storageGroupID := utils.UuidFromPgx(group.StorageGroupID)
-	if storageGroupID == nil {
-		return nil, errors.New("failed to convert cells group")
-	}
+
 	orgID := utils.UuidFromPgx(group.OrgID)
 	if orgID == nil {
+		return nil, errors.New("failed to convert cells group")
+	}
+
+	unitID := utils.UuidFromPgx(group.UnitID)
+	if unitID == nil {
 		return nil, errors.New("failed to convert cells group")
 	}
 
 	return &models.CellsGroup{
 		ID:             *id,
 		OrgID:          *orgID,
-		StorageGroupID: *storageGroupID,
+		UnitID:         *unitID,
+		StorageGroupID: storageGroupID,
 		Name:           group.Name,
 		Alias:          group.Alias,
 	}, nil

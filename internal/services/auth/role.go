@@ -14,6 +14,71 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// AccessLevel represents the different levels of access in the system
+type AccessLevel string
+
+const (
+	AccessLevelWorker  AccessLevel = "worker"
+	AccessLevelManager AccessLevel = "manager"
+	AccessLevelAdmin   AccessLevel = "admin"
+	AccessLevelOwner   AccessLevel = "owner"
+)
+
+// roleHierarchy defines which roles have access to each access level
+var roleHierarchy = map[AccessLevel][]models.RoleName{
+	AccessLevelWorker: {
+		models.RoleOwner,
+		models.RoleAdmin,
+		models.RoleManager,
+	},
+	AccessLevelManager: {
+		models.RoleOwner,
+		models.RoleAdmin,
+		models.RoleManager,
+	},
+	AccessLevelAdmin: {
+		models.RoleOwner,
+		models.RoleAdmin,
+	},
+	AccessLevelOwner: {
+		models.RoleOwner,
+	},
+}
+
+// CheckUserAccess checks if a user has the required access level
+func (s *AuthService) CheckUserAccess(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, accessLevel AccessLevel) (bool, error) {
+	ctx, span := s.tracer.Start(ctx, "CheckUserAccess",
+		trace.WithAttributes(
+			attribute.String("user_id", userID.String()),
+			attribute.String("org_id", orgID.String()),
+			attribute.String("access_level", string(accessLevel)),
+		),
+	)
+	defer span.End()
+
+	role, err := s.GetUserRole(ctx, userID, orgID)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get user role")
+		return false, fmt.Errorf("failed to get user role: %w", err)
+	}
+
+	allowedRoles, exists := roleHierarchy[accessLevel]
+	if !exists {
+		span.RecordError(fmt.Errorf("invalid access level: %s", accessLevel))
+		span.SetStatus(codes.Error, "invalid access level")
+		return false, fmt.Errorf("invalid access level: %s", accessLevel)
+	}
+
+	for _, allowedRole := range allowedRoles {
+		if role.Name == allowedRole {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID int) error {
 	ctx, span := s.tracer.Start(ctx, "AssignRoleToUser",
 		trace.WithAttributes(
@@ -37,11 +102,11 @@ func (s *AuthService) AssignRoleToUser(ctx context.Context, orgID uuid.UUID, use
 	})
 	if err != nil {
 		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to assign role to user")
-		return fmt.Errorf("failed to assign role to user: %w", err)
+		span.SetStatus(codes.Error, "failed to assign/update role for user")
+		return fmt.Errorf("failed to assign/update role for user: %w", err)
 	}
 
-	span.SetStatus(codes.Ok, "role assigned to user")
+	span.SetStatus(codes.Ok, "role assigned/updated for user")
 	return nil
 }
 
@@ -72,7 +137,7 @@ func (s *AuthService) GetUserRole(ctx context.Context, userID uuid.UUID, orgID u
 	return toRoleModel(role.AppRole), nil
 }
 
-func (s *AuthService) GetRoles(ctx context.Context) ([]*models.Role, error) {
+func (s *AuthService) GetAvaiableRoles(ctx context.Context) ([]*models.Role, error) {
 	ctx, span := s.tracer.Start(ctx, "GetRoles")
 	defer span.End()
 

@@ -44,6 +44,7 @@ type OrganizationUnit struct {
 
 type StorageGroup struct {
 	ID       uuid.UUID  `json:"id"`
+	OrgID    uuid.UUID  `json:"org_id"`
 	UnitID   uuid.UUID  `json:"unit_id"`
 	ParentID *uuid.UUID `json:"parent_id"`
 	Name     string     `json:"name"`
@@ -81,11 +82,12 @@ type ItemVariant struct {
 }
 
 type CellsGroup struct {
-	ID             uuid.UUID `json:"id"`
-	OrgID          uuid.UUID `json:"org_id"`
-	StorageGroupID uuid.UUID `json:"storage_group_id"`
-	Name           string    `json:"name"`
-	Alias          string    `json:"alias"`
+	ID             uuid.UUID  `json:"id"`
+	OrgID          uuid.UUID  `json:"org_id"`
+	UnitID         uuid.UUID  `json:"unit_id"`
+	StorageGroupID *uuid.UUID `json:"storage_group_id"`
+	Name           string     `json:"name"`
+	Alias          string     `json:"alias"`
 }
 
 type CellPathObjectType string
@@ -223,18 +225,18 @@ type Task struct {
 	Items       []TaskItem `json:"items"`
 }
 
-type RoleLevel string
+type RoleName string
 
 const (
-	RoleOwner   RoleLevel = "org_owner"
-	RoleAdmin   RoleLevel = "org_admin"
-	RoleManager RoleLevel = "org_manager"
-	RoleWorker  RoleLevel = "org_worker"
+	RoleOwner   RoleName = "org_owner"
+	RoleAdmin   RoleName = "org_admin"
+	RoleManager RoleName = "org_manager"
+	RoleWorker  RoleName = "org_worker"
 )
 
 type Role struct {
 	ID          int
-	Name        string
+	Name        RoleName
 	DisplayName string
 	Description string
 }

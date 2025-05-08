@@ -124,11 +124,6 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 		return nil, err
 	}
 
-	org, err = uc.service.GetByID(ctx, org.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	orgUpdated, err := uc.service.Update(ctx, org)
 	if err != nil {
 		return nil, err
