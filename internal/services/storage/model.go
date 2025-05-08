@@ -33,31 +33,21 @@ func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
 	}, nil
 }
 
-func toCellsGroup(group sqlc.CellsGroup) (*models.CellsGroup, error) {
-	if !group.ID.Valid {
-		return nil, errors.New("failed to convert cells group: invalid ID")
-	}
-	if !group.OrgID.Valid {
-		return nil, errors.New("failed to convert cells group: invalid org ID")
-	}
-	if !group.UnitID.Valid {
-		return nil, errors.New("failed to convert cells group: invalid unit ID")
-	}
-
-	var storageGroupID *uuid.UUID
-	if group.StorageGroupID.Valid {
-		id := database.UuidFromPgx(group.StorageGroupID)
-		storageGroupID = &id
-	}
+func toCellsGroupModel(group sqlc.CellsGroup) *models.CellsGroup {
+	id := database.UuidFromPgx(group.ID)
+	orgID := database.UuidFromPgx(group.OrgID)
+	unitID := database.UuidFromPgx(group.UnitID)
+	storageGroupID := database.UuidPtrFromPgx(group.StorageGroupID)
 
 	return &models.CellsGroup{
-		ID:             database.UuidFromPgx(group.ID),
-		OrgID:          database.UuidFromPgx(group.OrgID),
-		UnitID:         database.UuidFromPgx(group.UnitID),
+		ID:             id,
+		OrgID:          orgID,
+		UnitID:         unitID,
 		StorageGroupID: storageGroupID,
 		Name:           group.Name,
 		Alias:          group.Alias,
-	}, nil
+		CreatedAt:      group.CreatedAt.Time,
+	}
 }
 
 func toCell(cell sqlc.Cell) (*models.Cell, error) {

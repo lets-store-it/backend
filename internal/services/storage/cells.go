@@ -17,8 +17,8 @@ func (s *StorageService) GetCells(ctx context.Context, orgID uuid.UUID, cellsGro
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("cells_group_id", cellsGroupID.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("cells_group.id", cellsGroupID.String()),
 	)
 
 	cells, err := s.queries.GetCells(ctx, sqlc.GetCellsParams{
@@ -50,8 +50,8 @@ func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uu
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("cell_id", id.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("cell.id", id.String()),
 	)
 
 	cell, err := s.queries.GetCell(ctx, sqlc.GetCellParams{
@@ -86,12 +86,12 @@ func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsG
 	}
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("cells_group_id", cellsGroupID.String()),
-		attribute.String("alias", alias),
-		attribute.Int("row", row),
-		attribute.Int("level", level),
-		attribute.Int("position", position),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("cells_group.id", cellsGroupID.String()),
+		attribute.String("cell.alias", alias),
+		attribute.Int("cell.row", row),
+		attribute.Int("cell.level", level),
+		attribute.Int("cell.position", position),
 	)
 
 	cell, err := s.queries.CreateCell(ctx, sqlc.CreateCellParams{
@@ -135,13 +135,13 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 	}
 
 	span.SetAttributes(
-		attribute.String("cell_id", cell.ID.String()),
-		attribute.String("org_id", cell.OrgID.String()),
-		attribute.String("cells_group_id", cell.CellsGroupID.String()),
-		attribute.String("alias", cell.Alias),
-		attribute.Int("row", cell.Row),
-		attribute.Int("level", cell.Level),
-		attribute.Int("position", cell.Position),
+		attribute.String("cell.id", cell.ID.String()),
+		attribute.String("org.id", cell.OrgID.String()),
+		attribute.String("cells_group.id", cell.CellsGroupID.String()),
+		attribute.String("cell.alias", cell.Alias),
+		attribute.Int("cell.row", cell.Row),
+		attribute.Int("cell.level", cell.Level),
+		attribute.Int("cell.position", cell.Position),
 	)
 
 	updatedCell, err := s.queries.UpdateCell(ctx, sqlc.UpdateCellParams{
@@ -175,9 +175,9 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsG
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("cells_group_id", cellsGroupID.String()),
-		attribute.String("cell_id", id.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("cells_group.id", cellsGroupID.String()),
+		attribute.String("cell.id", id.String()),
 	)
 
 	err := s.queries.DeleteCell(ctx, sqlc.DeleteCellParams{
@@ -200,8 +200,8 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("cell_id", cellID.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("cell.id", cellID.String()),
 	)
 
 	segments, err := s.queries.GetCellPath(ctx, sqlc.GetCellPathParams{
