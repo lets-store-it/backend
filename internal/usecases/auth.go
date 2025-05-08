@@ -30,7 +30,7 @@ func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) 
 	return user, nil
 }
 
-func (u *AuthUseCase) CreateSessionByEmail(ctx context.Context, email string) (*models.Session, error) {
+func (u *AuthUseCase) CreateSessionByEmail(ctx context.Context, email string) (*models.UserSession, error) {
 	user, err := u.authService.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (u *AuthUseCase) GetUserIdFromSession(ctx context.Context, sessionSecret st
 	return user.ID, nil
 }
 
-func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken string) (*models.Session, error) {
+func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken string) (*models.UserSession, error) {
 	userInfo, err := u.yandexOAuthService.GetUserInfo(ctx, accessToken)
 	if err != nil {
 		return nil, err

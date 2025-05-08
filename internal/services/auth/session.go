@@ -16,7 +16,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (s *AuthService) CreateUserSession(ctx context.Context, userId uuid.UUID) (*models.Session, error) {
+func (s *AuthService) CreateUserSession(ctx context.Context, userId uuid.UUID) (*models.UserSession, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateUserSession",
 		trace.WithAttributes(
 			attribute.String("user_id", userId.String()),
@@ -35,7 +35,7 @@ func (s *AuthService) CreateUserSession(ctx context.Context, userId uuid.UUID) (
 	}
 
 	span.SetStatus(codes.Ok, "session created")
-	return &models.Session{
+	return &models.UserSession{
 		ID:     session.ID.Bytes,
 		UserID: session.UserID.Bytes,
 		Secret: session.Token,
