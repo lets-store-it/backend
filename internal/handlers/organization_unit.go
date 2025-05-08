@@ -25,7 +25,7 @@ func convertUnitToDTO(unit *models.OrganizationUnit) api.Unit {
 
 // GetOrganizationUnits implements api.Handler.
 func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (api.GetOrganizationUnitsRes, error) {
-	units, err := h.orgUnitUseCase.GetAll(ctx)
+	units, err := h.orgUnitUseCase.GetAllUnits(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (h *RestApiImplementation) GetOrganizationUnits(ctx context.Context) (api.G
 
 // CreateUnit implements api.Handler.
 func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateOrganizationUnitRequest) (api.CreateUnitRes, error) {
-	unit, err := h.orgUnitUseCase.Create(ctx, req.Name, string(req.Alias), req.Address.Value)
+	unit, err := h.orgUnitUseCase.CreateUnit(ctx, req.Name, string(req.Alias), req.Address.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (h *RestApiImplementation) DeleteOrganizationUnit(ctx context.Context, para
 
 // GetOrganizationUnitById implements api.Handler.
 func (h *RestApiImplementation) GetOrganizationUnitById(ctx context.Context, params api.GetOrganizationUnitByIdParams) (api.GetOrganizationUnitByIdRes, error) {
-	unit, err := h.orgUnitUseCase.GetByID(ctx, params.ID)
+	unit, err := h.orgUnitUseCase.GetUnitByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (h *RestApiImplementation) PatchOrganizationUnit(ctx context.Context, req *
 		updates["alias"] = req.Alias.Value
 	}
 
-	unit, err := h.orgUnitUseCase.Patch(ctx, params.ID, updates)
+	unit, err := h.orgUnitUseCase.PatchUnit(ctx, params.ID, updates)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (h *RestApiImplementation) UpdateOrganizationUnit(ctx context.Context, req 
 		Address: address,
 	}
 
-	updatedUnit, err := h.orgUnitUseCase.Update(ctx, unit)
+	updatedUnit, err := h.orgUnitUseCase.UpdateUnit(ctx, unit)
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	validateResult, err := common.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 }
 
 func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.OrganizationUnit, error) {
-	validateResult, err := common.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.Organ
 }
 
 func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	validateResult, err := common.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := common.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return err
 	}
