@@ -3,8 +3,7 @@ allOf:
   - type: object
     properties:
       data:
-        type: array
-        items:
-          $ref: ./models/Organization.yaml
+        type: object
+        $ref: ./models/Organization.yaml
     required:
       - data

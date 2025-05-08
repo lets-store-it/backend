@@ -5,15 +5,18 @@ allOf:
         type: string
         format: uuid
         readOnly: true
-      parentId:
-        type: string
-        format: uuid
-        nullable: true
+    required:
+      - id
+  - $ref: ./CellGroupBase.yaml
+  - type: object
+    properties:
       unitId:
         type: string
         format: uuid
+      storageGroupId:
+        type: string
+        format: uuid
+        nullable: true
     required:
-      - id
-      - parentId
+      - storageGroupId
       - unitId
-  - $ref: ./StorageGroupBase.yaml

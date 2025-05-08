@@ -1,18 +1,17 @@
 type: object
 properties:
-  id:
-    type: string
-    format: uuid
-    readOnly: true
   name:
     type: string
   alias:
     $ref: ../../common/storage-alias.yaml
-  storage_group_id:
+  storageGroupId:
+    type: string
+    format: uuid
+    nullable: true
+  unitId:
     type: string
     format: uuid
 required:
-  - id
   - name
   - alias
-  - storage_group_id
+  - unitId

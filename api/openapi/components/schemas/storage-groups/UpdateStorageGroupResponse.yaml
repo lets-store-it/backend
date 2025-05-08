@@ -3,8 +3,7 @@ allOf:
   - type: object
     properties:
       data:
-        type: array
-        items:
-          $ref: ./models/StorageGroup.yaml
+        type: object
+        $ref: ./models/StorageGroup.yaml
     required:
       - data

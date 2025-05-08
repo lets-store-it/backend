@@ -93,7 +93,8 @@ CREATE INDEX item_variant_article_idx ON item_variant(article);
 CREATE TABLE cells_group (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
-    storage_group_id UUID NOT NULL REFERENCES storage_group(id),
+    unit_id UUID NOT NULL REFERENCES org_unit(id),
+    storage_group_id UUID REFERENCES storage_group(id),
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NOT NULL,
 
@@ -194,7 +195,7 @@ CREATE TABLE app_role_binding (
     org_id UUID NOT NULL REFERENCES org(id),
     role_id INTEGER NOT NULL REFERENCES app_role(id),
     user_id UUID NOT NULL REFERENCES app_user(id),
-    UNIQUE (role_id, user_id, org_id)
+    UNIQUE (user_id, org_id)
 );
 
 CREATE TABLE object_type (

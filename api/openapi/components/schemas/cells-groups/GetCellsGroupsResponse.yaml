@@ -3,6 +3,6 @@ properties:
   data:
     type: array
     items:
-      $ref: models/CellGroupBase.yaml
+      $ref: models/CellGroup.yaml
 required:
   - data
