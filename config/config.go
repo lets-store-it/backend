@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 // Note: OTLP is configured using its internal configuration mechanisms
@@ -40,6 +41,7 @@ func (k *KafkaConfig) GetBrokersList() []string {
 }
 
 type Config struct {
+	ServiceName string            `yaml:"service_name" env:"SERVICE_NAME" env-default:"storeit-backend"`
 	Server      ServerConfig      `yaml:"server"`
 	Database    DatabaseConfig    `yaml:"database"`
 	YandexOAuth YandexOAuthConfig `yaml:"yandex_oauth"`
@@ -47,8 +49,13 @@ type Config struct {
 }
 
 func GetConfigOrDie() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	var cfg Config
-	err := cleanenv.ReadEnv(&cfg)
+	err = cleanenv.ReadEnv(&cfg)
 	if err != nil {
 		log.Fatalf("Failed to read config: %v", err)
 	}
