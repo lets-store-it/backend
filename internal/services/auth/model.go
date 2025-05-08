@@ -25,7 +25,7 @@ func toUserModel(user database.AppUser) *models.User {
 func toRoleModel(role database.AppRole) *models.Role {
 	return &models.Role{
 		ID:          int(role.ID),
-		Name:        role.Name,
+		Name:        models.RoleName(role.Name),
 		DisplayName: role.DisplayName,
 		Description: role.Description,
 	}

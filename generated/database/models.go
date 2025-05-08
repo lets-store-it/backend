@@ -77,6 +77,7 @@ type Cell struct {
 type CellsGroup struct {
 	ID             pgtype.UUID
 	OrgID          pgtype.UUID
+	UnitID         pgtype.UUID
 	StorageGroupID pgtype.UUID
 	Name           string
 	Alias          string

@@ -169,9 +169,11 @@ func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.S
 	}
 
 	updatedGroup, err := s.queries.UpdateStorageGroup(ctx, database.UpdateStorageGroupParams{
-		ID:    utils.PgUUID(group.ID),
-		Name:  group.Name,
-		Alias: group.Alias,
+		ID:     utils.PgUUID(group.ID),
+		OrgID:  utils.PgUUID(group.OrgID),
+		UnitID: utils.PgUUID(group.UnitID),
+		Name:   group.Name,
+		Alias:  group.Alias,
 	})
 	if err != nil {
 		span.RecordError(err)

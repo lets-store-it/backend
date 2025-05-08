@@ -64,7 +64,6 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 		span.SetAttributes(attribute.String("description", *item.Description))
 	}
 
-	item.ID = orgID
 	tx, err := s.pgxPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		span.RecordError(err)
@@ -75,9 +74,12 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 	qtx := s.queries.WithTx(tx)
 
 	createdItem, err := qtx.CreateItem(ctx, database.CreateItemParams{
+		OrgID:       utils.PgUUID(orgID),
 		Name:        item.Name,
 		Description: utils.PgTextPtr(item.Description),
 	})
+	item.ID = *utils.UuidFromPgx(createdItem.ID)
+
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to create item")
@@ -322,6 +324,7 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	qtx := s.queries.WithTx(tx)
 
 	_, err = qtx.UpdateItem(ctx, database.UpdateItemParams{
+		OrgID:       utils.PgUUID(orgID),
 		ID:          utils.PgUUID(item.ID),
 		Name:        item.Name,
 		Description: utils.PgTextPtr(item.Description),
