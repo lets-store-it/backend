@@ -47,7 +47,7 @@ func InitTelemetry(ctx context.Context, appName string) error {
 		trace.WithResource(appResource),
 		trace.WithBatcher(traceExporter,
 			trace.WithBatchTimeout(5*time.Second),
-			trace.WithMaxExportBatchSize(1),
+			// trace.WithMaxExportBatchSize(1),
 		),
 	)
 	tracerProvider = tp

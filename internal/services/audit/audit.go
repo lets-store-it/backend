@@ -197,7 +197,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return err
 	}
 
-	employee, err := s.auth.GetEmployeeWithRole(ctx, objectChange.OrgID, objectChange.UserID)
+	employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, objectChange.UserID)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get employee with role")
@@ -283,7 +283,7 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 
 	objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
 	for i, change := range objectChanges {
-		employee, err := s.auth.GetEmployeeWithRole(ctx, change.OrgID.Bytes, change.UserID.Bytes)
+		employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "failed to get employee info")

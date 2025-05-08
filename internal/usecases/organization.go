@@ -37,7 +37,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	err = uc.authService.AssignRoleToUser(ctx, org.ID, userID, 1) // owner
+	err = uc.authService.SetUserRole(ctx, org.ID, userID, 1) // owner
 	if err != nil {
 		return nil, err
 	}

@@ -1,28 +1,23 @@
 package auth
 
 import (
-	"time"
-
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 )
 
-func toUserModel(user database.AppUser) *models.User {
-	var middleName *string
-	if user.MiddleName.Valid {
-		middleName = &user.MiddleName.String
-	}
-
+func toUserModel(user sqlc.AppUser) *models.User {
 	return &models.User{
 		ID:         user.ID.Bytes,
 		Email:      user.Email,
 		FirstName:  user.FirstName,
 		LastName:   user.LastName,
-		MiddleName: middleName,
+		MiddleName: database.PgTextPtrFromPgx(user.MiddleName),
+		YandexID:   database.PgTextPtrFromPgx(user.YandexID),
 	}
 }
 
-func toRoleModel(role database.AppRole) *models.Role {
+func toRoleModel(role sqlc.AppRole) *models.Role {
 	return &models.Role{
 		ID:          int(role.ID),
 		Name:        models.RoleName(role.Name),
@@ -31,45 +26,50 @@ func toRoleModel(role database.AppRole) *models.Role {
 	}
 }
 
-func toTokenModel(token database.AppApiToken) *models.ApiToken {
-	var revokedAt *time.Time
-	if token.RevokedAt.Valid {
-		revokedAt = &token.RevokedAt.Time
-	}
+func toTokenModel(token sqlc.AppApiToken) *models.ApiToken {
 	return &models.ApiToken{
 		ID:        token.ID.Bytes,
 		OrgID:     token.OrgID.Bytes,
 		Name:      token.Name,
 		Token:     token.Token,
 		CreatedAt: token.CreatedAt.Time,
-		RevokedAt: revokedAt,
+		RevokedAt: database.PgTimePtrFromPgx(token.RevokedAt),
 	}
 }
 
+// TODO: redo
 func toEmployeeModel(employee interface{}) *models.Employee {
-	var middleName *string
-	var appUser database.AppUser
-	var appRole database.AppRole
+	var appUser sqlc.AppUser
+	var appRole sqlc.AppRole
 
 	switch e := employee.(type) {
-	case database.GetEmployeesRow:
+	case sqlc.GetEmployeesRow:
 		appUser = e.AppUser
 		appRole = e.AppRole
-	case database.GetEmployeeRow:
+	case sqlc.GetEmployeeRow:
 		appUser = e.AppUser
 		appRole = e.AppRole
 	}
 
-	if appUser.MiddleName.Valid {
-		middleName = &appUser.MiddleName.String
-	}
 	return &models.Employee{
 		UserID:     appUser.ID.Bytes,
 		Email:      appUser.Email,
 		FirstName:  appUser.FirstName,
 		LastName:   appUser.LastName,
-		MiddleName: middleName,
+		MiddleName: database.PgTextPtrFromPgx(appUser.MiddleName),
 		RoleID:     int(appRole.ID),
 		Role:       toRoleModel(appRole),
+	}
+}
+
+func toSessionModel(session sqlc.AppUserSession) *models.UserSession {
+	return &models.UserSession{
+		ID:     session.ID.Bytes,
+		UserID: session.UserID.Bytes,
+		Token:  session.Token,
+
+		CreatedAt: session.CreatedAt.Time,
+		ExpiresAt: database.PgTimePtrFromPgx(session.ExpiresAt),
+		RevokedAt: database.PgTimePtrFromPgx(session.RevokedAt),
 	}
 }

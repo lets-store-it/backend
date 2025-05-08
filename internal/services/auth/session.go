@@ -2,11 +2,9 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
@@ -16,22 +14,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func toSessionModel(session sqlc.AppUserSession) *models.UserSession {
-	return &models.UserSession{
-		ID:     session.ID.Bytes,
-		UserID: session.UserID.Bytes,
-		Token:  session.Token,
-
-		CreatedAt: session.CreatedAt.Time,
-		ExpiresAt: database.PgTimePtrFromPgx(session.ExpiresAt),
-		RevokedAt: database.PgTimePtrFromPgx(session.RevokedAt),
-	}
-}
-
 func (s *AuthService) CreateSession(ctx context.Context, userId uuid.UUID) (*models.UserSession, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateSession",
 		trace.WithAttributes(
-			attribute.String("user_id", userId.String()),
+			attribute.String("user.id", userId.String()),
 		),
 	)
 	defer span.End()
@@ -56,7 +42,7 @@ func (s *AuthService) GetSessionBySecret(ctx context.Context, sessionSecret stri
 
 	session, err := s.queries.GetSessionBySecret(ctx, sessionSecret)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.RecordError(ErrSessionNotFound)
 			span.SetStatus(codes.Error, "session not found")
 			return nil, ErrSessionNotFound
@@ -71,8 +57,18 @@ func (s *AuthService) GetSessionBySecret(ctx context.Context, sessionSecret stri
 }
 
 func (s *AuthService) InvalidateSession(ctx context.Context, sessionID uuid.UUID) error {
-	ctx, span := s.tracer.Start(ctx, "InvalidateSession")
+	ctx, span := s.tracer.Start(ctx, "InvalidateSession",
+		trace.WithAttributes(
+			attribute.String("session.id", sessionID.String()),
+		),
+	)
 	defer span.End()
 
-	return s.queries.InvalidateSession(ctx, database.PgUUID(sessionID))
+	err := s.queries.InvalidateSession(ctx, database.PgUUID(sessionID))
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to invalidate session")
+		return fmt.Errorf("failed to invalidate session: %w", err)
+	}
+	return nil
 }
