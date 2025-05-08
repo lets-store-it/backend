@@ -9,11 +9,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -21,15 +22,12 @@ import (
 )
 
 var (
-	ErrInvalidObjectChange = errors.New("invalid object change")
-	ErrInvalidOrganization = errors.New("invalid organization")
-	ErrInvalidUser         = errors.New("invalid user")
-	ErrInvalidTargetObject = errors.New("invalid target object")
+	ErrValidationError = errors.New("validation error")
 )
 
 type AuditService struct {
 	pgxPool *pgxpool.Pool
-	queries *database.Queries
+	queries *sqlc.Queries
 
 	auth *auth.AuthService
 
@@ -40,7 +38,7 @@ type AuditService struct {
 
 type AuditServiceConfig struct {
 	PGXPool *pgxpool.Pool
-	Queries *database.Queries
+	Queries *sqlc.Queries
 
 	Auth *auth.AuthService
 
@@ -87,13 +85,13 @@ func (s *AuditService) Close() error {
 
 func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) error {
 	if objectChange == nil {
-		return ErrInvalidObjectChange
+		return fmt.Errorf("%w: object change is nil", ErrValidationError)
 	}
 	if objectChange.OrgID == uuid.Nil {
-		return ErrInvalidOrganization
+		return fmt.Errorf("%w: organization ID is nil", ErrValidationError)
 	}
 	if objectChange.TargetObjectID == uuid.Nil {
-		return ErrInvalidTargetObject
+		return fmt.Errorf("%w: target object ID is nil", ErrValidationError)
 	}
 	return nil
 }
@@ -101,7 +99,7 @@ func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) e
 func (s *AuditService) getObjectTypeInfo(ctx context.Context, typeID int32) (*models.ObjectType, error) {
 	ctx, span := s.tracer.Start(ctx, "getObjectTypeInfo",
 		trace.WithAttributes(
-			attribute.Int("type_id", int(typeID)),
+			attribute.Int("type.id", int(typeID)),
 		),
 	)
 	defer span.End()
@@ -120,8 +118,8 @@ func (s *AuditService) getObjectTypeInfo(ctx context.Context, typeID int32) (*mo
 	}
 
 	span.SetAttributes(
-		attribute.String("object_group", result.Group),
-		attribute.String("object_name", result.Name),
+		attribute.String("object.group", result.Group),
+		attribute.String("object.name", result.Name),
 	)
 	span.SetStatus(codes.Ok, "successfully retrieved object type")
 
@@ -135,10 +133,10 @@ func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.
 
 	ctx, span := s.tracer.Start(ctx, "publishToKafka",
 		trace.WithAttributes(
-			attribute.String("change_id", objectChange.ID.String()),
-			attribute.String("org_id", objectChange.OrgID.String()),
-			attribute.String("target_object_id", objectChange.TargetObjectID.String()),
-			attribute.String("kafka_topic", s.kafkaTopic),
+			attribute.String("change.id", objectChange.ID.String()),
+			attribute.String("org.id", objectChange.OrgID.String()),
+			attribute.String("target.object.id", objectChange.TargetObjectID.String()),
+			attribute.String("kafka.topic", s.kafkaTopic),
 		),
 	)
 	defer span.End()
@@ -164,10 +162,10 @@ func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.
 func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
 	ctx, span := s.tracer.Start(ctx, "CreateObjectChange",
 		trace.WithAttributes(
-			attribute.String("org_id", objectChange.OrgID.String()),
-			attribute.String("user_id", objectChange.UserID.String()),
+			attribute.String("org.id", objectChange.OrgID.String()),
+			attribute.String("user.id", utils.SafeUUIDString(objectChange.UserID)),
 			attribute.String("action", string(objectChange.Action)),
-			attribute.String("target_object_id", objectChange.TargetObjectID.String()),
+			attribute.String("target.object.id", objectChange.TargetObjectID.String()),
 		),
 	)
 	defer span.End()
@@ -186,14 +184,6 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return err
 	}
 
-	// Get related information
-	objectType, err := s.getObjectTypeInfo(ctx, int32(objectChange.TargetObjectTypeId))
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to get object type info")
-		return err
-	}
-
 	employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, *objectChange.UserID)
 	if err != nil {
 		span.RecordError(err)
@@ -202,12 +192,12 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	}
 
 	// Create the object change record
-	change, err := s.queries.CreateObjectChange(ctx, database.CreateObjectChangeParams{
-		OrgID:            pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
-		UserID:           pgtype.UUID{Bytes: *objectChange.UserID, Valid: true},
+	change, err := s.queries.CreateObjectChange(ctx, sqlc.CreateObjectChangeParams{
+		OrgID:            database.PgUUID(objectChange.OrgID),
+		UserID:           database.PgUuidPtr(objectChange.UserID),
 		Action:           string(objectChange.Action),
 		TargetObjectType: int32(objectChange.TargetObjectTypeId),
-		TargetObjectID:   pgtype.UUID{Bytes: objectChange.TargetObjectID, Valid: true},
+		TargetObjectID:   database.PgUUID(objectChange.TargetObjectID),
 		PrechangeState:   objectChange.PrechangeState,
 		PostchangeState:  objectChange.PostchangeState,
 	})
@@ -217,14 +207,11 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return fmt.Errorf("failed to create object change: %w", err)
 	}
 
-	// Update the object change with additional information
 	objectChange.ID = change.ID.Bytes
-	objectChange.ObjectType = objectType
 	objectChange.Employee = employee
 
 	span.SetAttributes(
-		attribute.String("change_id", objectChange.ID.String()),
-		attribute.String("object_type", objectType.Name),
+		attribute.String("change.id", objectChange.ID.String()),
 	)
 
 	if err := s.publishToKafka(ctx, objectChange); err != nil {
@@ -240,29 +227,17 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
 	ctx, span := s.tracer.Start(ctx, "GetObjectChanges",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("target_object_type_id", fmt.Sprintf("%d", targetObjectTypeId)),
-			attribute.String("target_object_id", targetObjectID.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("target.object.type.id", fmt.Sprintf("%d", targetObjectTypeId)),
+			attribute.String("target.object.id", targetObjectID.String()),
 		),
 	)
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.RecordError(ErrInvalidOrganization)
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-	if targetObjectID == uuid.Nil {
-		span.RecordError(ErrInvalidTargetObject)
-		span.SetStatus(codes.Error, "invalid target object ID")
-		return nil, ErrInvalidTargetObject
-	}
-
-	// Get the object changes
-	objectChanges, err := s.queries.GetObjectChanges(ctx, database.GetObjectChangesParams{
-		OrgID:            pgtype.UUID{Bytes: orgID, Valid: true},
+	objectChanges, err := s.queries.GetObjectChanges(ctx, sqlc.GetObjectChangesParams{
+		OrgID:            database.PgUUID(orgID),
 		TargetObjectType: int32(targetObjectTypeId),
-		TargetObjectID:   pgtype.UUID{Bytes: targetObjectID, Valid: true},
+		TargetObjectID:   database.PgUUID(targetObjectID),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -270,7 +245,6 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 		return nil, fmt.Errorf("failed to get object changes: %w", err)
 	}
 
-	// Get the object type information
 	objectType, err := s.getObjectTypeInfo(ctx, int32(targetObjectTypeId))
 	if err != nil {
 		span.RecordError(err)
@@ -286,12 +260,11 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			span.SetStatus(codes.Error, "failed to get employee info")
 			return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 		}
-		userID := uuid.UUID(change.UserID.Bytes)
 
 		objectChangesModels[i] = &models.ObjectChange{
 			ID:                 change.ID.Bytes,
 			OrgID:              change.OrgID.Bytes,
-			UserID:             &userID,
+			UserID:             database.UuidPtrFromPgx(change.UserID),
 			Action:             models.ObjectChangeAction(change.Action),
 			TargetObjectTypeId: models.ObjectTypeId(objectType.ID),
 			TargetObjectID:     change.TargetObjectID.Bytes,
@@ -304,8 +277,8 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 	}
 
 	span.SetAttributes(
-		attribute.Int("changes_count", len(objectChangesModels)),
-		attribute.String("object_type", objectType.Name),
+		attribute.Int("changes.count", len(objectChangesModels)),
+		attribute.String("object.type", objectType.Name),
 	)
 	span.SetStatus(codes.Ok, "successfully retrieved object changes")
 

@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -24,10 +24,11 @@ func (s *StorageService) validateStorageGroupData(name, alias string) error {
 func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateStorageGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("unit_id", unitID.String()),
-			attribute.String("name", name),
-			attribute.String("alias", alias),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("unit.id", unitID.String()),
+			attribute.String("storage_group.name", name),
+			attribute.String("storage_group.alias", alias),
+			attribute.String("storage_group.parent_id", utils.SafeUUIDString(parentID)),
 		),
 	)
 	defer span.End()
@@ -38,19 +39,10 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	if parentID != nil {
-		span.SetAttributes(attribute.String("parent_id", parentID.String()))
-	}
-
-	var parentUUID pgtype.UUID
-	if parentID != nil {
-		parentUUID = database.PgUUID(*parentID)
-	}
-
 	group, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
 		OrgID:    database.PgUUID(orgID),
 		UnitID:   database.PgUUID(unitID),
-		ParentID: parentUUID,
+		ParentID: database.PgUuidPtr(parentID),
 		Name:     name,
 		Alias:    alias,
 	})
@@ -74,7 +66,7 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID
 func (s *StorageService) GetAllStorageGroups(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "GetAllStorageGroups",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
+			attribute.String("org.id", orgID.String()),
 		),
 	)
 	defer span.End()
@@ -103,8 +95,8 @@ func (s *StorageService) GetAllStorageGroups(ctx context.Context, orgID uuid.UUI
 func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.StorageGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "GetStorageGroupByID",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("group_id", id.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("storage_group.id", id.String()),
 		),
 	)
 	defer span.End()
@@ -137,8 +129,8 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	ctx, span := s.tracer.Start(ctx, "DeleteStorageGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("group_id", id.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("storage_group.id", id.String()),
 		),
 	)
 	defer span.End()
@@ -160,8 +152,8 @@ func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID
 func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "UpdateStorageGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", group.OrgID.String()),
-			attribute.String("group_id", group.ID.String()),
+			attribute.String("org.id", group.OrgID.String()),
+			attribute.String("storage_group.id", group.ID.String()),
 		),
 	)
 	defer span.End()

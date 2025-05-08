@@ -13,31 +13,14 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func toCellsGroupModel(group sqlc.CellsGroup) *models.CellsGroup {
-	id := database.UuidFromPgx(group.ID)
-	orgID := database.UuidFromPgx(group.OrgID)
-	unitID := database.UuidFromPgx(group.UnitID)
-	storageGroupID := database.UuidPtrFromPgx(group.StorageGroupID)
-
-	return &models.CellsGroup{
-		ID:             id,
-		OrgID:          orgID,
-		UnitID:         unitID,
-		StorageGroupID: storageGroupID,
-		Name:           group.Name,
-		Alias:          group.Alias,
-		CreatedAt:      group.CreatedAt.Time,
-	}
-}
-
 func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.CellsGroup, name string, alias string) (*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateCellsGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", group.OrgID.String()),
-			attribute.String("storage_group_id", group.ID.String()),
-			attribute.String("unit_id", group.UnitID.String()),
-			attribute.String("name", name),
-			attribute.String("alias", alias),
+			attribute.String("org.id", group.OrgID.String()),
+			attribute.String("storage_group.id", group.ID.String()),
+			attribute.String("unit.id", group.UnitID.String()),
+			attribute.String("cells_group.name", name),
+			attribute.String("cells_group.alias", alias),
 		),
 	)
 	defer span.End()
@@ -73,7 +56,7 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.Cel
 func (s *StorageService) GetCellsGroups(ctx context.Context, orgID uuid.UUID) ([]*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "GetCellsGroups",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
+			attribute.String("org.id", orgID.String()),
 		),
 	)
 	defer span.End()
@@ -97,8 +80,8 @@ func (s *StorageService) GetCellsGroups(ctx context.Context, orgID uuid.UUID) ([
 func (s *StorageService) GetCellsGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "GetCellsGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("group_id", id.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("cells_group.id", id.String()),
 		),
 	)
 	defer span.End()
@@ -120,8 +103,8 @@ func (s *StorageService) GetCellsGroup(ctx context.Context, orgID uuid.UUID, id 
 func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.CellsGroup) (*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "UpdateCellsGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", group.OrgID.String()),
-			attribute.String("group_id", group.ID.String()),
+			attribute.String("org.id", group.OrgID.String()),
+			attribute.String("cells_group.id", group.ID.String()),
 		),
 	)
 	defer span.End()
@@ -157,8 +140,8 @@ func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.Cel
 func (s *StorageService) DeleteCellsGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	ctx, span := s.tracer.Start(ctx, "DeleteCellsGroup",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("group_id", id.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("cells_group.id", id.String()),
 		),
 	)
 	defer span.End()
