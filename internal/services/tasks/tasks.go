@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/let-store-it/backend/generated/database"
+	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/models"
 )
 

@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/let-store-it/backend/generated/database"
+	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
+	"github.com/let-store-it/backend/internal/database"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -22,8 +22,8 @@ func (s *StorageService) GetCells(ctx context.Context, orgID uuid.UUID, cellsGro
 	)
 
 	cells, err := s.queries.GetCells(ctx, database.GetCellsParams{
-		OrgID:        utils.PgUUID(orgID),
-		CellsGroupID: utils.PgUUID(cellsGroupID),
+		OrgID:        database.PgUUID(orgID),
+		CellsGroupID: database.PgUUID(cellsGroupID),
 	})
 	if err != nil {
 		span.RecordError(err)

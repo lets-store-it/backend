@@ -7,23 +7,20 @@ import (
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/config"
-	"github.com/let-store-it/backend/generated/database"
+	database "github.com/let-store-it/backend/generated/sqlc"
 )
 
-// Connection wraps database connection and queries
 type Connection struct {
 	Pool    *pgxpool.Pool
 	Queries *database.Queries
 }
 
-// Close closes the database connection
 func (c *Connection) Close() {
 	if c.Pool != nil {
 		c.Pool.Close()
 	}
 }
 
-// InitDatabaseOrDie initializes database connection and queries
 func InitDatabaseOrDie(ctx context.Context, cfg *config.Config) (*Connection, error) {
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.Database.User,
