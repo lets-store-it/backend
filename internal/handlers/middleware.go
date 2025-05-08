@@ -20,6 +20,13 @@ const (
 	defaultExpiresIn = 360 * 24 * time.Hour // 360 days
 )
 
+var (
+	ErrSessionNotFound = errors.New("session not found")
+	ErrSessionRevoked  = errors.New("session revoked")
+	ErrSessionExpired  = errors.New("session expired")
+	ErrSessionInvalid  = errors.New("session invalid")
+)
+
 func WithOrganizationID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var orgID uuid.UUID = uuid.Nil
@@ -97,15 +104,15 @@ func (h *RestApiImplementation) refreshSessionIfNeeded(ctx context.Context, sess
 func (h *RestApiImplementation) HandleCookie(ctx context.Context, operationName api.OperationName, t api.Cookie) (context.Context, error) {
 	session, err := h.authUseCase.GetSessionBySecret(ctx, t.GetAPIKey())
 	if err != nil {
-		return nil, h.NewUnauthorizedError(ctx)
+		return nil, ErrSessionNotFound
 	}
 
 	if session.RevokedAt != nil {
-		return nil, h.NewUnauthorizedErrorWithMessage(ctx, "Session is revoked")
+		return nil, ErrSessionRevoked
 	}
 
 	if session.ExpiresAt != nil && session.ExpiresAt.Before(time.Now()) {
-		return nil, h.NewUnauthorizedErrorWithMessage(ctx, "Session is expired")
+		return nil, ErrSessionExpired
 	}
 
 	session, err = h.refreshSessionIfNeeded(ctx, session)
