@@ -1971,7 +1971,7 @@ func (c *Client) DeleteItem(ctx context.Context, params DeleteItemParams) error 
 	return err
 }
 
-func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (res *DeleteItemOK, err error) {
+func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (res *DeleteItemNoContent, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteItem"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),

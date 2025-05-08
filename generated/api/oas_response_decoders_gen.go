@@ -1356,9 +1356,9 @@ func decodeDeleteCellResponse(resp *http.Response) (res *DeleteCellOK, _ error) 
 
 func decodeDeleteCellsGroupResponse(resp *http.Response) (res DeleteCellsGroupRes, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteCellsGroupOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteCellsGroupNoContent{}, nil
 	case 401:
 		// Code 401.
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
@@ -1717,11 +1717,11 @@ func decodeDeleteInstanceByIdResponse(resp *http.Response) (res DeleteInstanceBy
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemOK, _ error) {
+func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemNoContent, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteItemOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteItemNoContent{}, nil
 	}
 	// Convenient error response.
 	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
@@ -1770,9 +1770,9 @@ func decodeDeleteItemResponse(resp *http.Response) (res *DeleteItemOK, _ error) 
 
 func decodeDeleteOrganizationResponse(resp *http.Response) (res DeleteOrganizationRes, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteOrganizationOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteOrganizationNoContent{}, nil
 	case 401:
 		// Code 401.
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
@@ -1891,9 +1891,9 @@ func decodeDeleteOrganizationResponse(resp *http.Response) (res DeleteOrganizati
 
 func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res DeleteOrganizationUnitRes, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteOrganizationUnitOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteOrganizationUnitNoContent{}, nil
 	case 401:
 		// Code 401.
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
@@ -2012,9 +2012,9 @@ func decodeDeleteOrganizationUnitResponse(resp *http.Response) (res DeleteOrgani
 
 func decodeDeleteStorageGroupResponse(resp *http.Response) (res DeleteStorageGroupRes, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteStorageGroupOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteStorageGroupNoContent{}, nil
 	case 401:
 		// Code 401.
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))

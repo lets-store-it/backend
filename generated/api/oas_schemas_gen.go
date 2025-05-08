@@ -469,52 +469,66 @@ func (s *CellForInstanceCellPathItemObjectType) UnmarshalText(data []byte) error
 	}
 }
 
-// Ref: #/components/schemas/CellGroupBase
-type CellGroupBase struct {
-	ID             uuid.UUID    `json:"id"`
-	Name           string       `json:"name"`
-	Alias          StorageAlias `json:"alias"`
-	StorageGroupID uuid.UUID    `json:"storage_group_id"`
+// Merged schema.
+// Ref: #/components/schemas/CellGroup
+type CellGroup struct {
+	ID    uuid.UUID    `json:"id"`
+	Name  string       `json:"name"`
+	Alias StorageAlias `json:"alias"`
+	// Merged property.
+	StorageGroupId NilUUID `json:"storageGroupId"`
+	// Merged property.
+	UnitId uuid.UUID `json:"unitId"`
 }
 
 // GetID returns the value of ID.
-func (s *CellGroupBase) GetID() uuid.UUID {
+func (s *CellGroup) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetName returns the value of Name.
-func (s *CellGroupBase) GetName() string {
+func (s *CellGroup) GetName() string {
 	return s.Name
 }
 
 // GetAlias returns the value of Alias.
-func (s *CellGroupBase) GetAlias() StorageAlias {
+func (s *CellGroup) GetAlias() StorageAlias {
 	return s.Alias
 }
 
-// GetStorageGroupID returns the value of StorageGroupID.
-func (s *CellGroupBase) GetStorageGroupID() uuid.UUID {
-	return s.StorageGroupID
+// GetStorageGroupId returns the value of StorageGroupId.
+func (s *CellGroup) GetStorageGroupId() NilUUID {
+	return s.StorageGroupId
+}
+
+// GetUnitId returns the value of UnitId.
+func (s *CellGroup) GetUnitId() uuid.UUID {
+	return s.UnitId
 }
 
 // SetID sets the value of ID.
-func (s *CellGroupBase) SetID(val uuid.UUID) {
+func (s *CellGroup) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetName sets the value of Name.
-func (s *CellGroupBase) SetName(val string) {
+func (s *CellGroup) SetName(val string) {
 	s.Name = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *CellGroupBase) SetAlias(val StorageAlias) {
+func (s *CellGroup) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
-// SetStorageGroupID sets the value of StorageGroupID.
-func (s *CellGroupBase) SetStorageGroupID(val uuid.UUID) {
-	s.StorageGroupID = val
+// SetStorageGroupId sets the value of StorageGroupId.
+func (s *CellGroup) SetStorageGroupId(val NilUUID) {
+	s.StorageGroupId = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *CellGroup) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
 }
 
 type Cookie struct {
@@ -662,15 +676,10 @@ func (*CreateCellsGroupForbidden) createCellsGroupRes() {}
 
 // Ref: #/components/schemas/CreateCellsGroupRequest
 type CreateCellsGroupRequest struct {
-	ID             uuid.UUID    `json:"id"`
 	Name           string       `json:"name"`
 	Alias          StorageAlias `json:"alias"`
-	StorageGroupID uuid.UUID    `json:"storage_group_id"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateCellsGroupRequest) GetID() uuid.UUID {
-	return s.ID
+	StorageGroupId OptNilUUID   `json:"storageGroupId"`
+	UnitId         uuid.UUID    `json:"unitId"`
 }
 
 // GetName returns the value of Name.
@@ -683,14 +692,14 @@ func (s *CreateCellsGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
-// GetStorageGroupID returns the value of StorageGroupID.
-func (s *CreateCellsGroupRequest) GetStorageGroupID() uuid.UUID {
-	return s.StorageGroupID
+// GetStorageGroupId returns the value of StorageGroupId.
+func (s *CreateCellsGroupRequest) GetStorageGroupId() OptNilUUID {
+	return s.StorageGroupId
 }
 
-// SetID sets the value of ID.
-func (s *CreateCellsGroupRequest) SetID(val uuid.UUID) {
-	s.ID = val
+// GetUnitId returns the value of UnitId.
+func (s *CreateCellsGroupRequest) GetUnitId() uuid.UUID {
+	return s.UnitId
 }
 
 // SetName sets the value of Name.
@@ -703,23 +712,28 @@ func (s *CreateCellsGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
-// SetStorageGroupID sets the value of StorageGroupID.
-func (s *CreateCellsGroupRequest) SetStorageGroupID(val uuid.UUID) {
-	s.StorageGroupID = val
+// SetStorageGroupId sets the value of StorageGroupId.
+func (s *CreateCellsGroupRequest) SetStorageGroupId(val OptNilUUID) {
+	s.StorageGroupId = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *CreateCellsGroupRequest) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
 }
 
 // Ref: #/components/schemas/CreateCellsGroupResponse
 type CreateCellsGroupResponse struct {
-	Data CellGroupBase `json:"data"`
+	Data CellGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *CreateCellsGroupResponse) GetData() CellGroupBase {
+func (s *CreateCellsGroupResponse) GetData() CellGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *CreateCellsGroupResponse) SetData(val CellGroupBase) {
+func (s *CreateCellsGroupResponse) SetData(val CellGroup) {
 	s.Data = val
 }
 
@@ -1168,10 +1182,10 @@ type DeleteCellsGroupForbidden ErrorContent
 
 func (*DeleteCellsGroupForbidden) deleteCellsGroupRes() {}
 
-// DeleteCellsGroupOK is response for DeleteCellsGroup operation.
-type DeleteCellsGroupOK struct{}
+// DeleteCellsGroupNoContent is response for DeleteCellsGroup operation.
+type DeleteCellsGroupNoContent struct{}
 
-func (*DeleteCellsGroupOK) deleteCellsGroupRes() {}
+func (*DeleteCellsGroupNoContent) deleteCellsGroupRes() {}
 
 type DeleteCellsGroupUnauthorized ErrorContent
 
@@ -1203,17 +1217,17 @@ type DeleteInstanceByIdUnauthorized ErrorContent
 
 func (*DeleteInstanceByIdUnauthorized) deleteInstanceByIdRes() {}
 
-// DeleteItemOK is response for DeleteItem operation.
-type DeleteItemOK struct{}
+// DeleteItemNoContent is response for DeleteItem operation.
+type DeleteItemNoContent struct{}
 
 type DeleteOrganizationForbidden ErrorContent
 
 func (*DeleteOrganizationForbidden) deleteOrganizationRes() {}
 
-// DeleteOrganizationOK is response for DeleteOrganization operation.
-type DeleteOrganizationOK struct{}
+// DeleteOrganizationNoContent is response for DeleteOrganization operation.
+type DeleteOrganizationNoContent struct{}
 
-func (*DeleteOrganizationOK) deleteOrganizationRes() {}
+func (*DeleteOrganizationNoContent) deleteOrganizationRes() {}
 
 type DeleteOrganizationUnauthorized ErrorContent
 
@@ -1223,10 +1237,10 @@ type DeleteOrganizationUnitForbidden ErrorContent
 
 func (*DeleteOrganizationUnitForbidden) deleteOrganizationUnitRes() {}
 
-// DeleteOrganizationUnitOK is response for DeleteOrganizationUnit operation.
-type DeleteOrganizationUnitOK struct{}
+// DeleteOrganizationUnitNoContent is response for DeleteOrganizationUnit operation.
+type DeleteOrganizationUnitNoContent struct{}
 
-func (*DeleteOrganizationUnitOK) deleteOrganizationUnitRes() {}
+func (*DeleteOrganizationUnitNoContent) deleteOrganizationUnitRes() {}
 
 type DeleteOrganizationUnitUnauthorized ErrorContent
 
@@ -1236,10 +1250,10 @@ type DeleteStorageGroupForbidden ErrorContent
 
 func (*DeleteStorageGroupForbidden) deleteStorageGroupRes() {}
 
-// DeleteStorageGroupOK is response for DeleteStorageGroup operation.
-type DeleteStorageGroupOK struct{}
+// DeleteStorageGroupNoContent is response for DeleteStorageGroup operation.
+type DeleteStorageGroupNoContent struct{}
 
-func (*DeleteStorageGroupOK) deleteStorageGroupRes() {}
+func (*DeleteStorageGroupNoContent) deleteStorageGroupRes() {}
 
 type DeleteStorageGroupUnauthorized ErrorContent
 
@@ -1497,16 +1511,16 @@ func (*GetCellsGroupByIdForbidden) getCellsGroupByIdRes() {}
 
 // Ref: #/components/schemas/GetCellsGroupByIdResponse
 type GetCellsGroupByIdResponse struct {
-	Data CellGroupBase `json:"data"`
+	Data CellGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetCellsGroupByIdResponse) GetData() CellGroupBase {
+func (s *GetCellsGroupByIdResponse) GetData() CellGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetCellsGroupByIdResponse) SetData(val CellGroupBase) {
+func (s *GetCellsGroupByIdResponse) SetData(val CellGroup) {
 	s.Data = val
 }
 
@@ -1522,16 +1536,16 @@ func (*GetCellsGroupsForbidden) getCellsGroupsRes() {}
 
 // Ref: #/components/schemas/GetCellsGroupsResponse
 type GetCellsGroupsResponse struct {
-	Data []CellGroupBase `json:"data"`
+	Data []CellGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetCellsGroupsResponse) GetData() []CellGroupBase {
+func (s *GetCellsGroupsResponse) GetData() []CellGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetCellsGroupsResponse) SetData(val []CellGroupBase) {
+func (s *GetCellsGroupsResponse) SetData(val []CellGroup) {
 	s.Data = val
 }
 
@@ -3327,7 +3341,8 @@ func (*PatchCellsGroupForbidden) patchCellsGroupRes() {}
 type PatchCellsGroupRequest struct {
 	Name           OptString       `json:"name"`
 	Alias          OptStorageAlias `json:"alias"`
-	StorageGroupID OptUUID         `json:"storage_group_id"`
+	StorageGroupId OptUUID         `json:"storageGroupId"`
+	UnitId         OptUUID         `json:"unitId"`
 }
 
 // GetName returns the value of Name.
@@ -3340,9 +3355,14 @@ func (s *PatchCellsGroupRequest) GetAlias() OptStorageAlias {
 	return s.Alias
 }
 
-// GetStorageGroupID returns the value of StorageGroupID.
-func (s *PatchCellsGroupRequest) GetStorageGroupID() OptUUID {
-	return s.StorageGroupID
+// GetStorageGroupId returns the value of StorageGroupId.
+func (s *PatchCellsGroupRequest) GetStorageGroupId() OptUUID {
+	return s.StorageGroupId
+}
+
+// GetUnitId returns the value of UnitId.
+func (s *PatchCellsGroupRequest) GetUnitId() OptUUID {
+	return s.UnitId
 }
 
 // SetName sets the value of Name.
@@ -3355,23 +3375,28 @@ func (s *PatchCellsGroupRequest) SetAlias(val OptStorageAlias) {
 	s.Alias = val
 }
 
-// SetStorageGroupID sets the value of StorageGroupID.
-func (s *PatchCellsGroupRequest) SetStorageGroupID(val OptUUID) {
-	s.StorageGroupID = val
+// SetStorageGroupId sets the value of StorageGroupId.
+func (s *PatchCellsGroupRequest) SetStorageGroupId(val OptUUID) {
+	s.StorageGroupId = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *PatchCellsGroupRequest) SetUnitId(val OptUUID) {
+	s.UnitId = val
 }
 
 // Ref: #/components/schemas/PatchCellsGroupResponse
 type PatchCellsGroupResponse struct {
-	Data CellGroupBase `json:"data"`
+	Data CellGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *PatchCellsGroupResponse) GetData() CellGroupBase {
+func (s *PatchCellsGroupResponse) GetData() CellGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *PatchCellsGroupResponse) SetData(val CellGroupBase) {
+func (s *PatchCellsGroupResponse) SetData(val CellGroup) {
 	s.Data = val
 }
 
@@ -3547,16 +3572,16 @@ func (s *PatchOrganizationUnitRequest) SetAddress(val OptNilString) {
 
 // Ref: #/components/schemas/PatchOrganizationUnitResponse
 type PatchOrganizationUnitResponse struct {
-	Data []Unit `json:"data"`
+	Data Unit `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *PatchOrganizationUnitResponse) GetData() []Unit {
+func (s *PatchOrganizationUnitResponse) GetData() Unit {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *PatchOrganizationUnitResponse) SetData(val []Unit) {
+func (s *PatchOrganizationUnitResponse) SetData(val Unit) {
 	s.Data = val
 }
 
@@ -3620,16 +3645,16 @@ func (s *PatchStorageGroupRequest) SetUnitId(val OptUUID) {
 
 // Ref: #/components/schemas/PatchStorageGroupResponse
 type PatchStorageGroupResponse struct {
-	Data []StorageGroup `json:"data"`
+	Data StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *PatchStorageGroupResponse) GetData() []StorageGroup {
+func (s *PatchStorageGroupResponse) GetData() StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *PatchStorageGroupResponse) SetData(val []StorageGroup) {
+func (s *PatchStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 
@@ -3707,10 +3732,11 @@ type StorageAlias string
 type StorageGroup struct {
 	ID uuid.UUID `json:"id"`
 	// Merged property.
-	ParentId NilUUID      `json:"parentId"`
-	Name     string       `json:"name"`
-	Alias    StorageAlias `json:"alias"`
-	UnitId   uuid.UUID    `json:"unitId"`
+	ParentId NilUUID `json:"parentId"`
+	// Merged property.
+	UnitId uuid.UUID    `json:"unitId"`
+	Name   string       `json:"name"`
+	Alias  StorageAlias `json:"alias"`
 }
 
 // GetID returns the value of ID.
@@ -3723,6 +3749,11 @@ func (s *StorageGroup) GetParentId() NilUUID {
 	return s.ParentId
 }
 
+// GetUnitId returns the value of UnitId.
+func (s *StorageGroup) GetUnitId() uuid.UUID {
+	return s.UnitId
+}
+
 // GetName returns the value of Name.
 func (s *StorageGroup) GetName() string {
 	return s.Name
@@ -3731,11 +3762,6 @@ func (s *StorageGroup) GetName() string {
 // GetAlias returns the value of Alias.
 func (s *StorageGroup) GetAlias() StorageAlias {
 	return s.Alias
-}
-
-// GetUnitId returns the value of UnitId.
-func (s *StorageGroup) GetUnitId() uuid.UUID {
-	return s.UnitId
 }
 
 // SetID sets the value of ID.
@@ -3748,6 +3774,11 @@ func (s *StorageGroup) SetParentId(val NilUUID) {
 	s.ParentId = val
 }
 
+// SetUnitId sets the value of UnitId.
+func (s *StorageGroup) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
+}
+
 // SetName sets the value of Name.
 func (s *StorageGroup) SetName(val string) {
 	s.Name = val
@@ -3756,11 +3787,6 @@ func (s *StorageGroup) SetName(val string) {
 // SetAlias sets the value of Alias.
 func (s *StorageGroup) SetAlias(val StorageAlias) {
 	s.Alias = val
-}
-
-// SetUnitId sets the value of UnitId.
-func (s *StorageGroup) SetUnitId(val uuid.UUID) {
-	s.UnitId = val
 }
 
 // Ref: #/components/schemas/Token
@@ -3942,15 +3968,10 @@ func (*UpdateCellsGroupForbidden) updateCellsGroupRes() {}
 
 // Ref: #/components/schemas/UpdateCellsGroupRequest
 type UpdateCellsGroupRequest struct {
-	ID             uuid.UUID    `json:"id"`
 	Name           string       `json:"name"`
 	Alias          StorageAlias `json:"alias"`
-	StorageGroupID uuid.UUID    `json:"storage_group_id"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateCellsGroupRequest) GetID() uuid.UUID {
-	return s.ID
+	StorageGroupId OptNilUUID   `json:"storageGroupId"`
+	UnitId         uuid.UUID    `json:"unitId"`
 }
 
 // GetName returns the value of Name.
@@ -3963,14 +3984,14 @@ func (s *UpdateCellsGroupRequest) GetAlias() StorageAlias {
 	return s.Alias
 }
 
-// GetStorageGroupID returns the value of StorageGroupID.
-func (s *UpdateCellsGroupRequest) GetStorageGroupID() uuid.UUID {
-	return s.StorageGroupID
+// GetStorageGroupId returns the value of StorageGroupId.
+func (s *UpdateCellsGroupRequest) GetStorageGroupId() OptNilUUID {
+	return s.StorageGroupId
 }
 
-// SetID sets the value of ID.
-func (s *UpdateCellsGroupRequest) SetID(val uuid.UUID) {
-	s.ID = val
+// GetUnitId returns the value of UnitId.
+func (s *UpdateCellsGroupRequest) GetUnitId() uuid.UUID {
+	return s.UnitId
 }
 
 // SetName sets the value of Name.
@@ -3983,23 +4004,28 @@ func (s *UpdateCellsGroupRequest) SetAlias(val StorageAlias) {
 	s.Alias = val
 }
 
-// SetStorageGroupID sets the value of StorageGroupID.
-func (s *UpdateCellsGroupRequest) SetStorageGroupID(val uuid.UUID) {
-	s.StorageGroupID = val
+// SetStorageGroupId sets the value of StorageGroupId.
+func (s *UpdateCellsGroupRequest) SetStorageGroupId(val OptNilUUID) {
+	s.StorageGroupId = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *UpdateCellsGroupRequest) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
 }
 
 // Ref: #/components/schemas/UpdateCellsGroupResponse
 type UpdateCellsGroupResponse struct {
-	Data CellGroupBase `json:"data"`
+	Data CellGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateCellsGroupResponse) GetData() CellGroupBase {
+func (s *UpdateCellsGroupResponse) GetData() CellGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateCellsGroupResponse) SetData(val CellGroupBase) {
+func (s *UpdateCellsGroupResponse) SetData(val CellGroup) {
 	s.Data = val
 }
 
@@ -4183,16 +4209,16 @@ func (s *UpdateOrganizationRequest) SetName(val string) {
 
 // Ref: #/components/schemas/UpdateOrganizationResponse
 type UpdateOrganizationResponse struct {
-	Data []Organization `json:"data"`
+	Data Organization `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateOrganizationResponse) GetData() []Organization {
+func (s *UpdateOrganizationResponse) GetData() Organization {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateOrganizationResponse) SetData(val []Organization) {
+func (s *UpdateOrganizationResponse) SetData(val Organization) {
 	s.Data = val
 }
 
@@ -4245,16 +4271,16 @@ func (s *UpdateOrganizationUnitRequest) SetAddress(val OptNilString) {
 
 // Ref: #/components/schemas/UpdateOrganizationUnitResponse
 type UpdateOrganizationUnitResponse struct {
-	Data []Unit `json:"data"`
+	Data Unit `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateOrganizationUnitResponse) GetData() []Unit {
+func (s *UpdateOrganizationUnitResponse) GetData() Unit {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateOrganizationUnitResponse) SetData(val []Unit) {
+func (s *UpdateOrganizationUnitResponse) SetData(val Unit) {
 	s.Data = val
 }
 
@@ -4318,16 +4344,16 @@ func (s *UpdateStorageGroupRequest) SetUnitId(val uuid.UUID) {
 
 // Ref: #/components/schemas/UpdateStorageGroupResponse
 type UpdateStorageGroupResponse struct {
-	Data []StorageGroup `json:"data"`
+	Data StorageGroup `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateStorageGroupResponse) GetData() []StorageGroup {
+func (s *UpdateStorageGroupResponse) GetData() StorageGroup {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateStorageGroupResponse) SetData(val []StorageGroup) {
+func (s *UpdateStorageGroupResponse) SetData(val StorageGroup) {
 	s.Data = val
 }
 

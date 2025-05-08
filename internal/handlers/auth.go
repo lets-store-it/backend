@@ -142,7 +142,7 @@ func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.R
 func toRoleDTO(role *models.Role) api.Role {
 	return api.Role{
 		ID:          role.ID,
-		Name:        role.Name,
+		Name:        string(role.Name),
 		DisplayName: role.DisplayName,
 		Description: role.Description,
 	}
