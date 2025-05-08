@@ -99,6 +99,16 @@ func (h *RestApiImplementation) NewUnauthorizedErrorWithMessage(ctx context.Cont
 }
 
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
+	if errors.Is(err, ErrSessionNotFound) {
+		return h.NewUnauthorizedError(ctx)
+	}
+	if errors.Is(err, ErrSessionRevoked) {
+		return h.NewUnauthorizedErrorWithMessage(ctx, "Session was revoked")
+	}
+	if errors.Is(err, ErrSessionExpired) {
+		return h.NewUnauthorizedErrorWithMessage(ctx, "Session expired")
+	}
+
 	if errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied) {
 		return h.NewUnauthorizedError(ctx)
 	}
