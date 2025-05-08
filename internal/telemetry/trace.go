@@ -1,4 +1,4 @@
-package storage
+package telemetry
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type tracedOperation[T any] struct {
 	err    error
 }
 
-func withTrace[T any](ctx context.Context, tracer trace.Tracer, name string, fn func(context.Context, trace.Span) (T, error)) (T, error) {
+func WithTrace[T any](ctx context.Context, tracer trace.Tracer, name string, fn func(context.Context, trace.Span) (T, error)) (T, error) {
 	ctx, span := tracer.Start(ctx, name)
 	defer span.End()
 
@@ -37,7 +37,7 @@ func withTrace[T any](ctx context.Context, tracer trace.Tracer, name string, fn 
 }
 
 func withTraceVoid(ctx context.Context, tracer trace.Tracer, name string, fn func(context.Context, trace.Span) error) error {
-	_, err := withTrace[struct{}](ctx, tracer, name, func(ctx context.Context, span trace.Span) (struct{}, error) {
+	_, err := WithTrace[struct{}](ctx, tracer, name, func(ctx context.Context, span trace.Span) (struct{}, error) {
 		return struct{}{}, fn(ctx, span)
 	})
 	return err
