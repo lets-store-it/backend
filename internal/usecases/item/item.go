@@ -2,34 +2,18 @@ package usecases
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/item"
+	"github.com/let-store-it/backend/internal/usecases"
+	"github.com/let-store-it/backend/internal/utils"
 )
 
 type ItemUseCase struct {
 	service *item.ItemService
-}
-
-func (uc *ItemUseCase) validateOrganizationAccess(ctx context.Context, itemID uuid.UUID) (uuid.UUID, error) {
-	orgID, err := GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
-	}
-
-	if itemID != uuid.Nil {
-		exists, err := uc.service.IsItemExists(ctx, orgID, itemID)
-		if err != nil {
-			return uuid.Nil, fmt.Errorf("failed to check item ownership: %w", err)
-		}
-		if !exists {
-			return uuid.Nil, item.ErrItemNotFound
-		}
-	}
-
-	return orgID, nil
+	authService *auth.AuthService
 }
 
 type ItemUseCaseConfig struct {
@@ -43,49 +27,69 @@ func New(config ItemUseCaseConfig) *ItemUseCase {
 }
 
 func (uc *ItemUseCase) Create(ctx context.Context, item *models.Item) (*models.Item, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.Create(ctx, orgID, item)
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.Create(ctx, validateResult.OrgID, item)
 }
 
 func (uc *ItemUseCase) GetAll(ctx context.Context) ([]*models.Item, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, uuid.Nil)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.GetAll(ctx, orgID)
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.GetAll(ctx, validateResult.OrgID)
 }
 
 func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.GetByID(ctx, orgID, id)
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.GetByID(ctx, validateResult.OrgID, id)
 }
 
 func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models.Item) (*models.Item, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, item.ID)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.Update(ctx, orgID, item)
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.Update(ctx, validateResult.OrgID, item)
 }
 
 func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID, updates map[string]interface{}) (*models.Item, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx, id)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
 	// Get the existing item first
-	item, err := uc.service.GetByID(ctx, orgID, id)
+	item, err := uc.service.GetByID(ctx, validateResult.OrgID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +157,7 @@ func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID,
 	}
 
 	// Update the item
-	return uc.service.Update(ctx, orgID, item)
+	return uc.service.Update(ctx, validateResult.OrgID, item)
 }
 
 func (uc *ItemUseCase) Delete(ctx context.Context, orgId uuid.UUID, id uuid.UUID) error {
