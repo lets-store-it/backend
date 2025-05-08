@@ -2782,7 +2782,7 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response *DeleteItemOK
+	var response *DeleteItemNoContent
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -2802,7 +2802,7 @@ func (s *Server) handleDeleteItemRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = struct{}
 			Params   = DeleteItemParams
-			Response = *DeleteItemOK
+			Response = *DeleteItemNoContent
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

@@ -392,9 +392,9 @@ func encodeDeleteCellResponse(response *DeleteCellOK, w http.ResponseWriter, spa
 
 func encodeDeleteCellsGroupResponse(response DeleteCellsGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteCellsGroupOK:
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+	case *DeleteCellsGroupNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
 		return nil
 
@@ -507,18 +507,18 @@ func encodeDeleteInstanceByIdResponse(response DeleteInstanceByIdRes, w http.Res
 	}
 }
 
-func encodeDeleteItemResponse(response *DeleteItemOK, w http.ResponseWriter, span trace.Span) error {
-	w.WriteHeader(200)
-	span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeDeleteItemResponse(response *DeleteItemNoContent, w http.ResponseWriter, span trace.Span) error {
+	w.WriteHeader(204)
+	span.SetStatus(codes.Ok, http.StatusText(204))
 
 	return nil
 }
 
 func encodeDeleteOrganizationResponse(response DeleteOrganizationRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteOrganizationOK:
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+	case *DeleteOrganizationNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
 		return nil
 
@@ -555,9 +555,9 @@ func encodeDeleteOrganizationResponse(response DeleteOrganizationRes, w http.Res
 
 func encodeDeleteOrganizationUnitResponse(response DeleteOrganizationUnitRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteOrganizationUnitOK:
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+	case *DeleteOrganizationUnitNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
 		return nil
 
@@ -594,9 +594,9 @@ func encodeDeleteOrganizationUnitResponse(response DeleteOrganizationUnitRes, w 
 
 func encodeDeleteStorageGroupResponse(response DeleteStorageGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteStorageGroupOK:
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+	case *DeleteStorageGroupNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
 		return nil
 

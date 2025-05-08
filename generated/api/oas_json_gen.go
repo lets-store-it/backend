@@ -1050,14 +1050,14 @@ func (s *CellForInstanceCellPathItemObjectType) UnmarshalJSON(data []byte) error
 }
 
 // Encode implements json.Marshaler.
-func (s *CellGroupBase) Encode(e *jx.Encoder) {
+func (s *CellGroup) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *CellGroupBase) encodeFields(e *jx.Encoder) {
+func (s *CellGroup) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
 		json.EncodeUUID(e, s.ID)
@@ -1071,22 +1071,27 @@ func (s *CellGroupBase) encodeFields(e *jx.Encoder) {
 		s.Alias.Encode(e)
 	}
 	{
-		e.FieldStart("storage_group_id")
-		json.EncodeUUID(e, s.StorageGroupID)
+		e.FieldStart("storageGroupId")
+		s.StorageGroupId.Encode(e)
+	}
+	{
+		e.FieldStart("unitId")
+		json.EncodeUUID(e, s.UnitId)
 	}
 }
 
-var jsonFieldsNameOfCellGroupBase = [4]string{
+var jsonFieldsNameOfCellGroup = [5]string{
 	0: "id",
 	1: "name",
 	2: "alias",
-	3: "storage_group_id",
+	3: "storageGroupId",
+	4: "unitId",
 }
 
-// Decode decodes CellGroupBase from json.
-func (s *CellGroupBase) Decode(d *jx.Decoder) error {
+// Decode decodes CellGroup from json.
+func (s *CellGroup) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CellGroupBase to nil")
+		return errors.New("invalid: unable to decode CellGroup to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -1126,29 +1131,39 @@ func (s *CellGroupBase) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
-		case "storage_group_id":
+		case "storageGroupId":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
+				if err := s.StorageGroupId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"storageGroupId\"")
+			}
+		case "unitId":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
 				v, err := json.DecodeUUID(d)
-				s.StorageGroupID = v
+				s.UnitId = v
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"storage_group_id\"")
+				return errors.Wrap(err, "decode field \"unitId\"")
 			}
 		default:
 			return d.Skip()
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CellGroupBase")
+		return errors.Wrap(err, "decode CellGroup")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1160,8 +1175,8 @@ func (s *CellGroupBase) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfCellGroupBase) {
-					name = jsonFieldsNameOfCellGroupBase[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfCellGroup) {
+					name = jsonFieldsNameOfCellGroup[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1182,14 +1197,14 @@ func (s *CellGroupBase) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *CellGroupBase) MarshalJSON() ([]byte, error) {
+func (s *CellGroup) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CellGroupBase) UnmarshalJSON(data []byte) error {
+func (s *CellGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -1842,10 +1857,6 @@ func (s *CreateCellsGroupRequest) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CreateCellsGroupRequest) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
@@ -1854,16 +1865,22 @@ func (s *CreateCellsGroupRequest) encodeFields(e *jx.Encoder) {
 		s.Alias.Encode(e)
 	}
 	{
-		e.FieldStart("storage_group_id")
-		json.EncodeUUID(e, s.StorageGroupID)
+		if s.StorageGroupId.Set {
+			e.FieldStart("storageGroupId")
+			s.StorageGroupId.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("unitId")
+		json.EncodeUUID(e, s.UnitId)
 	}
 }
 
 var jsonFieldsNameOfCreateCellsGroupRequest = [4]string{
-	0: "id",
-	1: "name",
-	2: "alias",
-	3: "storage_group_id",
+	0: "name",
+	1: "alias",
+	2: "storageGroupId",
+	3: "unitId",
 }
 
 // Decode decodes CreateCellsGroupRequest from json.
@@ -1875,20 +1892,8 @@ func (s *CreateCellsGroupRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "name":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Name = string(v)
@@ -1900,7 +1905,7 @@ func (s *CreateCellsGroupRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Alias.Decode(d); err != nil {
 					return err
@@ -1909,17 +1914,27 @@ func (s *CreateCellsGroupRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
-		case "storage_group_id":
+		case "storageGroupId":
+			if err := func() error {
+				s.StorageGroupId.Reset()
+				if err := s.StorageGroupId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"storageGroupId\"")
+			}
+		case "unitId":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := json.DecodeUUID(d)
-				s.StorageGroupID = v
+				s.UnitId = v
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"storage_group_id\"")
+				return errors.Wrap(err, "decode field \"unitId\"")
 			}
 		default:
 			return d.Skip()
@@ -1931,7 +1946,7 @@ func (s *CreateCellsGroupRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00001011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5556,9 +5571,9 @@ func (s *GetCellsGroupsResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]CellGroupBase, 0)
+				s.Data = make([]CellGroup, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem CellGroupBase
+					var elem CellGroup
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -10682,17 +10697,24 @@ func (s *PatchCellsGroupRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.StorageGroupID.Set {
-			e.FieldStart("storage_group_id")
-			s.StorageGroupID.Encode(e)
+		if s.StorageGroupId.Set {
+			e.FieldStart("storageGroupId")
+			s.StorageGroupId.Encode(e)
+		}
+	}
+	{
+		if s.UnitId.Set {
+			e.FieldStart("unitId")
+			s.UnitId.Encode(e)
 		}
 	}
 }
 
-var jsonFieldsNameOfPatchCellsGroupRequest = [3]string{
+var jsonFieldsNameOfPatchCellsGroupRequest = [4]string{
 	0: "name",
 	1: "alias",
-	2: "storage_group_id",
+	2: "storageGroupId",
+	3: "unitId",
 }
 
 // Decode decodes PatchCellsGroupRequest from json.
@@ -10723,15 +10745,25 @@ func (s *PatchCellsGroupRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
-		case "storage_group_id":
+		case "storageGroupId":
 			if err := func() error {
-				s.StorageGroupID.Reset()
-				if err := s.StorageGroupID.Decode(d); err != nil {
+				s.StorageGroupId.Reset()
+				if err := s.StorageGroupId.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"storage_group_id\"")
+				return errors.Wrap(err, "decode field \"storageGroupId\"")
+			}
+		case "unitId":
+			if err := func() error {
+				s.UnitId.Reset()
+				if err := s.UnitId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"unitId\"")
 			}
 		default:
 			return d.Skip()
@@ -11554,11 +11586,7 @@ func (s *PatchOrganizationUnitResponse) Encode(e *jx.Encoder) {
 func (s *PatchOrganizationUnitResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
-		e.ArrStart()
-		for _, elem := range s.Data {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Data.Encode(e)
 	}
 }
 
@@ -11578,15 +11606,7 @@ func (s *PatchOrganizationUnitResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]Unit, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Unit
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Data = append(s.Data, elem)
-					return nil
-				}); err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -11850,11 +11870,7 @@ func (s *PatchStorageGroupResponse) Encode(e *jx.Encoder) {
 func (s *PatchStorageGroupResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
-		e.ArrStart()
-		for _, elem := range s.Data {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Data.Encode(e)
 	}
 }
 
@@ -11874,15 +11890,7 @@ func (s *PatchStorageGroupResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]StorageGroup, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem StorageGroup
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Data = append(s.Data, elem)
-					return nil
-				}); err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -12264,6 +12272,10 @@ func (s *StorageGroup) encodeFields(e *jx.Encoder) {
 		s.ParentId.Encode(e)
 	}
 	{
+		e.FieldStart("unitId")
+		json.EncodeUUID(e, s.UnitId)
+	}
+	{
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
@@ -12271,18 +12283,14 @@ func (s *StorageGroup) encodeFields(e *jx.Encoder) {
 		e.FieldStart("alias")
 		s.Alias.Encode(e)
 	}
-	{
-		e.FieldStart("unitId")
-		json.EncodeUUID(e, s.UnitId)
-	}
 }
 
 var jsonFieldsNameOfStorageGroup = [5]string{
 	0: "id",
 	1: "parentId",
-	2: "name",
-	3: "alias",
-	4: "unitId",
+	2: "unitId",
+	3: "name",
+	4: "alias",
 }
 
 // Decode decodes StorageGroup from json.
@@ -12316,8 +12324,20 @@ func (s *StorageGroup) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"parentId\"")
 			}
-		case "name":
+		case "unitId":
 			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.UnitId = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"unitId\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.Name = string(v)
@@ -12329,7 +12349,7 @@ func (s *StorageGroup) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				if err := s.Alias.Decode(d); err != nil {
 					return err
@@ -12337,18 +12357,6 @@ func (s *StorageGroup) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"alias\"")
-			}
-		case "unitId":
-			requiredBitSet[0] |= 1 << 4
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.UnitId = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"unitId\"")
 			}
 		default:
 			return d.Skip()
@@ -13061,10 +13069,6 @@ func (s *UpdateCellsGroupRequest) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *UpdateCellsGroupRequest) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
@@ -13073,16 +13077,22 @@ func (s *UpdateCellsGroupRequest) encodeFields(e *jx.Encoder) {
 		s.Alias.Encode(e)
 	}
 	{
-		e.FieldStart("storage_group_id")
-		json.EncodeUUID(e, s.StorageGroupID)
+		if s.StorageGroupId.Set {
+			e.FieldStart("storageGroupId")
+			s.StorageGroupId.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("unitId")
+		json.EncodeUUID(e, s.UnitId)
 	}
 }
 
 var jsonFieldsNameOfUpdateCellsGroupRequest = [4]string{
-	0: "id",
-	1: "name",
-	2: "alias",
-	3: "storage_group_id",
+	0: "name",
+	1: "alias",
+	2: "storageGroupId",
+	3: "unitId",
 }
 
 // Decode decodes UpdateCellsGroupRequest from json.
@@ -13094,20 +13104,8 @@ func (s *UpdateCellsGroupRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "name":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Name = string(v)
@@ -13119,7 +13117,7 @@ func (s *UpdateCellsGroupRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "alias":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Alias.Decode(d); err != nil {
 					return err
@@ -13128,17 +13126,27 @@ func (s *UpdateCellsGroupRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
-		case "storage_group_id":
+		case "storageGroupId":
+			if err := func() error {
+				s.StorageGroupId.Reset()
+				if err := s.StorageGroupId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"storageGroupId\"")
+			}
+		case "unitId":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := json.DecodeUUID(d)
-				s.StorageGroupID = v
+				s.UnitId = v
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"storage_group_id\"")
+				return errors.Wrap(err, "decode field \"unitId\"")
 			}
 		default:
 			return d.Skip()
@@ -13150,7 +13158,7 @@ func (s *UpdateCellsGroupRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00001011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -13482,12 +13490,14 @@ func (s *UpdateItemRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		e.FieldStart("variants")
-		e.ArrStart()
-		for _, elem := range s.Variants {
-			elem.Encode(e)
+		if s.Variants != nil {
+			e.FieldStart("variants")
+			e.ArrStart()
+			for _, elem := range s.Variants {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
 		}
-		e.ArrEnd()
 	}
 }
 
@@ -13540,7 +13550,6 @@ func (s *UpdateItemRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"description\"")
 			}
 		case "variants":
-			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.Variants = make([]UpdateItemRequestVariantsItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -13567,7 +13576,7 @@ func (s *UpdateItemRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001010,
+		0b00000010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -13999,11 +14008,7 @@ func (s *UpdateOrganizationResponse) Encode(e *jx.Encoder) {
 func (s *UpdateOrganizationResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
-		e.ArrStart()
-		for _, elem := range s.Data {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Data.Encode(e)
 	}
 }
 
@@ -14023,15 +14028,7 @@ func (s *UpdateOrganizationResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]Organization, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Organization
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Data = append(s.Data, elem)
-					return nil
-				}); err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -14309,11 +14306,7 @@ func (s *UpdateOrganizationUnitResponse) Encode(e *jx.Encoder) {
 func (s *UpdateOrganizationUnitResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
-		e.ArrStart()
-		for _, elem := range s.Data {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Data.Encode(e)
 	}
 }
 
@@ -14333,15 +14326,7 @@ func (s *UpdateOrganizationUnitResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]Unit, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Unit
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Data = append(s.Data, elem)
-					return nil
-				}); err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -14636,11 +14621,7 @@ func (s *UpdateStorageGroupResponse) Encode(e *jx.Encoder) {
 func (s *UpdateStorageGroupResponse) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("data")
-		e.ArrStart()
-		for _, elem := range s.Data {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Data.Encode(e)
 	}
 }
 
@@ -14660,15 +14641,7 @@ func (s *UpdateStorageGroupResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]StorageGroup, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem StorageGroup
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Data = append(s.Data, elem)
-					return nil
-				}); err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
