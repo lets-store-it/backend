@@ -7,14 +7,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/usecases/auth"
 )
 
 type OrganizationUnitUseCase struct {
 	orgService  *organization.OrganizationService
-	authUseCase *AuthUseCase
+	authUseCase *auth.AuthUseCase
 }
 
-func NewOrganizationUnitUseCase(orgService *organization.OrganizationService, authUseCase *AuthUseCase) *OrganizationUnitUseCase {
+func NewOrganizationUnitUseCase(orgService *organization.OrganizationService, authUseCase *auth.AuthUseCase) *OrganizationUnitUseCase {
 	return &OrganizationUnitUseCase{
 		authUseCase: authUseCase,
 		orgService:  orgService,

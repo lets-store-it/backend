@@ -92,9 +92,6 @@ func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) e
 	if objectChange.OrgID == uuid.Nil {
 		return ErrInvalidOrganization
 	}
-	if objectChange.UserID == uuid.Nil {
-		return ErrInvalidUser
-	}
 	if objectChange.TargetObjectID == uuid.Nil {
 		return ErrInvalidTargetObject
 	}
@@ -197,7 +194,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		return err
 	}
 
-	employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, objectChange.UserID)
+	employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, *objectChange.UserID)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get employee with role")
@@ -207,7 +204,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	// Create the object change record
 	change, err := s.queries.CreateObjectChange(ctx, database.CreateObjectChangeParams{
 		OrgID:            pgtype.UUID{Bytes: objectChange.OrgID, Valid: true},
-		UserID:           pgtype.UUID{Bytes: objectChange.UserID, Valid: true},
+		UserID:           pgtype.UUID{Bytes: *objectChange.UserID, Valid: true},
 		Action:           string(objectChange.Action),
 		TargetObjectType: int32(objectChange.TargetObjectTypeId),
 		TargetObjectID:   pgtype.UUID{Bytes: objectChange.TargetObjectID, Valid: true},
@@ -289,11 +286,12 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			span.SetStatus(codes.Error, "failed to get employee info")
 			return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 		}
+		userID := uuid.UUID(change.UserID.Bytes)
 
 		objectChangesModels[i] = &models.ObjectChange{
 			ID:                 change.ID.Bytes,
 			OrgID:              change.OrgID.Bytes,
-			UserID:             change.UserID.Bytes,
+			UserID:             &userID,
 			Action:             models.ObjectChangeAction(change.Action),
 			TargetObjectTypeId: models.ObjectTypeId(objectType.ID),
 			TargetObjectID:     change.TargetObjectID.Bytes,

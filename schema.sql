@@ -214,13 +214,14 @@ INSERT INTO object_type (id, object_group, object_name) VALUES
     (5, 'storage', 'cell'),
     (6, 'items', 'item'),
     (7, 'items', 'instance'),
-    (8, 'rbac', 'user-roles');
+    -- (8, 'rbac', 'user-roles'),
+    (8, 'rbac', 'employee');
 
 
 CREATE TABLE app_object_change (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
-    user_id UUID NOT NULL REFERENCES app_user(id),
+    user_id UUID REFERENCES app_user(id),
     action VARCHAR(255) NOT NULL CHECK (action IN ('create', 'update', 'delete')),
     time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     target_object_type INTEGER NOT NULL REFERENCES object_type(id),

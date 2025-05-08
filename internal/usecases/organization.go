@@ -50,7 +50,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             userID,
+		UserID:             &userID,
 		Action:             models.ObjectChangeActionCreate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -103,7 +103,7 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             userID,
+		UserID:             &userID,
 		Action:             models.ObjectChangeActionDelete,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -142,7 +142,7 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             userID,
+		UserID:             &userID,
 		Action:             models.ObjectChangeActionUpdate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -195,7 +195,7 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             userID,
+		UserID:             &userID,
 		Action:             models.ObjectChangeActionUpdate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
