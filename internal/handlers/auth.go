@@ -2,42 +2,10 @@ package handlers
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/auth"
-	"github.com/let-store-it/backend/internal/usecases"
 )
-
-// HandleApiToken implements api.SecurityHandler.
-func (h *RestApiImplementation) HandleApiToken(ctx context.Context, operationName api.OperationName, t api.ApiToken) (context.Context, error) {
-	orgID, err := h.authUseCase.GetOrgIdByApiToken(ctx, t.GetAPIKey())
-	if err != nil {
-		if errors.Is(err, auth.ErrApiTokenNotFound) {
-			return nil, h.NewUnauthorizedError(ctx)
-		}
-		return nil, fmt.Errorf("error processing api token")
-	}
-	ctx = context.WithValue(ctx, usecases.OrganizationIDKey, orgID)
-	ctx = context.WithValue(ctx, usecases.IsSystemUserKey, true)
-	return ctx, nil
-}
-
-// HandleCookie implements api.SecurityHandler.
-func (h *RestApiImplementation) HandleCookie(ctx context.Context, operationName api.OperationName, t api.Cookie) (context.Context, error) {
-	userID, err := h.authUseCase.GetUserIdFromSession(ctx, t.GetAPIKey())
-	if err != nil {
-		if errors.Is(err, auth.ErrSessionNotFound) {
-			return nil, h.NewUnauthorizedError(ctx)
-		}
-		return nil, fmt.Errorf("error processing session")
-	}
-
-	return context.WithValue(ctx, usecases.UserIDKey, userID), nil
-}
 
 // / GetCurrentUser implements api.Handler.
 func (h *RestApiImplementation) GetCurrentUser(ctx context.Context) (api.GetCurrentUserRes, error) {
@@ -66,32 +34,14 @@ func (h *RestApiImplementation) ExchangeYandexAccessToken(ctx context.Context, r
 		return nil, h.NewError(ctx, err)
 	}
 
-	cookie := &http.Cookie{
-		Name:     "storeit_session",
-		Value:    session.Secret,
-		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 30,
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
-	}
 	return &api.AuthResponse{
-		SetCookie: cookie.String(),
+		SetCookie: generateAuthCookie(session.Token, 60*60*24*30).String(), // 30 days
 	}, nil
 }
 
 func (h *RestApiImplementation) Logout(ctx context.Context) (api.LogoutRes, error) {
-	cookie := &http.Cookie{
-		Name:     "storeit_session",
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
-	}
 	return &api.LogoutResponse{
-		SetCookie: cookie.String(),
+		SetCookie: generateAuthCookie("", -1).String(), // Expire cookie
 	}, nil
 }
 

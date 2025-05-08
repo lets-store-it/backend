@@ -5,16 +5,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/models"
 )
 
-type contextKey string
-
-const OrganizationIDKey contextKey = "organization_id"
-const UserIDKey contextKey = "user_id"
-const IsSystemUserKey contextKey = "is_system_user"
-
 func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
-	orgID := ctx.Value(OrganizationIDKey).(uuid.UUID)
+	orgID, ok := ctx.Value(models.OrganizationIDContextKey).(uuid.UUID)
+	if !ok {
+		return uuid.Nil, fmt.Errorf("organization ID not found in context or invalid type")
+	}
 	if orgID == uuid.Nil {
 		return uuid.Nil, fmt.Errorf("organization ID not found in context")
 	}
@@ -22,7 +20,7 @@ func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
 }
 
 func GetUserIdFromContext(ctx context.Context) (uuid.UUID, error) {
-	userID, ok := ctx.Value(UserIDKey).(uuid.UUID)
+	userID, ok := ctx.Value(models.UserIDContextKey).(uuid.UUID)
 	if !ok {
 		return uuid.Nil, fmt.Errorf("user ID not found in context or invalid type")
 	}

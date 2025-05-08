@@ -1377,6 +1377,24 @@ func (q *Queries) GetRoles(ctx context.Context) ([]AppRole, error) {
 	return items, nil
 }
 
+const getSessionBySecret = `-- name: GetSessionBySecret :one
+SELECT id, user_id, token, created_at, expires_at, revoked_at FROM app_user_session WHERE token = $1 LIMIT 1
+`
+
+func (q *Queries) GetSessionBySecret(ctx context.Context, token string) (AppUserSession, error) {
+	row := q.db.QueryRow(ctx, getSessionBySecret, token)
+	var i AppUserSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+	)
+	return i, err
+}
+
 const getStorageGroup = `-- name: GetStorageGroup :one
 SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
@@ -1551,6 +1569,15 @@ func (q *Queries) GetUserRoleInOrg(ctx context.Context, arg GetUserRoleInOrgPara
 		&i.AppRole.Description,
 	)
 	return i, err
+}
+
+const invalidateSession = `-- name: InvalidateSession :exec
+UPDATE app_user_session SET revoked_at = CURRENT_TIMESTAMP WHERE id = $1
+`
+
+func (q *Queries) InvalidateSession(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, invalidateSession, id)
+	return err
 }
 
 const isItemExists = `-- name: IsItemExists :one

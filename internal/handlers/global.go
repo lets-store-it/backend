@@ -83,12 +83,16 @@ func (h *RestApiImplementation) NewConflictError(ctx context.Context, message st
 }
 
 func (h *RestApiImplementation) NewUnauthorizedError(ctx context.Context) *api.DefaultErrorStatusCode {
+	return h.NewUnauthorizedErrorWithMessage(ctx, "Unauthorized")
+}
+
+func (h *RestApiImplementation) NewUnauthorizedErrorWithMessage(ctx context.Context, message string) *api.DefaultErrorStatusCode {
 	return &api.DefaultErrorStatusCode{
 		StatusCode: http.StatusUnauthorized,
 		Response: api.ErrorContent{
 			Error: api.ErrorContentError{
 				Code:    "unauthorized",
-				Message: "Unauthorized",
+				Message: message,
 			},
 		},
 	}

@@ -21,7 +21,7 @@ func NewAuthUseCase(authService *auth.AuthService, yandexOAuthService *yandex.Ya
 }
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
-	userID := ctx.Value(UserIDKey).(uuid.UUID)
+	userID := ctx.Value(models.UserIDContextKey).(uuid.UUID)
 	user, err := u.authService.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -44,12 +44,16 @@ func (u *AuthUseCase) CreateSessionByEmail(ctx context.Context, email string) (*
 	return session, nil
 }
 
-func (u *AuthUseCase) GetUserIdFromSession(ctx context.Context, sessionSecret string) (uuid.UUID, error) {
-	user, err := u.authService.GetUserBySessionSecret(ctx, sessionSecret)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return user.ID, nil
+func (u *AuthUseCase) CreateSession(ctx context.Context, userID uuid.UUID) (*models.UserSession, error) {
+	return u.authService.CreateSession(ctx, userID)
+}
+
+func (u *AuthUseCase) InvalidateSession(ctx context.Context, sessionID uuid.UUID) error {
+	return u.authService.InvalidateSession(ctx, sessionID)
+}
+
+func (u *AuthUseCase) GetSessionBySecret(ctx context.Context, sessionSecret string) (*models.UserSession, error) {
+	return u.authService.GetSessionBySecret(ctx, sessionSecret)
 }
 
 func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken string) (*models.UserSession, error) {
@@ -90,7 +94,7 @@ func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUI
 		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
 	}
 
-	isSystemUser, ok := ctx.Value(IsSystemUserKey).(bool)
+	isSystemUser, ok := ctx.Value(models.IsSystemUserContextKey).(bool)
 	if ok && isSystemUser {
 		return orgID, nil
 	}

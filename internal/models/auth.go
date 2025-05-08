@@ -9,7 +9,11 @@ import (
 type UserSession struct {
 	ID     uuid.UUID `json:"id"`
 	UserID uuid.UUID `json:"user_id"`
-	Secret string    `json:"secret"`
+	Token  string    `json:"secret"`
+
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt *time.Time `json:"expires_at"`
+	RevokedAt *time.Time `json:"revoked_at"`
 }
 
 type ApiToken struct {
