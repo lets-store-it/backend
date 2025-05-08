@@ -27,7 +27,7 @@ delete:
   summary: Delete Item
   operationId: deleteItem
   responses:
-    "200":
+    "204":
       description: Successful operation
     default:
       $ref: ../../components/responses/default-error.yaml

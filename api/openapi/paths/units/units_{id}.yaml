@@ -30,7 +30,7 @@ delete:
   summary: Delete Organization Unit
   operationId: deleteOrganizationUnit
   responses:
-    "200":
+    "204":
       description: Successful operation
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml

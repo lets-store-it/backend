@@ -4,6 +4,9 @@ properties:
     type: string
   alias:
     $ref: ../../common/storage-alias.yaml
-  storage_group_id:
+  storageGroupId:
+    type: string
+    format: uuid
+  unitId:
     type: string
     format: uuid

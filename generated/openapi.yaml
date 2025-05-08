@@ -88,7 +88,7 @@ paths:
       summary: Delete Organization
       operationId: deleteOrganization
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -196,7 +196,7 @@ paths:
       summary: Delete Organization Unit
       operationId: deleteOrganizationUnit
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -328,7 +328,7 @@ paths:
       summary: Delete Storage Group
       operationId: deleteStorageGroup
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -460,7 +460,7 @@ paths:
       summary: Delete Cells Group
       operationId: deleteCellsGroup
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -724,7 +724,7 @@ paths:
       summary: Delete Item
       operationId: deleteItem
       responses:
-        '200':
+        '204':
           description: Successful operation
         default:
           $ref: '#/components/responses/default-error'
@@ -1306,9 +1306,8 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Organization'
+              type: object
+              $ref: '#/components/schemas/Organization'
           required:
             - data
     storage-alias:
@@ -1396,9 +1395,8 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Unit'
+              type: object
+              $ref: '#/components/schemas/Unit'
           required:
             - data
     UnitPatch:
@@ -1426,9 +1424,8 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Unit'
+              type: object
+              $ref: '#/components/schemas/Unit'
           required:
             - data
     StorageGroupBase:
@@ -1464,9 +1461,13 @@ components:
               type: string
               format: uuid
               nullable: true
+            unitId:
+              type: string
+              format: uuid
           required:
             - id
             - parentId
+            - unitId
         - $ref: '#/components/schemas/StorageGroupBase'
     GetStorageGroupsResponse:
       type: object
@@ -1513,9 +1514,8 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/StorageGroup'
+              type: object
+              $ref: '#/components/schemas/StorageGroup'
           required:
             - data
     StorageGroupPatch:
@@ -1545,37 +1545,58 @@ components:
         - type: object
           properties:
             data:
-              type: array
-              items:
-                $ref: '#/components/schemas/StorageGroup'
+              type: object
+              $ref: '#/components/schemas/StorageGroup'
           required:
             - data
     CellGroupBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
         name:
           type: string
         alias:
           $ref: '#/components/schemas/storage-alias'
-        storage_group_id:
+        storageGroupId:
+          type: string
+          format: uuid
+          nullable: true
+        unitId:
           type: string
           format: uuid
       required:
-        - id
         - name
         - alias
-        - storage_group_id
+        - unitId
+    CellGroup:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/CellGroupBase'
+        - type: object
+          properties:
+            unitId:
+              type: string
+              format: uuid
+            storageGroupId:
+              type: string
+              format: uuid
+              nullable: true
+          required:
+            - storageGroupId
+            - unitId
     GetCellsGroupsResponse:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CellGroupBase'
+            $ref: '#/components/schemas/CellGroup'
       required:
         - data
     CreateCellsGroupRequest:
@@ -1585,14 +1606,14 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroupBase'
+          $ref: '#/components/schemas/CellGroup'
       required:
         - data
     GetCellsGroupByIdResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroupBase'
+          $ref: '#/components/schemas/CellGroup'
       required:
         - data
     UpdateCellsGroupRequest:
@@ -1602,7 +1623,7 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroupBase'
+          $ref: '#/components/schemas/CellGroup'
       required:
         - data
     CellGroupPatch:
@@ -1612,7 +1633,10 @@ components:
           type: string
         alias:
           $ref: '#/components/schemas/storage-alias'
-        storage_group_id:
+        storageGroupId:
+          type: string
+          format: uuid
+        unitId:
           type: string
           format: uuid
     PatchCellsGroupRequest:
@@ -1622,7 +1646,7 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroupBase'
+          $ref: '#/components/schemas/CellGroup'
       required:
         - data
     CellBase:
@@ -1807,7 +1831,6 @@ components:
           properties:
             variants:
               type: array
-              minItems: 1
               items:
                 $ref: '#/components/schemas/ItemVariantBase'
       required:
@@ -1925,8 +1948,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ItemVariantEdit'
-          required:
-            - variants
     UpdateItemResponse:
       type: object
       allOf:

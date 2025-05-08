@@ -8,7 +8,7 @@ SELECT * FROM org WHERE id = $1 AND deleted_at IS NULL;
 INSERT INTO org (name, subdomain) VALUES ($1, $2) RETURNING *;
 
 -- name: UpdateOrg :one
-UPDATE org SET name = $2, subdomain = $3 WHERE id = $1 RETURNING *;
+UPDATE org SET name = $2 WHERE id = $1 RETURNING *;
 
 -- name: DeleteOrg :exec
 UPDATE org SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
@@ -40,7 +40,7 @@ SELECT * FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: UpdateStorageGroup :one
-UPDATE storage_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE storage_group SET name = $3, alias = $4, unit_id = $5 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteStorageGroup :exec
 UPDATE storage_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
@@ -101,7 +101,10 @@ INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALU
 
 -- Role Bindings
 -- name: AssignRoleToUser :exec
-INSERT INTO app_role_binding (role_id, user_id, org_id) VALUES ($1, $2, $3);
+INSERT INTO app_role_binding (role_id, user_id, org_id) 
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, org_id) 
+DO UPDATE SET role_id = EXCLUDED.role_id;
 
 -- name: UnassignRoleFromUser :exec
 DELETE FROM app_role_binding WHERE org_id = $1 AND user_id = $2;
@@ -140,10 +143,10 @@ SELECT * FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL;
 SELECT * FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 
 -- name: CreateCellsGroup :one
-INSERT INTO cells_group (org_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4) RETURNING *;
+INSERT INTO cells_group (org_id, unit_id, storage_group_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: UpdateCellsGroup :one
-UPDATE cells_group SET name = $3, alias = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE cells_group SET name = $3, alias = $4, unit_id = $5 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteCellsGroup :exec
 UPDATE cells_group SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
