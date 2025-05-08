@@ -25,7 +25,7 @@ const (
 	ObjectTypeCell         ObjectTypeId = 5
 	ObjectTypeItem         ObjectTypeId = 6
 	ObjectTypeItemInstance ObjectTypeId = 7
-	ObjectTypeUserRoles    ObjectTypeId = 8
+	ObjectTypeEmployee     ObjectTypeId = 8
 )
 
 type ObjectType struct {
@@ -37,7 +37,7 @@ type ObjectType struct {
 type ObjectChange struct {
 	ID                 uuid.UUID          `json:"id"`
 	OrgID              uuid.UUID          `json:"org_id"`
-	UserID             uuid.UUID          `json:"user_id"`
+	UserID             *uuid.UUID         `json:"user_id"`
 	Action             ObjectChangeAction `json:"action"`
 	TargetObjectTypeId ObjectTypeId       `json:"target_object_type_id"`
 	TargetObjectID     uuid.UUID          `json:"target_object_id"`

@@ -1,14 +1,15 @@
-package usecases
+package auth
 
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/yandex"
+	"github.com/let-store-it/backend/internal/utils"
 )
 
 type AuthUseCase struct {
@@ -16,12 +17,25 @@ type AuthUseCase struct {
 	yandexOAuthService *yandex.YandexOAuthService
 }
 
-func NewAuthUseCase(authService *auth.AuthService, yandexOAuthService *yandex.YandexOAuthService) *AuthUseCase {
-	return &AuthUseCase{authService: authService, yandexOAuthService: yandexOAuthService}
+type AuthUseCaseConfig struct {
+	AuditService       *audit.AuditService
+	AuthService        *auth.AuthService
+	YandexOAuthService *yandex.YandexOAuthService
+}
+
+func New(config *AuthUseCaseConfig) *AuthUseCase {
+	return &AuthUseCase{
+		authService:        config.AuthService,
+		yandexOAuthService: config.YandexOAuthService,
+	}
 }
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
-	userID := ctx.Value(models.UserIDContextKey).(uuid.UUID)
+	userID, err := utils.GetUserIdFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	user, err := u.authService.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -88,35 +102,8 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 	return session, nil
 }
 
-func (uc *AuthUseCase) validateOrganizationAccess(ctx context.Context) (uuid.UUID, error) {
-	orgID, err := GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to get organization ID: %w", err)
-	}
-
-	isSystemUser, ok := ctx.Value(models.IsSystemUserContextKey).(bool)
-	if ok && isSystemUser {
-		return orgID, nil
-	}
-
-	userID, err := GetUserIdFromContext(ctx)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to get user ID: %w", err)
-	}
-
-	_, err = uc.authService.GetUserRole(ctx, userID, orgID)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to get user roles: %w", err)
-	}
-	// if roles != auth.RoleOwner {
-	// 	return uuid.Nil, fmt.Errorf("user is not an owner of the organization")
-	// }
-
-	return orgID, nil
-}
-
 func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +117,7 @@ func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, er
 }
 
 func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models.ApiToken, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +131,7 @@ func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models
 }
 
 func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -158,7 +145,7 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +159,7 @@ func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, er
 }
 
 func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +173,7 @@ func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.E
 }
 
 func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID int) (*models.Employee, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +192,7 @@ func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID
 }
 
 func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -219,7 +206,7 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
-	orgID, err := uc.validateOrganizationAccess(ctx)
+	orgID, err := utils.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
