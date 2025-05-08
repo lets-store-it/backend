@@ -2,11 +2,9 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
@@ -22,7 +20,7 @@ func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uui
 
 	orgID, err := s.queries.GetOrgIdByApiToken(ctx, token)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.RecordError(ErrApiTokenNotFound)
 			span.SetStatus(codes.Error, "API token not found")
 			return uuid.Nil, ErrApiTokenNotFound
@@ -32,7 +30,7 @@ func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uui
 		return uuid.Nil, fmt.Errorf("failed to get organization ID by API token: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("org_id", uuid.UUID(orgID.Bytes).String()))
+	span.SetAttributes(attribute.String("org.id", uuid.UUID(orgID.Bytes).String()))
 	span.SetStatus(codes.Ok, "organization found")
 	return orgID.Bytes, nil
 }
@@ -40,8 +38,8 @@ func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uui
 func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name string) (*models.ApiToken, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateApiToken",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("token_name", name),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("token.name", name),
 		),
 	)
 	defer span.End()
@@ -63,7 +61,7 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 		return nil, fmt.Errorf("failed to create API token: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("token_id", uuid.UUID(token.ID.Bytes).String()))
+	span.SetAttributes(attribute.String("token.id", database.UuidFromPgx(token.ID).String()))
 	span.SetStatus(codes.Ok, "API token created")
 	return toTokenModel(token), nil
 }
@@ -71,8 +69,8 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	ctx, span := s.tracer.Start(ctx, "RevokeApiToken",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("token_id", id.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("token.id", id.String()),
 		),
 	)
 	defer span.End()
@@ -82,7 +80,7 @@ func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uu
 		ID:    database.PgUUID(id),
 	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.RecordError(ErrApiTokenNotFound)
 			span.SetStatus(codes.Error, "API token not found")
 			return ErrApiTokenNotFound
@@ -99,7 +97,7 @@ func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uu
 func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*models.ApiToken, error) {
 	ctx, span := s.tracer.Start(ctx, "GetApiTokens",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
+			attribute.String("org.id", orgID.String()),
 		),
 	)
 	defer span.End()

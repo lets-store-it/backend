@@ -17,7 +17,7 @@ import (
 func (s *AuthService) GetEmployees(ctx context.Context, orgID uuid.UUID) ([]*models.Employee, error) {
 	ctx, span := s.tracer.Start(ctx, "GetEmployees",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
+			attribute.String("org.id", orgID.String()),
 		),
 	)
 	defer span.End()
@@ -34,54 +34,19 @@ func (s *AuthService) GetEmployees(ctx context.Context, orgID uuid.UUID) ([]*mod
 		employeesModels[i] = toEmployeeModel(employee)
 	}
 
-	span.SetAttributes(attribute.Int("employees_count", len(employeesModels)))
+	span.SetAttributes(attribute.Int("response.count", len(employeesModels)))
 	span.SetStatus(codes.Ok, "employees retrieved")
 	return employeesModels, nil
-}
-
-func (s *AuthService) DeleteEmployee(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
-	ctx, span := s.tracer.Start(ctx, "DeleteEmployee",
-		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("user_id", userID.String()),
-		),
-	)
-	defer span.End()
-
-	if userID == uuid.Nil {
-		span.RecordError(ErrInvalidUserId)
-		span.SetStatus(codes.Error, "invalid user ID")
-		return ErrInvalidUserId
-	}
-
-	err := s.queries.UnassignRoleFromUser(ctx, sqlc.UnassignRoleFromUserParams{
-		OrgID:  database.PgUUID(orgID),
-		UserID: database.PgUUID(userID),
-	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to unassign role from user")
-		return fmt.Errorf("failed to unassign role from user: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "employee deleted")
-	return nil
 }
 
 func (s *AuthService) GetEmployee(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) (*models.Employee, error) {
 	ctx, span := s.tracer.Start(ctx, "GetEmployee",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("user_id", userID.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("user.id", userID.String()),
 		),
 	)
 	defer span.End()
-
-	if userID == uuid.Nil {
-		span.RecordError(ErrInvalidUserId)
-		span.SetStatus(codes.Error, "invalid user ID")
-		return nil, ErrInvalidUserId
-	}
 
 	employee, err := s.queries.GetEmployee(ctx, sqlc.GetEmployeeParams{
 		OrgID:  database.PgUUID(orgID),
@@ -97,42 +62,11 @@ func (s *AuthService) GetEmployee(ctx context.Context, orgID uuid.UUID, userID u
 	return toEmployeeModel(employee), nil
 }
 
-func (s *AuthService) SetEmployeeRole(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID int) error {
-	ctx, span := s.tracer.Start(ctx, "SetEmployeeRole",
+func (s *AuthService) GetUserAsEmployeeInOrg(ctx context.Context, orgID, userID uuid.UUID) (*models.Employee, error) {
+	ctx, span := s.tracer.Start(ctx, "GetUserAsEmployeeInOrg",
 		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("user_id", userID.String()),
-			attribute.Int("role_id", roleID),
-		),
-	)
-	defer span.End()
-
-	if roleID < 1 || roleID > 4 {
-		span.RecordError(ErrInvalidRole)
-		span.SetStatus(codes.Error, "invalid role ID")
-		return ErrInvalidRole
-	}
-
-	err := s.queries.AssignRoleToUser(ctx, sqlc.AssignRoleToUserParams{
-		OrgID:  database.PgUUID(orgID),
-		UserID: database.PgUUID(userID),
-		RoleID: int32(roleID),
-	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to set employee role")
-		return fmt.Errorf("failed to set employee role: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "employee role set")
-	return nil
-}
-
-func (s *AuthService) GetEmployeeWithRole(ctx context.Context, orgID, userID uuid.UUID) (*models.Employee, error) {
-	ctx, span := s.tracer.Start(ctx, "GetEmployeeWithRole",
-		trace.WithAttributes(
-			attribute.String("org_id", orgID.String()),
-			attribute.String("user_id", userID.String()),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("user.id", userID.String()),
 		),
 	)
 	defer span.End()

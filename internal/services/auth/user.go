@@ -2,16 +2,15 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/utils"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -22,38 +21,76 @@ var (
 	emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 )
 
+func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
+	ctx, span := s.tracer.Start(ctx, "CreateUser",
+		trace.WithAttributes(
+			attribute.String("user.email", user.Email),
+			attribute.String("user.first_name", user.FirstName),
+			attribute.String("user.last_name", user.LastName),
+			attribute.String("user.middle_name", utils.SafeString(user.MiddleName)),
+			attribute.String("user.yandex_id", utils.SafeString(user.YandexID)),
+		),
+	)
+	defer span.End()
+
+	if err := s.validateUserData(user); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "validation failed")
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
+	createdUser, err := s.queries.CreateUser(ctx, sqlc.CreateUserParams{
+		Email:      user.Email,
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		MiddleName: database.PgTextPtr(user.MiddleName),
+		YandexID:   database.PgTextPtr(user.YandexID),
+	})
+	if err != nil {
+		if database.IsUniqueViolation(err) {
+			span.RecordError(ErrDuplicateUser)
+			span.SetStatus(codes.Error, "user already exists")
+			return nil, ErrDuplicateUser
+		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to create user")
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	span.SetStatus(codes.Ok, "user created successfully")
+	return toUserModel(createdUser), nil
+}
+
 func (s *AuthService) validateUserData(user *models.User) error {
 	if user == nil {
-		return fmt.Errorf("user is nil")
+		return fmt.Errorf("%w: user is nil", ErrValidationError)
 	}
 	if strings.TrimSpace(user.Email) == "" {
-		return fmt.Errorf("email is required")
+		return fmt.Errorf("%w: email is required", ErrValidationError)
 	}
 	if !emailRegex.MatchString(user.Email) {
-		return fmt.Errorf("invalid email format")
+		return fmt.Errorf("%w: invalid email format", ErrValidationError)
 	}
 	if strings.TrimSpace(user.FirstName) == "" {
-		return fmt.Errorf("first name is required")
+		return fmt.Errorf("%w: first name is required", ErrValidationError)
 	}
 	if strings.TrimSpace(user.LastName) == "" {
-		return fmt.Errorf("last name is required")
+		return fmt.Errorf("%w: last name is required", ErrValidationError)
 	}
 	return nil
 }
 
 func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	ctx, span := s.tracer.Start(ctx, "GetUserByEmail")
+	ctx, span := s.tracer.Start(ctx, "GetUserByEmail",
+		trace.WithAttributes(
+			attribute.String("user.email", email),
+		),
+	)
 	defer span.End()
-
-	if email == "" {
-		span.RecordError(ErrInvalidEmail)
-		span.SetStatus(codes.Error, "invalid email")
-		return nil, ErrInvalidEmail
-	}
 
 	user, err := s.queries.GetUserByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.RecordError(ErrUserNotFound)
 			span.SetStatus(codes.Error, "user not found")
 			return nil, ErrUserNotFound
@@ -70,20 +107,14 @@ func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models
 func (s *AuthService) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	ctx, span := s.tracer.Start(ctx, "GetUserByID",
 		trace.WithAttributes(
-			attribute.String("user_id", userID.String()),
+			attribute.String("user.id", userID.String()),
 		),
 	)
 	defer span.End()
 
-	if userID == uuid.Nil {
-		span.RecordError(ErrInvalidUserId)
-		span.SetStatus(codes.Error, "invalid user ID")
-		return nil, ErrInvalidUserId
-	}
-
 	user, err := s.queries.GetUserById(ctx, database.PgUUID(userID))
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.RecordError(ErrUserNotFound)
 			span.SetStatus(codes.Error, "user not found")
 			return nil, ErrUserNotFound
@@ -95,50 +126,4 @@ func (s *AuthService) GetUserByID(ctx context.Context, userID uuid.UUID) (*model
 
 	span.SetStatus(codes.Ok, "user retrieved successfully")
 	return toUserModel(user), nil
-}
-
-func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	ctx, span := s.tracer.Start(ctx, "CreateUser",
-		trace.WithAttributes(
-			attribute.String("email", user.Email),
-			attribute.String("first_name", user.FirstName),
-			attribute.String("last_name", user.LastName),
-		),
-	)
-	defer span.End()
-
-	if err := s.validateUserData(user); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "validation failed")
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
-
-	var middleName, yandexID string
-	if user.MiddleName != nil {
-		middleName = *user.MiddleName
-	}
-	if user.YandexID != nil {
-		yandexID = *user.YandexID
-	}
-
-	createdUser, err := s.queries.CreateUser(ctx, sqlc.CreateUserParams{
-		Email:      user.Email,
-		FirstName:  user.FirstName,
-		LastName:   user.LastName,
-		MiddleName: database.PgText(middleName),
-		YandexID:   database.PgText(yandexID),
-	})
-	if err != nil {
-		if database.IsUniqueViolation(err) {
-			span.RecordError(ErrDuplicateUser)
-			span.SetStatus(codes.Error, "user already exists")
-			return nil, ErrDuplicateUser
-		}
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to create user")
-		return nil, fmt.Errorf("failed to create user: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "user created successfully")
-	return toUserModel(createdUser), nil
 }

@@ -46,6 +46,13 @@ func PgTextPtr(s *string) pgtype.Text {
 	return pgtype.Text{String: *s, Valid: *s != ""}
 }
 
+func PgTextPtrFromPgx(s pgtype.Text) *string {
+	if !s.Valid {
+		return nil
+	}
+	return &s.String
+}
+
 // Timestamp
 func PgTimestamp(t time.Time) pgtype.Timestamp {
 	return pgtype.Timestamp{Time: t, Valid: !t.IsZero()}

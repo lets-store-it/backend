@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -24,12 +24,12 @@ var (
 )
 
 type AuthService struct {
-	queries *database.Queries
+	queries *sqlc.Queries
 	pgxPool *pgxpool.Pool
 	tracer  trace.Tracer
 }
 
-func New(queries *database.Queries, pgxPool *pgxpool.Pool) *AuthService {
+func New(queries *sqlc.Queries, pgxPool *pgxpool.Pool) *AuthService {
 	return &AuthService{
 		queries: queries,
 		pgxPool: pgxPool,

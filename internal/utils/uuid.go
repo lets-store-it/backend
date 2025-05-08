@@ -13,6 +13,14 @@ func SafeUUIDString(id *uuid.UUID) string {
 	return id.String()
 }
 
+// SafeString returns a string representation of a string pointer, handling nil cases
+func SafeString(s *string) string {
+	if s == nil {
+		return "nil"
+	}
+	return *s
+}
+
 // NullUUIDToPtr converts a nullable pgtype.UUID to a *uuid.UUID
 func NullUUIDToPtr(id pgtype.UUID) *uuid.UUID {
 	if !id.Valid {

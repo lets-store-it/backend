@@ -191,7 +191,7 @@ func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID
 		return nil, err
 	}
 
-	err = uc.authService.SetEmployeeRole(ctx, orgID, id, roleID)
+	err = uc.authService.SetUserRole(ctx, orgID, id, roleID)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	err = uc.authService.DeleteEmployee(ctx, orgID, id)
+	err = uc.authService.RemoveUserRole(ctx, orgID, id)
 	if err != nil {
 		return err
 	}
@@ -228,7 +228,7 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 		return nil, err
 	}
 
-	err = uc.authService.AssignRoleToUser(ctx, orgID, user.ID, roleID)
+	err = uc.authService.SetUserRole(ctx, orgID, user.ID, roleID)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +242,7 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 }
 
 func (uc *AuthUseCase) GetRoles(ctx context.Context) ([]*models.Role, error) {
-	roles, err := uc.authService.GetAvaiableRoles(ctx)
+	roles, err := uc.authService.GetAvailableRoles(ctx)
 	if err != nil {
 		return nil, err
 	}
