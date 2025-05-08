@@ -92,6 +92,12 @@ SELECT * FROM app_user WHERE id = $1 LIMIT 1;
 -- name: GetUserByEmail :one
 SELECT * FROM app_user WHERE email = $1 LIMIT 1;
 
+-- name: InvalidateSession :exec
+UPDATE app_user_session SET revoked_at = CURRENT_TIMESTAMP WHERE id = $1;
+
+-- name: GetSessionBySecret :one
+SELECT * FROM app_user_session WHERE token = $1 LIMIT 1;
+
 -- name: CreateUserSession :one
 INSERT INTO app_user_session (user_id, token) VALUES ($1, $2) RETURNING *;
 

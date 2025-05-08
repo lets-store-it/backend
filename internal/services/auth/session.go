@@ -20,7 +20,11 @@ func toSessionModel(session sqlc.AppUserSession) *models.UserSession {
 	return &models.UserSession{
 		ID:     session.ID.Bytes,
 		UserID: session.UserID.Bytes,
-		Secret: session.Token,
+		Token:  session.Token,
+
+		CreatedAt: session.CreatedAt.Time,
+		ExpiresAt: database.PgTimePtrFromPgx(session.ExpiresAt),
+		RevokedAt: database.PgTimePtrFromPgx(session.RevokedAt),
 	}
 }
 
@@ -46,11 +50,11 @@ func (s *AuthService) CreateSession(ctx context.Context, userId uuid.UUID) (*mod
 	return toSessionModel(session), nil
 }
 
-func (s *AuthService) GetUserBySessionSecret(ctx context.Context, sessionSecret string) (*models.User, error) {
-	ctx, span := s.tracer.Start(ctx, "GetUserBySessionSecret")
+func (s *AuthService) GetSessionBySecret(ctx context.Context, sessionSecret string) (*models.UserSession, error) {
+	ctx, span := s.tracer.Start(ctx, "GetSessionBySecret")
 	defer span.End()
 
-	user, err := s.queries.GetUserBySessionSecret(ctx, sessionSecret)
+	session, err := s.queries.GetSessionBySecret(ctx, sessionSecret)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			span.RecordError(ErrSessionNotFound)
@@ -62,6 +66,13 @@ func (s *AuthService) GetUserBySessionSecret(ctx context.Context, sessionSecret 
 		return nil, fmt.Errorf("failed to get user by session secret: %w", err)
 	}
 
-	span.SetStatus(codes.Ok, "user found")
-	return toUserModel(user), nil
+	span.SetStatus(codes.Ok, "session found")
+	return toSessionModel(session), nil
+}
+
+func (s *AuthService) InvalidateSession(ctx context.Context, sessionID uuid.UUID) error {
+	ctx, span := s.tracer.Start(ctx, "InvalidateSession")
+	defer span.End()
+
+	return s.queries.InvalidateSession(ctx, database.PgUUID(sessionID))
 }

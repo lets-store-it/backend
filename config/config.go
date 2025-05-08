@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -51,13 +51,13 @@ type Config struct {
 func GetConfigOrDie() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		slog.Error("Error loading .env file", "error", err)
 	}
 
 	var cfg Config
 	err = cleanenv.ReadEnv(&cfg)
 	if err != nil {
-		log.Fatalf("Failed to read config: %v", err)
+		slog.Error("Failed to read config", "error", err)
 	}
 
 	return &cfg

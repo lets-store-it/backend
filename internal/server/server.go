@@ -98,6 +98,7 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 
 	// Initialize auth middleware
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
+	e.Use(echo.WrapMiddleware(handlers.WithSetCookieFromContext))
 
 	// Initialize API handlers
 	handler := handlers.NewRestApiImplementation(

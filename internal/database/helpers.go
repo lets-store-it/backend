@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -42,4 +44,30 @@ func PgTextPtr(s *string) pgtype.Text {
 		return pgtype.Text{Valid: false}
 	}
 	return pgtype.Text{String: *s, Valid: *s != ""}
+}
+
+// Timestamp
+func PgTimestamp(t time.Time) pgtype.Timestamp {
+	return pgtype.Timestamp{Time: t, Valid: !t.IsZero()}
+}
+
+func PgTimestampPtr(t *time.Time) pgtype.Timestamp {
+	if t == nil {
+		return pgtype.Timestamp{Valid: false}
+	}
+	return pgtype.Timestamp{Time: *t, Valid: !t.IsZero()}
+}
+
+func PgTimePtrFromPgx(t pgtype.Timestamp) *time.Time {
+	if !t.Valid {
+		return nil
+	}
+	return &t.Time
+}
+
+func PgTimeFromPgx(t pgtype.Timestamp) time.Time {
+	if !t.Valid {
+		return time.Time{}
+	}
+	return t.Time
 }

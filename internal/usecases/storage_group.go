@@ -113,21 +113,15 @@ func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID
 		return nil, err
 	}
 
-	var id uuid.UUID
-	if storageGroupID != nil {
-		id = *storageGroupID
-	}
-
-	storageGroup := &models.CellsGroup{
-		ID:             id,
+	cellsGroup := &models.CellsGroup{
 		OrgID:          orgID,
 		UnitID:         unitID,
+		StorageGroupID: storageGroupID,
 		Name:           name,
 		Alias:          alias,
-		StorageGroupID: storageGroupID,
 	}
 
-	return uc.service.CreateCellsGroup(ctx, storageGroup, name, alias)
+	return uc.service.CreateCellsGroup(ctx, cellsGroup, name, alias)
 }
 
 func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {
