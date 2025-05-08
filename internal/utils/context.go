@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/auth"
 )
 
 func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
@@ -28,4 +29,32 @@ func GetUserIdFromContext(ctx context.Context) (uuid.UUID, error) {
 		return uuid.Nil, fmt.Errorf("user ID not found in context")
 	}
 	return userID, nil
+}
+
+type ValidateOrgAndUserAccessResult struct {
+	HasAccess bool
+	OrgID     uuid.UUID
+	UserID    *uuid.UUID
+}
+
+func ValidateOrgAndUserAccess(ctx context.Context, service *auth.AuthService, accessLevel auth.AccessLevel) (ValidateOrgAndUserAccessResult, error) {
+	orgID, err := GetOrganizationIDFromContext(ctx)
+	if err != nil {
+		return ValidateOrgAndUserAccessResult{}, err
+	}
+	userID, err := GetUserIdFromContext(ctx)
+	if err != nil {
+		return ValidateOrgAndUserAccessResult{}, err
+	}
+
+	ok, err := service.CheckUserAccess(ctx, orgID, userID, accessLevel)
+	if err != nil {
+		return ValidateOrgAndUserAccessResult{}, err
+	}
+
+	return ValidateOrgAndUserAccessResult{
+		HasAccess: ok,
+		OrgID:     orgID,
+		UserID:    &userID,
+	}, nil
 }

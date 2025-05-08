@@ -6,17 +6,23 @@ import (
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/internal/usecases"
+	"github.com/let-store-it/backend/internal/common"
+	"github.com/let-store-it/backend/internal/usecases/audit"
+	"github.com/let-store-it/backend/internal/usecases/auth"
+	"github.com/let-store-it/backend/internal/usecases/item"
+	"github.com/let-store-it/backend/internal/usecases/organization"
+	"github.com/let-store-it/backend/internal/usecases/organization_unit"
+	"github.com/let-store-it/backend/internal/usecases/storage"
 	"github.com/ogen-go/ogen/ogenerrors"
 )
 
 type RestApiImplementation struct {
-	orgUseCase          *usecases.OrganizationUseCase
-	orgUnitUseCase      *usecases.OrganizationUnitUseCase
-	storageGroupUseCase *usecases.StorageUseCase
-	itemUseCase         *usecases.ItemUseCase
-	authUseCase         *usecases.AuthUseCase
-	auditUseCase        *usecases.AuditUseCase
+	orgUseCase          *organization.OrganizationUseCase
+	orgUnitUseCase      *organization_unit.OrganizationUnitUseCase
+	storageGroupUseCase *storage.StorageUseCase
+	itemUseCase         *item.ItemUseCase
+	authUseCase         *auth.AuthUseCase
+	auditUseCase        *audit.AuditUseCase
 }
 
 // CreateInstanceForItem implements api.Handler.
@@ -53,12 +59,12 @@ func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.Upd
 }
 
 func NewRestApiImplementation(
-	orgUseCase *usecases.OrganizationUseCase,
-	orgUnitUseCase *usecases.OrganizationUnitUseCase,
-	storageGroupUseCase *usecases.StorageUseCase,
-	itemUseCase *usecases.ItemUseCase,
-	authUseCase *usecases.AuthUseCase,
-	auditUseCase *usecases.AuditUseCase,
+	orgUseCase *organization.OrganizationUseCase,
+	orgUnitUseCase *organization_unit.OrganizationUnitUseCase,
+	storageGroupUseCase *storage.StorageUseCase,
+	itemUseCase *item.ItemUseCase,
+	authUseCase *auth.AuthUseCase,
+	auditUseCase *audit.AuditUseCase,
 ) *RestApiImplementation {
 	return &RestApiImplementation{
 		orgUseCase:          orgUseCase,
@@ -110,6 +116,10 @@ func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.De
 	}
 
 	if errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied) {
+		return h.NewUnauthorizedError(ctx)
+	}
+
+	if errors.Is(err, common.ErrNotAuthorized) {
 		return h.NewUnauthorizedError(ctx)
 	}
 

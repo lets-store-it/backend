@@ -34,11 +34,17 @@ type ItemService struct {
 	tracer         trace.Tracer
 }
 
-func New(queries *sqlc.Queries, pgxPool *pgxpool.Pool, storageService *storage.StorageService) *ItemService {
+type ItemServiceConfig struct {
+	Queries        *sqlc.Queries
+	PGXPool        *pgxpool.Pool
+	StorageService *storage.StorageService
+}
+
+func New(config ItemServiceConfig) *ItemService {
 	return &ItemService{
-		queries:        queries,
-		pgxPool:        pgxPool,
-		storageService: storageService,
+		queries:        config.Queries,
+		pgxPool:        config.PGXPool,
+		storageService: config.StorageService,
 		tracer:         otel.GetTracerProvider().Tracer("item-service"),
 	}
 }

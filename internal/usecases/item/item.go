@@ -32,8 +32,14 @@ func (uc *ItemUseCase) validateOrganizationAccess(ctx context.Context, itemID uu
 	return orgID, nil
 }
 
-func NewItemUseCase(service *item.ItemService) *ItemUseCase {
-	return &ItemUseCase{service}
+type ItemUseCaseConfig struct {
+	Service *item.ItemService
+}
+
+func New(config ItemUseCaseConfig) *ItemUseCase {
+	return &ItemUseCase{
+		service: config.Service,
+	}
 }
 
 func (uc *ItemUseCase) Create(ctx context.Context, item *models.Item) (*models.Item, error) {
@@ -60,7 +66,7 @@ func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item,
 		return nil, err
 	}
 
-return uc.service.GetByID(ctx, orgID, id)
+	return uc.service.GetByID(ctx, orgID, id)
 }
 
 func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models.Item) (*models.Item, error) {

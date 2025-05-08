@@ -2,12 +2,12 @@ package audit
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/usecases"
 	"github.com/let-store-it/backend/internal/utils"
 )
 
@@ -21,43 +21,25 @@ type AuditUseCaseConfig struct {
 	AuditService *audit.AuditService
 }
 
-func New(config *AuditUseCaseConfig) *AuditUseCase {
+func New(config AuditUseCaseConfig) *AuditUseCase {
 	return &AuditUseCase{
 		authService:  config.AuthService,
 		auditService: config.AuditService,
 	}
 }
 
-func (uc *AuditUseCase) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get org id: %w", err)
-	}
-
-	userID, err := utils.GetUserIdFromContext(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get user id: %w", err)
-	}
-
-	objectChange.UserID = userID
-	objectChange.OrgID = orgID
-
-	if err := uc.auditService.CreateObjectChange(ctx, objectChange); err != nil {
-		return fmt.Errorf("failed to create object change: %w", err)
-	}
-
-	return nil
-}
-
 func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, auth.AccessLevelWorker)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get org id: %w", err)
+		return nil, err
 	}
 
-	changes, err := uc.auditService.GetObjectChanges(ctx, orgID, targetObjectTypeId, targetObjectID)
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+	changes, err := uc.auditService.GetObjectChanges(ctx, validateResult.OrgID, targetObjectTypeId, targetObjectID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get object changes: %w", err)
+		return nil, err
 	}
 
 	return changes, nil

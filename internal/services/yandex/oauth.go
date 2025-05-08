@@ -31,10 +31,15 @@ type YandexOAuthUserInfo struct {
 	DefaultEmail string `json:"default_email"`
 }
 
-func NewYandexOAuthService(clientID, clientSecret string) *YandexOAuthService {
+type YandexOAuthServiceConfig struct {
+	ClientID     string
+	ClientSecret string
+}
+
+func NewYandexOAuthService(config YandexOAuthServiceConfig) *YandexOAuthService {
 	return &YandexOAuthService{
-		clientID:     clientID,
-		clientSecret: clientSecret,
+		clientID:     config.ClientID,
+		clientSecret: config.ClientSecret,
 		tracer:       otel.GetTracerProvider().Tracer("yandex-oauth"),
 	}
 }

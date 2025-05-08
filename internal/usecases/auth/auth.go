@@ -23,7 +23,7 @@ type AuthUseCaseConfig struct {
 	YandexOAuthService *yandex.YandexOAuthService
 }
 
-func New(config *AuthUseCaseConfig) *AuthUseCase {
+func New(config AuthUseCaseConfig) *AuthUseCase {
 	return &AuthUseCase{
 		authService:        config.AuthService,
 		yandexOAuthService: config.YandexOAuthService,
@@ -178,7 +178,7 @@ func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID
 		return nil, err
 	}
 
-	err = uc.authService.SetUserRole(ctx, orgID, id, roleID)
+	err = uc.authService.SetUserRole(ctx, orgID, id, models.RoleID(roleID))
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 		return nil, err
 	}
 
-	err = uc.authService.SetUserRole(ctx, orgID, user.ID, roleID)
+	err = uc.authService.SetUserRole(ctx, orgID, user.ID, models.RoleID(roleID))
 	if err != nil {
 		return nil, err
 	}
