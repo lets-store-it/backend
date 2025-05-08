@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/let-store-it/backend/config"
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/generated/database"
+	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/handlers"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"

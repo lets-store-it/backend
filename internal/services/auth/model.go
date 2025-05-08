@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"github.com/let-store-it/backend/generated/database"
+	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/models"
 )
 

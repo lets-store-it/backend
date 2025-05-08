@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/let-store-it/backend/generated/database"
+	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/utils"
 )
