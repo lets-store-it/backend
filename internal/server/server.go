@@ -30,7 +30,7 @@ type Server struct {
 // New creates and configures a new server instance
 func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Server, error) {
 	// Initialize telemetry
-	if err := telemetry.InitTelemetry(context.Background()); err != nil {
+	if err := telemetry.InitTelemetry(context.Background(), cfg.ServiceName); err != nil {
 		return nil, err
 	}
 
