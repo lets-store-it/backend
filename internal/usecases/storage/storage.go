@@ -17,11 +17,17 @@ type StorageUseCase struct {
 	authService *auth.AuthService
 }
 
-func NewStorageUseCase(service *storage.StorageService, orgService *organization.OrganizationService, authService *auth.AuthService) *StorageUseCase {
+type StorageUseCaseConfig struct {
+	Service     *storage.StorageService
+	OrgService  *organization.OrganizationService
+	AuthService *auth.AuthService
+}
+
+func New(config StorageUseCaseConfig) *StorageUseCase {
 	return &StorageUseCase{
-		authService: authService,
-		service:     service,
-		orgService:  orgService,
+		authService: config.AuthService,
+		service:     config.Service,
+		orgService:  config.OrgService,
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/let-store-it/backend/config"
 	"github.com/let-store-it/backend/generated/api"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/handlers"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
@@ -17,8 +17,13 @@ import (
 	"github.com/let-store-it/backend/internal/services/storage"
 	"github.com/let-store-it/backend/internal/services/yandex"
 	"github.com/let-store-it/backend/internal/telemetry"
-	"github.com/let-store-it/backend/internal/usecases"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	auditUC "github.com/let-store-it/backend/internal/usecases/audit"
+	authUC "github.com/let-store-it/backend/internal/usecases/auth"
+	itemUC "github.com/let-store-it/backend/internal/usecases/item"
+	organizationUC "github.com/let-store-it/backend/internal/usecases/organization"
+	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
 )
 
 // Server represents the main server instance and its dependencies
@@ -28,7 +33,7 @@ type Server struct {
 }
 
 // New creates and configures a new server instance
-func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Server, error) {
+func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server, error) {
 	// Initialize telemetry
 	if err := telemetry.InitTelemetry(context.Background(), cfg.ServiceName); err != nil {
 		return nil, err
@@ -84,17 +89,44 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	}
 	defer auditService.Close()
 
-	itemService := item.New(queries, pool, storageGroupService)
-	yandexOAuthService := yandex.NewYandexOAuthService(cfg.YandexOAuth.ClientID, cfg.YandexOAuth.ClientSecret)
-	orgService := organization.New(queries, pool)
+	itemService := item.New(item.ItemServiceConfig{
+		Queries:        queries,
+		PGXPool:        pool,
+		StorageService: storageGroupService,
+	})
+
+	yandexOAuthService := yandex.NewYandexOAuthService(yandex.YandexOAuthServiceConfig{
+		ClientID:     cfg.YandexOAuth.ClientID,
+		ClientSecret: cfg.YandexOAuth.ClientSecret,
+	})
+	orgService := organization.New(organization.OrganizationServiceConfig{
+		Queries: queries,
+		PGXPool: pool,
+	})
 
 	// Initialize use cases
-	itemUseCase := usecases.NewItemUseCase(itemService)
-	authUseCase := usecases.NewAuthUseCase(authService, yandexOAuthService)
-	orgUseCase := usecases.NewOrganizationUseCase(orgService, authService, auditService)
-	orgUnitUseCase := usecases.NewOrganizationUnitUseCase(orgService, authUseCase)
-	storageGroupUseCase := usecases.NewStorageUseCase(storageGroupService, orgService, authService)
-	auditUseCase := usecases.NewAuditUseCase(authService, auditService)
+	itemUseCase := itemUC.New(itemUC.ItemUseCaseConfig{
+		Service: itemService,
+	})
+	authUseCase := authUC.New(authUC.AuthUseCaseConfig{
+		AuthService:        authService,
+		YandexOAuthService: yandexOAuthService,
+	})
+	orgUseCase := organizationUC.New(organizationUC.OrganizationUseCaseConfig{
+		Service:      orgService,
+		AuthService:  authService,
+		AuditService: auditService,
+	})
+
+	storageUseCase := storageUC.New(storageUC.StorageUseCaseConfig{
+		Service:     storageGroupService,
+		OrgService:  orgService,
+		AuthService: authService,
+	})
+	auditUseCase := auditUC.New(auditUC.AuditUseCaseConfig{
+		AuthService:  authService,
+		AuditService: auditService,
+	})
 
 	// Initialize auth middleware
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
@@ -103,8 +135,8 @@ func New(cfg *config.Config, queries *database.Queries, pool *pgxpool.Pool) (*Se
 	// Initialize API handlers
 	handler := handlers.NewRestApiImplementation(
 		orgUseCase,
-		orgUnitUseCase,
-		storageGroupUseCase,
+		orgUseCase,
+		storageUseCase,
 		itemUseCase,
 		authUseCase,
 		auditUseCase,

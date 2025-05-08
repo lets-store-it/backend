@@ -43,17 +43,17 @@ var roleHierarchy = map[AccessLevel][]models.RoleName{
 	},
 }
 
-func (s *AuthService) SetUserRole(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID int) error {
+func (s *AuthService) SetUserRole(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, roleID models.RoleID) error {
 	ctx, span := s.tracer.Start(ctx, "SetUserRole",
 		trace.WithAttributes(
 			attribute.String("org.id", orgID.String()),
 			attribute.String("user_id", userID.String()),
-			attribute.Int("role.id", roleID),
+			attribute.Int("role.id", int(roleID)),
 		),
 	)
 	defer span.End()
 
-	if roleID < 1 || roleID > 4 {
+	if roleID < models.RoleOwnerID || roleID > models.RoleWorkerID {
 		span.RecordError(ErrInvalidRole)
 		span.SetStatus(codes.Error, "invalid role ID")
 		return ErrInvalidRole

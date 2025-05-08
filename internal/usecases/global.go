@@ -2,10 +2,15 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
+)
+
+var (
+	ErrNotAuthorized = errors.New("not authorized")
 )
 
 func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {

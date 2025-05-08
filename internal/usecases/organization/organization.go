@@ -1,4 +1,4 @@
-package usecases
+package organization
 
 import (
 	"context"
@@ -6,10 +6,13 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/usecases"
+	"github.com/let-store-it/backend/internal/utils"
 )
 
 type OrganizationUseCase struct {
@@ -18,16 +21,22 @@ type OrganizationUseCase struct {
 	auditService *audit.AuditService
 }
 
-func NewOrganizationUseCase(service *organization.OrganizationService, authService *auth.AuthService, auditService *audit.AuditService) *OrganizationUseCase {
+type OrganizationUseCaseConfig struct {
+	Service      *organization.OrganizationService
+	AuthService  *auth.AuthService
+	AuditService *audit.AuditService
+}
+
+func New(config OrganizationUseCaseConfig) *OrganizationUseCase {
 	return &OrganizationUseCase{
-		service:      service,
-		authService:  authService,
-		auditService: auditService,
+		service:      config.Service,
+		authService:  config.AuthService,
+		auditService: config.AuditService,
 	}
 }
 
 func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
-	userID, err := GetUserIdFromContext(ctx)
+	userId, err := utils.GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +46,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	err = uc.authService.SetUserRole(ctx, org.ID, userID, 1) // owner
+	err = uc.authService.SetUserRole(ctx, org.ID, userId, models.RoleOwnerID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +59,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             &userID,
+		UserID:             &userId,
 		Action:             models.ObjectChangeActionCreate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -62,27 +71,35 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 }
 
 func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Organization, error) {
-	userID, err := GetUserIdFromContext(ctx)
+	userId, err := utils.GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.service.GetUsersOrgs(ctx, userID)
+	return uc.service.GetUsersOrgs(ctx, userId)
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	return uc.service.GetByID(ctx, id)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, auth.AccessLevelAdmin)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, common.ErrNotAuthorized
+	}
+
+	return uc.service.GetByID(ctx, validateResult.OrgID)
 }
 
 func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	userID, err := GetUserIdFromContext(ctx)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, auth.AccessLevelOwner)
 	if err != nil {
 		return err
 	}
 
-	_, err = uc.authService.GetUserRole(ctx, userID, id)
-	if err != nil {
-		return err
+	if !validateResult.HasAccess {
+		return usecases.ErrNotAuthorized
 	}
 
 	org, err := uc.service.GetByID(ctx, id)
@@ -103,7 +120,7 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             &userID,
+		UserID:             validateResult.UserID,
 		Action:             models.ObjectChangeActionDelete,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -114,14 +131,13 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	userID, err := GetUserIdFromContext(ctx)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, auth.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = uc.authService.GetUserRole(ctx, userID, org.ID)
-	if err != nil {
-		return nil, err
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
 	}
 
 	orgUpdated, err := uc.service.Update(ctx, org)
@@ -142,7 +158,7 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             &userID,
+		UserID:             validateResult.UserID,
 		Action:             models.ObjectChangeActionUpdate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,
@@ -154,14 +170,13 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 }
 
 func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	userID, err := GetUserIdFromContext(ctx)
+	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, auth.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = uc.authService.GetUserRole(ctx, userID, id)
-	if err != nil {
-		return nil, err
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
 	}
 
 	org, err := uc.service.GetByID(ctx, id)
@@ -195,7 +210,7 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
 		ID:                 uuid.New(),
 		OrgID:              org.ID,
-		UserID:             &userID,
+		UserID:             validateResult.UserID,
 		Action:             models.ObjectChangeActionUpdate,
 		TargetObjectTypeId: models.ObjectTypeOrganization,
 		TargetObjectID:     org.ID,

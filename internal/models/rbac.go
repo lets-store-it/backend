@@ -13,6 +13,15 @@ const (
 	RoleWorker  RoleName = "org_worker"
 )
 
+type RoleID int
+
+const (
+	RoleOwnerID   RoleID = 1
+	RoleAdminID   RoleID = 2
+	RoleManagerID RoleID = 3
+	RoleWorkerID  RoleID = 4
+)
+
 type Role struct {
 	ID          int
 	Name        RoleName
