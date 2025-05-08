@@ -7,22 +7,21 @@ import (
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/common"
-	"github.com/let-store-it/backend/internal/usecases/audit"
-	"github.com/let-store-it/backend/internal/usecases/auth"
-	"github.com/let-store-it/backend/internal/usecases/item"
-	"github.com/let-store-it/backend/internal/usecases/organization"
-	"github.com/let-store-it/backend/internal/usecases/organization_unit"
-	"github.com/let-store-it/backend/internal/usecases/storage"
+	auditUC "github.com/let-store-it/backend/internal/usecases/audit"
+	authUC "github.com/let-store-it/backend/internal/usecases/auth"
+	itemUC "github.com/let-store-it/backend/internal/usecases/item"
+	orgUC "github.com/let-store-it/backend/internal/usecases/organization"
+	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
 	"github.com/ogen-go/ogen/ogenerrors"
 )
 
 type RestApiImplementation struct {
-	orgUseCase          *organization.OrganizationUseCase
-	orgUnitUseCase      *organization_unit.OrganizationUnitUseCase
-	storageGroupUseCase *storage.StorageUseCase
-	itemUseCase         *item.ItemUseCase
-	authUseCase         *auth.AuthUseCase
-	auditUseCase        *audit.AuditUseCase
+	orgUseCase          *orgUC.OrganizationUseCase
+	orgUnitUseCase      *orgUC.OrganizationUseCase
+	storageGroupUseCase *storageUC.StorageUseCase
+	itemUseCase         *itemUC.ItemUseCase
+	authUseCase         *authUC.AuthUseCase
+	auditUseCase        *auditUC.AuditUseCase
 }
 
 // CreateInstanceForItem implements api.Handler.
@@ -59,12 +58,12 @@ func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.Upd
 }
 
 func NewRestApiImplementation(
-	orgUseCase *organization.OrganizationUseCase,
-	orgUnitUseCase *organization_unit.OrganizationUnitUseCase,
-	storageGroupUseCase *storage.StorageUseCase,
-	itemUseCase *item.ItemUseCase,
-	authUseCase *auth.AuthUseCase,
-	auditUseCase *audit.AuditUseCase,
+	orgUseCase *orgUC.OrganizationUseCase,
+	orgUnitUseCase *orgUC.OrganizationUseCase,
+	storageGroupUseCase *storageUC.StorageUseCase,
+	itemUseCase *itemUC.ItemUseCase,
+	authUseCase *authUC.AuthUseCase,
+	auditUseCase *auditUC.AuditUseCase,
 ) *RestApiImplementation {
 	return &RestApiImplementation{
 		orgUseCase:          orgUseCase,

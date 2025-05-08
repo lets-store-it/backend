@@ -14,31 +14,22 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type AccessLevel string
-
-const (
-	AccessLevelWorker  AccessLevel = "worker"
-	AccessLevelManager AccessLevel = "manager"
-	AccessLevelAdmin   AccessLevel = "admin"
-	AccessLevelOwner   AccessLevel = "owner"
-)
-
-var roleHierarchy = map[AccessLevel][]models.RoleName{
-	AccessLevelWorker: {
+var roleHierarchy = map[models.AccessLevel][]models.RoleName{
+	models.AccessLevelWorker: {
 		models.RoleOwner,
 		models.RoleAdmin,
 		models.RoleManager,
 	},
-	AccessLevelManager: {
+	models.AccessLevelManager: {
 		models.RoleOwner,
 		models.RoleAdmin,
 		models.RoleManager,
 	},
-	AccessLevelAdmin: {
+	models.AccessLevelAdmin: {
 		models.RoleOwner,
 		models.RoleAdmin,
 	},
-	AccessLevelOwner: {
+	models.AccessLevelOwner: {
 		models.RoleOwner,
 	},
 }
@@ -98,7 +89,7 @@ func (s *AuthService) RemoveUserRole(ctx context.Context, orgID uuid.UUID, userI
 	return nil
 }
 
-func (s *AuthService) CheckUserAccess(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, accessLevel AccessLevel) (bool, error) {
+func (s *AuthService) CheckUserAccess(ctx context.Context, orgID uuid.UUID, userID uuid.UUID, accessLevel models.AccessLevel) (bool, error) {
 	ctx, span := s.tracer.Start(ctx, "CheckUserAccess",
 		trace.WithAttributes(
 			attribute.String("user.id", userID.String()),
