@@ -9,7 +9,7 @@ import (
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/yandex"
-	"github.com/let-store-it/backend/internal/utils"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type AuthUseCase struct {
@@ -31,7 +31,7 @@ func New(config AuthUseCaseConfig) *AuthUseCase {
 }
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
-	userID, err := utils.GetUserIdFromContext(ctx)
+	userID, err := usecases.GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 }
 
 func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, er
 }
 
 func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models.ApiToken, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models
 }
 
 func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, er
 }
 
 func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.E
 }
 
 func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID int) (*models.Employee, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID
 }
 
 func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
-	orgID, err := utils.GetOrganizationIDFromContext(ctx)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

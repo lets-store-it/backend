@@ -8,7 +8,6 @@ import (
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/usecases"
-	"github.com/let-store-it/backend/internal/utils"
 )
 
 type AuditUseCase struct {
@@ -29,7 +28,7 @@ func New(config AuditUseCaseConfig) *AuditUseCase {
 }
 
 func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelWorker)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelWorker)
 	if err != nil {
 		return nil, err
 	}
