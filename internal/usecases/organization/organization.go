@@ -12,7 +12,6 @@ import (
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/usecases"
-	"github.com/let-store-it/backend/internal/utils"
 )
 
 type OrganizationUseCase struct {
@@ -36,7 +35,7 @@ func New(config OrganizationUseCaseConfig) *OrganizationUseCase {
 }
 
 func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
-	userId, err := utils.GetUserIdFromContext(ctx)
+	userId, err := usecases.GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 }
 
 func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Organization, error) {
-	userId, err := utils.GetUserIdFromContext(ctx)
+	userId, err := usecases.GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +79,8 @@ func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Orga
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
-	
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +93,7 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 }
 
 func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelOwner)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelOwner)
 	if err != nil {
 		return err
 	}
@@ -132,7 +131,7 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +170,7 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 }
 
 func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}

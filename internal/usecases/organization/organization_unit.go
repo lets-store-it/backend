@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/utils"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 }
 
 func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.OrganizationUnit, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.Organ
 }
 
 func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) err
 }
 
 func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 }
 
 func (uc *OrganizationUseCase) PatchUnit(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
