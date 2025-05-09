@@ -2,17 +2,13 @@ package handlers
 
 import (
 	"context"
-	"errors"
-	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
-	"github.com/let-store-it/backend/internal/common"
 	auditUC "github.com/let-store-it/backend/internal/usecases/audit"
 	authUC "github.com/let-store-it/backend/internal/usecases/auth"
 	itemUC "github.com/let-store-it/backend/internal/usecases/item"
 	orgUC "github.com/let-store-it/backend/internal/usecases/organization"
 	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
-	"github.com/ogen-go/ogen/ogenerrors"
 )
 
 type RestApiImplementation struct {
@@ -72,63 +68,5 @@ func NewRestApiImplementation(
 		itemUseCase:         itemUseCase,
 		authUseCase:         authUseCase,
 		auditUseCase:        auditUseCase,
-	}
-}
-
-func (h *RestApiImplementation) NewConflictError(ctx context.Context, message string) *api.DefaultErrorStatusCode {
-	return &api.DefaultErrorStatusCode{
-		StatusCode: http.StatusConflict,
-		Response: api.ErrorContent{
-			Error: api.ErrorContentError{
-				Code:    "conflict",
-				Message: message,
-			},
-		},
-	}
-}
-
-func (h *RestApiImplementation) NewUnauthorizedError(ctx context.Context) *api.DefaultErrorStatusCode {
-	return h.NewUnauthorizedErrorWithMessage(ctx, "Unauthorized")
-}
-
-func (h *RestApiImplementation) NewUnauthorizedErrorWithMessage(ctx context.Context, message string) *api.DefaultErrorStatusCode {
-	return &api.DefaultErrorStatusCode{
-		StatusCode: http.StatusUnauthorized,
-		Response: api.ErrorContent{
-			Error: api.ErrorContentError{
-				Code:    "unauthorized",
-				Message: message,
-			},
-		},
-	}
-}
-
-func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
-	if errors.Is(err, ErrSessionNotFound) {
-		return h.NewUnauthorizedError(ctx)
-	}
-	if errors.Is(err, ErrSessionRevoked) {
-		return h.NewUnauthorizedErrorWithMessage(ctx, "Session was revoked")
-	}
-	if errors.Is(err, ErrSessionExpired) {
-		return h.NewUnauthorizedErrorWithMessage(ctx, "Session expired")
-	}
-
-	if errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied) {
-		return h.NewUnauthorizedError(ctx)
-	}
-
-	if errors.Is(err, common.ErrNotAuthorized) {
-		return h.NewUnauthorizedError(ctx)
-	}
-
-	return &api.DefaultErrorStatusCode{
-		StatusCode: http.StatusInternalServerError,
-		Response: api.ErrorContent{
-			Error: api.ErrorContentError{
-				Code:    "internal_server_error",
-				Message: err.Error(),
-			},
-		},
 	}
 }

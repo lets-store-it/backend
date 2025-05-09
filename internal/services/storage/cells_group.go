@@ -38,7 +38,7 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.Cel
 
 	cellsGroup, err := s.queries.CreateCellsGroup(ctx, sqlc.CreateCellsGroupParams{
 		OrgID:          database.PgUUID(group.OrgID),
-		StorageGroupID: database.PgUuidPtr(group.StorageGroupID),
+		StorageGroupID: database.PgUUIDPtr(group.StorageGroupID),
 		UnitID:         database.PgUUID(group.UnitID),
 		Name:           name,
 		Alias:          alias,

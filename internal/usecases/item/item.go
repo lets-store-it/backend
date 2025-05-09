@@ -28,7 +28,7 @@ func New(config ItemUseCaseConfig) *ItemUseCase {
 }
 
 func (uc *ItemUseCase) Create(ctx context.Context, item *models.Item) (*models.Item, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (uc *ItemUseCase) Create(ctx context.Context, item *models.Item) (*models.I
 }
 
 func (uc *ItemUseCase) GetAll(ctx context.Context) ([]*models.Item, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (uc *ItemUseCase) GetAll(ctx context.Context) ([]*models.Item, error) {
 }
 
 func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item,
 }
 
 func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models.Item) (*models.Item, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models
 }
 
 func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID, updates map[string]interface{}) (*models.Item, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return nil, err
 	}

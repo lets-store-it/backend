@@ -9,8 +9,15 @@ import (
 )
 
 // Note: OTLP is configured using its internal configuration mechanisms
+
 type ServerConfig struct {
-	ListenAddress string `yaml:"listen_address" env:"LISTEN_ADDRESS" env-default:"0.0.0.0:8080"`
+	ListenAddress string   `yaml:"listen_address" env:"LISTEN_ADDRESS" env-default:"0.0.0.0:8080"`
+	CorsOrigins   []string `yaml:"cors_origins" env:"CORS_ORIGINS" env-default:"http://localhost:3000,http://localhost:8080,http://localhost,https://store-it.ru,https://www.store-it.ru,http://store-it.ru,http://www.store-it.ru"`
+}
+
+// GetCorsOrigins returns the list of allowed CORS origins
+func (s *ServerConfig) GetCorsOrigins() []string {
+	return strings.Split(s.CorsOrigins[0], ",")
 }
 
 type DatabaseConfig struct {

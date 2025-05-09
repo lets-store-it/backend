@@ -190,7 +190,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 	// Create the object change record
 	change, err := s.queries.CreateObjectChange(ctx, sqlc.CreateObjectChangeParams{
 		OrgID:            database.PgUUID(objectChange.OrgID),
-		UserID:           database.PgUuidPtr(objectChange.UserID),
+		UserID:           database.PgUUIDPtr(objectChange.UserID),
 		Action:           string(objectChange.Action),
 		TargetObjectType: int32(objectChange.TargetObjectTypeId),
 		TargetObjectID:   database.PgUUID(objectChange.TargetObjectID),
@@ -260,7 +260,7 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 		objectChangesModels[i] = &models.ObjectChange{
 			ID:                 change.ID.Bytes,
 			OrgID:              change.OrgID.Bytes,
-			UserID:             database.UuidPtrFromPgx(change.UserID),
+			UserID:             database.UUIDPtrFromPgx(change.UserID),
 			Action:             models.ObjectChangeAction(change.Action),
 			TargetObjectTypeId: models.ObjectTypeId(objectType.ID),
 			TargetObjectID:     change.TargetObjectID.Bytes,

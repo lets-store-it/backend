@@ -43,7 +43,7 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID
 	group, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
 		OrgID:    database.PgUUID(orgID),
 		UnitID:   database.PgUUID(unitID),
-		ParentID: database.PgUuidPtr(parentID),
+		ParentID: database.PgUUIDPtr(parentID),
 		Name:     name,
 		Alias:    alias,
 	})
