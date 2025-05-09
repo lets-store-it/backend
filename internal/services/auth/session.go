@@ -9,6 +9,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -43,9 +44,9 @@ func (s *AuthService) GetSessionBySecret(ctx context.Context, sessionSecret stri
 	session, err := s.queries.GetSessionBySecret(ctx, sessionSecret)
 	if err != nil {
 		if database.IsNotFound(err) {
-			span.RecordError(ErrSessionNotFound)
+			span.RecordError(services.ErrNotFoundError)
 			span.SetStatus(codes.Error, "session not found")
-			return nil, ErrSessionNotFound
+			return nil, services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get user by session")

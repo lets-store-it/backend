@@ -10,6 +10,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/utils"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -48,9 +49,9 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 	})
 	if err != nil {
 		if database.IsUniqueViolation(err) {
-			span.RecordError(ErrDuplicateUser)
+			span.RecordError(services.ErrDuplicationError)
 			span.SetStatus(codes.Error, "user already exists")
-			return nil, ErrDuplicateUser
+			return nil, services.ErrDuplicationError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to create user")
@@ -63,19 +64,19 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 
 func (s *AuthService) validateUserData(user *models.User) error {
 	if user == nil {
-		return fmt.Errorf("%w: user is nil", ErrValidationError)
+		return fmt.Errorf("%w: user is nil", services.ErrValidationError)
 	}
 	if strings.TrimSpace(user.Email) == "" {
-		return fmt.Errorf("%w: email is required", ErrValidationError)
+		return fmt.Errorf("%w: email is required", services.ErrValidationError)
 	}
 	if !emailRegex.MatchString(user.Email) {
-		return fmt.Errorf("%w: invalid email format", ErrValidationError)
+		return fmt.Errorf("%w: invalid email format", services.ErrValidationError)
 	}
 	if strings.TrimSpace(user.FirstName) == "" {
-		return fmt.Errorf("%w: first name is required", ErrValidationError)
+		return fmt.Errorf("%w: first name is required", services.ErrValidationError)
 	}
 	if strings.TrimSpace(user.LastName) == "" {
-		return fmt.Errorf("%w: last name is required", ErrValidationError)
+		return fmt.Errorf("%w: last name is required", services.ErrValidationError)
 	}
 	return nil
 }
@@ -91,9 +92,9 @@ func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models
 	user, err := s.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		if database.IsNotFound(err) {
-			span.RecordError(ErrUserNotFound)
+			span.RecordError(services.ErrNotFoundError)
 			span.SetStatus(codes.Error, "user not found")
-			return nil, ErrUserNotFound
+			return nil, services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get user by email")
@@ -115,9 +116,9 @@ func (s *AuthService) GetUserByID(ctx context.Context, userID uuid.UUID) (*model
 	user, err := s.queries.GetUserById(ctx, database.PgUUID(userID))
 	if err != nil {
 		if database.IsNotFound(err) {
-			span.RecordError(ErrUserNotFound)
+			span.RecordError(services.ErrNotFoundError)
 			span.SetStatus(codes.Error, "user not found")
-			return nil, ErrUserNotFound
+			return nil, services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get user")

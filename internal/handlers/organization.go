@@ -6,7 +6,7 @@ import (
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/services"
 )
 
 func convertToDTO(org *models.Organization) *api.Organization {
@@ -21,7 +21,7 @@ func convertToDTO(org *models.Organization) *api.Organization {
 func (h *RestApiImplementation) CreateOrganization(ctx context.Context, req *api.CreateOrganizationRequest) (api.CreateOrganizationRes, error) {
 	org, err := h.orgUseCase.Create(ctx, req.Name, req.Subdomain)
 	if err != nil {
-		if errors.Is(err, organization.ErrOrganizationSubdomainAlreadyExists) {
+		if errors.Is(err, services.ErrDuplicationError) {
 			return nil, h.NewConflictError(ctx, "subdomain already exists")
 		}
 		return nil, err
@@ -97,7 +97,6 @@ func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api
 	org := &models.Organization{
 		ID:   params.ID,
 		Name: req.Name,
-
 	}
 
 	updatedOrg, err := h.orgUseCase.Update(ctx, org)

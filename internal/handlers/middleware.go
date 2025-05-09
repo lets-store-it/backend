@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services"
 )
 
 const (
@@ -49,7 +49,7 @@ func WithOrganizationID(next http.Handler) http.Handler {
 func (h *RestApiImplementation) HandleApiToken(ctx context.Context, operationName api.OperationName, t api.ApiToken) (context.Context, error) {
 	orgID, err := h.authUseCase.GetOrgIdByApiToken(ctx, t.GetAPIKey())
 	if err != nil {
-		if errors.Is(err, auth.ErrApiTokenNotFound) {
+		if errors.Is(err, services.ErrNotFoundError) {
 			return nil, h.NewUnauthorizedError(ctx)
 		}
 		return nil, fmt.Errorf("failed to process API token: %w", err)

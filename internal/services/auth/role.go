@@ -9,6 +9,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -45,9 +46,9 @@ func (s *AuthService) SetUserRole(ctx context.Context, orgID uuid.UUID, userID u
 	defer span.End()
 
 	if roleID < models.RoleOwnerID || roleID > models.RoleWorkerID {
-		span.RecordError(ErrInvalidRole)
+		span.RecordError(services.ErrValidationError)
 		span.SetStatus(codes.Error, "invalid role ID")
-		return ErrInvalidRole
+		return services.ErrValidationError
 	}
 
 	err := s.queries.AssignRoleToUser(ctx, sqlc.AssignRoleToUserParams{

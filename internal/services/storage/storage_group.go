@@ -8,6 +8,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -117,10 +118,6 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 		span.SetStatus(codes.Error, "failed to convert storage group")
 		return nil, err
 	}
-	if model == nil {
-		span.SetStatus(codes.Error, "storage group not found")
-		return nil, ErrStorageGroupNotFound
-	}
 
 	span.SetStatus(codes.Ok, "storage group retrieved successfully")
 	return model, nil
@@ -160,7 +157,7 @@ func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.S
 
 	if group == nil {
 		span.SetStatus(codes.Error, "invalid storage group: nil")
-		return nil, ErrInvalidStorageGroup
+		return nil, services.ErrValidationError
 	}
 
 	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
