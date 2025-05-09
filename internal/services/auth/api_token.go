@@ -62,7 +62,7 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 		return nil, fmt.Errorf("failed to create API token: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("token.id", database.UuidFromPgx(token.ID).String()))
+	span.SetAttributes(attribute.String("token.id", database.UUIDFromPgx(token.ID).String()))
 	span.SetStatus(codes.Ok, "API token created")
 	return toTokenModel(token), nil
 }

@@ -219,7 +219,7 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 	result := make([]models.CellPathSegment, len(segments))
 	for i, segment := range segments {
 		result[i] = models.CellPathSegment{
-			ID:         database.UuidFromPgx(segment.ID),
+			ID:         database.UUIDFromPgx(segment.ID),
 			Name:       segment.Name,
 			ObjectType: models.CellPathObjectType(segment.Type),
 			Alias:      segment.Alias,

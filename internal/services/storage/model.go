@@ -19,13 +19,13 @@ func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
 
 	var parentID *uuid.UUID
 	if group.ParentID.Valid {
-		id := database.UuidFromPgx(group.ParentID)
+		id := database.UUIDFromPgx(group.ParentID)
 		parentID = &id
 	}
 
 	return &models.StorageGroup{
-		ID:       database.UuidFromPgx(group.ID),
-		UnitID:   database.UuidFromPgx(group.UnitID),
+		ID:       database.UUIDFromPgx(group.ID),
+		UnitID:   database.UUIDFromPgx(group.UnitID),
 		ParentID: parentID,
 		Name:     group.Name,
 		Alias:    group.Alias,
@@ -34,10 +34,10 @@ func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
 }
 
 func toCellsGroupModel(group sqlc.CellsGroup) *models.CellsGroup {
-	id := database.UuidFromPgx(group.ID)
-	orgID := database.UuidFromPgx(group.OrgID)
-	unitID := database.UuidFromPgx(group.UnitID)
-	storageGroupID := database.UuidPtrFromPgx(group.StorageGroupID)
+	id := database.UUIDFromPgx(group.ID)
+	orgID := database.UUIDFromPgx(group.OrgID)
+	unitID := database.UUIDFromPgx(group.UnitID)
+	storageGroupID := database.UUIDPtrFromPgx(group.StorageGroupID)
 
 	return &models.CellsGroup{
 		ID:             id,
@@ -59,8 +59,8 @@ func toCell(cell sqlc.Cell) (*models.Cell, error) {
 	}
 
 	return &models.Cell{
-		ID:           database.UuidFromPgx(cell.ID),
-		CellsGroupID: database.UuidFromPgx(cell.CellsGroupID),
+		ID:           database.UUIDFromPgx(cell.ID),
+		CellsGroupID: database.UUIDFromPgx(cell.CellsGroupID),
 		Alias:        cell.Alias,
 		Row:          int(cell.Row),
 		Level:        int(cell.Level),

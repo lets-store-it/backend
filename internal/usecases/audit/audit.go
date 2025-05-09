@@ -28,7 +28,7 @@ func New(config AuditUseCaseConfig) *AuditUseCase {
 }
 
 func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
-	validateResult, err := usecases.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelWorker)
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
 	if err != nil {
 		return nil, err
 	}

@@ -7,15 +7,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// UUID
-func UuidFromPgx(id pgtype.UUID) uuid.UUID {
+func UUIDFromPgx(id pgtype.UUID) uuid.UUID {
 	if !id.Valid {
 		return uuid.Nil
 	}
 	return uuid.UUID(id.Bytes)
 }
 
-func UuidPtrFromPgx(id pgtype.UUID) *uuid.UUID {
+func UUIDPtrFromPgx(id pgtype.UUID) *uuid.UUID {
 	if !id.Valid {
 		return nil
 	}
@@ -27,7 +26,7 @@ func PgUUID(id uuid.UUID) pgtype.UUID {
 	return pgtype.UUID{Bytes: id, Valid: true}
 }
 
-func PgUuidPtr(id *uuid.UUID) pgtype.UUID {
+func PgUUIDPtr(id *uuid.UUID) pgtype.UUID {
 	if id == nil {
 		return pgtype.UUID{Valid: false}
 	}
@@ -35,6 +34,14 @@ func PgUuidPtr(id *uuid.UUID) pgtype.UUID {
 }
 
 // Text
+
+func PgTextPtrFromPgx(s pgtype.Text) *string {
+	if !s.Valid {
+		return nil
+	}
+	return &s.String
+}
+
 func PgText(s string) pgtype.Text {
 	return pgtype.Text{String: s, Valid: s != ""}
 }
@@ -46,23 +53,13 @@ func PgTextPtr(s *string) pgtype.Text {
 	return pgtype.Text{String: *s, Valid: *s != ""}
 }
 
-func PgTextPtrFromPgx(s pgtype.Text) *string {
-	if !s.Valid {
-		return nil
-	}
-	return &s.String
-}
-
 // Timestamp
-func PgTimestamp(t time.Time) pgtype.Timestamp {
-	return pgtype.Timestamp{Time: t, Valid: !t.IsZero()}
-}
 
-func PgTimestampPtr(t *time.Time) pgtype.Timestamp {
-	if t == nil {
-		return pgtype.Timestamp{Valid: false}
+func PgTimeFromPgx(t pgtype.Timestamp) time.Time {
+	if !t.Valid {
+		return time.Time{}
 	}
-	return pgtype.Timestamp{Time: *t, Valid: !t.IsZero()}
+	return t.Time
 }
 
 func PgTimePtrFromPgx(t pgtype.Timestamp) *time.Time {
@@ -72,9 +69,13 @@ func PgTimePtrFromPgx(t pgtype.Timestamp) *time.Time {
 	return &t.Time
 }
 
-func PgTimeFromPgx(t pgtype.Timestamp) time.Time {
-	if !t.Valid {
-		return time.Time{}
+func PgTimestamp(t time.Time) pgtype.Timestamp {
+	return pgtype.Timestamp{Time: t, Valid: !t.IsZero()}
+}
+
+func PgTimestampPtr(t *time.Time) pgtype.Timestamp {
+	if t == nil {
+		return pgtype.Timestamp{Valid: false}
 	}
-	return t.Time
+	return pgtype.Timestamp{Time: *t, Valid: !t.IsZero()}
 }

@@ -31,7 +31,7 @@ func New(config AuthUseCaseConfig) *AuthUseCase {
 }
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
-	userID, err := usecases.GetUserIdFromContext(ctx)
+	userID, err := usecases.GetUserIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

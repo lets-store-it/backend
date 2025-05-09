@@ -89,7 +89,7 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 		Name:        item.Name,
 		Description: database.PgText(description),
 	})
-	item.ID = database.UuidFromPgx(createdItem.ID)
+	item.ID = database.UUIDFromPgx(createdItem.ID)
 
 	if err != nil {
 		span.RecordError(err)

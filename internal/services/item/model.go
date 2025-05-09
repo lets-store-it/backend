@@ -15,7 +15,7 @@ import (
 )
 
 func toItemModel(item sqlc.Item) (*models.Item, error) {
-	id := database.UuidFromPgx(item.ID)
+	id := database.UUIDFromPgx(item.ID)
 	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert item: %w", ErrInvalidItemID)
 	}
@@ -33,11 +33,11 @@ func toItemModel(item sqlc.Item) (*models.Item, error) {
 }
 
 func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
-	id := database.UuidFromPgx(variant.ID)
+	id := database.UUIDFromPgx(variant.ID)
 	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidVariant)
 	}
-	itemID := database.UuidFromPgx(variant.ItemID)
+	itemID := database.UUIDFromPgx(variant.ItemID)
 	if itemID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidItemID)
 	}
@@ -70,27 +70,27 @@ func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
 }
 
 func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, error) {
-	id := database.UuidFromPgx(instance.ID)
+	id := database.UUIDFromPgx(instance.ID)
 	if id == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid instance ID")
 	}
 
-	orgID := database.UuidFromPgx(instance.OrgID)
+	orgID := database.UUIDFromPgx(instance.OrgID)
 	if orgID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid organization ID")
 	}
 
-	itemID := database.UuidFromPgx(instance.ItemID)
+	itemID := database.UUIDFromPgx(instance.ItemID)
 	if itemID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid item ID")
 	}
 
-	variantID := database.UuidFromPgx(instance.VariantID)
+	variantID := database.UUIDFromPgx(instance.VariantID)
 	if variantID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid variant ID")
 	}
 
-	cellID := database.UuidFromPgx(instance.CellID)
+	cellID := database.UUIDFromPgx(instance.CellID)
 	if cellID == uuid.Nil {
 		return nil, fmt.Errorf("failed to convert instance: invalid cell ID")
 	}

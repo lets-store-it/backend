@@ -43,15 +43,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{
-			"http://localhost:3000",
-			"http://localhost:8080",
-			"http://localhost",
-			"https://store-it.ru",
-			"https://www.store-it.ru",
-			"http://store-it.ru",
-			"http://www.store-it.ru",
-		},
+		AllowOrigins: cfg.Server.GetCorsOrigins(),
 		AllowMethods: []string{
 			echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS,
 		},
