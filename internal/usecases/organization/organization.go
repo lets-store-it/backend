@@ -81,6 +81,7 @@ func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Orga
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
 	validateResult, err := utils.ValidateOrgAndUserAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	
 	if err != nil {
 		return nil, err
 	}

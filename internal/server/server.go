@@ -106,7 +106,8 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 
 	// Initialize use cases
 	itemUseCase := itemUC.New(itemUC.ItemUseCaseConfig{
-		Service: itemService,
+		Service:     itemService,
+		AuthService: authService,
 	})
 	authUseCase := authUC.New(authUC.AuthUseCaseConfig{
 		AuthService:        authService,

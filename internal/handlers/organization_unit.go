@@ -55,7 +55,7 @@ func (h *RestApiImplementation) CreateUnit(ctx context.Context, req *api.CreateO
 
 // DeleteOrganizationUnit implements api.Handler.
 func (h *RestApiImplementation) DeleteOrganizationUnit(ctx context.Context, params api.DeleteOrganizationUnitParams) (api.DeleteOrganizationUnitRes, error) {
-	err := h.orgUnitUseCase.Delete(ctx, params.ID)
+	err := h.orgUnitUseCase.DeleteUnit(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -86,8 +86,9 @@ class TestOrganization:
         assert next(filtered) is not None
 
         # Get
+        api_client.set_organization(org_id)
         response = api_client.get(f"/orgs/{org_id}")
-        assert response.status_code == 200
+        assert response.status_code == 200, response.text
         data = response.json()["data"]
         assert data["name"] == org_name
         assert data["subdomain"] == org_name
@@ -168,7 +169,7 @@ class TestOrganizationUnit:
 
         # Delete
         response = api_client_with_organization.delete(f"/units/{unit_id}")
-        assert response.status_code == 204
+        assert response.status_code == 204, response.text
 
 
 class TestStorageGroup:

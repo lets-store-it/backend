@@ -12,17 +12,19 @@ import (
 )
 
 type ItemUseCase struct {
-	service *item.ItemService
+	service     *item.ItemService
 	authService *auth.AuthService
 }
 
 type ItemUseCaseConfig struct {
-	Service *item.ItemService
+	Service     *item.ItemService
+	AuthService *auth.AuthService
 }
 
 func New(config ItemUseCaseConfig) *ItemUseCase {
 	return &ItemUseCase{
-		service: config.Service,
+		service:     config.Service,
+		authService: config.AuthService,
 	}
 }
 
