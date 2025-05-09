@@ -6,20 +6,19 @@ import (
 	"strings"
 
 	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
 
 var (
-	ErrStorageGroupNotFound = errors.New("storage group not found")
-	ErrCellsGroupNotFound   = errors.New("cells group not found")
-	ErrCellNotFound         = errors.New("cell not found")
-	ErrInvalidStorageGroup  = errors.New("invalid storage group")
-	ErrInvalidCellsGroup    = errors.New("invalid cells group")
-	ErrInvalidCell          = errors.New("invalid cell")
-	ErrValidationError      = errors.New("validation error")
-	ErrInvalidOrganization  = errors.New("invalid organization")
-	ErrInvalidUnit          = errors.New("invalid unit")
+// ErrStorageGroupNotFound = errors.New("storage group not found")
+// ErrCellsGroupNotFound   = errors.New("cells group not found")
+// ErrCellNotFound         = errors.New("cell not found")
+
+// ErrInvalidStorageGroup = errors.New("invalid storage group")
+// ErrInvalidCellsGroup   = errors.New("invalid cells group")
+// ErrInvalidCell         = errors.New("invalid cell")
 )
 
 const (
@@ -50,24 +49,24 @@ func New(cfg *StorageServiceConfig) (*StorageService, error) {
 
 func (s *StorageService) validateName(name string) error {
 	if strings.TrimSpace(name) == "" {
-		return errors.Join(ErrValidationError, errors.New("name cannot be empty"))
+		return errors.Join(services.ErrValidationError, errors.New("name cannot be empty"))
 	}
 	if len(name) > maxNameLength {
-		return errors.Join(ErrValidationError, errors.New("name is too long (max 100 characters)"))
+		return errors.Join(services.ErrValidationError, errors.New("name is too long (max 100 characters)"))
 	}
 	return nil
 }
 
 func (s *StorageService) validateAlias(alias string) error {
 	if strings.TrimSpace(alias) == "" {
-		return errors.Join(ErrValidationError, errors.New("alias cannot be empty"))
+		return errors.Join(services.ErrValidationError, errors.New("alias cannot be empty"))
 	}
 	if len(alias) > maxAliasLength {
-		return errors.Join(ErrValidationError, errors.New("alias is too long (max 100 characters)"))
+		return errors.Join(services.ErrValidationError, errors.New("alias is too long (max 100 characters)"))
 	}
 	matched, _ := regexp.MatchString(aliasPattern, alias)
 	if !matched {
-		return errors.Join(ErrValidationError, errors.New("alias can only contain letters, numbers, and hyphens (no spaces)"))
+		return errors.Join(services.ErrValidationError, errors.New("alias can only contain letters, numbers, and hyphens (no spaces)"))
 	}
 	return nil
 }

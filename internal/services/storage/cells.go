@@ -8,6 +8,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -125,7 +126,7 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 
 	if cell == nil {
 		span.SetStatus(codes.Error, "invalid cell: nil")
-		return nil, ErrInvalidCell
+		return nil, services.ErrValidationError
 	}
 
 	if err := s.validateAlias(cell.Alias); err != nil {

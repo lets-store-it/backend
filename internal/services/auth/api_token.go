@@ -9,6 +9,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -21,9 +22,9 @@ func (s *AuthService) GetOrgIdByApiToken(ctx context.Context, token string) (uui
 	orgID, err := s.queries.GetOrgIdByApiToken(ctx, token)
 	if err != nil {
 		if database.IsNotFound(err) {
-			span.RecordError(ErrApiTokenNotFound)
+			span.RecordError(services.ErrNotFoundError)
 			span.SetStatus(codes.Error, "API token not found")
-			return uuid.Nil, ErrApiTokenNotFound
+			return uuid.Nil, services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get organization ID by API token")
@@ -45,9 +46,9 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 	defer span.End()
 
 	if name == "" {
-		span.RecordError(ErrValidationError)
+		span.RecordError(services.ErrValidationError)
 		span.SetStatus(codes.Error, "token name is required")
-		return nil, ErrValidationError
+		return nil, services.ErrValidationError
 	}
 
 	token, err := s.queries.CreateApiToken(ctx, sqlc.CreateApiTokenParams{
@@ -81,9 +82,9 @@ func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uu
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
-			span.RecordError(ErrApiTokenNotFound)
+			span.RecordError(services.ErrNotFoundError)
 			span.SetStatus(codes.Error, "API token not found")
-			return ErrApiTokenNotFound
+			return services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to revoke API token")

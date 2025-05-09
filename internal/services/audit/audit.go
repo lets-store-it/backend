@@ -3,7 +3,6 @@ package audit
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/rand"
 
@@ -13,16 +12,13 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
-)
-
-var (
-	ErrValidationError = errors.New("validation error")
 )
 
 type AuditService struct {
@@ -85,13 +81,13 @@ func (s *AuditService) Close() error {
 
 func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) error {
 	if objectChange == nil {
-		return fmt.Errorf("%w: object change is nil", ErrValidationError)
+		return fmt.Errorf("%w: object change is nil", services.ErrValidationError)
 	}
 	if objectChange.OrgID == uuid.Nil {
-		return fmt.Errorf("%w: organization ID is nil", ErrValidationError)
+		return fmt.Errorf("%w: organization ID is nil", services.ErrValidationError)
 	}
 	if objectChange.TargetObjectID == uuid.Nil {
-		return fmt.Errorf("%w: target object ID is nil", ErrValidationError)
+		return fmt.Errorf("%w: target object ID is nil", services.ErrValidationError)
 	}
 	return nil
 }

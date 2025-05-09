@@ -2,7 +2,6 @@ package organization
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -12,19 +11,11 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
-)
-
-var (
-	ErrOrganizationNotFound     = errors.New("organization not found")
-	ErrOrganizationUnitNotFound = errors.New("organization unit not found")
-
-	ErrOrganizationSubdomainAlreadyExists = errors.New("organization already exists")
-
-	ErrValidationError = errors.New("validation error")
 )
 
 const (
@@ -35,38 +26,38 @@ const (
 
 func validateName(name string) error {
 	if strings.TrimSpace(name) == "" {
-		return fmt.Errorf("%w: name cannot be empty", ErrValidationError)
+		return fmt.Errorf("%w: name cannot be empty", services.ErrValidationError)
 	}
 	if len(name) > maxNameLength {
-		return fmt.Errorf("%w: name is too long", ErrValidationError)
+		return fmt.Errorf("%w: name is too long", services.ErrValidationError)
 	}
 	return nil
 }
 
 func validateSubdomain(subdomain string) error {
 	if strings.TrimSpace(subdomain) == "" {
-		return fmt.Errorf("%w: subdomain cannot be empty", ErrValidationError)
+		return fmt.Errorf("%w: subdomain cannot be empty", services.ErrValidationError)
 	}
 	if len(subdomain) > maxSubdomainLength {
-		return fmt.Errorf("%w: subdomain is too long", ErrValidationError)
+		return fmt.Errorf("%w: subdomain is too long", services.ErrValidationError)
 	}
 	matched, _ := regexp.MatchString("^[a-z0-9-]+$", subdomain)
 	if !matched {
-		return fmt.Errorf("%w: subdomain can only contain lowercase letters, numbers, and hyphens", ErrValidationError)
+		return fmt.Errorf("%w: subdomain can only contain lowercase letters, numbers, and hyphens", services.ErrValidationError)
 	}
 	return nil
 }
 
 func validateAlias(alias string) error {
 	if strings.TrimSpace(alias) == "" {
-		return fmt.Errorf("%w: alias cannot be empty", ErrValidationError)
+		return fmt.Errorf("%w: alias cannot be empty", services.ErrValidationError)
 	}
 	if len(alias) > maxAliasLength {
-		return fmt.Errorf("%w: alias is too long", ErrValidationError)
+		return fmt.Errorf("%w: alias is too long", services.ErrValidationError)
 	}
 	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
 	if !matched {
-		return fmt.Errorf("%w: alias can only contain letters, numbers, and hyphens (no spaces)", ErrValidationError)
+		return fmt.Errorf("%w: alias can only contain letters, numbers, and hyphens (no spaces)", services.ErrValidationError)
 	}
 	return nil
 }
@@ -118,7 +109,7 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 		if database.IsUniqueViolation(err) {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "organization already exists")
-			return nil, ErrOrganizationSubdomainAlreadyExists
+			return nil, services.ErrDuplicationError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to create organization")
