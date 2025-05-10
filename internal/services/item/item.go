@@ -386,41 +386,6 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 	return exists, nil
 }
 
-func (s *ItemService) CreateItemInsccccbbgbgiftance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
-	ctx, span := s.tracer.Start(ctx, "CreateInstance")
-	defer span.End()
-
-	span.SetAttributes(
-		attribute.String("org.id", orgID.String()),
-		attribute.String("item.id", itemInstance.ItemID.String()),
-		attribute.String("variant.id", itemInstance.VariantID.String()),
-		attribute.String("cell.id", itemInstance.CellID.String()),
-	)
-
-	createdInstance, err := s.queries.CreateItemInstance(ctx, sqlc.CreateItemInstanceParams{
-		OrgID:     database.PgUUID(orgID),
-		ItemID:    database.PgUUID(itemInstance.ItemID),
-		VariantID: database.PgUUID(itemInstance.VariantID),
-		CellID:    database.PgUUID(itemInstance.CellID),
-		Status:    string(itemInstance.Status),
-	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to create item instance")
-		return nil, fmt.Errorf("failed to create item instance: %w", err)
-	}
-
-	result, err := toItemInstanceModel(createdInstance)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to convert item instance")
-		return nil, err
-	}
-
-	span.SetStatus(codes.Ok, "item instance created successfully")
-	return result, nil
-}
-
 func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateItemVariant")
 	defer span.End()
@@ -544,4 +509,94 @@ func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, va
 
 	span.SetStatus(codes.Ok, "item variant updated successfully")
 	return toItemVariantModel(updatedVariant)
+}
+
+func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+	ctx, span := s.tracer.Start(ctx, "CreateInstance")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("org.id", itemInstance.OrgID.String()),
+		attribute.String("item.id", itemInstance.ItemID.String()),
+		attribute.String("variant.id", itemInstance.VariantID.String()),
+		attribute.String("cell.id", itemInstance.CellID.String()),
+	)
+
+	createdInstance, err := s.queries.CreateItemInstance(ctx, sqlc.CreateItemInstanceParams{
+		OrgID:     database.PgUUID(itemInstance.OrgID),
+		ItemID:    database.PgUUID(itemInstance.ItemID),
+		VariantID: database.PgUUID(itemInstance.VariantID),
+		CellID:    database.PgUUIDPtr(itemInstance.CellID),
+		Status:    string(models.ItemInstanceStatusAvailable),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to create item instance")
+		return nil, fmt.Errorf("failed to create item instance: %w", err)
+	}
+
+	result, err := toItemInstanceModel(createdInstance)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to convert item instance")
+		return nil, err
+	}
+
+	span.SetStatus(codes.Ok, "item instance created successfully")
+	return result, nil
+}
+
+func (s *ItemService) GetItemInstances(ctx context.Context, orgID uuid.UUID, itemID uuid.UUID) ([]*models.ItemInstance, error) {
+	ctx, span := s.tracer.Start(ctx, "GetItemInstances")
+	defer span.End()
+
+	instances, err := s.queries.GetItemInstancesForItem(ctx, sqlc.GetItemInstancesForItemParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(itemID),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item instances")
+		return nil, fmt.Errorf("failed to get item instances: %w", err)
+	}
+
+	return toItemInstances(instances), nil
+}
+
+func (s *ItemService) GetItemInstanceFull(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID) (*models.ItemInstance, error) {
+	ctx, span := s.tracer.Start(ctx, "GetItemInstanceFull")
+	defer span.End()
+
+	instanceDb, err := s.queries.GetItemInstance(ctx, sqlc.GetItemInstanceParams{
+		ID:    database.PgUUID(instanceID),
+		OrgID: database.PgUUID(orgID),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item instance")
+		return nil, fmt.Errorf("failed to get item instance: %w", err)
+	}
+	instance := toItemInstance(instanceDb)
+
+	if instance.CellID != nil {
+		cell, err := s.storageService.GetCellFull(ctx, orgID, *instance.CellID)
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to get cell")
+			return nil, fmt.Errorf("failed to get cell: %w", err)
+		}
+		instance.Cell = cell
+	}
+
+	variant, err := s.GetItemVariantById(ctx, orgID, instance.ItemID, instance.VariantID)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item variant")
+		return nil, fmt.Errorf("failed to get item variant: %w", err)
+	}
+	instance.Variant = variant
+
+	span.SetStatus(codes.Ok, "item instance retrieved successfully")
+
+	return instance, nil
 }

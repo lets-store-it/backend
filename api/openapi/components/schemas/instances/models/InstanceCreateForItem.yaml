@@ -1,12 +1,11 @@
 type: object
 properties:
   variantId:
-      type: string
-      format: uuid
+    type: string
+    format: uuid
   cellId:
     type: string
     format: uuid
-    nullable: true
 required:
   - variantId
-  # - cellId
+  - cellId

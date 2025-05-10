@@ -936,6 +936,31 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 	return i, err
 }
 
+const getItemInstance = `-- name: GetItemInstance :one
+SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+`
+
+type GetItemInstanceParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) GetItemInstance(ctx context.Context, arg GetItemInstanceParams) (ItemInstance, error) {
+	row := q.db.QueryRow(ctx, getItemInstance, arg.OrgID, arg.ID)
+	var i ItemInstance
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.ItemID,
+		&i.VariantID,
+		&i.CellID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getItemInstancesForCell = `-- name: GetItemInstancesForCell :many
 SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
 `

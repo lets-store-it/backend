@@ -7,6 +7,37 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
+func convertCellPathToDTO(cellPath *[]models.CellPathSegment) []api.CellForInstanceCellPathItem {
+	dtoCellPath := make([]api.CellForInstanceCellPathItem, 0, len(*cellPath))
+	for _, pathSegment := range *cellPath {
+		dtoCellPath = append(dtoCellPath, api.CellForInstanceCellPathItem{
+			ID:    pathSegment.ID,
+			Alias: pathSegment.Alias,
+		})
+	}
+	return dtoCellPath
+}
+
+func convertCellToDTO(cell *models.Cell) api.CellForInstance {
+	return api.CellForInstance{
+		ID:       cell.ID,
+		Alias:    cell.Alias,
+		Row:      cell.Row,
+		Level:    cell.Level,
+		Position: cell.Position,
+		CellPath: convertCellPathToDTO(cell.Path),
+	}
+}
+
+func convertItemInstanceToDTO(itemInstance *models.ItemInstance) api.InstanceForItem {
+	return api.InstanceForItem{
+		ID:      itemInstance.ID,
+		Status:  api.InstanceForItemStatus(itemInstance.Status),
+		Variant: convertItemVariantToDTO(itemInstance.Variant),
+		Cell:    convertCellToDTO(itemInstance.Cell),
+	}
+}
+
 func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
 	var article api.NilString
 	PtrToApiNil(variant.Article, &article)
@@ -293,4 +324,43 @@ func (h *RestApiImplementation) DeleteItemVariant(ctx context.Context, params ap
 		return nil, err
 	}
 	return &api.DeleteItemVariantNoContent{}, nil
+}
+
+// instances
+
+// CreateInstanceForItem implements api.Handler.
+func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (api.CreateInstanceForItemRes, error) {
+	itemInstance := &models.ItemInstance{
+		ItemID:    params.ItemId,
+		VariantID: req.VariantId,
+		CellID:    &req.CellId,
+	}
+
+	itemInstance, err := h.itemUseCase.CreateItemInstance(ctx, itemInstance)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateInstanceForItemResponse{
+		Data: convertItemInstanceToDTO(itemInstance),
+	}, nil
+
+}
+
+// DeleteInstanceById implements api.Handler.
+func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) (api.DeleteInstanceByIdRes, error) {
+	panic("unimplemented")
+	return &api.DeleteInstanceByIdOK{}, nil
+}
+
+// GetInstances implements api.Handler.
+func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstancesRes, error) {
+	panic("unimplemented")
+	// return api.GetInstancesByItemIdResponse, nil
+}
+
+// GetInstancesByItemId implements api.Handler.
+func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
+	panic("unimplemented")
+
 }

@@ -67,3 +67,17 @@ func toCell(cell sqlc.Cell) (*models.Cell, error) {
 		Position:     int(cell.Position),
 	}, nil
 }
+
+func toCellPath(segments []sqlc.GetCellPathRow) []models.CellPathSegment {
+	result := make([]models.CellPathSegment, len(segments))
+	for i, segment := range segments {
+		result[i] = models.CellPathSegment{
+			ID:         database.UUIDFromPgx(segment.ID),
+			Name:       segment.Name,
+			ObjectType: models.CellPathObjectType(segment.Type),
+			Alias:      segment.Alias,
+		}
+	}
+
+	return result
+}

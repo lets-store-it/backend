@@ -576,3 +576,64 @@ class TestCells:
             f"/cells-groups/{cell_group['id']}/cells/{cell_id}"
         )
         assert response.status_code == 204
+
+
+class TestInstance:
+    def test_full_instance_lifecycle(
+        self,
+        api_client_with_organization: APIClient,
+        organization_unit: dict,
+    ) -> None:
+        # Create Cells group
+        cell_group_name = str(uuid.uuid4())
+        alias = generate_random_string()
+        response = api_client_with_organization.post(
+            "/cells-groups",
+            {
+                "name": cell_group_name,
+                "alias": alias,
+                "unitId": organization_unit["id"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        cell_group_data = response.json()["data"]
+
+        # Create Cell
+        alias = generate_random_string()
+        response = api_client_with_organization.post(
+            f"/cells-groups/{cell_group_data['id']}/cells",
+            {"alias": alias, "row": 1, "level": 1, "position": 1},
+        )
+        assert response.status_code == 200, response.text
+        cell_data = response.json()["data"]
+
+        # Create Item
+        item_name = str(uuid.uuid4())
+        response = api_client_with_organization.post(
+            "/items",
+            {"name": item_name},
+        )
+        assert response.status_code == 200, response.text
+        item_data = response.json()["data"]
+
+        # Create Variant
+        variant_name = str(uuid.uuid4())
+        response = api_client_with_organization.post(
+            f"/items/{item_data['id']}/variants",
+            {"name": variant_name},
+        )
+        assert response.status_code == 200, response.text
+        variant_data = response.json()["data"]
+
+        # Create Instance
+        response = api_client_with_organization.post(
+            f"/items/{item_data['id']}/instances",
+            data={
+                "variantId": variant_data["id"],
+                "cellId": cell_data["id"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        instance_data = response.json()["data"]
+        assert instance_data["variantId"] == variant_data["id"]
+        assert instance_data["cellId"] == cell_data["id"]
