@@ -6632,9 +6632,9 @@ func decodePutCurrentUserResponse(resp *http.Response) (res PutCurrentUserRes, _
 
 func decodeRevokeApiTokenResponse(resp *http.Response) (res RevokeApiTokenRes, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &RevokeApiTokenOK{}, nil
+	case 204:
+		// Code 204.
+		return &RevokeApiTokenNoContent{}, nil
 	case 401:
 		// Code 401.
 		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))

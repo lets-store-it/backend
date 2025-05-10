@@ -1186,17 +1186,6 @@ const getObjectTypeById = `-- name: GetObjectTypeById :one
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 SELECT id, object_group, object_name FROM object_type WHERE id = $1
 `
 
@@ -1204,42 +1193,6 @@ SELECT id, object_group, object_name FROM object_type WHERE id = $1
 // SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
 // -- name: GetItemVariant :one
 // SELECT * FROM item_variant WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL;
-// -- Custom fields
-// -- name: GetCustomFields :many
-// SELECT * FROM custom_field WHERE org_id = $1 AND deleted_at IS NULL;
-// -- Object Types
-// -- name: GetObjectTypes :many
-// SELECT id, group, name FROM object_type;
-// CREATE TABLE custom_field (
-//
-//	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-//	org_id UUID NOT NULL REFERENCES org(id),
-//	type VARCHAR(100) NOT NULL CHECK (type IN ('text', 'integer', 'decimal' 'boolean')),
-//	name VARCHAR(100) NOT NULL,
-//	label VARCHAR(100) NOT NULL,
-//	description VARCHAR(255),
-//	group_name VARCHAR(100),
-//	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-//	deleted_at TIMESTAMP,
-//	UNIQUE (org_id, name)
-//
-// );
-// -- name: IsCustomFieldExistsForOrganization :one
-// SELECT EXISTS (SELECT 1 FROM custom_field WHERE org_id = $1 AND name = $2 AND deleted_at IS NULL);
-// -- name: CreateCustomField :one
-// INSERT INTO custom_field (org_id, name, label, type, group_name, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
-// -- name: UpdateCustomField :one
-// UPDATE custom_field SET name = $2, label = $3, group_name = $5, description = $6 WHERE id = $1 AND deleted_at IS NULL RETURNING *;
-// -- name: DeleteCustomField :exec
-// UPDATE custom_field SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1;
-// -- name: GetCustomFieldById :one
-// SELECT * FROM custom_field WHERE id = $1 AND deleted_at IS NULL;
-// -- name: GetCustomFieldRelatedTypes :many
-// SELECT object_type_id FROM custom_field_related_types WHERE custom_field_id = $1;
-// -- name: AddCustomFieldRelatedType :exec
-// INSERT INTO custom_field_related_types (custom_field_id, object_type_id) VALUES ($1, $2);
-// -- name: DeleteCustomFieldRelatedType :exec
-// DELETE FROM custom_field_related_types WHERE custom_field_id = $1 AND object_type_id = $2;
 func (q *Queries) GetObjectTypeById(ctx context.Context, id int32) (ObjectType, error) {
 	row := q.db.QueryRow(ctx, getObjectTypeById, id)
 	var i ObjectType
@@ -1515,7 +1468,7 @@ func (q *Queries) GetUserBySessionSecret(ctx context.Context, token string) (App
 }
 
 const getUserOrgs = `-- name: GetUserOrgs :many
-SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1)
+SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1) AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserOrgs(ctx context.Context, userID pgtype.UUID) ([]Org, error) {

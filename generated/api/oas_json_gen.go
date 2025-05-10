@@ -2665,23 +2665,12 @@ func (s *CreateItemRequest) encodeFields(e *jx.Encoder) {
 			s.Description.Encode(e)
 		}
 	}
-	{
-		if s.Variants != nil {
-			e.FieldStart("variants")
-			e.ArrStart()
-			for _, elem := range s.Variants {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
-		}
-	}
 }
 
-var jsonFieldsNameOfCreateItemRequest = [4]string{
+var jsonFieldsNameOfCreateItemRequest = [3]string{
 	0: "id",
 	1: "name",
 	2: "description",
-	3: "variants",
 }
 
 // Decode decodes CreateItemRequest from json.
@@ -2724,23 +2713,6 @@ func (s *CreateItemRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"description\"")
-			}
-		case "variants":
-			if err := func() error {
-				s.Variants = make([]ItemVariantBase, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem ItemVariantBase
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Variants = append(s.Variants, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"variants\"")
 			}
 		default:
 			return d.Skip()
@@ -9428,14 +9400,18 @@ func (s *ItemVariant) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *ItemVariantBase) Encode(e *jx.Encoder) {
+func (s *ItemVariantEdit) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *ItemVariantBase) encodeFields(e *jx.Encoder) {
+func (s *ItemVariantEdit) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
+	}
 	{
 		e.FieldStart("name")
 		e.Str(s.Name)
@@ -9454,23 +9430,36 @@ func (s *ItemVariantBase) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfItemVariantBase = [3]string{
-	0: "name",
-	1: "article",
-	2: "ean13",
+var jsonFieldsNameOfItemVariantEdit = [4]string{
+	0: "id",
+	1: "name",
+	2: "article",
+	3: "ean13",
 }
 
-// Decode decodes ItemVariantBase from json.
-func (s *ItemVariantBase) Decode(d *jx.Decoder) error {
+// Decode decodes ItemVariantEdit from json.
+func (s *ItemVariantEdit) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode ItemVariantBase to nil")
+		return errors.New("invalid: unable to decode ItemVariantEdit to nil")
 	}
 	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "name":
+		case "id":
 			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.Name = string(v)
@@ -9506,12 +9495,12 @@ func (s *ItemVariantBase) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode ItemVariantBase")
+		return errors.Wrap(err, "decode ItemVariantEdit")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -9523,8 +9512,8 @@ func (s *ItemVariantBase) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfItemVariantBase) {
-					name = jsonFieldsNameOfItemVariantBase[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfItemVariantEdit) {
+					name = jsonFieldsNameOfItemVariantEdit[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -9545,14 +9534,14 @@ func (s *ItemVariantBase) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *ItemVariantBase) MarshalJSON() ([]byte, error) {
+func (s *ItemVariantEdit) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ItemVariantBase) UnmarshalJSON(data []byte) error {
+func (s *ItemVariantEdit) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -13551,9 +13540,9 @@ func (s *UpdateItemRequest) Decode(d *jx.Decoder) error {
 			}
 		case "variants":
 			if err := func() error {
-				s.Variants = make([]UpdateItemRequestVariantsItem, 0)
+				s.Variants = make([]ItemVariantEdit, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem UpdateItemRequestVariantsItem
+					var elem ItemVariantEdit
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -13618,153 +13607,6 @@ func (s *UpdateItemRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateItemRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *UpdateItemRequestVariantsItem) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *UpdateItemRequestVariantsItem) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
-		e.FieldStart("name")
-		e.Str(s.Name)
-	}
-	{
-		if s.Article.Set {
-			e.FieldStart("article")
-			s.Article.Encode(e)
-		}
-	}
-	{
-		if s.Ean13.Set {
-			e.FieldStart("ean13")
-			s.Ean13.Encode(e)
-		}
-	}
-}
-
-var jsonFieldsNameOfUpdateItemRequestVariantsItem = [4]string{
-	0: "id",
-	1: "name",
-	2: "article",
-	3: "ean13",
-}
-
-// Decode decodes UpdateItemRequestVariantsItem from json.
-func (s *UpdateItemRequestVariantsItem) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode UpdateItemRequestVariantsItem to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "name":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.Name = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"name\"")
-			}
-		case "article":
-			if err := func() error {
-				s.Article.Reset()
-				if err := s.Article.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"article\"")
-			}
-		case "ean13":
-			if err := func() error {
-				s.Ean13.Reset()
-				if err := s.Ean13.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"ean13\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode UpdateItemRequestVariantsItem")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfUpdateItemRequestVariantsItem) {
-					name = jsonFieldsNameOfUpdateItemRequestVariantsItem[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateItemRequestVariantsItem) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateItemRequestVariantsItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

@@ -1890,9 +1890,9 @@ func encodePutCurrentUserResponse(response PutCurrentUserRes, w http.ResponseWri
 
 func encodeRevokeApiTokenResponse(response RevokeApiTokenRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *RevokeApiTokenOK:
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+	case *RevokeApiTokenNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
 		return nil
 

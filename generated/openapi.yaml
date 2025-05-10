@@ -918,7 +918,7 @@ paths:
       summary: Revoke Service API Token
       operationId: revokeApiToken
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -1827,14 +1827,6 @@ components:
     ItemCreate:
       allOf:
         - $ref: '#/components/schemas/ItemBase'
-        - type: object
-          properties:
-            variants:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemVariantBase'
-      required:
-        - variants
     CreateItemRequest:
       type: object
       allOf:

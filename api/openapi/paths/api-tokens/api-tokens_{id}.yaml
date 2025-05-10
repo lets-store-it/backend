@@ -11,7 +11,7 @@ delete:
   summary: Revoke Service API Token
   operationId: revokeApiToken
   responses:
-    "200":
+    "204":
       description: Successful operation
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml

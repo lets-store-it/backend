@@ -1,10 +1,2 @@
 allOf:
   - $ref: ./ItemBase.yaml
-  - type: object
-    properties:
-      variants:
-        type: array
-        items:
-          $ref: ./ItemVariantBase.yaml
-required:
-  - variants

@@ -893,13 +893,11 @@ type CreateItemForbidden ErrorContent
 
 func (*CreateItemForbidden) createItemRes() {}
 
-// Merged schema.
 // Ref: #/components/schemas/CreateItemRequest
 type CreateItemRequest struct {
-	ID          OptUUID           `json:"id"`
-	Name        string            `json:"name"`
-	Description OptNilString      `json:"description"`
-	Variants    []ItemVariantBase `json:"variants"`
+	ID          OptUUID      `json:"id"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
 }
 
 // GetID returns the value of ID.
@@ -917,11 +915,6 @@ func (s *CreateItemRequest) GetDescription() OptNilString {
 	return s.Description
 }
 
-// GetVariants returns the value of Variants.
-func (s *CreateItemRequest) GetVariants() []ItemVariantBase {
-	return s.Variants
-}
-
 // SetID sets the value of ID.
 func (s *CreateItemRequest) SetID(val OptUUID) {
 	s.ID = val
@@ -935,11 +928,6 @@ func (s *CreateItemRequest) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *CreateItemRequest) SetDescription(val OptNilString) {
 	s.Description = val
-}
-
-// SetVariants sets the value of Variants.
-func (s *CreateItemRequest) SetVariants(val []ItemVariantBase) {
-	s.Variants = val
 }
 
 // Ref: #/components/schemas/CreateItemResponse
@@ -2476,40 +2464,52 @@ func (s *ItemVariant) SetEan13(val NilInt) {
 	s.Ean13 = val
 }
 
-// Ref: #/components/schemas/ItemVariantBase
-type ItemVariantBase struct {
+// Merged schema.
+// Ref: #/components/schemas/ItemVariantEdit
+type ItemVariantEdit struct {
+	ID      uuid.UUID    `json:"id"`
 	Name    string       `json:"name"`
 	Article OptNilString `json:"article"`
 	Ean13   OptNilInt    `json:"ean13"`
 }
 
+// GetID returns the value of ID.
+func (s *ItemVariantEdit) GetID() uuid.UUID {
+	return s.ID
+}
+
 // GetName returns the value of Name.
-func (s *ItemVariantBase) GetName() string {
+func (s *ItemVariantEdit) GetName() string {
 	return s.Name
 }
 
 // GetArticle returns the value of Article.
-func (s *ItemVariantBase) GetArticle() OptNilString {
+func (s *ItemVariantEdit) GetArticle() OptNilString {
 	return s.Article
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *ItemVariantBase) GetEan13() OptNilInt {
+func (s *ItemVariantEdit) GetEan13() OptNilInt {
 	return s.Ean13
 }
 
+// SetID sets the value of ID.
+func (s *ItemVariantEdit) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
 // SetName sets the value of Name.
-func (s *ItemVariantBase) SetName(val string) {
+func (s *ItemVariantEdit) SetName(val string) {
 	s.Name = val
 }
 
 // SetArticle sets the value of Article.
-func (s *ItemVariantBase) SetArticle(val OptNilString) {
+func (s *ItemVariantEdit) SetArticle(val OptNilString) {
 	s.Article = val
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *ItemVariantBase) SetEan13(val OptNilInt) {
+func (s *ItemVariantEdit) SetEan13(val OptNilInt) {
 	s.Ean13 = val
 }
 
@@ -3668,10 +3668,10 @@ type RevokeApiTokenForbidden ErrorContent
 
 func (*RevokeApiTokenForbidden) revokeApiTokenRes() {}
 
-// RevokeApiTokenOK is response for RevokeApiToken operation.
-type RevokeApiTokenOK struct{}
+// RevokeApiTokenNoContent is response for RevokeApiToken operation.
+type RevokeApiTokenNoContent struct{}
 
-func (*RevokeApiTokenOK) revokeApiTokenRes() {}
+func (*RevokeApiTokenNoContent) revokeApiTokenRes() {}
 
 type RevokeApiTokenUnauthorized ErrorContent
 
@@ -4075,11 +4075,10 @@ func (s *UpdateCurrentUserRequest) SetMiddleName(val NilString) {
 // Merged schema.
 // Ref: #/components/schemas/UpdateItemRequest
 type UpdateItemRequest struct {
-	ID          OptUUID      `json:"id"`
-	Name        string       `json:"name"`
-	Description OptNilString `json:"description"`
-	// Merged property.
-	Variants []UpdateItemRequestVariantsItem `json:"variants"`
+	ID          OptUUID           `json:"id"`
+	Name        string            `json:"name"`
+	Description OptNilString      `json:"description"`
+	Variants    []ItemVariantEdit `json:"variants"`
 }
 
 // GetID returns the value of ID.
@@ -4098,7 +4097,7 @@ func (s *UpdateItemRequest) GetDescription() OptNilString {
 }
 
 // GetVariants returns the value of Variants.
-func (s *UpdateItemRequest) GetVariants() []UpdateItemRequestVariantsItem {
+func (s *UpdateItemRequest) GetVariants() []ItemVariantEdit {
 	return s.Variants
 }
 
@@ -4118,59 +4117,8 @@ func (s *UpdateItemRequest) SetDescription(val OptNilString) {
 }
 
 // SetVariants sets the value of Variants.
-func (s *UpdateItemRequest) SetVariants(val []UpdateItemRequestVariantsItem) {
+func (s *UpdateItemRequest) SetVariants(val []ItemVariantEdit) {
 	s.Variants = val
-}
-
-// Merged schema.
-type UpdateItemRequestVariantsItem struct {
-	ID uuid.UUID `json:"id"`
-	// Merged property.
-	Name string `json:"name"`
-	// Merged property.
-	Article OptNilString `json:"article"`
-	// Merged property.
-	Ean13 OptNilInt `json:"ean13"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateItemRequestVariantsItem) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *UpdateItemRequestVariantsItem) GetName() string {
-	return s.Name
-}
-
-// GetArticle returns the value of Article.
-func (s *UpdateItemRequestVariantsItem) GetArticle() OptNilString {
-	return s.Article
-}
-
-// GetEan13 returns the value of Ean13.
-func (s *UpdateItemRequestVariantsItem) GetEan13() OptNilInt {
-	return s.Ean13
-}
-
-// SetID sets the value of ID.
-func (s *UpdateItemRequestVariantsItem) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *UpdateItemRequestVariantsItem) SetName(val string) {
-	s.Name = val
-}
-
-// SetArticle sets the value of Article.
-func (s *UpdateItemRequestVariantsItem) SetArticle(val OptNilString) {
-	s.Article = val
-}
-
-// SetEan13 sets the value of Ean13.
-func (s *UpdateItemRequestVariantsItem) SetEan13(val OptNilInt) {
-	s.Ean13 = val
 }
 
 // Ref: #/components/schemas/UpdateItemResponse

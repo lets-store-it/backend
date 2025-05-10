@@ -14,7 +14,7 @@ CREATE TABLE app_user (
 
 CREATE TABLE org (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     subdomain VARCHAR(255) NOT NULL UNIQUE CHECK (subdomain ~ '^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$'),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -238,40 +238,3 @@ CREATE TABLE app_api_token (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP
 );
-
--- CREATE TABLE custom_field (
---     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     org_id UUID NOT NULL REFERENCES org(id),
---     type VARCHAR(100) NOT NULL CHECK (type IN ('text', 'integer', 'decimal' 'boolean')),
---     name VARCHAR(100) NOT NULL,
---     label VARCHAR(100) NOT NULL,
---     description VARCHAR(255),
---     group_name VARCHAR(100),
---     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     deleted_at TIMESTAMP,
---     UNIQUE (org_id, name)
--- );
--- CREATE INDEX custom_field_org_id_idx ON custom_field(org_id, id);
--- CREATE INDEX custom_field_group_name_idx ON custom_field(org_id, name);
--- -- relate
-
--- CREATE TABLE custom_field_related_types (
---     custom_field_id UUID NOT NULL REFERENCES custom_field(id),
---     object_type_id INTEGER NOT NULL REFERENCES object_type(id),
---     PRIMARY KEY (custom_field_id, object_type_id)
--- );
--- CREATE INDEX custom_field_related_types_custom_field_id_idx ON custom_field_related_types(custom_field_id);
--- CREATE INDEX custom_field_related_types_object_type_id_idx ON custom_field_related_types(object_type_id);
-
--- CREATE TABLE cell_kind (
---     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     org_id UUID NOT NULL REFERENCES org(id),
---     name VARCHAR(255) NOT NULL,
---     height INTEGER NOT NULL,
---     width INTEGER NOT NULL,
---     depth INTEGER NOT NULL,
---     max_weight INTEGER NOT NULL,
---     UNIQUE (org_id, name)
--- );
-
-
