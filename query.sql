@@ -172,7 +172,7 @@ INSERT INTO cell (org_id, cells_group_id, alias, row, level, position) VALUES ($
 UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteCell :exec
-UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3;
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- name: GetCellPath :many
 WITH RECURSIVE path AS (

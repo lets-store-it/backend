@@ -165,34 +165,6 @@ func encodeInviteEmployeeRequest(
 	return nil
 }
 
-func encodePatchCellRequest(
-	req *PatchCellRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodePatchCellsGroupRequest(
-	req *PatchCellsGroupRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
 func encodePatchCurrentUserRequest(
 	req *PatchCurrentUserRequest,
 	r *http.Request,
@@ -223,20 +195,6 @@ func encodePatchEmployeeByIdRequest(
 
 func encodePatchOrganizationUnitRequest(
 	req *PatchOrganizationUnitRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodePatchStorageGroupRequest(
-	req *PatchStorageGroupRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

@@ -76,32 +76,32 @@ func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uu
 	return result, nil
 }
 
-func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsGroupID uuid.UUID, alias string, row int, level int, position int) (*models.Cell, error) {
+func (s *StorageService) CreateCell(ctx context.Context, cell *models.Cell) (*models.Cell, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateCell")
 	defer span.End()
 
-	if err := s.validateAlias(alias); err != nil {
+	if err := s.validateAlias(cell.Alias); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "validation failed")
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
 	span.SetAttributes(
-		attribute.String("org.id", orgID.String()),
-		attribute.String("cells_group.id", cellsGroupID.String()),
-		attribute.String("cell.alias", alias),
-		attribute.Int("cell.row", row),
-		attribute.Int("cell.level", level),
-		attribute.Int("cell.position", position),
+		attribute.String("org.id", cell.OrgID.String()),
+		attribute.String("cells_group.id", cell.CellsGroupID.String()),
+		attribute.String("cell.alias", cell.Alias),
+		attribute.Int("cell.row", cell.Row),
+		attribute.Int("cell.level", cell.Level),
+		attribute.Int("cell.position", cell.Position),
 	)
 
-	cell, err := s.queries.CreateCell(ctx, sqlc.CreateCellParams{
-		OrgID:        database.PgUUID(orgID),
-		CellsGroupID: database.PgUUID(cellsGroupID),
-		Alias:        alias,
-		Row:          int32(row),
-		Level:        int32(level),
-		Position:     int32(position),
+	createdCell, err := s.queries.CreateCell(ctx, sqlc.CreateCellParams{
+		OrgID:        database.PgUUID(cell.OrgID),
+		CellsGroupID: database.PgUUID(cell.CellsGroupID),
+		Alias:        cell.Alias,
+		Row:          int32(cell.Row),
+		Level:        int32(cell.Level),
+		Position:     int32(cell.Position),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -109,7 +109,7 @@ func (s *StorageService) CreateCell(ctx context.Context, orgID uuid.UUID, cellsG
 		return nil, fmt.Errorf("failed to create cell: %w", err)
 	}
 
-	result, err := toCell(cell)
+	result, err := toCell(createdCell)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to convert cell")
@@ -171,20 +171,18 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 	return result, nil
 }
 
-func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, cellsGroupID uuid.UUID, id uuid.UUID) error {
+func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	ctx, span := s.tracer.Start(ctx, "DeleteCell")
 	defer span.End()
 
 	span.SetAttributes(
 		attribute.String("org.id", orgID.String()),
-		attribute.String("cells_group.id", cellsGroupID.String()),
 		attribute.String("cell.id", id.String()),
 	)
 
 	err := s.queries.DeleteCell(ctx, sqlc.DeleteCellParams{
-		ID:           database.PgUUID(id),
-		OrgID:        database.PgUUID(orgID),
-		CellsGroupID: database.PgUUID(cellsGroupID),
+		ID:    database.PgUUID(id),
+		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
 		span.RecordError(err)

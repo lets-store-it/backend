@@ -336,30 +336,6 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - storage-group
-      summary: Patch Storage Group
-      operationId: patchStorageGroup
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchStorageGroupRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchStorageGroupResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        default:
-          $ref: '#/components/responses/default-error'
     put:
       tags:
         - storage-group
@@ -462,30 +438,6 @@ paths:
       responses:
         '204':
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - storage-group
-      summary: Patch Cells Group
-      operationId: patchCellsGroup
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCellsGroupRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchCellsGroupResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -602,30 +554,6 @@ paths:
       responses:
         '200':
           description: Successful operation
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - cells-group
-      summary: Patch Cell
-      operationId: patchCell
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCellRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchCellResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -1631,37 +1559,6 @@ components:
               $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    StorageGroupPatch:
-      type: object
-      properties:
-        parentId:
-          type: string
-          format: uuid
-          nullable: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
-        name:
-          type: string
-          example: Main Warehouse
-        alias:
-          type: string
-          example: MW
-        unitId:
-          type: string
-          format: uuid
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
-    PatchStorageGroupRequest:
-      allOf:
-        - $ref: '#/components/schemas/StorageGroupPatch'
-    PatchStorageGroupResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: object
-              $ref: '#/components/schemas/StorageGroup'
-          required:
-            - data
     CellGroupBase:
       type: object
       properties:
@@ -1693,9 +1590,6 @@ components:
         - $ref: '#/components/schemas/CellGroupBase'
         - type: object
           properties:
-            unitId:
-              type: string
-              format: uuid
             storageGroupId:
               type: string
               format: uuid
@@ -1733,29 +1627,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CellGroupBase'
     UpdateCellsGroupResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellGroup'
-      required:
-        - data
-    CellGroupPatch:
-      type: object
-      properties:
-        name:
-          type: string
-        alias:
-          $ref: '#/components/schemas/storage-alias'
-        storageGroupId:
-          type: string
-          format: uuid
-        unitId:
-          type: string
-          format: uuid
-    PatchCellsGroupRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellGroupPatch'
-    PatchCellsGroupResponse:
       type: object
       properties:
         data:
@@ -1812,30 +1683,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CellBase'
     UpdateCellResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellBase'
-      required:
-        - data
-    CellPatch:
-      type: object
-      properties:
-        alias:
-          type: string
-        row:
-          type: integer
-          minimum: 1
-        level:
-          type: integer
-          minimum: 1
-        position:
-          type: integer
-          minimum: 1
-    PatchCellRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellPatch'
-    PatchCellResponse:
       type: object
       properties:
         data:

@@ -8,13 +8,11 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
-func convertGroupToDTO(group *models.StorageGroup) api.StorageGroup {
+// Storage Groups
+
+func storageGroupToDTO(group *models.StorageGroup) api.StorageGroup {
 	var parentID api.NilUUID
-	if group.ParentID == nil {
-		parentID.SetToNull()
-	} else {
-		parentID.SetTo(*group.ParentID)
-	}
+	PtrToApiNil(group.ParentID, &parentID)
 
 	return api.StorageGroup{
 		ID:       group.ID,
@@ -25,25 +23,50 @@ func convertGroupToDTO(group *models.StorageGroup) api.StorageGroup {
 	}
 }
 
-// CreateStorageGroup implements api.Handler.
 func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.CreateStorageGroupRequest) (api.CreateStorageGroupRes, error) {
-	var parentID *uuid.UUID
-	if val, ok := req.ParentId.Get(); ok {
-		parentID = &val
-	}
-
-	group, err := h.storageGroupUseCase.Create(ctx, req.UnitId, parentID, req.Name, string(req.Alias))
+	group, err := h.storageGroupUseCase.Create(ctx, &models.StorageGroup{
+		UnitID:   req.UnitId,
+		ParentID: ApiValueToPtr(req.ParentId),
+		Name:     req.Name,
+		Alias:    string(req.Alias),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	groupDTO := convertGroupToDTO(group)
+	groupDTO := storageGroupToDTO(group)
 	return &api.CreateStorageGroupResponse{
 		Data: groupDTO,
 	}, nil
 }
 
-// DeleteStorageGroup implements api.Handler.
+func (h *RestApiImplementation) GetStorageGroupById(ctx context.Context, params api.GetStorageGroupByIdParams) (api.GetStorageGroupByIdRes, error) {
+	group, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetStorageGroupByIdResponse{
+		Data: storageGroupToDTO(group),
+	}, nil
+}
+
+func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (api.GetStorageGroupsRes, error) {
+	groups, err := h.storageGroupUseCase.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]api.StorageGroup, 0, len(groups))
+	for _, group := range groups {
+		items = append(items, storageGroupToDTO(group))
+	}
+
+	return &api.GetStorageGroupsResponse{
+		Data: items,
+	}, nil
+}
+
 func (h *RestApiImplementation) DeleteStorageGroup(ctx context.Context, params api.DeleteStorageGroupParams) (api.DeleteStorageGroupRes, error) {
 	err := h.storageGroupUseCase.Delete(ctx, params.ID)
 	if err != nil {
@@ -53,78 +76,10 @@ func (h *RestApiImplementation) DeleteStorageGroup(ctx context.Context, params a
 	return &api.DeleteStorageGroupNoContent{}, nil
 }
 
-// GetStorageGroupById implements api.Handler.
-func (h *RestApiImplementation) GetStorageGroupById(ctx context.Context, params api.GetStorageGroupByIdParams) (api.GetStorageGroupByIdRes, error) {
-	group, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.GetStorageGroupByIdResponse{
-		Data: convertGroupToDTO(group),
-	}, nil
-}
-
-// GetStorageGroups implements api.Handler.
-func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (api.GetStorageGroupsRes, error) {
-	groups, err := h.storageGroupUseCase.GetAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	items := make([]api.StorageGroup, 0, len(groups))
-	for _, group := range groups {
-		items = append(items, convertGroupToDTO(group))
-	}
-
-	return &api.GetStorageGroupsResponse{
-		Data: items,
-	}, nil
-}
-
-// PatchStorageGroup implements api.Handler.
-func (h *RestApiImplementation) PatchStorageGroup(ctx context.Context, req *api.PatchStorageGroupRequest, params api.PatchStorageGroupParams) (api.PatchStorageGroupRes, error) {
-	group, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if req.Name.IsSet() {
-		group.Name = req.Name.Value
-	}
-	if req.Alias.IsSet() {
-		group.Alias = req.Alias.Value
-	}
-	if req.ParentId.IsSet() {
-		group.ParentID = &req.ParentId.Value
-	}
-
-	updatedGroup, err := h.storageGroupUseCase.Update(ctx, group)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.PatchStorageGroupResponse{
-		Data: convertGroupToDTO(updatedGroup),
-	}, nil
-}
-
-// UpdateStorageGroup implements api.Handler.
 func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api.UpdateStorageGroupRequest, params api.UpdateStorageGroupParams) (api.UpdateStorageGroupRes, error) {
-	groupInDB, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	var parentID *uuid.UUID
-	if req.ParentId.IsSet() {
-		parentID = &req.ParentId.Value
-	}
-
 	group := &models.StorageGroup{
 		ID:       params.ID,
-		OrgID:    groupInDB.OrgID,
-		ParentID: parentID,
+		ParentID: ApiValueToPtr(req.ParentId),
 		Name:     req.Name,
 		Alias:    string(req.Alias),
 		UnitID:   req.UnitId,
@@ -136,34 +91,24 @@ func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api
 	}
 
 	return &api.UpdateStorageGroupResponse{
-		Data: convertGroupToDTO(updatedGroup),
+		Data: storageGroupToDTO(updatedGroup),
 	}, nil
 }
 
-func toCellsGroupDTO(group *models.CellsGroup) *api.CellGroup {
-	var groupId api.NilUUID
-	if group.StorageGroupID != nil {
-		groupId.SetTo(*group.StorageGroupID)
-	} else {
-		groupId.SetToNull()
-	}
-	var groupDTO api.NilUUID
-	if group.StorageGroupID != nil {
-		groupDTO.SetTo(*group.StorageGroupID)
-	} else {
-		groupDTO.SetToNull()
-	}
+// Cells group
+func toCellsGroupDTO(group *models.CellsGroup) api.CellGroup {
+	var storageGroupID api.NilUUID
+	PtrToApiNil(group.StorageGroupID, &storageGroupID)
 
-	return &api.CellGroup{
+	return api.CellGroup{
 		ID:             group.ID,
 		Name:           group.Name,
 		Alias:          api.StorageAlias(group.Alias),
-		StorageGroupId: groupId,
+		StorageGroupId: storageGroupID,
 		UnitId:         group.UnitID,
 	}
 }
 
-// GetCellsGroups ƒimplements api.Handler.
 func (h *RestApiImplementation) GetCellsGroups(ctx context.Context) (api.GetCellsGroupsRes, error) {
 	cellsGroups, err := h.storageGroupUseCase.GetCellsGroups(ctx)
 	if err != nil {
@@ -172,7 +117,7 @@ func (h *RestApiImplementation) GetCellsGroups(ctx context.Context) (api.GetCell
 
 	items := make([]api.CellGroup, 0, len(cellsGroups))
 	for _, group := range cellsGroups {
-		items = append(items, *toCellsGroupDTO(group))
+		items = append(items, toCellsGroupDTO(group))
 	}
 
 	return &api.GetCellsGroupsResponse{
@@ -180,20 +125,24 @@ func (h *RestApiImplementation) GetCellsGroups(ctx context.Context) (api.GetCell
 	}, nil
 }
 
-// CreateCellsGroup implements api.Handler.
 func (h *RestApiImplementation) CreateCellsGroup(ctx context.Context, req *api.CreateCellsGroupRequest) (api.CreateCellsGroupRes, error) {
 	var storageGroupID *uuid.UUID
 	if val, ok := req.StorageGroupId.Get(); ok {
 		storageGroupID = &val
 	}
 
-	cellGroup, err := h.storageGroupUseCase.CreateCellsGroup(ctx, req.UnitId, storageGroupID, req.Name, string(req.Alias))
+	cellGroup, err := h.storageGroupUseCase.CreateCellsGroup(ctx, &models.CellsGroup{
+		UnitID:         req.UnitId,
+		StorageGroupID: storageGroupID,
+		Name:           req.Name,
+		Alias:          string(req.Alias),
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.CreateCellsGroupResponse{
-		Data: *toCellsGroupDTO(cellGroup),
+		Data: toCellsGroupDTO(cellGroup),
 	}, nil
 }
 
@@ -205,21 +154,10 @@ func (h *RestApiImplementation) GetCellsGroupById(ctx context.Context, params ap
 	}
 
 	return &api.GetCellsGroupByIdResponse{
-		Data: *toCellsGroupDTO(cellGroup),
+		Data: toCellsGroupDTO(cellGroup),
 	}, nil
 }
 
-// DeleteCellsGroup implements api.Handler.
-func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api.DeleteCellsGroupParams) (api.DeleteCellsGroupRes, error) {
-	err := h.storageGroupUseCase.DeleteCellsGroup(ctx, params.GroupId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.DeleteCellsGroupNoContent{}, nil
-}
-
-// UpdateCell implements api.Handler.
 func (h *RestApiImplementation) UpdateCellsGroup(ctx context.Context, req *api.UpdateCellsGroupRequest, params api.UpdateCellsGroupParams) (api.UpdateCellsGroupRes, error) {
 	groupInDB, err := h.storageGroupUseCase.GetCellsGroupByID(ctx, params.GroupId)
 	if err != nil {
@@ -240,65 +178,48 @@ func (h *RestApiImplementation) UpdateCellsGroup(ctx context.Context, req *api.U
 	}
 
 	return &api.UpdateCellsGroupResponse{
-		Data: *toCellsGroupDTO(cellGroup),
+		Data: toCellsGroupDTO(cellGroup),
 	}, nil
 }
 
-// PatchCellsGroup implements api.Handler.
-func (h *RestApiImplementation) PatchCellsGroup(ctx context.Context, req *api.PatchCellsGroupRequest, params api.PatchCellsGroupParams) (api.PatchCellsGroupRes, error) {
-	group, err := h.storageGroupUseCase.GetCellsGroupByID(ctx, params.GroupId)
+func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api.DeleteCellsGroupParams) (api.DeleteCellsGroupRes, error) {
+	err := h.storageGroupUseCase.DeleteCellsGroup(ctx, params.GroupId)
 	if err != nil {
 		return nil, err
 	}
 
-	if req.Name.IsSet() {
-		group.Name = req.Name.Value
-	}
-	if req.Alias.IsSet() {
-		group.Alias = string(req.Alias.Value)
-	}
-	if req.UnitId.IsSet() {
-		group.UnitID = req.UnitId.Value
-	}
-
-	if req.StorageGroupId.IsSet() {
-		group.StorageGroupID = &req.StorageGroupId.Value
-	}
-
-	updatedGroup, err := h.storageGroupUseCase.UpdateCellsGroup(ctx, group)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.PatchCellsGroupResponse{
-		Data: *toCellsGroupDTO(updatedGroup),
-	}, nil
+	return &api.DeleteCellsGroupNoContent{}, nil
 }
 
-// CreateCell implements api.Handler.
+func cellToDTO(cell *models.Cell) api.CellBase {
+	return api.CellBase{
+		ID:       cell.ID,
+		Alias:    cell.Alias,
+		Row:      cell.Row,
+		Level:    cell.Level,
+		Position: cell.Position,
+	}
+}
+
+// Cells
 func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateCellRequest, params api.CreateCellParams) (api.CreateCellRes, error) {
-	cell, err := h.storageGroupUseCase.CreateCell(ctx, params.GroupId, req.Alias, req.Row, req.Level, req.Position)
+	cell := &models.Cell{
+		Alias:        req.Alias,
+		Row:          req.Row,
+		Level:        req.Level,
+		Position:     req.Position,
+		CellsGroupID: params.GroupId,
+	}
+	cell, err := h.storageGroupUseCase.CreateCell(ctx, cell)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.CreateCellResponse{
-		Data: api.CellBase{
-			ID:       cell.ID,
-			Alias:    cell.Alias,
-			Row:      cell.Row,
-			Level:    cell.Level,
-			Position: cell.Position,
-		},
+		Data: cellToDTO(cell),
 	}, nil
 }
 
-// DeleteCell implements api.Handler.
-func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
-	return h.storageGroupUseCase.DeleteCell(ctx, params.GroupId, params.CellId)
-}
-
-// GetCellById implements api.Handler.
 func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (*api.GetCellByIdResponse, error) {
 	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
 	if err != nil {
@@ -337,43 +258,6 @@ func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCell
 	}, nil
 }
 
-// PatchCell implements api.Handler.
-func (h *RestApiImplementation) PatchCell(ctx context.Context, req *api.PatchCellRequest, params api.PatchCellParams) (api.PatchCellRes, error) {
-	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
-	if err != nil {
-		return nil, err
-	}
-
-	if req.Alias.IsSet() {
-		cell.Alias = req.Alias.Value
-	}
-	if req.Row.IsSet() {
-		cell.Row = req.Row.Value
-	}
-	if req.Level.IsSet() {
-		cell.Level = req.Level.Value
-	}
-	if req.Position.IsSet() {
-		cell.Position = req.Position.Value
-	}
-
-	updatedCell, err := h.storageGroupUseCase.UpdateCell(ctx, params.GroupId, cell)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.PatchCellResponse{
-		Data: api.CellBase{
-			ID:       updatedCell.ID,
-			Alias:    updatedCell.Alias,
-			Row:      updatedCell.Row,
-			Level:    updatedCell.Level,
-			Position: updatedCell.Position,
-		},
-	}, nil
-}
-
-// UpdateCell implements api.Handler.
 func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateCellRequest, params api.UpdateCellParams) (api.UpdateCellRes, error) {
 	cell := &models.Cell{
 		ID:       params.CellId,
@@ -397,4 +281,8 @@ func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateC
 			Position: updatedCell.Position,
 		},
 	}, nil
+}
+
+func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
+	return h.storageGroupUseCase.DeleteCell(ctx, params.CellId)
 }

@@ -20,14 +20,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-var (
-	ErrItemNotFound        = errors.New("item not found")
-	ErrInvalidItem         = errors.New("invalid item")
-	ErrInvalidOrganization = errors.New("invalid organization")
-	ErrInvalidItemID       = errors.New("invalid item ID")
-	ErrInvalidVariant      = errors.New("invalid variant")
-)
-
 type ItemService struct {
 	storageService *storage.StorageService
 	queries        *sqlc.Queries
@@ -50,25 +42,17 @@ func New(config ItemServiceConfig) *ItemService {
 	}
 }
 
-func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.Item) (*models.Item, error) {
+func (s *ItemService) CreateItem(ctx context.Context, orgID uuid.UUID, item *models.Item) (*models.Item, error) {
 	ctx, span := s.tracer.Start(ctx, "Create")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-	if item == nil {
-		span.SetStatus(codes.Error, "invalid item")
-		return nil, ErrInvalidItem
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("name", item.Name),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.name", item.Name),
 	)
+
 	if item.Description != nil {
-		span.SetAttributes(attribute.String("description", *item.Description))
+		span.SetAttributes(attribute.String("item.description", *item.Description))
 	}
 
 	tx, err := s.pgxPool.BeginTx(ctx, pgx.TxOptions{})
@@ -80,15 +64,10 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	var description string
-	if item.Description != nil {
-		description = *item.Description
-	}
-
 	createdItem, err := qtx.CreateItem(ctx, sqlc.CreateItemParams{
 		OrgID:       database.PgUUID(orgID),
 		Name:        item.Name,
-		Description: database.PgText(description),
+		Description: database.PgTextPtr(item.Description),
 	})
 	item.ID = database.UUIDFromPgx(createdItem.ID)
 
@@ -141,16 +120,11 @@ func (s *ItemService) Create(ctx context.Context, orgID uuid.UUID, item *models.
 	return item, nil
 }
 
-func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.Item, error) {
+func (s *ItemService) GetItemsAll(ctx context.Context, orgID uuid.UUID) ([]*models.Item, error) {
 	ctx, span := s.tracer.Start(ctx, "GetAll")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-
-	span.SetAttributes(attribute.String("org_id", orgID.String()))
+	span.SetAttributes(attribute.String("org.id", orgID.String()))
 
 	results, err := s.queries.GetItems(ctx, database.PgUUID(orgID))
 	if err != nil {
@@ -195,22 +169,13 @@ func (s *ItemService) GetAll(ctx context.Context, orgID uuid.UUID) ([]*models.It
 	return itemsModels, nil
 }
 
-func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.Item, error) {
+func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.Item, error) {
 	ctx, span := s.tracer.Start(ctx, "GetByID")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-	if id == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid item ID")
-		return nil, ErrInvalidItemID
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("item_id", id.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.id", id.String()),
 	)
 
 	item, err := s.queries.GetItem(ctx, sqlc.GetItemParams{
@@ -220,7 +185,7 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			span.SetStatus(codes.Error, "item not found")
-			return nil, ErrItemNotFound
+			return nil, services.ErrNotFoundError
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get item")
@@ -264,27 +229,14 @@ func (s *ItemService) GetByID(ctx context.Context, orgID uuid.UUID, id uuid.UUID
 	return result, nil
 }
 
-func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.Item) (*models.Item, error) {
+func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *models.Item) (*models.Item, error) {
 	ctx, span := s.tracer.Start(ctx, "Update")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-	if item == nil {
-		span.SetStatus(codes.Error, "invalid item")
-		return nil, ErrInvalidItem
-	}
-	if item.ID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid item ID")
-		return nil, ErrInvalidItemID
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("item_id", item.ID.String()),
-		attribute.String("name", item.Name),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.id", item.ID.String()),
+		attribute.String("item.name", item.Name),
 	)
 	if item.Description != nil {
 		span.SetAttributes(attribute.String("description", *item.Description))
@@ -298,10 +250,10 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	}
 	if !exists {
 		span.SetStatus(codes.Error, "item not found")
-		return nil, ErrItemNotFound
+		return nil, services.ErrNotFoundError
 	}
 
-	existingItem, err := s.GetByID(ctx, orgID, item.ID)
+	existingItem, err := s.GetItemByID(ctx, orgID, item.ID)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get existing item")
@@ -388,22 +340,13 @@ func (s *ItemService) Update(ctx context.Context, orgID uuid.UUID, item *models.
 	return item, nil
 }
 
-func (s *ItemService) Delete(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
+func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	ctx, span := s.tracer.Start(ctx, "Delete")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return ErrInvalidOrganization
-	}
-	if id == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid item ID")
-		return ErrInvalidItemID
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("item_id", id.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.id", id.String()),
 	)
 
 	err := s.queries.DeleteItem(ctx, sqlc.DeleteItemParams{
@@ -424,18 +367,9 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 	ctx, span := s.tracer.Start(ctx, "IsItemExists")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return false, ErrInvalidOrganization
-	}
-	if id == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid item ID")
-		return false, ErrInvalidItemID
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("item_id", id.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.id", id.String()),
 	)
 
 	exists, err := s.queries.IsItemExists(ctx, sqlc.IsItemExistsParams{
@@ -452,24 +386,15 @@ func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid
 	return exists, nil
 }
 
-func (s *ItemService) CreateInstance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+func (s *ItemService) CreateItemInsccccbbgbgiftance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateInstance")
 	defer span.End()
 
-	if orgID == uuid.Nil {
-		span.SetStatus(codes.Error, "invalid organization ID")
-		return nil, ErrInvalidOrganization
-	}
-	if itemInstance == nil {
-		span.SetStatus(codes.Error, "invalid item instance")
-		return nil, ErrInvalidItem
-	}
-
 	span.SetAttributes(
-		attribute.String("org_id", orgID.String()),
-		attribute.String("item_id", itemInstance.ItemID.String()),
-		attribute.String("variant_id", itemInstance.VariantID.String()),
-		attribute.String("cell_id", itemInstance.CellID.String()),
+		attribute.String("org.id", orgID.String()),
+		attribute.String("item.id", itemInstance.ItemID.String()),
+		attribute.String("variant.id", itemInstance.VariantID.String()),
+		attribute.String("cell.id", itemInstance.CellID.String()),
 	)
 
 	createdInstance, err := s.queries.CreateItemInstance(ctx, sqlc.CreateItemInstanceParams{
@@ -499,15 +424,6 @@ func (s *ItemService) CreateInstance(ctx context.Context, orgID uuid.UUID, itemI
 func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateItemVariant")
 	defer span.End()
-
-	// if orgID == uuid.Nil {
-	// 	span.SetStatus(codes.Error, "invalid organization ID")
-	// 	return nil, ErrInvalidOrganization
-	// }
-	// if variant == nil {
-	// 	span.SetStatus(codes.Error, "invalid item variant")
-	// 	return nil, service
-	// }
 
 	createdVariant, err := s.queries.CreateItemVariant(ctx, sqlc.CreateItemVariantParams{
 		OrgID:   database.PgUUID(orgID),
@@ -553,7 +469,7 @@ func (s *ItemService) DeleteItemVariant(ctx context.Context, orgID uuid.UUID, id
 	return nil
 }
 
-func (s *ItemService) GetItemVariants(ctx context.Context, orgID uuid.UUID, id uuid.UUID) ([]*models.ItemVariant, error) {
+func (s *ItemService) GetItemVariantsAll(ctx context.Context, orgID uuid.UUID, id uuid.UUID) ([]*models.ItemVariant, error) {
 	ctx, span := s.tracer.Start(ctx, "GetItemVariants")
 	defer span.End()
 

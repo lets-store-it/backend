@@ -13,24 +13,24 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.CellsGroup, name string, alias string) (*models.CellsGroup, error) {
+func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.CellsGroup) (*models.CellsGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateCellsGroup",
 		trace.WithAttributes(
 			attribute.String("org.id", group.OrgID.String()),
 			attribute.String("storage_group.id", group.ID.String()),
 			attribute.String("unit.id", group.UnitID.String()),
-			attribute.String("cells_group.name", name),
-			attribute.String("cells_group.alias", alias),
+			attribute.String("cells_group.name", group.Name),
+			attribute.String("cells_group.alias", group.Alias),
 		),
 	)
 	defer span.End()
 
-	if err := s.validateName(name); err != nil {
+	if err := s.validateName(group.Name); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "name validation failed")
 		return nil, err
 	}
-	if err := s.validateAlias(alias); err != nil {
+	if err := s.validateAlias(group.Alias); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "alias validation failed")
 		return nil, err
@@ -40,8 +40,8 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.Cel
 		OrgID:          database.PgUUID(group.OrgID),
 		StorageGroupID: database.PgUUIDPtr(group.StorageGroupID),
 		UnitID:         database.PgUUID(group.UnitID),
-		Name:           name,
-		Alias:          alias,
+		Name:           group.Name,
+		Alias:          group.Alias,
 	})
 	if err != nil {
 		span.RecordError(err)

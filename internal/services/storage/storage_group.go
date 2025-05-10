@@ -22,30 +22,30 @@ func (s *StorageService) validateStorageGroupData(name, alias string) error {
 	return s.validateAlias(alias)
 }
 
-func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
+func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateStorageGroup",
 		trace.WithAttributes(
-			attribute.String("org.id", orgID.String()),
-			attribute.String("unit.id", unitID.String()),
-			attribute.String("storage_group.name", name),
-			attribute.String("storage_group.alias", alias),
-			attribute.String("storage_group.parent_id", utils.SafeUUIDString(parentID)),
+			attribute.String("org.id", group.OrgID.String()),
+			attribute.String("unit.id", group.UnitID.String()),
+			attribute.String("storage_group.name", group.Name),
+			attribute.String("storage_group.alias", group.Alias),
+			attribute.String("storage_group.parent_id", utils.SafeUUIDString(group.ParentID)),
 		),
 	)
 	defer span.End()
 
-	if err := s.validateStorageGroupData(name, alias); err != nil {
+	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "validation failed")
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	group, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
-		OrgID:    database.PgUUID(orgID),
-		UnitID:   database.PgUUID(unitID),
-		ParentID: database.PgUUIDPtr(parentID),
-		Name:     name,
-		Alias:    alias,
+	sqlGroup, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
+		OrgID:    database.PgUUID(group.OrgID),
+		UnitID:   database.PgUUID(group.UnitID),
+		ParentID: database.PgUUIDPtr(group.ParentID),
+		Name:     group.Name,
+		Alias:    group.Alias,
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -53,7 +53,7 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, orgID uuid.UUID
 		return nil, fmt.Errorf("failed to create storage group: %w", err)
 	}
 
-	result, err := toStorageGroup(group)
+	result, err := toStorageGroup(sqlGroup)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to convert storage group")

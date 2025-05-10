@@ -299,16 +299,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							s.handleGetCellsGroupByIdRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
-						case "PATCH":
-							s.handlePatchCellsGroupRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
 						case "PUT":
 							s.handleUpdateCellsGroupRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
@@ -369,18 +365,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										args[0],
 										args[1],
 									}, elemIsEscaped, w, r)
-								case "PATCH":
-									s.handlePatchCellRequest([2]string{
-										args[0],
-										args[1],
-									}, elemIsEscaped, w, r)
 								case "PUT":
 									s.handleUpdateCellRequest([2]string{
 										args[0],
 										args[1],
 									}, elemIsEscaped, w, r)
 								default:
-									s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+									s.notAllowed(w, r, "DELETE,GET,PUT")
 								}
 
 								return
@@ -851,16 +842,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							s.handleGetStorageGroupByIdRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
-						case "PATCH":
-							s.handlePatchStorageGroupRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
 						case "PUT":
 							s.handleUpdateStorageGroupRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
@@ -1312,14 +1299,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.args = args
 							r.count = 1
 							return r, true
-						case "PATCH":
-							r.name = PatchCellsGroupOperation
-							r.summary = "Patch Cells Group"
-							r.operationID = "patchCellsGroup"
-							r.pathPattern = "/cells-groups/{groupId}"
-							r.args = args
-							r.count = 1
-							return r, true
 						case "PUT":
 							r.name = UpdateCellsGroupOperation
 							r.summary = "Update Cells Group"
@@ -1396,14 +1375,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = GetCellByIdOperation
 									r.summary = "Get Cell by ID"
 									r.operationID = "getCellById"
-									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
-									r.args = args
-									r.count = 2
-									return r, true
-								case "PATCH":
-									r.name = PatchCellOperation
-									r.summary = "Patch Cell"
-									r.operationID = "patchCell"
 									r.pathPattern = "/cells-groups/{groupId}/cells/{cellId}"
 									r.args = args
 									r.count = 2
@@ -1999,14 +1970,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.name = GetStorageGroupByIdOperation
 							r.summary = "Get Storage Group by ID"
 							r.operationID = "getStorageGroupById"
-							r.pathPattern = "/storage-groups/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PATCH":
-							r.name = PatchStorageGroupOperation
-							r.summary = "Patch Storage Group"
-							r.operationID = "patchStorageGroup"
 							r.pathPattern = "/storage-groups/{id}"
 							r.args = args
 							r.count = 1

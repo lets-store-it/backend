@@ -266,18 +266,6 @@ type Handler interface {
 	//
 	// GET /auth/logout
 	Logout(ctx context.Context) (LogoutRes, error)
-	// PatchCell implements patchCell operation.
-	//
-	// Patch Cell.
-	//
-	// PATCH /cells-groups/{groupId}/cells/{cellId}
-	PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (PatchCellRes, error)
-	// PatchCellsGroup implements patchCellsGroup operation.
-	//
-	// Patch Cells Group.
-	//
-	// PATCH /cells-groups/{groupId}
-	PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (PatchCellsGroupRes, error)
 	// PatchCurrentUser implements patchCurrentUser operation.
 	//
 	// Update Current User.
@@ -296,12 +284,6 @@ type Handler interface {
 	//
 	// PATCH /units/{id}
 	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error)
-	// PatchStorageGroup implements patchStorageGroup operation.
-	//
-	// Patch Storage Group.
-	//
-	// PATCH /storage-groups/{id}
-	PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (PatchStorageGroupRes, error)
 	// PutCurrentUser implements putCurrentUser operation.
 	//
 	// Update Current User.

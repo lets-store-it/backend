@@ -32,8 +32,8 @@ func New(config StorageUseCaseConfig) *StorageUseCase {
 	}
 }
 
-func (uc *StorageUseCase) Create(ctx context.Context, unitID uuid.UUID, parentID *uuid.UUID, name string, alias string) (*models.StorageGroup, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+func (uc *StorageUseCase) Create(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +42,13 @@ func (uc *StorageUseCase) Create(ctx context.Context, unitID uuid.UUID, parentID
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	return uc.service.CreateStorageGroup(ctx, validateResult.OrgID, unitID, parentID, name, alias)
+	group.OrgID = validateResult.OrgID
+
+	return uc.service.CreateStorageGroup(ctx, group)
 }
 
 func (uc *StorageUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +92,7 @@ func (uc *StorageUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -99,13 +101,15 @@ func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup
 		return nil, usecases.ErrNotAuthorized
 	}
 
+	group.OrgID = validateResult.OrgID
+
 	return uc.service.UpdateStoragrGroup(ctx, group)
 }
 
 // CellsGroups
 
 func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGroup, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -117,8 +121,8 @@ func (uc *StorageUseCase) GetCellsGroups(ctx context.Context) ([]*models.CellsGr
 	return uc.service.GetCellsGroups(ctx, validateResult.OrgID)
 }
 
-func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID, storageGroupID *uuid.UUID, name string, alias string) (*models.CellsGroup, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, group *models.CellsGroup) (*models.CellsGroup, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -127,15 +131,9 @@ func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, unitID uuid.UUID
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	cellsGroup := &models.CellsGroup{
-		OrgID:          validateResult.OrgID,
-		UnitID:         unitID,
-		StorageGroupID: storageGroupID,
-		Name:           name,
-		Alias:          alias,
-	}
+	group.OrgID = validateResult.OrgID
 
-	return uc.service.CreateCellsGroup(ctx, cellsGroup, name, alias)
+	return uc.service.CreateCellsGroup(ctx, group)
 }
 
 func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {
@@ -194,8 +192,8 @@ func (uc *StorageUseCase) GetCells(ctx context.Context, cellsGroupID uuid.UUID) 
 	return uc.service.GetCells(ctx, validateResult.OrgID, cellsGroupID)
 }
 
-func (uc *StorageUseCase) CreateCell(ctx context.Context, cellsGroupID uuid.UUID, alias string, row int, level int, position int) (*models.Cell, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+func (uc *StorageUseCase) CreateCell(ctx context.Context, cell *models.Cell) (*models.Cell, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +202,9 @@ func (uc *StorageUseCase) CreateCell(ctx context.Context, cellsGroupID uuid.UUID
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	return uc.service.CreateCell(ctx, validateResult.OrgID, cellsGroupID, alias, row, level, position)
+	cell.OrgID = validateResult.OrgID
+
+	return uc.service.CreateCell(ctx, cell)
 }
 
 func (uc *StorageUseCase) GetCellByID(ctx context.Context, id uuid.UUID) (*models.Cell, error) {
@@ -220,7 +220,7 @@ func (uc *StorageUseCase) GetCellByID(ctx context.Context, id uuid.UUID) (*model
 	return uc.service.GetCellByID(ctx, validateResult.OrgID, id)
 }
 
-func (uc *StorageUseCase) DeleteCell(ctx context.Context, cellsGroupID uuid.UUID, id uuid.UUID) error {
+func (uc *StorageUseCase) DeleteCell(ctx context.Context, id uuid.UUID) error {
 	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
 	if err != nil {
 		return err
@@ -230,7 +230,7 @@ func (uc *StorageUseCase) DeleteCell(ctx context.Context, cellsGroupID uuid.UUID
 		return usecases.ErrNotAuthorized
 	}
 
-	return uc.service.DeleteCell(ctx, validateResult.OrgID, cellsGroupID, id)
+	return uc.service.DeleteCell(ctx, validateResult.OrgID, id)
 }
 
 func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID, cell *models.Cell) (*models.Cell, error) {

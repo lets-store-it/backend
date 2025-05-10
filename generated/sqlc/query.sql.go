@@ -446,17 +446,16 @@ func (q *Queries) CreateUserSession(ctx context.Context, arg CreateUserSessionPa
 }
 
 const deleteCell = `-- name: DeleteCell :exec
-UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND cells_group_id = $2 AND id = $3
+UPDATE cell SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 `
 
 type DeleteCellParams struct {
-	OrgID        pgtype.UUID
-	CellsGroupID pgtype.UUID
-	ID           pgtype.UUID
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
 }
 
 func (q *Queries) DeleteCell(ctx context.Context, arg DeleteCellParams) error {
-	_, err := q.db.Exec(ctx, deleteCell, arg.OrgID, arg.CellsGroupID, arg.ID)
+	_, err := q.db.Exec(ctx, deleteCell, arg.OrgID, arg.ID)
 	return err
 }
 

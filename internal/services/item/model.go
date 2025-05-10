@@ -14,20 +14,10 @@ import (
 )
 
 func toItemModel(item sqlc.Item) (*models.Item, error) {
-	id := database.UUIDFromPgx(item.ID)
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert item: %w", ErrInvalidItemID)
-	}
-
-	var description *string
-	if item.Description.Valid {
-		description = &item.Description.String
-	}
-
 	return &models.Item{
-		ID:          id,
+		ID:          database.UUIDFromPgx(item.ID),
 		Name:        item.Name,
-		Description: description,
+		Description: database.PgTextPtrFromPgx(item.Description),
 	}, nil
 }
 
@@ -44,37 +34,12 @@ func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
 }
 
 func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, error) {
-	id := database.UUIDFromPgx(instance.ID)
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert instance: invalid instance ID")
-	}
-
-	orgID := database.UUIDFromPgx(instance.OrgID)
-	if orgID == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert instance: invalid organization ID")
-	}
-
-	itemID := database.UUIDFromPgx(instance.ItemID)
-	if itemID == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert instance: invalid item ID")
-	}
-
-	variantID := database.UUIDFromPgx(instance.VariantID)
-	if variantID == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert instance: invalid variant ID")
-	}
-
-	cellID := database.UUIDFromPgx(instance.CellID)
-	if cellID == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert instance: invalid cell ID")
-	}
-
 	return &models.ItemInstance{
-		ID:        id,
-		OrgID:     orgID,
-		ItemID:    itemID,
-		VariantID: variantID,
-		CellID:    cellID,
+		ID:        database.UUIDFromPgx(instance.ID),
+		OrgID:     database.UUIDFromPgx(instance.OrgID),
+		ItemID:    database.UUIDFromPgx(instance.ItemID),
+		VariantID: database.UUIDFromPgx(instance.VariantID),
+		CellID:    database.UUIDFromPgx(instance.CellID),
 		Status:    models.ItemInstanceStatus(instance.Status),
 	}, nil
 }
@@ -119,7 +84,7 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 		}
 
 		if instanceVariant == nil {
-			return nil, fmt.Errorf("failed to find variant for instance: %w", ErrInvalidVariant)
+			return nil, errors.New("failed to find variant for instance")
 		}
 
 		instanceModel.Variant = instanceVariant

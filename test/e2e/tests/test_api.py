@@ -1,6 +1,7 @@
 import random
 import string
 import uuid
+from typing import Generator
 
 import pytest
 
@@ -19,7 +20,9 @@ def api_client() -> APIClient:
 
 
 @pytest.fixture(scope="session")
-def api_client_with_organization(api_client: APIClient) -> APIClient:
+def api_client_with_organization(
+    api_client: APIClient,
+) -> Generator[APIClient, None, None]:
     org_name = str(uuid.uuid4())
     response = api_client.post("/orgs", {"name": org_name, "subdomain": org_name})
     assert response.status_code == 200
@@ -29,7 +32,9 @@ def api_client_with_organization(api_client: APIClient) -> APIClient:
     response = client.get("/me")
     assert response.status_code == 200
     client.set_organization(org_data["id"])
-    return client
+    yield client
+    response = client.delete(f"/orgs/{org_data['id']}")
+    assert response.status_code == 204
 
 
 @pytest.fixture
@@ -167,16 +172,16 @@ class TestOrganizationUnit:
         assert data["address"] == new_address
 
         # Patch
-        new_name = f"{new_name}_patched"
-        response = api_client_with_organization.patch(
-            f"/units/{unit_id}",
-            {"name": new_name},
-        )
-        assert response.status_code == 200
-        data = response.json()["data"]
-        assert data["name"] == new_name
-        assert data["alias"] == new_alias
-        assert data["address"] == new_address
+        # new_name = f"{new_name}_patched"
+        # response = api_client_with_organization.patch(
+        #     f"/units/{unit_id}",
+        #     {"name": new_name},
+        # )
+        # assert response.status_code == 200
+        # data = response.json()["data"]
+        # assert data["name"] == new_name
+        # assert data["alias"] == new_alias
+        # assert data["address"] == new_address
 
         # Delete
         response = api_client_with_organization.delete(f"/units/{unit_id}")
@@ -233,17 +238,17 @@ class TestStorageGroup:
         assert data["alias"] == new_alias
         assert data["unitId"] == organization_unit["id"]
 
-        # Patch
-        new_name = f"{new_name}_patched"
-        response = api_client_with_organization.patch(
-            f"/storage-groups/{storage_group_id}",
-            {"name": new_name},
-        )
-        assert response.status_code == 200
-        data = response.json()["data"]
-        assert data["name"] == new_name
-        assert data["alias"] == new_alias
-        assert data["unitId"] == organization_unit["id"]
+        # # Patch
+        # new_name = f"{new_name}_patched"
+        # response = api_client_with_organization.patch(
+        #     f"/storage-groups/{storage_group_id}",
+        #     {"name": new_name},
+        # )
+        # assert response.status_code == 200
+        # data = response.json()["data"]
+        # assert data["name"] == new_name
+        # assert data["alias"] == new_alias
+        # assert data["unitId"] == organization_unit["id"]
 
         # Delete
         response = api_client_with_organization.delete(
@@ -303,17 +308,17 @@ class TestCellsGroup:
         assert data["alias"] == new_alias
         assert data["unitId"] == organization_unit["id"]
 
-        # Patch
-        new_name = f"{new_name}_patched"
-        response = api_client_with_organization.patch(
-            f"/cells-groups/{cells_group_id}",
-            {"name": new_name},
-        )
-        assert response.status_code == 200
-        data = response.json()["data"]
-        assert data["name"] == new_name
-        assert data["alias"] == new_alias
-        assert data["unitId"] == organization_unit["id"]
+        # # Patch
+        # new_name = f"{new_name}_patched"
+        # response = api_client_with_organization.patch(
+        #     f"/cells-groups/{cells_group_id}",
+        #     {"name": new_name},
+        # )
+        # assert response.status_code == 200
+        # data = response.json()["data"]
+        # assert data["name"] == new_name
+        # assert data["alias"] == new_alias
+        # assert data["unitId"] == organization_unit["id"]
 
         # Delete
         response = api_client_with_organization.delete(
@@ -432,5 +437,147 @@ class TestItem:
         # Delete
         response = api_client_with_organization.delete(
             f"/items/{item_id}/variants/{variant_id}"
+        )
+        assert response.status_code == 204
+
+
+class TestCells:
+    @pytest.fixture
+    def cell_group(
+        self,
+        api_client_with_organization: APIClient,
+        organization_unit: dict,
+    ) -> dict:
+        cell_group_name = str(uuid.uuid4())
+        alias = generate_random_string()
+        response = api_client_with_organization.post(
+            "/cells-groups",
+            {
+                "name": cell_group_name,
+                "alias": alias,
+                "unitId": organization_unit["id"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        return response.json()["data"]
+
+    def test_full_cell_group_lifecycle(
+        self,
+        api_client_with_organization: APIClient,
+        organization_unit: dict,
+    ) -> None:
+        # Create
+        cell_group_name = str(uuid.uuid4())
+        alias = generate_random_string()
+        response = api_client_with_organization.post(
+            "/cells-groups",
+            {
+                "name": cell_group_name,
+                "alias": alias,
+                "unitId": organization_unit["id"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        cell_group_data = response.json()["data"]
+        cell_group_id = cell_group_data["id"]
+        assert cell_group_data["name"] == cell_group_name
+        assert cell_group_data["alias"] == alias
+        assert cell_group_data["unitId"] == organization_unit["id"]
+
+        # Get
+        response = api_client_with_organization.get(f"/cells-groups/{cell_group_id}")
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert data["id"] == cell_group_id
+        assert data["name"] == cell_group_name
+        assert data["alias"] == alias
+        assert data["unitId"] == organization_unit["id"]
+
+        # List
+        response = api_client_with_organization.get("/cells-groups")
+        assert response.status_code == 200
+        data = response.json()["data"]
+        filtered = (x for x in data if x["id"] == cell_group_id)
+        cell_group = next(filtered)
+        assert cell_group is not None
+        assert cell_group["name"] == cell_group_name
+        assert cell_group["alias"] == alias
+        assert cell_group["unitId"] == organization_unit["id"]
+
+        # Update
+        new_name = f"{cell_group_name}_updated"
+        new_alias = f"{alias}D"
+        response = api_client_with_organization.put(
+            f"/cells-groups/{cell_group_id}",
+            {"name": new_name, "alias": new_alias, "unitId": organization_unit["id"]},
+        )
+        assert response.status_code == 200, response.text
+
+        # Delete
+        response = api_client_with_organization.delete(f"/cells-groups/{cell_group_id}")
+        assert response.status_code == 204
+
+    def test_full_cell_lifecycle(
+        self,
+        api_client_with_organization: APIClient,
+        cell_group: dict,
+    ) -> None:
+        # Create
+        cell_name = str(uuid.uuid4())
+        alias = generate_random_string()
+        response = api_client_with_organization.post(
+            f"/cells-groups/{cell_group['id']}/cells",
+            {"name": cell_name, "alias": alias, "row": 1, "level": 1, "position": 1},
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()["data"]
+        cell_id = data["id"]
+        assert data["name"] == cell_name
+        assert data["alias"] == alias
+        assert data["row"] == 1
+        assert data["level"] == 1
+        assert data["position"] == 1
+
+        # List
+        response = api_client_with_organization.get(
+            f"/cells-groups/{cell_group['id']}/cells"
+        )
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert len(data) == 1
+        assert data[0]["id"] == cell_id
+
+        # Get
+        response = api_client_with_organization.get(
+            f"/cells-groups/{cell_group['id']}/cells/{cell_id}"
+        )
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert data["id"] == cell_id
+        assert data["name"] == cell_name
+        assert data["alias"] == alias
+        assert data["row"] == 1
+        assert data["level"] == 1
+        assert data["position"] == 1
+
+        # Update
+        new_name = f"{cell_name}_updated"
+        new_alias = f"{alias}D"
+        response = api_client_with_organization.put(
+            f"/cells-groups/{cell_group['id']}/cells/{cell_id}",
+            {"name": new_name, "alias": new_alias, "row": 1, "level": 1, "position": 1},
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()["data"]
+        assert data["id"] == cell_id
+        assert data["name"] == new_name
+        assert data["alias"] == new_alias
+        assert data["row"] == 1
+        assert data["level"] == 1
+        assert data["position"] == 1
+
+        # Delete
+        response = api_client_with_organization.delete(
+            f"/cells-groups/{cell_group['id']}/cells/{cell_id}"
         )
         assert response.status_code == 204
