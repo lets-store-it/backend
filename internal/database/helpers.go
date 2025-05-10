@@ -79,3 +79,30 @@ func PgTimestampPtr(t *time.Time) pgtype.Timestamp {
 	}
 	return pgtype.Timestamp{Time: *t, Valid: !t.IsZero()}
 }
+
+// Int4
+
+func PgInt4(i int32) pgtype.Int4 {
+	return pgtype.Int4{Int32: i, Valid: true}
+}
+
+func PgInt4Ptr(i *int32) pgtype.Int4 {
+	if i == nil {
+		return pgtype.Int4{Valid: false}
+	}
+	return pgtype.Int4{Int32: *i, Valid: true}
+}
+
+func PgInt32PtrFromPgx(i pgtype.Int4) *int32 {
+	if !i.Valid {
+		return nil
+	}
+	return &i.Int32
+}
+
+func PgInt32FromPgx(i pgtype.Int4) int32 {
+	if !i.Valid {
+		return 0
+	}
+	return i.Int32
+}

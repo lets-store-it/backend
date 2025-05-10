@@ -59,6 +59,12 @@ type Invoker interface {
 	//
 	// POST /items
 	CreateItem(ctx context.Context, request *CreateItemRequest) (CreateItemRes, error)
+	// CreateItemVariant invokes createItemVariant operation.
+	//
+	// Create Item Variant.
+	//
+	// POST /items/{id}/variants
+	CreateItemVariant(ctx context.Context, request *CreateItemVariantRequest, params CreateItemVariantParams) (CreateItemVariantRes, error)
 	// CreateOrganization invokes createOrganization operation.
 	//
 	// Create new Organization.
@@ -106,7 +112,13 @@ type Invoker interface {
 	// Delete Item.
 	//
 	// DELETE /items/{id}
-	DeleteItem(ctx context.Context, params DeleteItemParams) error
+	DeleteItem(ctx context.Context, params DeleteItemParams) (DeleteItemRes, error)
+	// DeleteItemVariant invokes deleteItemVariant operation.
+	//
+	// Delete Item Variant By ID.
+	//
+	// DELETE /items/{id}/variants/{variantId}
+	DeleteItemVariant(ctx context.Context, params DeleteItemVariantParams) (DeleteItemVariantRes, error)
 	// DeleteOrganization invokes deleteOrganization operation.
 	//
 	// Delete Organization.
@@ -202,7 +214,19 @@ type Invoker interface {
 	// Get Item by ID.
 	//
 	// GET /items/{id}
-	GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error)
+	GetItemById(ctx context.Context, params GetItemByIdParams) (GetItemByIdRes, error)
+	// GetItemVariantById invokes getItemVariantById operation.
+	//
+	// Get Item Variant By ID.
+	//
+	// GET /items/{id}/variants/{variantId}
+	GetItemVariantById(ctx context.Context, params GetItemVariantByIdParams) (GetItemVariantByIdRes, error)
+	// GetItemVariants invokes getItemVariants operation.
+	//
+	// Get Item Variants.
+	//
+	// GET /items/{id}/variants
+	GetItemVariants(ctx context.Context, params GetItemVariantsParams) (GetItemVariantsRes, error)
 	// GetItems invokes getItems operation.
 	//
 	// Get list of Items.
@@ -287,12 +311,6 @@ type Invoker interface {
 	//
 	// PATCH /employees/{id}
 	PatchEmployeeById(ctx context.Context, request *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error)
-	// PatchItem invokes patchItem operation.
-	//
-	// Patch Item.
-	//
-	// PATCH /items/{id}
-	PatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
 	// PatchOrganizationUnit invokes patchOrganizationUnit operation.
 	//
 	// Patch Organization Unit.
@@ -334,7 +352,13 @@ type Invoker interface {
 	// Update Item.
 	//
 	// PUT /items/{id}
-	UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error)
+	UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (UpdateItemRes, error)
+	// UpdateItemVariant invokes updateItemVariant operation.
+	//
+	// Update Item Variant By ID.
+	//
+	// PUT /items/{id}/variants/{variantId}
+	UpdateItemVariant(ctx context.Context, request *UpdateItemVariantRequest, params UpdateItemVariantParams) (UpdateItemVariantRes, error)
 	// UpdateOrganization invokes updateOrganization operation.
 	//
 	// Update Organization.
@@ -1035,6 +1059,145 @@ func (c *Client) sendCreateItem(ctx context.Context, request *CreateItemRequest)
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateItemVariant invokes createItemVariant operation.
+//
+// Create Item Variant.
+//
+// POST /items/{id}/variants
+func (c *Client) CreateItemVariant(ctx context.Context, request *CreateItemVariantRequest, params CreateItemVariantParams) (CreateItemVariantRes, error) {
+	res, err := c.sendCreateItemVariant(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateItemVariant(ctx context.Context, request *CreateItemVariantRequest, params CreateItemVariantParams) (res CreateItemVariantRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createItemVariant"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/items/{id}/variants"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateItemVariantOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/variants"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateItemVariantRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:ApiToken"
+			switch err := c.securityApiToken(ctx, CreateItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"ApiToken\"")
+			}
+		}
+		{
+			stage = "Security:Cookie"
+			switch err := c.securityCookie(ctx, CreateItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 1
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"Cookie\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+				{0b00000010},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateItemVariantResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1966,12 +2129,12 @@ func (c *Client) sendDeleteInstanceById(ctx context.Context, params DeleteInstan
 // Delete Item.
 //
 // DELETE /items/{id}
-func (c *Client) DeleteItem(ctx context.Context, params DeleteItemParams) error {
-	_, err := c.sendDeleteItem(ctx, params)
-	return err
+func (c *Client) DeleteItem(ctx context.Context, params DeleteItemParams) (DeleteItemRes, error) {
+	res, err := c.sendDeleteItem(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (res *DeleteItemNoContent, err error) {
+func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (res DeleteItemRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteItem"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
@@ -2089,6 +2252,160 @@ func (c *Client) sendDeleteItem(ctx context.Context, params DeleteItemParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteItemVariant invokes deleteItemVariant operation.
+//
+// Delete Item Variant By ID.
+//
+// DELETE /items/{id}/variants/{variantId}
+func (c *Client) DeleteItemVariant(ctx context.Context, params DeleteItemVariantParams) (DeleteItemVariantRes, error) {
+	res, err := c.sendDeleteItemVariant(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteItemVariant(ctx context.Context, params DeleteItemVariantParams) (res DeleteItemVariantRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteItemVariant"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/items/{id}/variants/{variantId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteItemVariantOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/variants/"
+	{
+		// Encode "variantId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "variantId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.VariantId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:ApiToken"
+			switch err := c.securityApiToken(ctx, DeleteItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"ApiToken\"")
+			}
+		}
+		{
+			stage = "Security:Cookie"
+			switch err := c.securityCookie(ctx, DeleteItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 1
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"Cookie\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+				{0b00000010},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteItemVariantResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -4017,12 +4334,12 @@ func (c *Client) sendGetInstancesByItemId(ctx context.Context, params GetInstanc
 // Get Item by ID.
 //
 // GET /items/{id}
-func (c *Client) GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error) {
+func (c *Client) GetItemById(ctx context.Context, params GetItemByIdParams) (GetItemByIdRes, error) {
 	res, err := c.sendGetItemById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetItemById(ctx context.Context, params GetItemByIdParams) (res *GetItemByIdResponse, err error) {
+func (c *Client) sendGetItemById(ctx context.Context, params GetItemByIdParams) (res GetItemByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getItemById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -4140,6 +4457,296 @@ func (c *Client) sendGetItemById(ctx context.Context, params GetItemByIdParams) 
 
 	stage = "DecodeResponse"
 	result, err := decodeGetItemByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetItemVariantById invokes getItemVariantById operation.
+//
+// Get Item Variant By ID.
+//
+// GET /items/{id}/variants/{variantId}
+func (c *Client) GetItemVariantById(ctx context.Context, params GetItemVariantByIdParams) (GetItemVariantByIdRes, error) {
+	res, err := c.sendGetItemVariantById(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetItemVariantById(ctx context.Context, params GetItemVariantByIdParams) (res GetItemVariantByIdRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getItemVariantById"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/items/{id}/variants/{variantId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetItemVariantByIdOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/variants/"
+	{
+		// Encode "variantId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "variantId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.VariantId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:ApiToken"
+			switch err := c.securityApiToken(ctx, GetItemVariantByIdOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"ApiToken\"")
+			}
+		}
+		{
+			stage = "Security:Cookie"
+			switch err := c.securityCookie(ctx, GetItemVariantByIdOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 1
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"Cookie\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+				{0b00000010},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetItemVariantByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetItemVariants invokes getItemVariants operation.
+//
+// Get Item Variants.
+//
+// GET /items/{id}/variants
+func (c *Client) GetItemVariants(ctx context.Context, params GetItemVariantsParams) (GetItemVariantsRes, error) {
+	res, err := c.sendGetItemVariants(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetItemVariants(ctx context.Context, params GetItemVariantsParams) (res GetItemVariantsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getItemVariants"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/items/{id}/variants"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetItemVariantsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/variants"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:ApiToken"
+			switch err := c.securityApiToken(ctx, GetItemVariantsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"ApiToken\"")
+			}
+		}
+		{
+			stage = "Security:Cookie"
+			switch err := c.securityCookie(ctx, GetItemVariantsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 1
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"Cookie\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+				{0b00000010},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetItemVariantsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -5927,144 +6534,6 @@ func (c *Client) sendPatchEmployeeById(ctx context.Context, request *PatchEmploy
 	return result, nil
 }
 
-// PatchItem invokes patchItem operation.
-//
-// Patch Item.
-//
-// PATCH /items/{id}
-func (c *Client) PatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error) {
-	res, err := c.sendPatchItem(ctx, request, params)
-	return res, err
-}
-
-func (c *Client) sendPatchItem(ctx context.Context, request *PatchItemRequest, params PatchItemParams) (res *PatchItemResponse, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("patchItem"),
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/items/{id}"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, PatchItemOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/items/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PATCH", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodePatchItemRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiToken"
-			switch err := c.securityApiToken(ctx, PatchItemOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiToken\"")
-			}
-		}
-		{
-			stage = "Security:Cookie"
-			switch err := c.securityCookie(ctx, PatchItemOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 1
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"Cookie\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-				{0b00000010},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodePatchItemResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // PatchOrganizationUnit invokes patchOrganizationUnit operation.
 //
 // Patch Organization Unit.
@@ -6896,12 +7365,12 @@ func (c *Client) sendUpdateCellsGroup(ctx context.Context, request *UpdateCellsG
 // Update Item.
 //
 // PUT /items/{id}
-func (c *Client) UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error) {
+func (c *Client) UpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (UpdateItemRes, error) {
 	res, err := c.sendUpdateItem(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (res *UpdateItemResponse, err error) {
+func (c *Client) sendUpdateItem(ctx context.Context, request *UpdateItemRequest, params UpdateItemParams) (res UpdateItemRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateItem"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
@@ -7022,6 +7491,163 @@ func (c *Client) sendUpdateItem(ctx context.Context, request *UpdateItemRequest,
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateItemVariant invokes updateItemVariant operation.
+//
+// Update Item Variant By ID.
+//
+// PUT /items/{id}/variants/{variantId}
+func (c *Client) UpdateItemVariant(ctx context.Context, request *UpdateItemVariantRequest, params UpdateItemVariantParams) (UpdateItemVariantRes, error) {
+	res, err := c.sendUpdateItemVariant(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateItemVariant(ctx context.Context, request *UpdateItemVariantRequest, params UpdateItemVariantParams) (res UpdateItemVariantRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateItemVariant"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/items/{id}/variants/{variantId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateItemVariantOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/items/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/variants/"
+	{
+		// Encode "variantId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "variantId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.VariantId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateItemVariantRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:ApiToken"
+			switch err := c.securityApiToken(ctx, UpdateItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"ApiToken\"")
+			}
+		}
+		{
+			stage = "Security:Cookie"
+			switch err := c.securityCookie(ctx, UpdateItemVariantOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 1
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"Cookie\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+				{0b00000010},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateItemVariantResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

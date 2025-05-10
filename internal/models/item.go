@@ -27,7 +27,7 @@ type ItemVariant struct {
 	Name string `json:"name"`
 
 	Article *string `json:"article"`
-	EAN13   *int    `json:"ean13"`
+	EAN13   *int32  `json:"ean13"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	DeletedAt *time.Time `json:"deleted_at"`

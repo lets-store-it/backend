@@ -38,6 +38,12 @@ type Handler interface {
 	//
 	// POST /items
 	CreateItem(ctx context.Context, req *CreateItemRequest) (CreateItemRes, error)
+	// CreateItemVariant implements createItemVariant operation.
+	//
+	// Create Item Variant.
+	//
+	// POST /items/{id}/variants
+	CreateItemVariant(ctx context.Context, req *CreateItemVariantRequest, params CreateItemVariantParams) (CreateItemVariantRes, error)
 	// CreateOrganization implements createOrganization operation.
 	//
 	// Create new Organization.
@@ -85,7 +91,13 @@ type Handler interface {
 	// Delete Item.
 	//
 	// DELETE /items/{id}
-	DeleteItem(ctx context.Context, params DeleteItemParams) error
+	DeleteItem(ctx context.Context, params DeleteItemParams) (DeleteItemRes, error)
+	// DeleteItemVariant implements deleteItemVariant operation.
+	//
+	// Delete Item Variant By ID.
+	//
+	// DELETE /items/{id}/variants/{variantId}
+	DeleteItemVariant(ctx context.Context, params DeleteItemVariantParams) (DeleteItemVariantRes, error)
 	// DeleteOrganization implements deleteOrganization operation.
 	//
 	// Delete Organization.
@@ -181,7 +193,19 @@ type Handler interface {
 	// Get Item by ID.
 	//
 	// GET /items/{id}
-	GetItemById(ctx context.Context, params GetItemByIdParams) (*GetItemByIdResponse, error)
+	GetItemById(ctx context.Context, params GetItemByIdParams) (GetItemByIdRes, error)
+	// GetItemVariantById implements getItemVariantById operation.
+	//
+	// Get Item Variant By ID.
+	//
+	// GET /items/{id}/variants/{variantId}
+	GetItemVariantById(ctx context.Context, params GetItemVariantByIdParams) (GetItemVariantByIdRes, error)
+	// GetItemVariants implements getItemVariants operation.
+	//
+	// Get Item Variants.
+	//
+	// GET /items/{id}/variants
+	GetItemVariants(ctx context.Context, params GetItemVariantsParams) (GetItemVariantsRes, error)
 	// GetItems implements getItems operation.
 	//
 	// Get list of Items.
@@ -266,12 +290,6 @@ type Handler interface {
 	//
 	// PATCH /employees/{id}
 	PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error)
-	// PatchItem implements patchItem operation.
-	//
-	// Patch Item.
-	//
-	// PATCH /items/{id}
-	PatchItem(ctx context.Context, req *PatchItemRequest, params PatchItemParams) (*PatchItemResponse, error)
 	// PatchOrganizationUnit implements patchOrganizationUnit operation.
 	//
 	// Patch Organization Unit.
@@ -313,7 +331,13 @@ type Handler interface {
 	// Update Item.
 	//
 	// PUT /items/{id}
-	UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (*UpdateItemResponse, error)
+	UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (UpdateItemRes, error)
+	// UpdateItemVariant implements updateItemVariant operation.
+	//
+	// Update Item Variant By ID.
+	//
+	// PUT /items/{id}/variants/{variantId}
+	UpdateItemVariant(ctx context.Context, req *UpdateItemVariantRequest, params UpdateItemVariantParams) (UpdateItemVariantRes, error)
 	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update Organization.

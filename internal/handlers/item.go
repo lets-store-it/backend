@@ -2,41 +2,31 @@ package handlers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/usecases"
 )
 
-func convertItemVariantsToDTO(variants *[]models.ItemVariant) []api.ItemVariant {
-	if variants == nil {
-		return nil
+func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
+	var article api.NilString
+	PtrToApiNil(variant.Article, &article)
+
+	var ean13 api.NilInt32
+	PtrToApiNil(variant.EAN13, &ean13)
+
+	return api.ItemVariant{
+		ID:      variant.ID,
+		Name:    variant.Name,
+		Article: article,
+		Ean13:   ean13,
 	}
+}
 
-	dtoVariants := make([]api.ItemVariant, 0, len(*variants))
-	for _, variant := range *variants {
-		var article api.NilString
-		if variant.Article != nil {
-			article.SetTo(*variant.Article)
-		} else {
-			article.SetToNull()
-		}
-		var ean13 api.NilInt
-		if variant.EAN13 != nil {
-			ean13.SetTo(*variant.EAN13)
-		} else {
-			ean13.SetToNull()
-		}
-
-		dtoVariants = append(dtoVariants, api.ItemVariant{
-			ID:      variant.ID,
-			Name:    variant.Name,
-			Article: article,
-			Ean13:   ean13,
-		})
+func convertItemVariantsToDTO(variants []*models.ItemVariant) []api.ItemVariant {
+	dtoVariants := make([]api.ItemVariant, 0, len(variants))
+	for _, variant := range variants {
+		dtoVariants = append(dtoVariants, convertItemVariantToDTO(variant))
 	}
-
 	return dtoVariants
 }
 
@@ -47,19 +37,6 @@ func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []ap
 
 	dtoInstances := make([]api.InstanceForItem, 0, len(*itemInstances))
 	for _, instance := range *itemInstances {
-		var article api.NilString
-		if instance.Variant.Article != nil {
-			article.SetTo(*instance.Variant.Article)
-		} else {
-			article.SetToNull()
-		}
-
-		var ean13 api.NilInt
-		if instance.Variant.EAN13 != nil {
-			ean13.SetTo(*instance.Variant.EAN13)
-		} else {
-			ean13.SetToNull()
-		}
 
 		var cellPath []api.CellForInstanceCellPathItem
 		for _, pathSegment := range *instance.Cell.Path {
@@ -70,6 +47,12 @@ func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []ap
 				ObjectType: api.CellForInstanceCellPathItemObjectType(pathSegment.ObjectType),
 			})
 		}
+
+		var article api.NilString
+		PtrToApiNil(instance.Variant.Article, &article)
+
+		var ean13 api.NilInt32
+		PtrToApiNil(instance.Variant.EAN13, &ean13)
 
 		dtoInstances = append(dtoInstances, api.InstanceForItem{
 			ID:     instance.ID,
@@ -92,52 +75,35 @@ func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []ap
 	}
 	return dtoInstances
 }
-func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstance) *api.ItemFull {
-	var description api.NilString
-	if item.Description != nil {
-		description.SetTo(*item.Description)
+func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstance) api.ItemFull {
+	var variants []api.ItemVariant
+	if item.Variants != nil {
+		for _, variant := range *item.Variants {
+			variants = append(variants, convertItemVariantToDTO(&variant))
+		}
 	}
 
-	return &api.ItemFull{
+	var description api.NilString
+	PtrToApiNil(item.Description, &description)
+
+	return api.ItemFull{
 		ID:          item.ID,
 		Name:        item.Name,
 		Description: description,
-		Variants:    convertItemVariantsToDTO(item.Variants),
+		Variants:    variants,
 		Instances:   convertItemInstancesForItemToDTO(itemInstances),
 	}
 }
 
-// CreateItem implements api.Handler.
 func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateItemRequest) (api.CreateItemRes, error) {
 	var description *string
 	if val, ok := req.Description.Get(); ok {
 		description = &val
 	}
 
-	var variants []models.ItemVariant
-
-	for _, variant := range req.Variants {
-		var ean13 *int
-		if val, ok := variant.Ean13.Get(); ok {
-			ean13 = &val
-		}
-		var article *string
-		if val, ok := variant.Article.Get(); ok {
-			article = &val
-		}
-
-		variant := models.ItemVariant{
-			Name:    variant.Name,
-			Article: article,
-			EAN13:   ean13,
-		}
-		variants = append(variants, variant)
-	}
-
 	item := &models.Item{
 		Name:        req.Name,
 		Description: description,
-		Variants:    &variants,
 	}
 
 	createdItem, err := h.itemUseCase.Create(ctx, item)
@@ -146,32 +112,21 @@ func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateI
 	}
 
 	return &api.CreateItemResponse{
-		Data: *convertItemToFullDTO(createdItem, nil),
+		Data: convertItemToFullDTO(createdItem, nil),
 	}, nil
 }
 
-// DeleteItem implements api.Handler.
-func (h *RestApiImplementation) DeleteItem(ctx context.Context, params api.DeleteItemParams) error {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return err
-	}
-	return h.itemUseCase.Delete(ctx, orgID, params.ID)
-}
-
-// GetItemById implements api.Handler.
-func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetItemByIdParams) (*api.GetItemByIdResponse, error) {
+func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetItemByIdParams) (api.GetItemByIdRes, error) {
 	item, err := h.itemUseCase.GetByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.GetItemByIdResponse{
-		Data: *convertItemToFullDTO(item, item.Instances),
+		Data: convertItemToFullDTO(item, item.Instances),
 	}, nil
 }
 
-// // GetItems implements api.Handler.
 func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, error) {
 	items, err := h.itemUseCase.GetAll(ctx)
 	if err != nil {
@@ -180,37 +135,16 @@ func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, 
 
 	dtoItems := make([]api.ItemForList, 0, len(items))
 	for _, item := range items {
-		if item.Variants == nil {
-			return &api.GetItemsResponse{}, errors.New("variants are nil")
-		}
-
 		var variants []api.ItemVariant
-		for _, variant := range *item.Variants {
-			var article api.NilString
-			if variant.Article != nil {
-				article.SetTo(*variant.Article)
-			} else {
-				article.SetToNull()
+		if item.Variants != nil {
+			for _, variant := range *item.Variants {
+				variants = append(variants, convertItemVariantToDTO(&variant))
 			}
-			var ean13 api.NilInt
-			if variant.EAN13 != nil {
-				ean13.SetTo(*variant.EAN13)
-			} else {
-				ean13.SetToNull()
-			}
-
-			variants = append(variants, api.ItemVariant{
-				ID:      variant.ID,
-				Name:    variant.Name,
-				Article: article,
-				Ean13:   ean13,
-			})
 		}
 
 		var description api.NilString
-		if item.Description != nil {
-			description.SetTo(*item.Description)
-		}
+		PtrToApiNil(item.Description, &description)
+
 		dtoItems = append(dtoItems, api.ItemForList{
 			ID:          item.ID,
 			Name:        item.Name,
@@ -224,93 +158,139 @@ func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, 
 	}, nil
 }
 
-// PatchItem implements api.Handler.
-func (h *RestApiImplementation) PatchItem(ctx context.Context, req *api.PatchItemRequest, params api.PatchItemParams) (*api.PatchItemResponse, error) {
-	updates := make(map[string]interface{})
-
-	if val, ok := req.Name.Get(); ok {
-		updates["name"] = val
-	}
-	if val, ok := req.Description.Get(); ok {
-		updates["description"] = &val
-	}
-
-	// Handle variants updates
-	if req.Variants != nil {
-		variants := make([]interface{}, len(req.Variants))
-		for i, v := range req.Variants {
-			variant := make(map[string]interface{})
-			variant["id"] = v.ID
-			variant["name"] = v.Name
-			if v.Article.Set {
-				variant["article"] = &v.Article.Value
-			}
-			if v.Ean13.Set {
-				variant["ean13"] = float64(v.Ean13.Value)
-			}
-			variants[i] = variant
-		}
-		updates["variants"] = variants
-	}
-
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+func (h *RestApiImplementation) DeleteItem(ctx context.Context, params api.DeleteItemParams) (api.DeleteItemRes, error) {
+	err := h.itemUseCase.Delete(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	item, err := h.itemUseCase.Patch(ctx, orgID, params.ID, updates)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.PatchItemResponse{
-		Data: *convertItemToFullDTO(item, nil),
-	}, nil
+	return &api.DeleteItemNoContent{}, nil
 }
 
-// UpdateItem implements api.Handler.
-func (h *RestApiImplementation) UpdateItem(ctx context.Context, req *api.UpdateItemRequest, params api.UpdateItemParams) (*api.UpdateItemResponse, error) {
-	variants := make([]models.ItemVariant, 0, len(req.Variants))
-	for _, v := range req.Variants {
-		var article *string
-		if v.Article.Set {
-			article = &v.Article.Value
-		}
-		var ean13 *int
-		if v.Ean13.Set {
-			val := v.Ean13.Value
-			ean13 = &val
-		}
-		variants = append(variants, models.ItemVariant{
-			ID:      v.ID,
-			Name:    v.Name,
-			Article: article,
-			EAN13:   ean13,
-		})
-	}
+func (h *RestApiImplementation) UpdateItem(ctx context.Context, req *api.UpdateItemRequest, params api.UpdateItemParams) (api.UpdateItemRes, error) {
 
-	var description *string
-	if val, ok := req.Description.Get(); ok {
-		description = &val
-	}
-	item := &models.Item{
+	newItem := &models.Item{
 		ID:          params.ID,
 		Name:        req.Name,
-		Description: description,
-		Variants:    &variants,
+		Description: ApiValueToPtr(req.Description),
 	}
 
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	updatedItem, err := h.itemUseCase.Update(ctx, orgID, item)
+	updatedItem, err := h.itemUseCase.Update(ctx, newItem)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.UpdateItemResponse{
-		Data: *convertItemToFullDTO(updatedItem, nil),
+		Data: convertItemToFullDTO(updatedItem, nil),
 	}, nil
+}
+
+// // PatchItem implements api.Handler.
+// func (h *RestApiImplementation) PatchItem(ctx context.Context, req *api.PatchItemRequest, params api.PatchItemParams) (*api.PatchItemResponse, error) {
+// 	updates := make(map[string]interface{})
+
+// 	if val, ok := req.Name.Get(); ok {
+// 		updates["name"] = val
+// 	}
+// 	if val, ok := req.Description.Get(); ok {
+// 		updates["description"] = &val
+// 	}
+
+// 	// Handle variants updates
+// 	if req.Variants != nil {
+// 		variants := make([]interface{}, len(req.Variants))
+// 		for i, v := range req.Variants {
+// 			variant := make(map[string]interface{})
+// 			variant["id"] = v.ID
+// 			variant["name"] = v.Name
+// 			if v.Article.Set {
+// 				variant["article"] = &v.Article.Value
+// 			}
+// 			if v.Ean13.Set {
+// 				variant["ean13"] = float64(v.Ean13.Value)
+// 			}
+// 			variants[i] = variant
+// 		}
+// 		updates["variants"] = variants
+// 	}
+
+// 	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	item, err := h.itemUseCase.Patch(ctx, orgID, params.ID, updates)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &api.PatchItemResponse{
+// 		Data: *convertItemToFullDTO(item, nil),
+// 	}, nil
+// }
+
+func (h *RestApiImplementation) CreateItemVariant(ctx context.Context, req *api.CreateItemVariantRequest, params api.CreateItemVariantParams) (api.CreateItemVariantRes, error) {
+	variant := &models.ItemVariant{
+		Name:    req.Name,
+		ItemID:  params.ID,
+		Article: ApiValueToPtr(req.Article),
+		EAN13:   ApiValueToPtr(req.Ean13),
+	}
+
+	res, err := h.itemUseCase.CreateItemVariant(ctx, variant)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateItemVariantResponse{
+		Data: convertItemVariantToDTO(res),
+	}, nil
+}
+
+func (h *RestApiImplementation) GetItemVariants(ctx context.Context, params api.GetItemVariantsParams) (api.GetItemVariantsRes, error) {
+	variants, err := h.itemUseCase.GetItemVariants(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetItemVariantsResponse{
+		Data: convertItemVariantsToDTO(variants),
+	}, nil
+}
+
+func (h *RestApiImplementation) GetItemVariantById(ctx context.Context, params api.GetItemVariantByIdParams) (api.GetItemVariantByIdRes, error) {
+	variant, err := h.itemUseCase.GetItemVariantById(ctx, params.ID, params.VariantId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetItemVariantByIdResponse{
+		Data: convertItemVariantToDTO(variant),
+	}, nil
+}
+
+func (h *RestApiImplementation) UpdateItemVariant(ctx context.Context, req *api.UpdateItemVariantRequest, params api.UpdateItemVariantParams) (api.UpdateItemVariantRes, error) {
+	variant := &models.ItemVariant{
+		ID:      params.VariantId,
+		Name:    req.Name,
+		ItemID:  params.ID,
+		Article: ApiValueToPtr(req.Article),
+		EAN13:   ApiValueToPtr(req.Ean13),
+	}
+
+	updatedVariant, err := h.itemUseCase.UpdateItemVariant(ctx, variant)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateItemVariantResponse{
+		Data: convertItemVariantToDTO(updatedVariant),
+	}, nil
+}
+func (h *RestApiImplementation) DeleteItemVariant(ctx context.Context, params api.DeleteItemVariantParams) (api.DeleteItemVariantRes, error) {
+	err := h.itemUseCase.DeleteItemVariant(ctx, params.ID, params.VariantId)
+	if err != nil {
+		return nil, err
+	}
+	return &api.DeleteItemVariantNoContent{}, nil
 }

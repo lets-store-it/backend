@@ -1051,6 +1051,61 @@ func (q *Queries) GetItemInstancesForItem(ctx context.Context, arg GetItemInstan
 	return items, nil
 }
 
+const getItemVariant = `-- name: GetItemVariant :one
+
+SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL
+`
+
+type GetItemVariantParams struct {
+	OrgID  pgtype.UUID
+	ItemID pgtype.UUID
+	ID     pgtype.UUID
+}
+
+// -- name: GetActiveItemVariants :many
+// SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
+func (q *Queries) GetItemVariant(ctx context.Context, arg GetItemVariantParams) (ItemVariant, error) {
+	row := q.db.QueryRow(ctx, getItemVariant, arg.OrgID, arg.ItemID, arg.ID)
+	var i ItemVariant
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.ItemID,
+		&i.Name,
+		&i.Article,
+		&i.Ean13,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getItemVariantById = `-- name: GetItemVariantById :one
+SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL
+`
+
+type GetItemVariantByIdParams struct {
+	OrgID  pgtype.UUID
+	ItemID pgtype.UUID
+	ID     pgtype.UUID
+}
+
+func (q *Queries) GetItemVariantById(ctx context.Context, arg GetItemVariantByIdParams) (ItemVariant, error) {
+	row := q.db.QueryRow(ctx, getItemVariantById, arg.OrgID, arg.ItemID, arg.ID)
+	var i ItemVariant
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.ItemID,
+		&i.Name,
+		&i.Article,
+		&i.Ean13,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getItemVariants = `-- name: GetItemVariants :many
 
 SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
@@ -1183,16 +1238,9 @@ func (q *Queries) GetObjectType(ctx context.Context, id int32) (ObjectType, erro
 }
 
 const getObjectTypeById = `-- name: GetObjectTypeById :one
-
-
-
 SELECT id, object_group, object_name FROM object_type WHERE id = $1
 `
 
-// -- name: GetActiveItemVariants :many
-// SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
-// -- name: GetItemVariant :one
-// SELECT * FROM item_variant WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL;
 func (q *Queries) GetObjectTypeById(ctx context.Context, id int32) (ObjectType, error) {
 	row := q.db.QueryRow(ctx, getObjectTypeById, id)
 	var i ObjectType
@@ -1696,12 +1744,13 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 }
 
 const updateItemVariant = `-- name: UpdateItemVariant :one
-UPDATE item_variant SET name = $3, article = $4, ean13 = $5 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING id, org_id, item_id, name, article, ean13, created_at, deleted_at
+UPDATE item_variant SET name = $4, article = $5, ean13 = $6 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING id, org_id, item_id, name, article, ean13, created_at, deleted_at
 `
 
 type UpdateItemVariantParams struct {
 	OrgID   pgtype.UUID
 	ItemID  pgtype.UUID
+	ID      pgtype.UUID
 	Name    string
 	Article pgtype.Text
 	Ean13   pgtype.Int4
@@ -1711,6 +1760,7 @@ func (q *Queries) UpdateItemVariant(ctx context.Context, arg UpdateItemVariantPa
 	row := q.db.QueryRow(ctx, updateItemVariant,
 		arg.OrgID,
 		arg.ItemID,
+		arg.ID,
 		arg.Name,
 		arg.Article,
 		arg.Ean13,

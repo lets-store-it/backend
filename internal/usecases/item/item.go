@@ -66,8 +66,8 @@ func (uc *ItemUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Item,
 	return uc.service.GetByID(ctx, validateResult.OrgID, id)
 }
 
-func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models.Item) (*models.Item, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+func (uc *ItemUseCase) Update(ctx context.Context, item *models.Item) (*models.Item, error) {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +79,90 @@ func (uc *ItemUseCase) Update(ctx context.Context, orgId uuid.UUID, item *models
 	return uc.service.Update(ctx, validateResult.OrgID, item)
 }
 
-func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID, updates map[string]interface{}) (*models.Item, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+// func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID, updates map[string]interface{}) (*models.Item, error) {
+// 	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	if !validateResult.HasAccess {
+// 		return nil, usecases.ErrNotAuthorized
+// 	}
+
+// 	// Get the existing item first
+// 	item, err := uc.service.GetByID(ctx, validateResult.OrgID, id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// Apply updates
+// 	if name, ok := updates["name"].(string); ok {
+// 		item.Name = name
+// 	}
+// 	if description, ok := updates["description"].(*string); ok {
+// 		item.Description = description
+// 	}
+
+// 	// Handle variants update
+// 	if variants, ok := updates["variants"].([]interface{}); ok {
+// 		// Create a map of existing variants for quick lookup
+// 		existingVariants := make(map[uuid.UUID]bool)
+// 		if item.Variants != nil {
+// 			for _, v := range *item.Variants {
+// 				existingVariants[v.ID] = true
+// 			}
+// 		}
+
+// 		// Process new/updated variants
+// 		newVariants := make([]models.ItemVariant, 0, len(variants))
+// 		for _, v := range variants {
+// 			variant, ok := v.(map[string]interface{})
+// 			if !ok {
+// 				continue
+// 			}
+
+// 			var variantID uuid.UUID
+// 			if id, ok := variant["id"].(string); ok {
+// 				variantID, err = uuid.Parse(id)
+// 				if err != nil {
+// 					continue
+// 				}
+// 			} else {
+// 				variantID = uuid.New() // Generate new ID for new variants
+// 			}
+
+// 			name, _ := variant["name"].(string)
+// 			article, _ := variant["article"].(*string)
+// 			var ean13 *int
+// 			if e, ok := variant["ean13"].(float64); ok {
+// 				e64 := int(e)
+// 				ean13 = &e64
+// 			}
+
+// 			newVariant := models.ItemVariant{
+// 				ID:      variantID,
+// 				ItemID:  item.ID,
+// 				Name:    name,
+// 				Article: article,
+// 				EAN13:   ean13,
+// 			}
+// 			newVariants = append(newVariants, newVariant)
+// 			delete(existingVariants, variantID) // Remove from map to track which ones to delete
+// 		}
+
+// 		// If variants array is provided (even if empty), update the item's variants
+// 		item.Variants = &newVariants
+
+// 		// Any remaining variants in the map should be marked for deletion
+// 		// The service layer should handle the deletion of variants not present in the update
+// 	}
+
+// 	// Update the item
+// 	return uc.service.Update(ctx, validateResult.OrgID, item)
+// }
+
+func (uc *ItemUseCase) GetItemVariants(ctx context.Context, id uuid.UUID) ([]*models.ItemVariant, error) {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
 	if err != nil {
 		return nil, err
 	}
@@ -89,78 +171,70 @@ func (uc *ItemUseCase) Patch(ctx context.Context, orgId uuid.UUID, id uuid.UUID,
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	// Get the existing item first
-	item, err := uc.service.GetByID(ctx, validateResult.OrgID, id)
+	return uc.service.GetItemVariants(ctx, validateResult.OrgID, id)
+}
+
+func (uc *ItemUseCase) GetItemVariantById(ctx context.Context, id uuid.UUID, variantId uuid.UUID) (*models.ItemVariant, error) {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
 	if err != nil {
 		return nil, err
 	}
 
-	// Apply updates
-	if name, ok := updates["name"].(string); ok {
-		item.Name = name
-	}
-	if description, ok := updates["description"].(*string); ok {
-		item.Description = description
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
 	}
 
-	// Handle variants update
-	if variants, ok := updates["variants"].([]interface{}); ok {
-		// Create a map of existing variants for quick lookup
-		existingVariants := make(map[uuid.UUID]bool)
-		if item.Variants != nil {
-			for _, v := range *item.Variants {
-				existingVariants[v.ID] = true
-			}
-		}
-
-		// Process new/updated variants
-		newVariants := make([]models.ItemVariant, 0, len(variants))
-		for _, v := range variants {
-			variant, ok := v.(map[string]interface{})
-			if !ok {
-				continue
-			}
-
-			var variantID uuid.UUID
-			if id, ok := variant["id"].(string); ok {
-				variantID, err = uuid.Parse(id)
-				if err != nil {
-					continue
-				}
-			} else {
-				variantID = uuid.New() // Generate new ID for new variants
-			}
-
-			name, _ := variant["name"].(string)
-			article, _ := variant["article"].(*string)
-			var ean13 *int
-			if e, ok := variant["ean13"].(float64); ok {
-				e64 := int(e)
-				ean13 = &e64
-			}
-
-			newVariant := models.ItemVariant{
-				ID:      variantID,
-				ItemID:  item.ID,
-				Name:    name,
-				Article: article,
-				EAN13:   ean13,
-			}
-			newVariants = append(newVariants, newVariant)
-			delete(existingVariants, variantID) // Remove from map to track which ones to delete
-		}
-
-		// If variants array is provided (even if empty), update the item's variants
-		item.Variants = &newVariants
-
-		// Any remaining variants in the map should be marked for deletion
-		// The service layer should handle the deletion of variants not present in the update
-	}
-
-	// Update the item
-	return uc.service.Update(ctx, validateResult.OrgID, item)
+	return uc.service.GetItemVariantById(ctx, validateResult.OrgID, id, variantId)
 }
 
-func (uc *ItemUseCase) Delete(ctx context.Context, orgId uuid.UUID, id uuid.UUID) error {
-	return uc.service.Delete(ctx, orgId, id)
+func (uc *ItemUseCase) UpdateItemVariant(ctx context.Context, variant *models.ItemVariant) (*models.ItemVariant, error) {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.UpdateItemVariant(ctx, validateResult.OrgID, variant)
+}
+
+func (uc *ItemUseCase) CreateItemVariant(ctx context.Context, variant *models.ItemVariant) (*models.ItemVariant, error) {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.CreateItemVariant(ctx, validateResult.OrgID, variant)
+}
+
+func (uc *ItemUseCase) DeleteItemVariant(ctx context.Context, id uuid.UUID, variantId uuid.UUID) error {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	if err != nil {
+		return err
+	}
+
+	if !validateResult.HasAccess {
+		return usecases.ErrNotAuthorized
+	}
+
+	return uc.service.DeleteItemVariant(ctx, validateResult.OrgID, id, variantId)
+}
+
+func (uc *ItemUseCase) Delete(ctx context.Context, id uuid.UUID) error {
+	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	if err != nil {
+		return err
+	}
+
+	if !validateResult.HasAccess {
+		return usecases.ErrNotAuthorized
+	}
+
+	return uc.service.Delete(ctx, validateResult.OrgID, id)
 }

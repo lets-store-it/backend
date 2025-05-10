@@ -207,29 +207,16 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
-
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, false)
+	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if !valRes.HasAccess {
-		return nil, usecases.ErrNotAuthorized
-	}
-
-	userId := *valRes.UserID
-	orgID := valRes.OrgID
-
 	user, err := uc.authService.GetUserByEmail(ctx, email)
-
 	if err != nil {
 		if errors.Is(err, services.ErrUserNotFound) {
-			return nil, usecases.ErrDetailedValidationErrorWithMessage("user not found")
+			return nil, errors.Join(usecases.ErrDetailedValidationErrorWithMessage("user not found"))
 		}
 		return nil, err
-	}
-
-	if userId == user.ID {
-		return nil, usecases.ErrDetailedValidationErrorWithMessage("cannot invite yourself")
 	}
 
 	err = uc.authService.SetUserRole(ctx, orgID, user.ID, models.RoleID(roleID))

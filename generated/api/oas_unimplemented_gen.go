@@ -58,6 +58,15 @@ func (UnimplementedHandler) CreateItem(ctx context.Context, req *CreateItemReque
 	return r, ht.ErrNotImplemented
 }
 
+// CreateItemVariant implements createItemVariant operation.
+//
+// Create Item Variant.
+//
+// POST /items/{id}/variants
+func (UnimplementedHandler) CreateItemVariant(ctx context.Context, req *CreateItemVariantRequest, params CreateItemVariantParams) (r CreateItemVariantRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateOrganization implements createOrganization operation.
 //
 // Create new Organization.
@@ -126,8 +135,17 @@ func (UnimplementedHandler) DeleteInstanceById(ctx context.Context, params Delet
 // Delete Item.
 //
 // DELETE /items/{id}
-func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemParams) (r DeleteItemRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteItemVariant implements deleteItemVariant operation.
+//
+// Delete Item Variant By ID.
+//
+// DELETE /items/{id}/variants/{variantId}
+func (UnimplementedHandler) DeleteItemVariant(ctx context.Context, params DeleteItemVariantParams) (r DeleteItemVariantRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // DeleteOrganization implements deleteOrganization operation.
@@ -270,7 +288,25 @@ func (UnimplementedHandler) GetInstancesByItemId(ctx context.Context, params Get
 // Get Item by ID.
 //
 // GET /items/{id}
-func (UnimplementedHandler) GetItemById(ctx context.Context, params GetItemByIdParams) (r *GetItemByIdResponse, _ error) {
+func (UnimplementedHandler) GetItemById(ctx context.Context, params GetItemByIdParams) (r GetItemByIdRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetItemVariantById implements getItemVariantById operation.
+//
+// Get Item Variant By ID.
+//
+// GET /items/{id}/variants/{variantId}
+func (UnimplementedHandler) GetItemVariantById(ctx context.Context, params GetItemVariantByIdParams) (r GetItemVariantByIdRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetItemVariants implements getItemVariants operation.
+//
+// Get Item Variants.
+//
+// GET /items/{id}/variants
+func (UnimplementedHandler) GetItemVariants(ctx context.Context, params GetItemVariantsParams) (r GetItemVariantsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -400,15 +436,6 @@ func (UnimplementedHandler) PatchEmployeeById(ctx context.Context, req *PatchEmp
 	return r, ht.ErrNotImplemented
 }
 
-// PatchItem implements patchItem operation.
-//
-// Patch Item.
-//
-// PATCH /items/{id}
-func (UnimplementedHandler) PatchItem(ctx context.Context, req *PatchItemRequest, params PatchItemParams) (r *PatchItemResponse, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // PatchOrganizationUnit implements patchOrganizationUnit operation.
 //
 // Patch Organization Unit.
@@ -468,7 +495,16 @@ func (UnimplementedHandler) UpdateCellsGroup(ctx context.Context, req *UpdateCel
 // Update Item.
 //
 // PUT /items/{id}
-func (UnimplementedHandler) UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (r *UpdateItemResponse, _ error) {
+func (UnimplementedHandler) UpdateItem(ctx context.Context, req *UpdateItemRequest, params UpdateItemParams) (r UpdateItemRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateItemVariant implements updateItemVariant operation.
+//
+// Update Item Variant By ID.
+//
+// PUT /items/{id}/variants/{variantId}
+func (UnimplementedHandler) UpdateItemVariant(ctx context.Context, req *UpdateItemVariantRequest, params UpdateItemVariantParams) (r UpdateItemVariantRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

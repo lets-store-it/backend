@@ -9,6 +9,7 @@ properties:
     example: 123456789012
   ean13:
     type: integer
+    format: int32
     nullable: true
     example: 1234567890123
 required:

@@ -590,45 +590,124 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								s.handleGetItemByIdRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
-							case "PATCH":
-								s.handlePatchItemRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
 							case "PUT":
 								s.handleUpdateItemRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+								s.notAllowed(w, r, "DELETE,GET,PUT")
 							}
 
 							return
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/instances"
+						case '/': // Prefix: "/"
 
-							if l := len("/instances"); len(elem) >= l && elem[0:l] == "/instances" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleGetInstancesByItemIdRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								case "POST":
-									s.handleCreateInstanceForItemRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET,POST")
+								break
+							}
+							switch elem[0] {
+							case 'i': // Prefix: "instances"
+
+								if l := len("instances"); len(elem) >= l && elem[0:l] == "instances" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleGetInstancesByItemIdRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleCreateInstanceForItemRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,POST")
+									}
+
+									return
+								}
+
+							case 'v': // Prefix: "variants"
+
+								if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch r.Method {
+									case "GET":
+										s.handleGetItemVariantsRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleCreateItemVariantRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,POST")
+									}
+
+									return
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "variantId"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "DELETE":
+											s.handleDeleteItemVariantRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										case "GET":
+											s.handleGetItemVariantByIdRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										case "PUT":
+											s.handleUpdateItemVariantRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "DELETE,GET,PUT")
+										}
+
+										return
+									}
+
+								}
+
 							}
 
 						}
@@ -1588,14 +1667,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.args = args
 								r.count = 1
 								return r, true
-							case "PATCH":
-								r.name = PatchItemOperation
-								r.summary = "Patch Item"
-								r.operationID = "patchItem"
-								r.pathPattern = "/items/{id}"
-								r.args = args
-								r.count = 1
-								return r, true
 							case "PUT":
 								r.name = UpdateItemOperation
 								r.summary = "Update Item"
@@ -1609,36 +1680,132 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/instances"
+						case '/': // Prefix: "/"
 
-							if l := len("/instances"); len(elem) >= l && elem[0:l] == "/instances" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = GetInstancesByItemIdOperation
-									r.summary = "Get list of Instances For Item"
-									r.operationID = "getInstancesByItemId"
-									r.pathPattern = "/items/{itemId}/instances"
-									r.args = args
-									r.count = 1
-									return r, true
-								case "POST":
-									r.name = CreateInstanceForItemOperation
-									r.summary = "Create Instance For Item"
-									r.operationID = "createInstanceForItem"
-									r.pathPattern = "/items/{itemId}/instances"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'i': // Prefix: "instances"
+
+								if l := len("instances"); len(elem) >= l && elem[0:l] == "instances" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = GetInstancesByItemIdOperation
+										r.summary = "Get list of Instances For Item"
+										r.operationID = "getInstancesByItemId"
+										r.pathPattern = "/items/{itemId}/instances"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = CreateInstanceForItemOperation
+										r.summary = "Create Instance For Item"
+										r.operationID = "createInstanceForItem"
+										r.pathPattern = "/items/{itemId}/instances"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'v': // Prefix: "variants"
+
+								if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										r.name = GetItemVariantsOperation
+										r.summary = "Get Item Variants"
+										r.operationID = "getItemVariants"
+										r.pathPattern = "/items/{id}/variants"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = CreateItemVariantOperation
+										r.summary = "Create Item Variant"
+										r.operationID = "createItemVariant"
+										r.pathPattern = "/items/{id}/variants"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "variantId"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "DELETE":
+											r.name = DeleteItemVariantOperation
+											r.summary = "Delete Item Variant By ID"
+											r.operationID = "deleteItemVariant"
+											r.pathPattern = "/items/{id}/variants/{variantId}"
+											r.args = args
+											r.count = 2
+											return r, true
+										case "GET":
+											r.name = GetItemVariantByIdOperation
+											r.summary = "Get Item Variant By ID"
+											r.operationID = "getItemVariantById"
+											r.pathPattern = "/items/{id}/variants/{variantId}"
+											r.args = args
+											r.count = 2
+											return r, true
+										case "PUT":
+											r.name = UpdateItemVariantOperation
+											r.summary = "Update Item Variant By ID"
+											r.operationID = "updateItemVariant"
+											r.pathPattern = "/items/{id}/variants/{variantId}"
+											r.args = args
+											r.count = 2
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
 							}
 
 						}

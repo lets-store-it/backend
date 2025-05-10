@@ -951,6 +951,68 @@ type CreateItemUnauthorized ErrorContent
 
 func (*CreateItemUnauthorized) createItemRes() {}
 
+type CreateItemVariantForbidden ErrorContent
+
+func (*CreateItemVariantForbidden) createItemVariantRes() {}
+
+// Ref: #/components/schemas/CreateItemVariantRequest
+type CreateItemVariantRequest struct {
+	Name    string       `json:"name"`
+	Article OptNilString `json:"article"`
+	Ean13   OptNilInt32  `json:"ean13"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateItemVariantRequest) GetName() string {
+	return s.Name
+}
+
+// GetArticle returns the value of Article.
+func (s *CreateItemVariantRequest) GetArticle() OptNilString {
+	return s.Article
+}
+
+// GetEan13 returns the value of Ean13.
+func (s *CreateItemVariantRequest) GetEan13() OptNilInt32 {
+	return s.Ean13
+}
+
+// SetName sets the value of Name.
+func (s *CreateItemVariantRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetArticle sets the value of Article.
+func (s *CreateItemVariantRequest) SetArticle(val OptNilString) {
+	s.Article = val
+}
+
+// SetEan13 sets the value of Ean13.
+func (s *CreateItemVariantRequest) SetEan13(val OptNilInt32) {
+	s.Ean13 = val
+}
+
+// Ref: #/components/schemas/CreateItemVariantResponse
+type CreateItemVariantResponse struct {
+	Data ItemVariant `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateItemVariantResponse) GetData() ItemVariant {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateItemVariantResponse) SetData(val ItemVariant) {
+	s.Data = val
+}
+
+func (*CreateItemVariantResponse) createItemVariantRes() {}
+
+type CreateItemVariantUnauthorized ErrorContent
+
+func (*CreateItemVariantUnauthorized) createItemVariantRes() {}
+
 type CreateOrganizationConflict ErrorContent
 
 func (*CreateOrganizationConflict) createOrganizationRes() {}
@@ -1205,8 +1267,31 @@ type DeleteInstanceByIdUnauthorized ErrorContent
 
 func (*DeleteInstanceByIdUnauthorized) deleteInstanceByIdRes() {}
 
+type DeleteItemForbidden ErrorContent
+
+func (*DeleteItemForbidden) deleteItemRes() {}
+
 // DeleteItemNoContent is response for DeleteItem operation.
 type DeleteItemNoContent struct{}
+
+func (*DeleteItemNoContent) deleteItemRes() {}
+
+type DeleteItemUnauthorized ErrorContent
+
+func (*DeleteItemUnauthorized) deleteItemRes() {}
+
+type DeleteItemVariantForbidden ErrorContent
+
+func (*DeleteItemVariantForbidden) deleteItemVariantRes() {}
+
+// DeleteItemVariantNoContent is response for DeleteItemVariant operation.
+type DeleteItemVariantNoContent struct{}
+
+func (*DeleteItemVariantNoContent) deleteItemVariantRes() {}
+
+type DeleteItemVariantUnauthorized ErrorContent
+
+func (*DeleteItemVariantUnauthorized) deleteItemVariantRes() {}
 
 type DeleteOrganizationForbidden ErrorContent
 
@@ -1339,6 +1424,7 @@ func (*ErrorContent) getRolesRes()                  {}
 func (*ErrorContent) logoutRes()                    {}
 func (*ErrorContent) patchCurrentUserRes()          {}
 func (*ErrorContent) putCurrentUserRes()            {}
+func (*ErrorContent) updateItemRes()                {}
 
 type ErrorContentError struct {
 	Code    string `json:"code"`
@@ -1824,6 +1910,10 @@ type GetInstancesUnauthorized ErrorContent
 
 func (*GetInstancesUnauthorized) getInstancesRes() {}
 
+type GetItemByIdForbidden ErrorContent
+
+func (*GetItemByIdForbidden) getItemByIdRes() {}
+
 // Ref: #/components/schemas/GetItemByIdResponse
 type GetItemByIdResponse struct {
 	Data ItemFull `json:"data"`
@@ -1838,6 +1928,62 @@ func (s *GetItemByIdResponse) GetData() ItemFull {
 func (s *GetItemByIdResponse) SetData(val ItemFull) {
 	s.Data = val
 }
+
+func (*GetItemByIdResponse) getItemByIdRes() {}
+
+type GetItemByIdUnauthorized ErrorContent
+
+func (*GetItemByIdUnauthorized) getItemByIdRes() {}
+
+type GetItemVariantByIdForbidden ErrorContent
+
+func (*GetItemVariantByIdForbidden) getItemVariantByIdRes() {}
+
+// Ref: #/components/schemas/GetItemVariantByIdResponse
+type GetItemVariantByIdResponse struct {
+	Data ItemVariant `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetItemVariantByIdResponse) GetData() ItemVariant {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetItemVariantByIdResponse) SetData(val ItemVariant) {
+	s.Data = val
+}
+
+func (*GetItemVariantByIdResponse) getItemVariantByIdRes() {}
+
+type GetItemVariantByIdUnauthorized ErrorContent
+
+func (*GetItemVariantByIdUnauthorized) getItemVariantByIdRes() {}
+
+type GetItemVariantsForbidden ErrorContent
+
+func (*GetItemVariantsForbidden) getItemVariantsRes() {}
+
+// Ref: #/components/schemas/GetItemVariantsResponse
+type GetItemVariantsResponse struct {
+	Data []ItemVariant `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetItemVariantsResponse) GetData() []ItemVariant {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetItemVariantsResponse) SetData(val []ItemVariant) {
+	s.Data = val
+}
+
+func (*GetItemVariantsResponse) getItemVariantsRes() {}
+
+type GetItemVariantsUnauthorized ErrorContent
+
+func (*GetItemVariantsUnauthorized) getItemVariantsRes() {}
 
 type GetItemsForbidden ErrorContent
 
@@ -2421,7 +2567,7 @@ type ItemVariant struct {
 	// Merged property.
 	Article NilString `json:"article"`
 	// Merged property.
-	Ean13 NilInt `json:"ean13"`
+	Ean13 NilInt32 `json:"ean13"`
 }
 
 // GetID returns the value of ID.
@@ -2440,7 +2586,7 @@ func (s *ItemVariant) GetArticle() NilString {
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *ItemVariant) GetEan13() NilInt {
+func (s *ItemVariant) GetEan13() NilInt32 {
 	return s.Ean13
 }
 
@@ -2460,104 +2606,7 @@ func (s *ItemVariant) SetArticle(val NilString) {
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *ItemVariant) SetEan13(val NilInt) {
-	s.Ean13 = val
-}
-
-// Merged schema.
-// Ref: #/components/schemas/ItemVariantEdit
-type ItemVariantEdit struct {
-	ID      uuid.UUID    `json:"id"`
-	Name    string       `json:"name"`
-	Article OptNilString `json:"article"`
-	Ean13   OptNilInt    `json:"ean13"`
-}
-
-// GetID returns the value of ID.
-func (s *ItemVariantEdit) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *ItemVariantEdit) GetName() string {
-	return s.Name
-}
-
-// GetArticle returns the value of Article.
-func (s *ItemVariantEdit) GetArticle() OptNilString {
-	return s.Article
-}
-
-// GetEan13 returns the value of Ean13.
-func (s *ItemVariantEdit) GetEan13() OptNilInt {
-	return s.Ean13
-}
-
-// SetID sets the value of ID.
-func (s *ItemVariantEdit) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *ItemVariantEdit) SetName(val string) {
-	s.Name = val
-}
-
-// SetArticle sets the value of Article.
-func (s *ItemVariantEdit) SetArticle(val OptNilString) {
-	s.Article = val
-}
-
-// SetEan13 sets the value of Ean13.
-func (s *ItemVariantEdit) SetEan13(val OptNilInt) {
-	s.Ean13 = val
-}
-
-// Ref: #/components/schemas/ItemVariantPatchInItem
-type ItemVariantPatchInItem struct {
-	ID      OptUUID      `json:"id"`
-	Name    OptString    `json:"name"`
-	Article OptNilString `json:"article"`
-	Ean13   OptNilInt    `json:"ean13"`
-}
-
-// GetID returns the value of ID.
-func (s *ItemVariantPatchInItem) GetID() OptUUID {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *ItemVariantPatchInItem) GetName() OptString {
-	return s.Name
-}
-
-// GetArticle returns the value of Article.
-func (s *ItemVariantPatchInItem) GetArticle() OptNilString {
-	return s.Article
-}
-
-// GetEan13 returns the value of Ean13.
-func (s *ItemVariantPatchInItem) GetEan13() OptNilInt {
-	return s.Ean13
-}
-
-// SetID sets the value of ID.
-func (s *ItemVariantPatchInItem) SetID(val OptUUID) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *ItemVariantPatchInItem) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetArticle sets the value of Article.
-func (s *ItemVariantPatchInItem) SetArticle(val OptNilString) {
-	s.Article = val
-}
-
-// SetEan13 sets the value of Ean13.
-func (s *ItemVariantPatchInItem) SetEan13(val OptNilInt) {
+func (s *ItemVariant) SetEan13(val NilInt32) {
 	s.Ean13 = val
 }
 
@@ -2668,37 +2717,37 @@ func (o NilAuditLogPrechangeState) Or(d AuditLogPrechangeState) AuditLogPrechang
 	return d
 }
 
-// NewNilInt returns new NilInt with value set to v.
-func NewNilInt(v int) NilInt {
-	return NilInt{
+// NewNilInt32 returns new NilInt32 with value set to v.
+func NewNilInt32(v int32) NilInt32 {
+	return NilInt32{
 		Value: v,
 	}
 }
 
-// NilInt is nullable int.
-type NilInt struct {
-	Value int
+// NilInt32 is nullable int32.
+type NilInt32 struct {
+	Value int32
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilInt) SetTo(v int) {
+func (o *NilInt32) SetTo(v int32) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilInt) IsNull() bool { return o.Null }
+func (o NilInt32) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilInt) SetToNull() {
+func (o *NilInt32) SetToNull() {
 	o.Null = true
-	var v int
+	var v int32
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilInt) Get() (v int, ok bool) {
+func (o NilInt32) Get() (v int32, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -2706,7 +2755,7 @@ func (o NilInt) Get() (v int, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilInt) Or(d int) int {
+func (o NilInt32) Or(d int32) int32 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -2895,52 +2944,52 @@ func (o OptItem) Or(d Item) Item {
 	return d
 }
 
-// NewOptNilInt returns new OptNilInt with value set to v.
-func NewOptNilInt(v int) OptNilInt {
-	return OptNilInt{
+// NewOptNilInt32 returns new OptNilInt32 with value set to v.
+func NewOptNilInt32(v int32) OptNilInt32 {
+	return OptNilInt32{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptNilInt is optional nullable int.
-type OptNilInt struct {
-	Value int
+// OptNilInt32 is optional nullable int32.
+type OptNilInt32 struct {
+	Value int32
 	Set   bool
 	Null  bool
 }
 
-// IsSet returns true if OptNilInt was set.
-func (o OptNilInt) IsSet() bool { return o.Set }
+// IsSet returns true if OptNilInt32 was set.
+func (o OptNilInt32) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptNilInt) Reset() {
-	var v int
+func (o *OptNilInt32) Reset() {
+	var v int32
 	o.Value = v
 	o.Set = false
 	o.Null = false
 }
 
 // SetTo sets value to v.
-func (o *OptNilInt) SetTo(v int) {
+func (o *OptNilInt32) SetTo(v int32) {
 	o.Set = true
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o OptNilInt) IsNull() bool { return o.Null }
+func (o OptNilInt32) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *OptNilInt) SetToNull() {
+func (o *OptNilInt32) SetToNull() {
 	o.Set = true
 	o.Null = true
-	var v int
+	var v int32
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptNilInt) Get() (v int, ok bool) {
+func (o OptNilInt32) Get() (v int32, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -2951,7 +3000,7 @@ func (o OptNilInt) Get() (v int, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptNilInt) Or(d int) int {
+func (o OptNilInt32) Or(d int32) int32 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3475,58 +3524,6 @@ func (s *PatchEmployeeRequest) SetUserId(val uuid.UUID) {
 // SetRoleId sets the value of RoleId.
 func (s *PatchEmployeeRequest) SetRoleId(val OptInt) {
 	s.RoleId = val
-}
-
-// Ref: #/components/schemas/PatchItemRequest
-type PatchItemRequest struct {
-	Name        OptString                `json:"name"`
-	Description OptNilString             `json:"description"`
-	Variants    []ItemVariantPatchInItem `json:"variants"`
-}
-
-// GetName returns the value of Name.
-func (s *PatchItemRequest) GetName() OptString {
-	return s.Name
-}
-
-// GetDescription returns the value of Description.
-func (s *PatchItemRequest) GetDescription() OptNilString {
-	return s.Description
-}
-
-// GetVariants returns the value of Variants.
-func (s *PatchItemRequest) GetVariants() []ItemVariantPatchInItem {
-	return s.Variants
-}
-
-// SetName sets the value of Name.
-func (s *PatchItemRequest) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetDescription sets the value of Description.
-func (s *PatchItemRequest) SetDescription(val OptNilString) {
-	s.Description = val
-}
-
-// SetVariants sets the value of Variants.
-func (s *PatchItemRequest) SetVariants(val []ItemVariantPatchInItem) {
-	s.Variants = val
-}
-
-// Ref: #/components/schemas/PatchItemResponse
-type PatchItemResponse struct {
-	Data ItemFull `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchItemResponse) GetData() ItemFull {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchItemResponse) SetData(val ItemFull) {
-	s.Data = val
 }
 
 type PatchOrganizationUnitForbidden ErrorContent
@@ -4072,13 +4069,11 @@ func (s *UpdateCurrentUserRequest) SetMiddleName(val NilString) {
 	s.MiddleName = val
 }
 
-// Merged schema.
 // Ref: #/components/schemas/UpdateItemRequest
 type UpdateItemRequest struct {
-	ID          OptUUID           `json:"id"`
-	Name        string            `json:"name"`
-	Description OptNilString      `json:"description"`
-	Variants    []ItemVariantEdit `json:"variants"`
+	ID          OptUUID      `json:"id"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
 }
 
 // GetID returns the value of ID.
@@ -4096,11 +4091,6 @@ func (s *UpdateItemRequest) GetDescription() OptNilString {
 	return s.Description
 }
 
-// GetVariants returns the value of Variants.
-func (s *UpdateItemRequest) GetVariants() []ItemVariantEdit {
-	return s.Variants
-}
-
 // SetID sets the value of ID.
 func (s *UpdateItemRequest) SetID(val OptUUID) {
 	s.ID = val
@@ -4114,11 +4104,6 @@ func (s *UpdateItemRequest) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *UpdateItemRequest) SetDescription(val OptNilString) {
 	s.Description = val
-}
-
-// SetVariants sets the value of Variants.
-func (s *UpdateItemRequest) SetVariants(val []ItemVariantEdit) {
-	s.Variants = val
 }
 
 // Ref: #/components/schemas/UpdateItemResponse
@@ -4135,6 +4120,70 @@ func (s *UpdateItemResponse) GetData() ItemFull {
 func (s *UpdateItemResponse) SetData(val ItemFull) {
 	s.Data = val
 }
+
+func (*UpdateItemResponse) updateItemRes() {}
+
+type UpdateItemVariantForbidden ErrorContent
+
+func (*UpdateItemVariantForbidden) updateItemVariantRes() {}
+
+// Ref: #/components/schemas/UpdateItemVariantRequest
+type UpdateItemVariantRequest struct {
+	Name    string       `json:"name"`
+	Article OptNilString `json:"article"`
+	Ean13   OptNilInt32  `json:"ean13"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateItemVariantRequest) GetName() string {
+	return s.Name
+}
+
+// GetArticle returns the value of Article.
+func (s *UpdateItemVariantRequest) GetArticle() OptNilString {
+	return s.Article
+}
+
+// GetEan13 returns the value of Ean13.
+func (s *UpdateItemVariantRequest) GetEan13() OptNilInt32 {
+	return s.Ean13
+}
+
+// SetName sets the value of Name.
+func (s *UpdateItemVariantRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetArticle sets the value of Article.
+func (s *UpdateItemVariantRequest) SetArticle(val OptNilString) {
+	s.Article = val
+}
+
+// SetEan13 sets the value of Ean13.
+func (s *UpdateItemVariantRequest) SetEan13(val OptNilInt32) {
+	s.Ean13 = val
+}
+
+// Ref: #/components/schemas/UpdateItemVariantResponse
+type UpdateItemVariantResponse struct {
+	Data ItemVariant `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UpdateItemVariantResponse) GetData() ItemVariant {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UpdateItemVariantResponse) SetData(val ItemVariant) {
+	s.Data = val
+}
+
+func (*UpdateItemVariantResponse) updateItemVariantRes() {}
+
+type UpdateItemVariantUnauthorized ErrorContent
+
+func (*UpdateItemVariantUnauthorized) updateItemVariantRes() {}
 
 type UpdateOrganizationForbidden ErrorContent
 

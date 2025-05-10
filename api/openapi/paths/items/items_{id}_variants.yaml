@@ -1,0 +1,50 @@
+parameters:
+  - name: id
+    in: path
+    description: Item ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - item
+  summary: Get Item Variants
+  operationId: getItemVariants
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/GetItemVariantsResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - item
+  summary: Create Item Variant
+  operationId: createItemVariant
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/items/CreateItemVariantRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/CreateItemVariantResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
