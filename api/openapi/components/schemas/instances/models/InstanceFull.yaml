@@ -13,7 +13,7 @@ properties:
       - consumed
   item:
     type: object
-    $ref: ../../items/models/Item.yaml
+    $ref: ../../items/models/ItemForList.yaml
   # affectedByOperationId:
   #   type: string
   #   format: uuid
@@ -27,3 +27,4 @@ required:
   - status
   - variant
   - cell
+  - item

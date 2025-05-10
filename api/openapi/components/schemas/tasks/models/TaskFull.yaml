@@ -5,23 +5,6 @@ allOf:
       instances:
         type: array
         items:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-              readOnly: true
-            instance:
-              $ref: ../../instances/models/InstanceFull.yaml
-            sourceCell:
-              $ref: ../../cells-groups/models/CellForInstance.yaml
-            targetCell:
-              nullable: true
-              $ref: ../../cells-groups/models/CellForInstance.yaml
-          required:
-            - sourceCell
-            - targetCell
-            - instance
-            - id
+          $ref: ../../tasks/models/TaskItem.yaml
     required:
       - instances

@@ -1067,6 +1067,49 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
+  /tasks:
+    get:
+      tags:
+        - tasks
+      summary: Get all tasks for organization
+      operationId: getTasks
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTasksResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - tasks
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
   /employees:
     get:
       summary: Get employees of the organization
@@ -1864,13 +1907,13 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ItemVariant'
-            instances:
+            items:
               type: array
               items:
                 $ref: '#/components/schemas/InstanceForItem'
           required:
             - variants
-            - instances
+            - items
     CreateItemResponse:
       type: object
       allOf:
@@ -1959,7 +2002,7 @@ components:
             - consumed
         item:
           type: object
-          $ref: '#/components/schemas/Item'
+          $ref: '#/components/schemas/ItemForList'
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:
@@ -1970,6 +2013,7 @@ components:
         - status
         - variant
         - cell
+        - item
     GetInstancesResponse:
       type: object
       properties:
@@ -2153,6 +2197,148 @@ components:
         - middleName
         - email
         - role
+    TaskBase:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - pick
+            - movement
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - awaiting_to_collect
+            - completed
+            - failed
+        createdAt:
+          type: string
+          format: date-time
+        unit:
+          type: object
+          $ref: '#/components/schemas/Unit'
+        assignedTo:
+          type: object
+          nullable: true
+          $ref: '#/components/schemas/Employee'
+        assignedAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - status
+        - unit
+        - name
+        - type
+        - createdAt
+        - description
+        - assignedTo
+        - assignedAt
+        - completedAt
+    GetTasksResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskBase'
+      required:
+        - data
+    TaskCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - pick
+            - movement
+        unitId:
+          type: string
+          format: uuid
+        assignedTo:
+          type: string
+          nullable: true
+          format: uuid
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              instanceId:
+                type: string
+                format: uuid
+              targetCellId:
+                type: string
+                format: uuid
+            required:
+              - instanceId
+      required:
+        - name
+        - type
+        - unitId
+        - instances
+    CreateTaskRequest:
+      allOf:
+        - $ref: '#/components/schemas/TaskCreate'
+    TaskItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        instance:
+          $ref: '#/components/schemas/InstanceFull'
+        sourceCell:
+          $ref: '#/components/schemas/CellForInstance'
+        targetCell:
+          nullable: true
+          $ref: '#/components/schemas/CellForInstance'
+      required:
+        - sourceCell
+        - targetCell
+        - instance
+        - id
+    TaskFull:
+      allOf:
+        - $ref: '#/components/schemas/TaskBase'
+        - type: object
+          properties:
+            instances:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskItem'
+          required:
+            - instances
+    CreateTaskResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/TaskFull'
+      required:
+        - data
     GetEmployeesResponse:
       allOf:
         - type: object

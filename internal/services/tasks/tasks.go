@@ -4,42 +4,175 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
+	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/item"
+	"github.com/let-store-it/backend/internal/services/organization"
+	"github.com/let-store-it/backend/internal/services/storage"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type TaskService struct {
-	queries *database.Queries
-	pgxpool *pgxpool.Pool
+	queries        *sqlc.Queries
+	pgxpool        *pgxpool.Pool
+	tracer         trace.Tracer
+	auth           *auth.AuthService
+	org            *organization.OrganizationService
+	storageService *storage.StorageService
+	item           *item.ItemService
 }
 
-func New(queries *database.Queries, pgxpool *pgxpool.Pool) *TaskService {
-	return &TaskService{queries: queries, pgxpool: pgxpool}
+type TaskServiceConfig struct {
+	Queries        *sqlc.Queries
+	PGXPool        *pgxpool.Pool
+	Auth           *auth.AuthService
+	Org            *organization.OrganizationService
+	StorageService *storage.StorageService
+	ItemService    *item.ItemService
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, task *models.Task) (*models.Task, error) {
-	description := pgtype.Text{}
-	if task.Description != nil {
-		description.Set(*task.Description)
+func New(cfg TaskServiceConfig) *TaskService {
+	return &TaskService{
+		queries:        cfg.Queries,
+		pgxpool:        cfg.PGXPool,
+		auth:           cfg.Auth,
+		org:            cfg.Org,
+		tracer:         otel.GetTracerProvider().Tracer("tasks-service"),
+		storageService: cfg.StorageService,
+		item:           cfg.ItemService,
 	}
+}
+
+func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *models.Task) (*models.Task, error) {
+	ctx, span := s.tracer.Start(ctx, "CreateTask",
+		trace.WithAttributes(
+			attribute.String("org.id", orgID.String()),
+		),
+	)
+	defer span.End()
 
 	tx, err := s.pgxpool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to begin transaction")
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	createdTask, err := qtx.CreateTask(ctx, database.CreateTaskParams{
-		OrgID:       pgtype.UUID{Bytes: task.OrgID, Valid: true},
-		UnitID:      pgtype.UUID{Bytes: task.UnitID, Valid: true},
-		Type:        string(task.Type),
-		Name:        task.Name,
-		Description: description,
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get instance cell")
+		return nil, fmt.Errorf("failed to get instance cell: %w", err)
+	}
+	createdTask, err := qtx.CreateTask(ctx, sqlc.CreateTaskParams{
+		OrgID:            database.PgUUID(orgID),
+		UnitID:           database.PgUUID(task.UnitID),
+		Type:             string(task.Type),
+		Name:             task.Name,
+		Description:      database.PgTextPtr(task.Description),
+		AssignedToUserID: database.PgUUIDPtr(task.AssignedToUserID),
 	})
 
-	return err
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to create task")
+		return nil, fmt.Errorf("failed to create task: %w", err)
+	}
+
+	for _, item := range task.Items {
+		sourceCell, err := s.item.GetItemInstanceFull(ctx, orgID, item.InstanceID)
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to get instance cell")
+			return nil, fmt.Errorf("failed to get instance cell: %w", err)
+		}
+
+		taskItemDB, err := qtx.CreateTaskItem(ctx, sqlc.CreateTaskItemParams{
+			OrgID:             database.PgUUID(orgID),
+			TaskID:            createdTask.ID,
+			ItemInstanceID:    database.PgUUID(item.InstanceID),
+			DestinationCellID: database.PgUUIDPtr(item.TargetCellID),
+			SourceCellID:      database.PgUUIDPtr(sourceCell.CellID),
+		})
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to create task item")
+			return nil, fmt.Errorf("failed to create task item: %w", err)
+		}
+		taskItem := toTaskItem(taskItemDB)
+
+		taskItem.SourceCell = sourceCell.Cell
+
+		cell, err := s.storageService.GetCellFull(ctx, orgID, *item.TargetCellID)
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to get cell")
+			return nil, fmt.Errorf("failed to get cell: %w", err)
+		}
+		taskItem.TargetCell = cell
+
+		instance, err := s.item.GetItemInstanceFull(ctx, orgID, item.InstanceID)
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to get instance")
+			return nil, fmt.Errorf("failed to get instance: %w", err)
+		}
+		taskItem.Instance = instance
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to commit transaction")
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+	return toTask(createdTask), nil
+}
+
+func (s *TaskService) GetTasks(ctx context.Context, orgID uuid.UUID) ([]*models.Task, error) {
+	ctx, span := s.tracer.Start(ctx, "GetTasks",
+		trace.WithAttributes(
+			attribute.String("org.id", orgID.String()),
+		),
+	)
+	defer span.End()
+
+	tasks, err := s.queries.GetTasks(ctx, database.PgUUID(orgID))
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, services.ErrNotFoundError
+		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get tasks")
+		return nil, fmt.Errorf("failed to get tasks: %w", err)
+	}
+
+	models := make([]*models.Task, len(tasks))
+	for i, task := range tasks {
+		models[i] = toTask(task)
+		if models[i].AssignedToUserID != nil {
+			empl, err := s.auth.GetEmployee(ctx, orgID, *models[i].AssignedToUserID)
+			if err != nil {
+				return nil, err
+			}
+			models[i].AssignedTo = empl
+		}
+		unit, err := s.org.GetUnitByID(ctx, orgID, models[i].UnitID)
+		if err != nil {
+			return nil, err
+		}
+		models[i].Unit = unit
+	}
+
+	return models, nil
 }

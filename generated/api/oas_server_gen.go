@@ -56,6 +56,12 @@ type Handler interface {
 	//
 	// POST /storage-groups
 	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (CreateStorageGroupRes, error)
+	// CreateTask implements createTask operation.
+	//
+	// Create a task.
+	//
+	// POST /tasks
+	CreateTask(ctx context.Context, req *CreateTaskRequest) (CreateTaskRes, error)
 	// CreateUnit implements createUnit operation.
 	//
 	// Create Organization Unit.
@@ -254,6 +260,12 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (GetStorageGroupsRes, error)
+	// GetTasks implements getTasks operation.
+	//
+	// Get all tasks for organization.
+	//
+	// GET /tasks
+	GetTasks(ctx context.Context) (GetTasksRes, error)
 	// InviteEmployee implements inviteEmployee operation.
 	//
 	// Invite employee to the organization.

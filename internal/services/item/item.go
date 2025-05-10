@@ -2,7 +2,6 @@ package item
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -77,10 +76,10 @@ func (s *ItemService) CreateItem(ctx context.Context, orgID uuid.UUID, item *mod
 		return nil, fmt.Errorf("failed to create item: %w", err)
 	}
 
+	// create variants if passed, unused for nuw
 	if item.Variants != nil {
-		createdVariants := make([]models.ItemVariant, len(*item.Variants))
-
-		for i, variant := range *item.Variants {
+		createdVariants := make([]*models.ItemVariant, len(item.Variants))
+		for i, variant := range item.Variants {
 			var article string
 			if variant.Article != nil {
 				article = *variant.Article
@@ -99,15 +98,19 @@ func (s *ItemService) CreateItem(ctx context.Context, orgID uuid.UUID, item *mod
 				return nil, fmt.Errorf("failed to create item variant: %w", err)
 			}
 
-			createdVariantModel, err := toItemVariantModel(createdVariant)
+			createdVariantModel := toItemVariantModel(createdVariant)
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, "failed to convert created variant")
 				return nil, fmt.Errorf("failed to convert created variant: %w", err)
 			}
-			createdVariants[i] = *createdVariantModel
+			createdVariants[i] = createdVariantModel
 		}
-		item.Variants = &createdVariants
+		item.Variants = createdVariants
+	}
+
+	if item.Variants == nil {
+		item.Variants = []*models.ItemVariant{}
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -134,7 +137,6 @@ func (s *ItemService) GetItemsAll(ctx context.Context, orgID uuid.UUID) ([]*mode
 	}
 
 	itemsModels := make([]*models.Item, len(results))
-
 	for i, item := range results {
 		variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
 			OrgID:  database.PgUUID(orgID),
@@ -145,23 +147,15 @@ func (s *ItemService) GetItemsAll(ctx context.Context, orgID uuid.UUID) ([]*mode
 			span.SetStatus(codes.Error, "failed to get item variants")
 			return nil, fmt.Errorf("failed to get item variants: %w", err)
 		}
-		itemVariants := make([]models.ItemVariant, len(variants))
-		for j, variant := range variants {
-			itemVariant, err := toItemVariantModel(variant)
-			if err != nil {
-				span.RecordError(err)
-				span.SetStatus(codes.Error, "failed to convert variant")
-				return nil, fmt.Errorf("failed to convert variant: %w", err)
-			}
-			itemVariants[j] = *itemVariant
-		}
-		itemModel, err := toItemModel(item)
+		itemModel, err := toItemModel(ctx, toItemModelParams{
+			item:     item,
+			variants: variants,
+		})
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "failed to convert item")
 			return nil, fmt.Errorf("failed to convert item: %w", err)
 		}
-		itemModel.Variants = &itemVariants
 		itemsModels[i] = itemModel
 	}
 
@@ -183,7 +177,7 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if database.IsNotFound(err) {
 			span.SetStatus(codes.Error, "item not found")
 			return nil, services.ErrNotFoundError
 		}
@@ -212,12 +206,10 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 		return nil, fmt.Errorf("failed to get item instances: %w", err)
 	}
 
-	result, err := toFullItemModel(ctx, toFullItemModelParams{
-		item:           item,
-		variants:       variants,
-		instances:      instances,
-		storageService: s.storageService,
-		orgID:          orgID,
+	result, err := toItemModel(ctx, toItemModelParams{
+		item:      item,
+		variants:  variants,
+		instances: instances,
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -255,13 +247,13 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 
 	remainingVariants := make(map[uuid.UUID]bool)
 	if item.Variants != nil {
-		for _, v := range *item.Variants {
+		for _, v := range item.Variants {
 			remainingVariants[v.ID] = true
 		}
 	}
 
 	if existingItem.Variants != nil {
-		for _, v := range *existingItem.Variants {
+		for _, v := range existingItem.Variants {
 			if !remainingVariants[v.ID] {
 				err := s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
 					ItemID: database.PgUUID(item.ID),
@@ -303,7 +295,7 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 	}
 
 	if item.Variants != nil {
-		for _, variant := range *item.Variants {
+		for _, variant := range item.Variants {
 			var article string
 			if variant.Article != nil {
 				article = *variant.Article
@@ -347,6 +339,10 @@ func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 		OrgID: database.PgUUID(orgID),
 	})
 	if err != nil {
+		if database.IsNotFound(err) {
+			span.SetStatus(codes.Error, "item not found")
+			return services.ErrNotFoundError
+		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to delete item")
 		return fmt.Errorf("failed to delete item: %w", err)
@@ -356,6 +352,7 @@ func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 	return nil
 }
 
+// Item Variants
 func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
 	ctx, span := s.tracer.Start(ctx, "CreateItemVariant")
 	defer span.End()
@@ -378,7 +375,7 @@ func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, va
 	}
 
 	span.SetStatus(codes.Ok, "item variant created successfully")
-	return toItemVariantModel(createdVariant)
+	return toItemVariantModel(createdVariant), nil
 }
 
 func (s *ItemService) DeleteItemVariant(ctx context.Context, orgID uuid.UUID, id uuid.UUID, variantId uuid.UUID) error {
@@ -420,12 +417,7 @@ func (s *ItemService) GetItemVariantsAll(ctx context.Context, orgID uuid.UUID, i
 
 	variantsModels := make([]*models.ItemVariant, len(variants))
 	for i, variant := range variants {
-		variantsModels[i], err = toItemVariantModel(variant)
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to convert item variant")
-			return nil, fmt.Errorf("failed to convert item variant: %w", err)
-		}
+		variantsModels[i] = toItemVariantModel(variant)
 	}
 
 	span.SetStatus(codes.Ok, "item variants retrieved successfully")
@@ -448,7 +440,7 @@ func (s *ItemService) GetItemVariantById(ctx context.Context, orgID uuid.UUID, i
 		return nil, fmt.Errorf("failed to get item variant by id: %w", err)
 	}
 
-	return toItemVariantModel(variant)
+	return toItemVariantModel(variant), nil
 }
 
 func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
@@ -478,7 +470,7 @@ func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, va
 	}
 
 	span.SetStatus(codes.Ok, "item variant updated successfully")
-	return toItemVariantModel(updatedVariant)
+	return toItemVariantModel(updatedVariant), nil
 }
 
 func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {

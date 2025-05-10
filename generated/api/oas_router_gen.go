@@ -855,6 +855,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 't': // Prefix: "tasks"
+
+				if l := len("tasks"); len(elem) >= l && elem[0:l] == "tasks" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleGetTasksRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateTaskRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+
 			case 'u': // Prefix: "units"
 
 				if l := len("units"); len(elem) >= l && elem[0:l] == "units" {
@@ -1987,6 +2009,38 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 
+				}
+
+			case 't': // Prefix: "tasks"
+
+				if l := len("tasks"); len(elem) >= l && elem[0:l] == "tasks" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "GET":
+						r.name = GetTasksOperation
+						r.summary = "Get all tasks for organization"
+						r.operationID = "getTasks"
+						r.pathPattern = "/tasks"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateTaskOperation
+						r.summary = "Create a task"
+						r.operationID = "createTask"
+						r.pathPattern = "/tasks"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
 				}
 
 			case 'u': // Prefix: "units"

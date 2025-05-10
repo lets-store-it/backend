@@ -9,6 +9,7 @@ import (
 	itemUC "github.com/let-store-it/backend/internal/usecases/item"
 	orgUC "github.com/let-store-it/backend/internal/usecases/organization"
 	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
+	taskUC "github.com/let-store-it/backend/internal/usecases/task"
 )
 
 type RestApiImplementation struct {
@@ -18,8 +19,8 @@ type RestApiImplementation struct {
 	itemUseCase         *itemUC.ItemUseCase
 	authUseCase         *authUC.AuthUseCase
 	auditUseCase        *auditUC.AuditUseCase
+	taskUseCase         *taskUC.TaskUseCase
 }
-
 
 
 // PatchCurrentUser implements api.Handler.
@@ -39,6 +40,7 @@ func NewRestApiImplementation(
 	itemUseCase *itemUC.ItemUseCase,
 	authUseCase *authUC.AuthUseCase,
 	auditUseCase *auditUC.AuditUseCase,
+	taskUseCase *taskUC.TaskUseCase,
 ) *RestApiImplementation {
 	return &RestApiImplementation{
 		orgUseCase:          orgUseCase,
@@ -47,5 +49,6 @@ func NewRestApiImplementation(
 		itemUseCase:         itemUseCase,
 		authUseCase:         authUseCase,
 		auditUseCase:        auditUseCase,
+		taskUseCase:         taskUseCase,
 	}
 }

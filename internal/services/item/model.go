@@ -2,26 +2,13 @@ package item
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/storage"
 )
 
-func toItemModel(item sqlc.Item) (*models.Item, error) {
-	return &models.Item{
-		ID:          database.UUIDFromPgx(item.ID),
-		Name:        item.Name,
-		Description: database.PgTextPtrFromPgx(item.Description),
-	}, nil
-}
-
-func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
+func toItemVariantModel(variant sqlc.ItemVariant) *models.ItemVariant {
 	return &models.ItemVariant{
 		ID:        database.UUIDFromPgx(variant.ID),
 		ItemID:    database.UUIDFromPgx(variant.ItemID),
@@ -30,10 +17,10 @@ func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
 		EAN13:     database.PgInt32PtrFromPgx(variant.Ean13),
 		CreatedAt: variant.CreatedAt.Time,
 		DeletedAt: database.PgTimePtrFromPgx(variant.DeletedAt),
-	}, nil
+	}
 }
 
-func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, error) {
+func toItemInstanceModel(instance sqlc.ItemInstance) *models.ItemInstance {
 	return &models.ItemInstance{
 		ID:        database.UUIDFromPgx(instance.ID),
 		OrgID:     database.UUIDFromPgx(instance.OrgID),
@@ -41,75 +28,37 @@ func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, erro
 		VariantID: database.UUIDFromPgx(instance.VariantID),
 		CellID:    database.UUIDPtrFromPgx(instance.CellID),
 		Status:    models.ItemInstanceStatus(instance.Status),
-	}, nil
+	}
 }
 
-type toFullItemModelParams struct {
-	item           sqlc.Item
-	variants       []sqlc.ItemVariant
-	instances      []sqlc.ItemInstance
-	storageService *storage.StorageService
-	orgID          uuid.UUID
+type toItemModelParams struct {
+	item      sqlc.Item
+	variants  []sqlc.ItemVariant
+	instances []sqlc.ItemInstance
 }
 
-func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models.Item, error) {
-	itemModel, err := toItemModel(params.item)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert base item: %w", err)
+func toItemModel(ctx context.Context, params toItemModelParams) (*models.Item, error) {
+	itemModel := &models.Item{
+		ID:          database.UUIDFromPgx(params.item.ID),
+		Name:        params.item.Name,
+		Description: database.PgTextPtrFromPgx(params.item.Description),
 	}
 
-	itemVariants := make([]models.ItemVariant, len(params.variants))
+	itemVariants := make([]*models.ItemVariant, len(params.variants))
 	for i, variant := range params.variants {
-		variantModel, err := toItemVariantModel(variant)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert variant: %w", err)
-		}
-		itemVariants[i] = *variantModel
+		itemVariants[i] = toItemVariantModel(variant)
 	}
-	itemModel.Variants = &itemVariants
+	if len(itemVariants) > 0 {
+		itemModel.Variants = itemVariants
+	}
 
-	itemInstances := make([]models.ItemInstance, len(params.instances))
+	itemInstances := make([]*models.ItemInstance, len(params.instances))
 	for i, instance := range params.instances {
-		instanceModel, err := toItemInstanceModel(instance)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert instance: %w", err)
-		}
-
-		var instanceVariant *models.ItemVariant
-		for _, variant := range itemVariants {
-			if variant.ID == instanceModel.VariantID {
-				instanceVariant = &variant
-				break
-			}
-		}
-
-		if instanceVariant == nil {
-			return nil, errors.New("failed to find variant for instance")
-		}
-
-		instanceModel.Variant = instanceVariant
-
-		if instance.CellID.Valid {
-			cell, err := params.storageService.GetCellByID(ctx, params.orgID, *instanceModel.CellID)
-			if err != nil {
-				if errors.Is(err, pgx.ErrNoRows) {
-					continue
-				}
-				return nil, fmt.Errorf("failed to get cell: %w", err)
-			}
-
-			instanceModel.Cell = cell
-
-			cellPath, err := params.storageService.GetCellPath(ctx, params.orgID, cell.ID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get cell path: %w", err)
-			}
-			instanceModel.Cell.Path = &cellPath
-		}
-
-		itemInstances[i] = *instanceModel
+		itemInstances[i] = toItemInstanceModel(instance)
 	}
-	itemModel.Instances = &itemInstances
+	if len(itemInstances) > 0 {
+		itemModel.Instances = itemInstances
+	}
 
 	return itemModel, nil
 }
