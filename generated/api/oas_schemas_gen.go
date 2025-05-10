@@ -476,9 +476,8 @@ type CellGroup struct {
 	Name  string       `json:"name"`
 	Alias StorageAlias `json:"alias"`
 	// Merged property.
-	StorageGroupId NilUUID `json:"storageGroupId"`
-	// Merged property.
-	UnitId uuid.UUID `json:"unitId"`
+	StorageGroupId NilUUID   `json:"storageGroupId"`
+	UnitId         uuid.UUID `json:"unitId"`
 }
 
 // GetID returns the value of ID.
@@ -3133,52 +3132,6 @@ func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// NewOptStorageAlias returns new OptStorageAlias with value set to v.
-func NewOptStorageAlias(v StorageAlias) OptStorageAlias {
-	return OptStorageAlias{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptStorageAlias is optional StorageAlias.
-type OptStorageAlias struct {
-	Value StorageAlias
-	Set   bool
-}
-
-// IsSet returns true if OptStorageAlias was set.
-func (o OptStorageAlias) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptStorageAlias) Reset() {
-	var v StorageAlias
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptStorageAlias) SetTo(v StorageAlias) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptStorageAlias) Get() (v StorageAlias, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptStorageAlias) Or(d StorageAlias) StorageAlias {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -3308,152 +3261,6 @@ func (s *Organization) SetName(val string) {
 func (s *Organization) SetSubdomain(val string) {
 	s.Subdomain = val
 }
-
-type PatchCellForbidden ErrorContent
-
-func (*PatchCellForbidden) patchCellRes() {}
-
-// Ref: #/components/schemas/PatchCellRequest
-type PatchCellRequest struct {
-	Alias    OptString `json:"alias"`
-	Row      OptInt    `json:"row"`
-	Level    OptInt    `json:"level"`
-	Position OptInt    `json:"position"`
-}
-
-// GetAlias returns the value of Alias.
-func (s *PatchCellRequest) GetAlias() OptString {
-	return s.Alias
-}
-
-// GetRow returns the value of Row.
-func (s *PatchCellRequest) GetRow() OptInt {
-	return s.Row
-}
-
-// GetLevel returns the value of Level.
-func (s *PatchCellRequest) GetLevel() OptInt {
-	return s.Level
-}
-
-// GetPosition returns the value of Position.
-func (s *PatchCellRequest) GetPosition() OptInt {
-	return s.Position
-}
-
-// SetAlias sets the value of Alias.
-func (s *PatchCellRequest) SetAlias(val OptString) {
-	s.Alias = val
-}
-
-// SetRow sets the value of Row.
-func (s *PatchCellRequest) SetRow(val OptInt) {
-	s.Row = val
-}
-
-// SetLevel sets the value of Level.
-func (s *PatchCellRequest) SetLevel(val OptInt) {
-	s.Level = val
-}
-
-// SetPosition sets the value of Position.
-func (s *PatchCellRequest) SetPosition(val OptInt) {
-	s.Position = val
-}
-
-// Ref: #/components/schemas/PatchCellResponse
-type PatchCellResponse struct {
-	Data CellBase `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchCellResponse) GetData() CellBase {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchCellResponse) SetData(val CellBase) {
-	s.Data = val
-}
-
-func (*PatchCellResponse) patchCellRes() {}
-
-type PatchCellUnauthorized ErrorContent
-
-func (*PatchCellUnauthorized) patchCellRes() {}
-
-type PatchCellsGroupForbidden ErrorContent
-
-func (*PatchCellsGroupForbidden) patchCellsGroupRes() {}
-
-// Ref: #/components/schemas/PatchCellsGroupRequest
-type PatchCellsGroupRequest struct {
-	Name           OptString       `json:"name"`
-	Alias          OptStorageAlias `json:"alias"`
-	StorageGroupId OptUUID         `json:"storageGroupId"`
-	UnitId         OptUUID         `json:"unitId"`
-}
-
-// GetName returns the value of Name.
-func (s *PatchCellsGroupRequest) GetName() OptString {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *PatchCellsGroupRequest) GetAlias() OptStorageAlias {
-	return s.Alias
-}
-
-// GetStorageGroupId returns the value of StorageGroupId.
-func (s *PatchCellsGroupRequest) GetStorageGroupId() OptUUID {
-	return s.StorageGroupId
-}
-
-// GetUnitId returns the value of UnitId.
-func (s *PatchCellsGroupRequest) GetUnitId() OptUUID {
-	return s.UnitId
-}
-
-// SetName sets the value of Name.
-func (s *PatchCellsGroupRequest) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *PatchCellsGroupRequest) SetAlias(val OptStorageAlias) {
-	s.Alias = val
-}
-
-// SetStorageGroupId sets the value of StorageGroupId.
-func (s *PatchCellsGroupRequest) SetStorageGroupId(val OptUUID) {
-	s.StorageGroupId = val
-}
-
-// SetUnitId sets the value of UnitId.
-func (s *PatchCellsGroupRequest) SetUnitId(val OptUUID) {
-	s.UnitId = val
-}
-
-// Ref: #/components/schemas/PatchCellsGroupResponse
-type PatchCellsGroupResponse struct {
-	Data CellGroup `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchCellsGroupResponse) GetData() CellGroup {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchCellsGroupResponse) SetData(val CellGroup) {
-	s.Data = val
-}
-
-func (*PatchCellsGroupResponse) patchCellsGroupRes() {}
-
-type PatchCellsGroupUnauthorized ErrorContent
-
-func (*PatchCellsGroupUnauthorized) patchCellsGroupRes() {}
 
 // Ref: #/components/schemas/PatchCurrentUserRequest
 type PatchCurrentUserRequest struct {
@@ -3587,79 +3394,6 @@ func (*PatchOrganizationUnitResponse) patchOrganizationUnitRes() {}
 type PatchOrganizationUnitUnauthorized ErrorContent
 
 func (*PatchOrganizationUnitUnauthorized) patchOrganizationUnitRes() {}
-
-type PatchStorageGroupForbidden ErrorContent
-
-func (*PatchStorageGroupForbidden) patchStorageGroupRes() {}
-
-// Ref: #/components/schemas/PatchStorageGroupRequest
-type PatchStorageGroupRequest struct {
-	ParentId OptNilUUID `json:"parentId"`
-	Name     OptString  `json:"name"`
-	Alias    OptString  `json:"alias"`
-	UnitId   OptUUID    `json:"unitId"`
-}
-
-// GetParentId returns the value of ParentId.
-func (s *PatchStorageGroupRequest) GetParentId() OptNilUUID {
-	return s.ParentId
-}
-
-// GetName returns the value of Name.
-func (s *PatchStorageGroupRequest) GetName() OptString {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *PatchStorageGroupRequest) GetAlias() OptString {
-	return s.Alias
-}
-
-// GetUnitId returns the value of UnitId.
-func (s *PatchStorageGroupRequest) GetUnitId() OptUUID {
-	return s.UnitId
-}
-
-// SetParentId sets the value of ParentId.
-func (s *PatchStorageGroupRequest) SetParentId(val OptNilUUID) {
-	s.ParentId = val
-}
-
-// SetName sets the value of Name.
-func (s *PatchStorageGroupRequest) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *PatchStorageGroupRequest) SetAlias(val OptString) {
-	s.Alias = val
-}
-
-// SetUnitId sets the value of UnitId.
-func (s *PatchStorageGroupRequest) SetUnitId(val OptUUID) {
-	s.UnitId = val
-}
-
-// Ref: #/components/schemas/PatchStorageGroupResponse
-type PatchStorageGroupResponse struct {
-	Data StorageGroup `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchStorageGroupResponse) GetData() StorageGroup {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchStorageGroupResponse) SetData(val StorageGroup) {
-	s.Data = val
-}
-
-func (*PatchStorageGroupResponse) patchStorageGroupRes() {}
-
-type PatchStorageGroupUnauthorized ErrorContent
-
-func (*PatchStorageGroupUnauthorized) patchStorageGroupRes() {}
 
 type RevokeApiTokenForbidden ErrorContent
 

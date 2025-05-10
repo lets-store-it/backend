@@ -10,9 +10,6 @@ allOf:
   - $ref: ./CellGroupBase.yaml
   - type: object
     properties:
-      unitId:
-        type: string
-        format: uuid
       storageGroupId:
         type: string
         format: uuid

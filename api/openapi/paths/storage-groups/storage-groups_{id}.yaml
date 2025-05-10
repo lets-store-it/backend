@@ -38,30 +38,30 @@ delete:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-patch:
-  tags:
-    - storage-group
-  summary: Patch Storage Group
-  operationId: patchStorageGroup
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: ../../components/schemas/storage-groups/PatchStorageGroupRequest.yaml
-  responses:
-    "200":
-      description: Successful operation
-      content:
-        application/json:
-          schema:
-            $ref: ../../components/schemas/storage-groups/PatchStorageGroupResponse.yaml
-    "401":
-      $ref: ../../components/responses/default-unauthorized.yaml
-    "403":
-      $ref: ../../components/responses/default-forbidden.yaml
-    default:
-      $ref: ../../components/responses/default-error.yaml
+# patch:
+#   tags:
+#     - storage-group
+#   summary: Patch Storage Group
+#   operationId: patchStorageGroup
+#   requestBody:
+#     required: true
+#     content:
+#       application/json:
+#         schema:
+#           $ref: ../../components/schemas/storage-groups/PatchStorageGroupRequest.yaml
+#   responses:
+#     "200":
+#       description: Successful operation
+#       content:
+#         application/json:
+#           schema:
+#             $ref: ../../components/schemas/storage-groups/PatchStorageGroupResponse.yaml
+#     "401":
+#       $ref: ../../components/responses/default-unauthorized.yaml
+#     "403":
+#       $ref: ../../components/responses/default-forbidden.yaml
+#     default:
+#       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
     - storage-group

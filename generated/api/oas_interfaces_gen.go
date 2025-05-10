@@ -165,14 +165,6 @@ type LogoutRes interface {
 	logoutRes()
 }
 
-type PatchCellRes interface {
-	patchCellRes()
-}
-
-type PatchCellsGroupRes interface {
-	patchCellsGroupRes()
-}
-
 type PatchCurrentUserRes interface {
 	patchCurrentUserRes()
 }
@@ -183,10 +175,6 @@ type PatchEmployeeByIdRes interface {
 
 type PatchOrganizationUnitRes interface {
 	patchOrganizationUnitRes()
-}
-
-type PatchStorageGroupRes interface {
-	patchStorageGroupRes()
 }
 
 type PutCurrentUserRes interface {

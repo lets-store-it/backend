@@ -400,24 +400,6 @@ func (UnimplementedHandler) Logout(ctx context.Context) (r LogoutRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// PatchCell implements patchCell operation.
-//
-// Patch Cell.
-//
-// PATCH /cells-groups/{groupId}/cells/{cellId}
-func (UnimplementedHandler) PatchCell(ctx context.Context, req *PatchCellRequest, params PatchCellParams) (r PatchCellRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// PatchCellsGroup implements patchCellsGroup operation.
-//
-// Patch Cells Group.
-//
-// PATCH /cells-groups/{groupId}
-func (UnimplementedHandler) PatchCellsGroup(ctx context.Context, req *PatchCellsGroupRequest, params PatchCellsGroupParams) (r PatchCellsGroupRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // PatchCurrentUser implements patchCurrentUser operation.
 //
 // Update Current User.
@@ -442,15 +424,6 @@ func (UnimplementedHandler) PatchEmployeeById(ctx context.Context, req *PatchEmp
 //
 // PATCH /units/{id}
 func (UnimplementedHandler) PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (r PatchOrganizationUnitRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// PatchStorageGroup implements patchStorageGroup operation.
-//
-// Patch Storage Group.
-//
-// PATCH /storage-groups/{id}
-func (UnimplementedHandler) PatchStorageGroup(ctx context.Context, req *PatchStorageGroupRequest, params PatchStorageGroupParams) (r PatchStorageGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

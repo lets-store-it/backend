@@ -106,7 +106,7 @@ func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateI
 		Description: description,
 	}
 
-	createdItem, err := h.itemUseCase.Create(ctx, item)
+	createdItem, err := h.itemUseCase.CreateItem(ctx, item)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (h *RestApiImplementation) CreateItem(ctx context.Context, req *api.CreateI
 }
 
 func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetItemByIdParams) (api.GetItemByIdRes, error) {
-	item, err := h.itemUseCase.GetByID(ctx, params.ID)
+	item, err := h.itemUseCase.GetItemById(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (h *RestApiImplementation) GetItemById(ctx context.Context, params api.GetI
 }
 
 func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, error) {
-	items, err := h.itemUseCase.GetAll(ctx)
+	items, err := h.itemUseCase.GetItemsAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, 
 }
 
 func (h *RestApiImplementation) DeleteItem(ctx context.Context, params api.DeleteItemParams) (api.DeleteItemRes, error) {
-	err := h.itemUseCase.Delete(ctx, params.ID)
+	err := h.itemUseCase.DeleteItem(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (h *RestApiImplementation) UpdateItem(ctx context.Context, req *api.UpdateI
 		Description: ApiValueToPtr(req.Description),
 	}
 
-	updatedItem, err := h.itemUseCase.Update(ctx, newItem)
+	updatedItem, err := h.itemUseCase.UpdateItem(ctx, newItem)
 	if err != nil {
 		return nil, err
 	}
