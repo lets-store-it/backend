@@ -1998,9 +1998,9 @@ components:
         cellId:
           type: string
           format: uuid
-          nullable: true
       required:
         - variantId
+        - cellId
     CreateInstanceForItemRequest:
       allOf:
         - $ref: '#/components/schemas/InstanceCreateForItem'
@@ -2008,10 +2008,7 @@ components:
       type: object
       properties:
         data:
-          type: array
-          items:
-            allOf:
-              - $ref: '#/components/schemas/InstanceForItem'
+          $ref: '#/components/schemas/InstanceForItem'
       required:
         - data
     Token:

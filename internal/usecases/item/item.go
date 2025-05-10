@@ -156,3 +156,31 @@ func (uc *ItemUseCase) DeleteItemVariant(ctx context.Context, id uuid.UUID, vari
 
 	return uc.service.DeleteItemVariant(ctx, validateResult.OrgID, id, variantId)
 }
+
+func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	itemInstance.OrgID = validateResult.OrgID
+
+	return uc.service.CreateItemInstance(ctx, itemInstance)
+}
+
+func (uc *ItemUseCase) GetItemInstances(ctx context.Context, id uuid.UUID) ([]*models.ItemInstance, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.GetItemInstances(ctx, validateResult.OrgID, id)
+}

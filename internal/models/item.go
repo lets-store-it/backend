@@ -46,7 +46,7 @@ type ItemInstance struct {
 	OrgID                 uuid.UUID          `json:"org_id"`
 	ItemID                uuid.UUID          `json:"item_id"`
 	VariantID             uuid.UUID          `json:"variant_id"`
-	CellID                uuid.UUID          `json:"cell_id"`
+	CellID                *uuid.UUID         `json:"cell_id"`
 	Status                ItemInstanceStatus `json:"status"`
 	AffectedByOperationID uuid.UUID          `json:"affected_by_operation_id"`
 

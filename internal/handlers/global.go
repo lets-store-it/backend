@@ -20,28 +20,7 @@ type RestApiImplementation struct {
 	auditUseCase        *auditUC.AuditUseCase
 }
 
-// CreateInstanceForItem implements api.Handler.
-func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (api.CreateInstanceForItemRes, error) {
-	panic("unimplemented")
-}
 
-// DeleteInstanceById implements api.Handler.
-func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) (api.DeleteInstanceByIdRes, error) {
-	panic("unimplemented")
-	return &api.DeleteInstanceByIdOK{}, nil
-}
-
-// GetInstances implements api.Handler.
-func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstancesRes, error) {
-	panic("unimplemented")
-	// return api.GetInstancesByItemIdResponse, nil
-}
-
-// GetInstancesByItemId implements api.Handler.
-func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
-	panic("unimplemented")
-
-}
 
 // PatchCurrentUser implements api.Handler.
 func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (api.PatchCurrentUserRes, error) {

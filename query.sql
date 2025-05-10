@@ -249,6 +249,9 @@ SELECT * FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS
 -- name: GetItemInstancesForCell :many
 SELECT * FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL;
 
+-- name: GetItemInstance :one
+SELECT * FROM item_instance WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
+
 -- name: GetItemInstancesForCellsGroup :many
 SELECT * FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL;
 

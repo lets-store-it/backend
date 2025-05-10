@@ -194,6 +194,44 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, id uui
 	return nil
 }
 
+func (s *StorageService) GetCellFull(ctx context.Context, orgID uuid.UUID, cellID uuid.UUID) (*models.Cell, error) {
+	ctx, span := s.tracer.Start(ctx, "GetCellFull")
+	defer span.End()
+
+	cellDb, err := s.queries.GetCell(ctx, sqlc.GetCellParams{
+		ID:    database.PgUUID(cellID),
+		OrgID: database.PgUUID(orgID),
+	})
+
+	if err != nil {
+		if database.IsNotFound(err) {
+			span.SetStatus(codes.Error, "cell not found")
+			return nil, services.ErrNotFoundError
+		}
+
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get cell")
+		return nil, fmt.Errorf("failed to get cell: %w", err)
+	}
+
+	cell, err := toCell(cellDb)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to convert cell")
+		return nil, fmt.Errorf("failed to convert cell: %w", err)
+	}
+
+	cellPath, err := s.GetCellPath(ctx, orgID, cellID)
+	if err != nil {
+		span.SetStatus(codes.Error, "failed to get cell path")
+		return nil, fmt.Errorf("failed to get cell path: %w", err)
+	}
+
+	cell.Path = &cellPath
+
+	return cell, nil
+}
+
 func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellID uuid.UUID) ([]models.CellPathSegment, error) {
 	ctx, span := s.tracer.Start(ctx, "GetCellPath")
 	defer span.End()
@@ -214,15 +252,7 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 		return nil, fmt.Errorf("failed to get cell path: %w", err)
 	}
 
-	result := make([]models.CellPathSegment, len(segments))
-	for i, segment := range segments {
-		result[i] = models.CellPathSegment{
-			ID:         database.UUIDFromPgx(segment.ID),
-			Name:       segment.Name,
-			ObjectType: models.CellPathObjectType(segment.Type),
-			Alias:      segment.Alias,
-		}
-	}
+	result := toCellPath(segments)
 
 	span.SetStatus(codes.Ok, "cell path retrieved successfully")
 	return result, nil

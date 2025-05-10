@@ -39,7 +39,7 @@ func toItemInstanceModel(instance sqlc.ItemInstance) (*models.ItemInstance, erro
 		OrgID:     database.UUIDFromPgx(instance.OrgID),
 		ItemID:    database.UUIDFromPgx(instance.ItemID),
 		VariantID: database.UUIDFromPgx(instance.VariantID),
-		CellID:    database.UUIDFromPgx(instance.CellID),
+		CellID:    database.UUIDPtrFromPgx(instance.CellID),
 		Status:    models.ItemInstanceStatus(instance.Status),
 	}, nil
 }
@@ -90,7 +90,7 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 		instanceModel.Variant = instanceVariant
 
 		if instance.CellID.Valid {
-			cell, err := params.storageService.GetCellByID(ctx, params.orgID, instanceModel.CellID)
+			cell, err := params.storageService.GetCellByID(ctx, params.orgID, *instanceModel.CellID)
 			if err != nil {
 				if errors.Is(err, pgx.ErrNoRows) {
 					continue
@@ -112,4 +112,23 @@ func toFullItemModel(ctx context.Context, params toFullItemModelParams) (*models
 	itemModel.Instances = &itemInstances
 
 	return itemModel, nil
+}
+
+func toItemInstance(instance sqlc.ItemInstance) *models.ItemInstance {
+	return &models.ItemInstance{
+		ID:        database.UUIDFromPgx(instance.ID),
+		OrgID:     database.UUIDFromPgx(instance.OrgID),
+		ItemID:    database.UUIDFromPgx(instance.ItemID),
+		VariantID: database.UUIDFromPgx(instance.VariantID),
+		CellID:    database.UUIDPtrFromPgx(instance.CellID),
+		Status:    models.ItemInstanceStatus(instance.Status),
+	}
+}
+
+func toItemInstances(instances []sqlc.ItemInstance) []*models.ItemInstance {
+	instancesModels := make([]*models.ItemInstance, len(instances))
+	for i, instance := range instances {
+		instancesModels[i] = toItemInstance(instance)
+	}
+	return instancesModels
 }
