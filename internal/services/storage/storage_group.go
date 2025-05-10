@@ -102,7 +102,7 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 	)
 	defer span.End()
 
-	group, err := s.queries.GetStorageGroup(ctx, sqlc.GetStorageGroupParams{
+	group, err := s.queries.GetStorageGroupById(ctx, sqlc.GetStorageGroupByIdParams{
 		OrgID: database.PgUUID(orgID),
 		ID:    database.PgUUID(id),
 	})

@@ -8,11 +8,17 @@ import (
 )
 
 func convertCellPathToDTO(cellPath *[]models.CellPathSegment) []api.CellForInstanceCellPathItem {
+	if cellPath == nil {
+		return nil
+	}
+
 	dtoCellPath := make([]api.CellForInstanceCellPathItem, 0, len(*cellPath))
 	for _, pathSegment := range *cellPath {
 		dtoCellPath = append(dtoCellPath, api.CellForInstanceCellPathItem{
-			ID:    pathSegment.ID,
-			Alias: pathSegment.Alias,
+			ID:         pathSegment.ID,
+			Alias:      pathSegment.Alias,
+			Name:       pathSegment.Name,
+			ObjectType: api.CellForInstanceCellPathItemObjectType(pathSegment.ObjectType),
 		})
 	}
 	return dtoCellPath

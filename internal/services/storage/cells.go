@@ -55,7 +55,7 @@ func (s *StorageService) GetCellByID(ctx context.Context, orgID uuid.UUID, id uu
 		attribute.String("cell.id", id.String()),
 	)
 
-	cell, err := s.queries.GetCell(ctx, sqlc.GetCellParams{
+	cell, err := s.queries.GetCellById(ctx, sqlc.GetCellByIdParams{
 		OrgID: database.PgUUID(orgID),
 		ID:    database.PgUUID(id),
 	})
@@ -198,7 +198,7 @@ func (s *StorageService) GetCellFull(ctx context.Context, orgID uuid.UUID, cellI
 	ctx, span := s.tracer.Start(ctx, "GetCellFull")
 	defer span.End()
 
-	cellDb, err := s.queries.GetCell(ctx, sqlc.GetCellParams{
+	cellDb, err := s.queries.GetCellById(ctx, sqlc.GetCellByIdParams{
 		ID:    database.PgUUID(cellID),
 		OrgID: database.PgUUID(orgID),
 	})

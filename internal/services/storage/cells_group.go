@@ -86,7 +86,7 @@ func (s *StorageService) GetCellsGroup(ctx context.Context, orgID uuid.UUID, id 
 	)
 	defer span.End()
 
-	group, err := s.queries.GetCellsGroup(ctx, sqlc.GetCellsGroupParams{
+	group, err := s.queries.GetCellsGroupById(ctx, sqlc.GetCellsGroupByIdParams{
 		OrgID: database.PgUUID(orgID),
 		ID:    database.PgUUID(id),
 	})

@@ -219,7 +219,3 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 
 	return orgUpdated, nil
 }
-
-func (uc *OrganizationUseCase) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
-	return uc.service.IsOrganizationExists(ctx, id)
-}

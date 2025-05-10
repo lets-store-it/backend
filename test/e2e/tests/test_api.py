@@ -635,5 +635,6 @@ class TestInstance:
         )
         assert response.status_code == 200, response.text
         instance_data = response.json()["data"]
-        assert instance_data["variantId"] == variant_data["id"]
-        assert instance_data["cellId"] == cell_data["id"]
+        print(instance_data)
+        assert instance_data["variant"]["id"] == variant_data["id"]
+        assert instance_data["cell"]["id"] == cell_data["id"]
