@@ -552,7 +552,7 @@ paths:
       summary: Delete Cell
       operationId: deleteCell
       responses:
-        '200':
+        '204':
           description: Successful operation
         default:
           $ref: '#/components/responses/default-error'
@@ -1636,10 +1636,6 @@ components:
     CellBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
         alias:
           type: string
         row:
@@ -1652,18 +1648,28 @@ components:
           type: integer
           minimum: 1
       required:
-        - id
         - alias
         - row
         - level
         - position
+    Cell:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/CellBase'
     GetCellsResponse:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CellBase'
+            $ref: '#/components/schemas/Cell'
       required:
         - data
     CreateCellRequest:
@@ -1673,12 +1679,16 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellBase'
+          $ref: '#/components/schemas/Cell'
       required:
         - data
     GetCellByIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/CellBase'
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Cell'
+      required:
+        - data
     UpdateCellRequest:
       allOf:
         - $ref: '#/components/schemas/CellBase'
@@ -1686,7 +1696,7 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellBase'
+          $ref: '#/components/schemas/Cell'
       required:
         - data
     ItemBase:
@@ -1795,7 +1805,7 @@ components:
         - $ref: '#/components/schemas/ItemCreate'
     CellForInstance:
       allOf:
-        - $ref: '#/components/schemas/CellBase'
+        - $ref: '#/components/schemas/Cell'
         - type: object
           properties:
             cellPath:

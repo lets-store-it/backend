@@ -191,8 +191,8 @@ func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api
 	return &api.DeleteCellsGroupNoContent{}, nil
 }
 
-func cellToDTO(cell *models.Cell) api.CellBase {
-	return api.CellBase{
+func cellToDTO(cell *models.Cell) api.Cell {
+	return api.Cell{
 		ID:       cell.ID,
 		Alias:    cell.Alias,
 		Row:      cell.Row,
@@ -227,11 +227,7 @@ func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetC
 	}
 
 	return &api.GetCellByIdResponse{
-		ID:       cell.ID,
-		Alias:    cell.Alias,
-		Row:      cell.Row,
-		Level:    cell.Level,
-		Position: cell.Position,
+		Data: cellToDTO(cell),
 	}, nil
 }
 
@@ -242,15 +238,9 @@ func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCell
 		return nil, err
 	}
 
-	items := make([]api.CellBase, 0, len(cells))
+	items := make([]api.Cell, 0, len(cells))
 	for _, cell := range cells {
-		items = append(items, api.CellBase{
-			ID:       cell.ID,
-			Alias:    cell.Alias,
-			Row:      cell.Row,
-			Level:    cell.Level,
-			Position: cell.Position,
-		})
+		items = append(items, cellToDTO(cell))
 	}
 
 	return &api.GetCellsResponse{
@@ -273,7 +263,7 @@ func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateC
 	}
 
 	return &api.UpdateCellResponse{
-		Data: api.CellBase{
+		Data: api.Cell{
 			ID:       updatedCell.ID,
 			Alias:    updatedCell.Alias,
 			Row:      updatedCell.Row,

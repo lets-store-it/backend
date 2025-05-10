@@ -7,4 +7,4 @@ allOf:
         readOnly: true
     required:
       - id
-  - $ref: ./CellGroupBase.yaml
+  - $ref: ./CellBase.yaml

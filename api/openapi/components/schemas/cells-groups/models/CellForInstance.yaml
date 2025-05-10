@@ -1,5 +1,5 @@
 allOf:
-  - $ref: ./CellBase.yaml
+  - $ref: ./Cell.yaml
   - type: object
     properties:
       cellPath:

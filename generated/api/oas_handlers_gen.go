@@ -2151,7 +2151,7 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response *DeleteCellOK
+	var response *DeleteCellNoContent
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -2175,7 +2175,7 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 		type (
 			Request  = struct{}
 			Params   = DeleteCellParams
-			Response = *DeleteCellOK
+			Response = *DeleteCellNoContent
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

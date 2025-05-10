@@ -1456,11 +1456,11 @@ func decodeCreateUnitResponse(resp *http.Response) (res CreateUnitRes, _ error) 
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeDeleteCellResponse(resp *http.Response) (res *DeleteCellOK, _ error) {
+func decodeDeleteCellResponse(resp *http.Response) (res *DeleteCellNoContent, _ error) {
 	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		return &DeleteCellOK{}, nil
+	case 204:
+		// Code 204.
+		return &DeleteCellNoContent{}, nil
 	}
 	// Convenient error response.
 	defRes, err := func() (res *DefaultErrorStatusCode, err error) {
