@@ -523,16 +523,14 @@ class TestCells:
         cell_group: dict,
     ) -> None:
         # Create
-        cell_name = str(uuid.uuid4())
         alias = generate_random_string()
         response = api_client_with_organization.post(
             f"/cells-groups/{cell_group['id']}/cells",
-            {"name": cell_name, "alias": alias, "row": 1, "level": 1, "position": 1},
+            {"alias": alias, "row": 1, "level": 1, "position": 1},
         )
         assert response.status_code == 200, response.text
         data = response.json()["data"]
         cell_id = data["id"]
-        assert data["name"] == cell_name
         assert data["alias"] == alias
         assert data["row"] == 1
         assert data["level"] == 1
@@ -554,23 +552,20 @@ class TestCells:
         assert response.status_code == 200
         data = response.json()["data"]
         assert data["id"] == cell_id
-        assert data["name"] == cell_name
         assert data["alias"] == alias
         assert data["row"] == 1
         assert data["level"] == 1
         assert data["position"] == 1
 
         # Update
-        new_name = f"{cell_name}_updated"
         new_alias = f"{alias}D"
         response = api_client_with_organization.put(
             f"/cells-groups/{cell_group['id']}/cells/{cell_id}",
-            {"name": new_name, "alias": new_alias, "row": 1, "level": 1, "position": 1},
+            {"alias": new_alias, "row": 1, "level": 1, "position": 1},
         )
         assert response.status_code == 200, response.text
         data = response.json()["data"]
         assert data["id"] == cell_id
-        assert data["name"] == new_name
         assert data["alias"] == new_alias
         assert data["row"] == 1
         assert data["level"] == 1

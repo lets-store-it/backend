@@ -1,6 +1,6 @@
 type: object
 properties:
   data:
-    $ref: models/CellBase.yaml
+    $ref: models/Cell.yaml
 required:
   - data

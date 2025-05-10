@@ -31,7 +31,7 @@ delete:
   summary: Delete Cell
   operationId: deleteCell
   responses:
-    "200":
+    "204":
       description: Successful operation
     default:
       $ref: ../../components/responses/default-error.yaml

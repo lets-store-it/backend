@@ -508,14 +508,14 @@ func (s *AuditLogTargetObjectType) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *CellBase) Encode(e *jx.Encoder) {
+func (s *Cell) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *CellBase) encodeFields(e *jx.Encoder) {
+func (s *Cell) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
 		json.EncodeUUID(e, s.ID)
@@ -538,7 +538,7 @@ func (s *CellBase) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCellBase = [5]string{
+var jsonFieldsNameOfCell = [5]string{
 	0: "id",
 	1: "alias",
 	2: "row",
@@ -546,10 +546,10 @@ var jsonFieldsNameOfCellBase = [5]string{
 	4: "position",
 }
 
-// Decode decodes CellBase from json.
-func (s *CellBase) Decode(d *jx.Decoder) error {
+// Decode decodes Cell from json.
+func (s *Cell) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode CellBase to nil")
+		return errors.New("invalid: unable to decode Cell to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -620,7 +620,7 @@ func (s *CellBase) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CellBase")
+		return errors.Wrap(err, "decode Cell")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -637,8 +637,8 @@ func (s *CellBase) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfCellBase) {
-					name = jsonFieldsNameOfCellBase[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfCell) {
+					name = jsonFieldsNameOfCell[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -659,14 +659,14 @@ func (s *CellBase) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *CellBase) MarshalJSON() ([]byte, error) {
+func (s *Cell) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CellBase) UnmarshalJSON(data []byte) error {
+func (s *Cell) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -1523,10 +1523,6 @@ func (s *CreateCellRequest) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CreateCellRequest) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
 		e.FieldStart("alias")
 		e.Str(s.Alias)
 	}
@@ -1544,12 +1540,11 @@ func (s *CreateCellRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateCellRequest = [5]string{
-	0: "id",
-	1: "alias",
-	2: "row",
-	3: "level",
-	4: "position",
+var jsonFieldsNameOfCreateCellRequest = [4]string{
+	0: "alias",
+	1: "row",
+	2: "level",
+	3: "position",
 }
 
 // Decode decodes CreateCellRequest from json.
@@ -1561,20 +1556,8 @@ func (s *CreateCellRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "alias":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Alias = string(v)
@@ -1586,7 +1569,7 @@ func (s *CreateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "row":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Int()
 				s.Row = int(v)
@@ -1598,7 +1581,7 @@ func (s *CreateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"row\"")
 			}
 		case "level":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Int()
 				s.Level = int(v)
@@ -1610,7 +1593,7 @@ func (s *CreateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"level\"")
 			}
 		case "position":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Int()
 				s.Position = int(v)
@@ -1631,7 +1614,7 @@ func (s *CreateCellRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5560,33 +5543,13 @@ func (s *GetCellByIdResponse) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *GetCellByIdResponse) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
-		e.FieldStart("alias")
-		e.Str(s.Alias)
-	}
-	{
-		e.FieldStart("row")
-		e.Int(s.Row)
-	}
-	{
-		e.FieldStart("level")
-		e.Int(s.Level)
-	}
-	{
-		e.FieldStart("position")
-		e.Int(s.Position)
+		e.FieldStart("data")
+		s.Data.Encode(e)
 	}
 }
 
-var jsonFieldsNameOfGetCellByIdResponse = [5]string{
-	0: "id",
-	1: "alias",
-	2: "row",
-	3: "level",
-	4: "position",
+var jsonFieldsNameOfGetCellByIdResponse = [1]string{
+	0: "data",
 }
 
 // Decode decodes GetCellByIdResponse from json.
@@ -5598,65 +5561,15 @@ func (s *GetCellByIdResponse) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
+		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
+				if err := s.Data.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "alias":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.Alias = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"alias\"")
-			}
-		case "row":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Int()
-				s.Row = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"row\"")
-			}
-		case "level":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Int()
-				s.Level = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"level\"")
-			}
-		case "position":
-			requiredBitSet[0] |= 1 << 4
-			if err := func() error {
-				v, err := d.Int()
-				s.Position = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"position\"")
+				return errors.Wrap(err, "decode field \"data\"")
 			}
 		default:
 			return d.Skip()
@@ -5668,7 +5581,7 @@ func (s *GetCellByIdResponse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -6139,9 +6052,9 @@ func (s *GetCellsResponse) Decode(d *jx.Decoder) error {
 		case "data":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Data = make([]CellBase, 0)
+				s.Data = make([]Cell, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem CellBase
+					var elem Cell
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -12256,10 +12169,6 @@ func (s *UpdateCellRequest) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *UpdateCellRequest) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
 		e.FieldStart("alias")
 		e.Str(s.Alias)
 	}
@@ -12277,12 +12186,11 @@ func (s *UpdateCellRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateCellRequest = [5]string{
-	0: "id",
-	1: "alias",
-	2: "row",
-	3: "level",
-	4: "position",
+var jsonFieldsNameOfUpdateCellRequest = [4]string{
+	0: "alias",
+	1: "row",
+	2: "level",
+	3: "position",
 }
 
 // Decode decodes UpdateCellRequest from json.
@@ -12294,20 +12202,8 @@ func (s *UpdateCellRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "alias":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Alias = string(v)
@@ -12319,7 +12215,7 @@ func (s *UpdateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"alias\"")
 			}
 		case "row":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Int()
 				s.Row = int(v)
@@ -12331,7 +12227,7 @@ func (s *UpdateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"row\"")
 			}
 		case "level":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Int()
 				s.Level = int(v)
@@ -12343,7 +12239,7 @@ func (s *UpdateCellRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"level\"")
 			}
 		case "position":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Int()
 				s.Position = int(v)
@@ -12364,7 +12260,7 @@ func (s *UpdateCellRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

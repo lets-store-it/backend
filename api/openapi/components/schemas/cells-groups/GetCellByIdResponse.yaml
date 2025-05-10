@@ -1,2 +1,6 @@
-allOf:
-  - $ref: models/CellBase.yaml
+type: object
+properties:
+  data:
+    $ref: models/Cell.yaml
+required:
+  - data

@@ -1557,7 +1557,7 @@ func (c *Client) DeleteCell(ctx context.Context, params DeleteCellParams) error 
 	return err
 }
 
-func (c *Client) sendDeleteCell(ctx context.Context, params DeleteCellParams) (res *DeleteCellOK, err error) {
+func (c *Client) sendDeleteCell(ctx context.Context, params DeleteCellParams) (res *DeleteCellNoContent, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteCell"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),

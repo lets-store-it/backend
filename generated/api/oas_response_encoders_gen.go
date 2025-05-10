@@ -429,9 +429,9 @@ func encodeCreateUnitResponse(response CreateUnitRes, w http.ResponseWriter, spa
 	}
 }
 
-func encodeDeleteCellResponse(response *DeleteCellOK, w http.ResponseWriter, span trace.Span) error {
-	w.WriteHeader(200)
-	span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeDeleteCellResponse(response *DeleteCellNoContent, w http.ResponseWriter, span trace.Span) error {
+	w.WriteHeader(204)
+	span.SetStatus(codes.Ok, http.StatusText(204))
 
 	return nil
 }

@@ -244,8 +244,9 @@ func (s *AuthResponse) SetSetCookie(val string) {
 
 func (*AuthResponse) exchangeYandexAccessTokenRes() {}
 
-// Ref: #/components/schemas/CellBase
-type CellBase struct {
+// Merged schema.
+// Ref: #/components/schemas/Cell
+type Cell struct {
 	ID       uuid.UUID `json:"id"`
 	Alias    string    `json:"alias"`
 	Row      int       `json:"row"`
@@ -254,52 +255,52 @@ type CellBase struct {
 }
 
 // GetID returns the value of ID.
-func (s *CellBase) GetID() uuid.UUID {
+func (s *Cell) GetID() uuid.UUID {
 	return s.ID
 }
 
 // GetAlias returns the value of Alias.
-func (s *CellBase) GetAlias() string {
+func (s *Cell) GetAlias() string {
 	return s.Alias
 }
 
 // GetRow returns the value of Row.
-func (s *CellBase) GetRow() int {
+func (s *Cell) GetRow() int {
 	return s.Row
 }
 
 // GetLevel returns the value of Level.
-func (s *CellBase) GetLevel() int {
+func (s *Cell) GetLevel() int {
 	return s.Level
 }
 
 // GetPosition returns the value of Position.
-func (s *CellBase) GetPosition() int {
+func (s *Cell) GetPosition() int {
 	return s.Position
 }
 
 // SetID sets the value of ID.
-func (s *CellBase) SetID(val uuid.UUID) {
+func (s *Cell) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
 // SetAlias sets the value of Alias.
-func (s *CellBase) SetAlias(val string) {
+func (s *Cell) SetAlias(val string) {
 	s.Alias = val
 }
 
 // SetRow sets the value of Row.
-func (s *CellBase) SetRow(val int) {
+func (s *Cell) SetRow(val int) {
 	s.Row = val
 }
 
 // SetLevel sets the value of Level.
-func (s *CellBase) SetLevel(val int) {
+func (s *Cell) SetLevel(val int) {
 	s.Level = val
 }
 
 // SetPosition sets the value of Position.
-func (s *CellBase) SetPosition(val int) {
+func (s *Cell) SetPosition(val int) {
 	s.Position = val
 }
 
@@ -591,16 +592,10 @@ func (*CreateCellForbidden) createCellRes() {}
 
 // Ref: #/components/schemas/CreateCellRequest
 type CreateCellRequest struct {
-	ID       uuid.UUID `json:"id"`
-	Alias    string    `json:"alias"`
-	Row      int       `json:"row"`
-	Level    int       `json:"level"`
-	Position int       `json:"position"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateCellRequest) GetID() uuid.UUID {
-	return s.ID
+	Alias    string `json:"alias"`
+	Row      int    `json:"row"`
+	Level    int    `json:"level"`
+	Position int    `json:"position"`
 }
 
 // GetAlias returns the value of Alias.
@@ -621,11 +616,6 @@ func (s *CreateCellRequest) GetLevel() int {
 // GetPosition returns the value of Position.
 func (s *CreateCellRequest) GetPosition() int {
 	return s.Position
-}
-
-// SetID sets the value of ID.
-func (s *CreateCellRequest) SetID(val uuid.UUID) {
-	s.ID = val
 }
 
 // SetAlias sets the value of Alias.
@@ -650,16 +640,16 @@ func (s *CreateCellRequest) SetPosition(val int) {
 
 // Ref: #/components/schemas/CreateCellResponse
 type CreateCellResponse struct {
-	Data CellBase `json:"data"`
+	Data Cell `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *CreateCellResponse) GetData() CellBase {
+func (s *CreateCellResponse) GetData() Cell {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *CreateCellResponse) SetData(val CellBase) {
+func (s *CreateCellResponse) SetData(val Cell) {
 	s.Data = val
 }
 
@@ -1224,8 +1214,8 @@ func (s *DefaultErrorStatusCode) SetResponse(val ErrorContent) {
 	s.Response = val
 }
 
-// DeleteCellOK is response for DeleteCell operation.
-type DeleteCellOK struct{}
+// DeleteCellNoContent is response for DeleteCell operation.
+type DeleteCellNoContent struct{}
 
 type DeleteCellsGroupForbidden ErrorContent
 
@@ -1517,61 +1507,17 @@ func (*GetAuditLogsUnauthorized) getAuditLogsRes() {}
 
 // Ref: #/components/schemas/GetCellByIdResponse
 type GetCellByIdResponse struct {
-	ID       uuid.UUID `json:"id"`
-	Alias    string    `json:"alias"`
-	Row      int       `json:"row"`
-	Level    int       `json:"level"`
-	Position int       `json:"position"`
+	Data Cell `json:"data"`
 }
 
-// GetID returns the value of ID.
-func (s *GetCellByIdResponse) GetID() uuid.UUID {
-	return s.ID
+// GetData returns the value of Data.
+func (s *GetCellByIdResponse) GetData() Cell {
+	return s.Data
 }
 
-// GetAlias returns the value of Alias.
-func (s *GetCellByIdResponse) GetAlias() string {
-	return s.Alias
-}
-
-// GetRow returns the value of Row.
-func (s *GetCellByIdResponse) GetRow() int {
-	return s.Row
-}
-
-// GetLevel returns the value of Level.
-func (s *GetCellByIdResponse) GetLevel() int {
-	return s.Level
-}
-
-// GetPosition returns the value of Position.
-func (s *GetCellByIdResponse) GetPosition() int {
-	return s.Position
-}
-
-// SetID sets the value of ID.
-func (s *GetCellByIdResponse) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *GetCellByIdResponse) SetAlias(val string) {
-	s.Alias = val
-}
-
-// SetRow sets the value of Row.
-func (s *GetCellByIdResponse) SetRow(val int) {
-	s.Row = val
-}
-
-// SetLevel sets the value of Level.
-func (s *GetCellByIdResponse) SetLevel(val int) {
-	s.Level = val
-}
-
-// SetPosition sets the value of Position.
-func (s *GetCellByIdResponse) SetPosition(val int) {
-	s.Position = val
+// SetData sets the value of Data.
+func (s *GetCellByIdResponse) SetData(val Cell) {
+	s.Data = val
 }
 
 type GetCellsForbidden ErrorContent
@@ -1630,16 +1576,16 @@ func (*GetCellsGroupsUnauthorized) getCellsGroupsRes() {}
 
 // Ref: #/components/schemas/GetCellsResponse
 type GetCellsResponse struct {
-	Data []CellBase `json:"data"`
+	Data []Cell `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *GetCellsResponse) GetData() []CellBase {
+func (s *GetCellsResponse) GetData() []Cell {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *GetCellsResponse) SetData(val []CellBase) {
+func (s *GetCellsResponse) SetData(val []Cell) {
 	s.Data = val
 }
 
@@ -3615,16 +3561,10 @@ func (*UpdateCellForbidden) updateCellRes() {}
 
 // Ref: #/components/schemas/UpdateCellRequest
 type UpdateCellRequest struct {
-	ID       uuid.UUID `json:"id"`
-	Alias    string    `json:"alias"`
-	Row      int       `json:"row"`
-	Level    int       `json:"level"`
-	Position int       `json:"position"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateCellRequest) GetID() uuid.UUID {
-	return s.ID
+	Alias    string `json:"alias"`
+	Row      int    `json:"row"`
+	Level    int    `json:"level"`
+	Position int    `json:"position"`
 }
 
 // GetAlias returns the value of Alias.
@@ -3645,11 +3585,6 @@ func (s *UpdateCellRequest) GetLevel() int {
 // GetPosition returns the value of Position.
 func (s *UpdateCellRequest) GetPosition() int {
 	return s.Position
-}
-
-// SetID sets the value of ID.
-func (s *UpdateCellRequest) SetID(val uuid.UUID) {
-	s.ID = val
 }
 
 // SetAlias sets the value of Alias.
@@ -3674,16 +3609,16 @@ func (s *UpdateCellRequest) SetPosition(val int) {
 
 // Ref: #/components/schemas/UpdateCellResponse
 type UpdateCellResponse struct {
-	Data CellBase `json:"data"`
+	Data Cell `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s *UpdateCellResponse) GetData() CellBase {
+func (s *UpdateCellResponse) GetData() Cell {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *UpdateCellResponse) SetData(val CellBase) {
+func (s *UpdateCellResponse) SetData(val Cell) {
 	s.Data = val
 }
 
