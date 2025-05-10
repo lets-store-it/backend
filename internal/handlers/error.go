@@ -52,7 +52,10 @@ func (h *RestApiImplementation) NewValidationError(ctx context.Context, message 
 
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
 	// var ogenErr ogenerrors.Error
+	var detailedErr *usecases.ErrDetailedValidationError
 	switch {
+	case errors.As(err, &detailedErr):
+		return h.NewValidationError(ctx, detailedErr.Message)
 	case errors.Is(err, usecases.ErrNotAuthorized):
 		return h.NewUnauthorizedError(ctx)
 	case errors.Is(err, usecases.ErrOrganizationIDMissing):

@@ -7,4 +7,6 @@ var (
 	ErrDuplicationError = errors.New("duplication error")
 	ErrValidationError  = errors.New("validation error")
 	ErrNotAuthorized    = errors.New("not authorized")
+
+	ErrUserNotFound = errors.New("user not found")
 )

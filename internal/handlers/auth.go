@@ -86,7 +86,7 @@ func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.R
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
-	return nil, nil
+	return &api.RevokeApiTokenNoContent{}, nil
 }
 
 func toRoleDTO(role *models.Role) api.Role {

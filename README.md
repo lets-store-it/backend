@@ -5,3 +5,9 @@
 ```bash
 make generate
 ```
+
+## Run server
+
+```bash
+go run cmd/server.go
+```
