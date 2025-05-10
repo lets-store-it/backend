@@ -31,7 +31,15 @@ properties:
   assignedTo:
     type: object
     nullable: true
-    $ref: ../../users/models/User.yaml
+    $ref: ../../employees/models/Employee.yaml
+  assignedAt:
+    type: string
+    format: date-time
+    nullable: true
+  completedAt:
+    type: string
+    format: date-time
+    nullable: true
 required:
   - id
   - status
@@ -40,3 +48,6 @@ required:
   - type
   - createdAt
   - description
+  - assignedTo
+  - assignedAt
+  - completedAt

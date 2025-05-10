@@ -15,6 +15,7 @@ import (
 	"github.com/let-store-it/backend/internal/services/item"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/storage"
+	"github.com/let-store-it/backend/internal/services/tasks"
 	"github.com/let-store-it/backend/internal/services/yandex"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -24,6 +25,7 @@ import (
 	itemUC "github.com/let-store-it/backend/internal/usecases/item"
 	organizationUC "github.com/let-store-it/backend/internal/usecases/organization"
 	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
+	taskUC "github.com/let-store-it/backend/internal/usecases/task"
 )
 
 // Server represents the main server instance and its dependencies
@@ -96,6 +98,14 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		PGXPool: pool,
 	})
 
+	taskService := tasks.New(tasks.TaskServiceConfig{
+		Queries:     queries,
+		PGXPool:     pool,
+		Auth:        authService,
+		Org:         orgService,
+		ItemService: itemService,
+	})
+
 	// Initialize use cases
 	itemUseCase := itemUC.New(itemUC.ItemUseCaseConfig{
 		Service:     itemService,
@@ -120,6 +130,10 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		AuthService:  authService,
 		AuditService: auditService,
 	})
+	taskUseCase := taskUC.New(taskUC.TaskUseCaseConfig{
+		TaskService: taskService,
+		AuthService: authService,
+	})
 
 	// Initialize auth middleware
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
@@ -133,6 +147,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		itemUseCase,
 		authUseCase,
 		auditUseCase,
+		taskUseCase,
 	)
 
 	// Setup API server with global telemetry providers

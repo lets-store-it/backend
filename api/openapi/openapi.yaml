@@ -88,8 +88,8 @@ paths:
   /me:
     $ref: paths/users/me.yaml
 
-  # /tasks:
-  #   $ref: paths/tasks/tasks.yaml
+  /tasks:
+    $ref: paths/tasks/tasks.yaml
 
   # /tasks/{id}:
   #   $ref: paths/tasks/tasks_{id}.yaml

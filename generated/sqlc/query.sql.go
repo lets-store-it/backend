@@ -157,7 +157,7 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 }
 
 const createItemInstance = `-- name: CreateItemInstance :one
-INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at
+INSERT INTO item_instance (org_id, item_id, variant_id, cell_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at
 `
 
 type CreateItemInstanceParams struct {
@@ -185,6 +185,7 @@ func (q *Queries) CreateItemInstance(ctx context.Context, arg CreateItemInstance
 		&i.VariantID,
 		&i.CellID,
 		&i.Status,
+		&i.AffectedByTaskID,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -356,15 +357,16 @@ func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroup
 }
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
+INSERT INTO task (org_id, unit_id, type, name, description, assigned_to_user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
 `
 
 type CreateTaskParams struct {
-	OrgID       pgtype.UUID
-	UnitID      pgtype.UUID
-	Type        string
-	Name        string
-	Description pgtype.Text
+	OrgID            pgtype.UUID
+	UnitID           pgtype.UUID
+	Type             string
+	Name             string
+	Description      pgtype.Text
+	AssignedToUserID pgtype.UUID
 }
 
 // Tasks
@@ -375,6 +377,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 		arg.Type,
 		arg.Name,
 		arg.Description,
+		arg.AssignedToUserID,
 	)
 	var i Task
 	err := row.Scan(
@@ -390,6 +393,38 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 		&i.CompletedAt,
 		&i.CreatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createTaskItem = `-- name: CreateTaskItem :one
+INSERT INTO task_item (org_id, task_id, item_instance_id, source_cell_id, destination_cell_id) VALUES ($1, $2, $3, $4, $5) RETURNING org_id, task_id, item_instance_id, status, source_cell_id, destination_cell_id
+`
+
+type CreateTaskItemParams struct {
+	OrgID             pgtype.UUID
+	TaskID            pgtype.UUID
+	ItemInstanceID    pgtype.UUID
+	SourceCellID      pgtype.UUID
+	DestinationCellID pgtype.UUID
+}
+
+func (q *Queries) CreateTaskItem(ctx context.Context, arg CreateTaskItemParams) (TaskItem, error) {
+	row := q.db.QueryRow(ctx, createTaskItem,
+		arg.OrgID,
+		arg.TaskID,
+		arg.ItemInstanceID,
+		arg.SourceCellID,
+		arg.DestinationCellID,
+	)
+	var i TaskItem
+	err := row.Scan(
+		&i.OrgID,
+		&i.TaskID,
+		&i.ItemInstanceID,
+		&i.Status,
+		&i.SourceCellID,
+		&i.DestinationCellID,
 	)
 	return i, err
 }
@@ -942,7 +977,7 @@ func (q *Queries) GetItemById(ctx context.Context, arg GetItemByIdParams) (Item,
 }
 
 const getItemInstance = `-- name: GetItemInstance :one
-SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetItemInstanceParams struct {
@@ -960,6 +995,7 @@ func (q *Queries) GetItemInstance(ctx context.Context, arg GetItemInstanceParams
 		&i.VariantID,
 		&i.CellID,
 		&i.Status,
+		&i.AffectedByTaskID,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -967,7 +1003,7 @@ func (q *Queries) GetItemInstance(ctx context.Context, arg GetItemInstanceParams
 }
 
 const getItemInstancesForCell = `-- name: GetItemInstancesForCell :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND cell_id = $2 AND deleted_at IS NULL
 `
 
 type GetItemInstancesForCellParams struct {
@@ -991,6 +1027,7 @@ func (q *Queries) GetItemInstancesForCell(ctx context.Context, arg GetItemInstan
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
+			&i.AffectedByTaskID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -1005,7 +1042,7 @@ func (q *Queries) GetItemInstancesForCell(ctx context.Context, arg GetItemInstan
 }
 
 const getItemInstancesForCellsGroup = `-- name: GetItemInstancesForCellsGroup :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL
 `
 
 type GetItemInstancesForCellsGroupParams struct {
@@ -1029,6 +1066,7 @@ func (q *Queries) GetItemInstancesForCellsGroup(ctx context.Context, arg GetItem
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
+			&i.AffectedByTaskID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -1043,7 +1081,7 @@ func (q *Queries) GetItemInstancesForCellsGroup(ctx context.Context, arg GetItem
 }
 
 const getItemInstancesForItem = `-- name: GetItemInstancesForItem :many
-SELECT id, org_id, item_id, variant_id, cell_id, status, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
 `
 
 type GetItemInstancesForItemParams struct {
@@ -1067,6 +1105,7 @@ func (q *Queries) GetItemInstancesForItem(ctx context.Context, arg GetItemInstan
 			&i.VariantID,
 			&i.CellID,
 			&i.Status,
+			&i.AffectedByTaskID,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
@@ -1425,6 +1464,43 @@ func (q *Queries) GetStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]St
 			&i.Name,
 			&i.Alias,
 			&i.Description,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTasks = `-- name: GetTasks :many
+SELECT id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at FROM task WHERE org_id = $1
+`
+
+func (q *Queries) GetTasks(ctx context.Context, orgID pgtype.UUID) ([]Task, error) {
+	rows, err := q.db.Query(ctx, getTasks, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.UnitID,
+			&i.Type,
+			&i.Status,
+			&i.Name,
+			&i.Description,
+			&i.AssignedToUserID,
+			&i.AssignedAt,
+			&i.CompletedAt,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {

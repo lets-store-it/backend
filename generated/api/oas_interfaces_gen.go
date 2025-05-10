@@ -33,6 +33,10 @@ type CreateStorageGroupRes interface {
 	createStorageGroupRes()
 }
 
+type CreateTaskRes interface {
+	createTaskRes()
+}
+
 type CreateUnitRes interface {
 	createUnitRes()
 }
@@ -155,6 +159,10 @@ type GetStorageGroupByIdRes interface {
 
 type GetStorageGroupsRes interface {
 	getStorageGroupsRes()
+}
+
+type GetTasksRes interface {
+	getTasksRes()
 }
 
 type InviteEmployeeRes interface {

@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    readOnly: true
+  instance:
+    $ref: ../../../schemas/instances/models/InstanceFull.yaml
+  sourceCell:
+    $ref: ../../../schemas/cells-groups/models/CellForInstance.yaml
+  targetCell:
+    nullable: true
+    $ref: ../../../schemas/cells-groups/models/CellForInstance.yaml
+required:
+  - sourceCell
+  - targetCell
+  - instance
+  - id

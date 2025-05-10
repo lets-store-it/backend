@@ -292,7 +292,6 @@ class TestCellsGroup:
         data = response.json()["data"]
         assert data["name"] == cells_group_name
         assert data["alias"] == alias
-        print(data)
         assert data["unitId"] == organization_unit["id"]
 
         # Update
@@ -343,15 +342,13 @@ class TestItem:
         assert response.status_code == 200, response.text
         item_data = response.json()["data"]
         item_id = item_data["id"]
-        print(item_data)
         assert item_data["name"] == name
         assert item_data["description"] == description
 
         # List
         response = api_client_with_organization.get("/items")
-        assert response.status_code == 200
+        assert response.status_code == 200, response.text
         data = response.json()["data"]
-        print(data)
         filtered = (x for x in data if x["id"] == item_id)
         item = next(filtered)
         assert item is not None
@@ -598,14 +595,22 @@ class TestInstance:
         assert response.status_code == 200, response.text
         cell_group_data = response.json()["data"]
 
-        # Create Cell
-        alias = generate_random_string()
+        # Create Cells
+        alias_1 = generate_random_string()
         response = api_client_with_organization.post(
             f"/cells-groups/{cell_group_data['id']}/cells",
-            {"alias": alias, "row": 1, "level": 1, "position": 1},
+            {"alias": alias_1, "row": 1, "level": 1, "position": 1},
         )
         assert response.status_code == 200, response.text
-        cell_data = response.json()["data"]
+        cell_data_1 = response.json()["data"]
+
+        alias_2 = generate_random_string()
+        response = api_client_with_organization.post(
+            f"/cells-groups/{cell_group_data['id']}/cells",
+            {"alias": alias_2, "row": 2, "level": 1, "position": 1},
+        )
+        assert response.status_code == 200, response.text
+        cell_data_2 = response.json()["data"]
 
         # Create Item
         item_name = str(uuid.uuid4())
@@ -618,9 +623,10 @@ class TestInstance:
 
         # Create Variant
         variant_name = str(uuid.uuid4())
+        article = str(random.randint(100000000000, 999999999999))
         response = api_client_with_organization.post(
             f"/items/{item_data['id']}/variants",
-            {"name": variant_name},
+            {"name": variant_name, "article": article},
         )
         assert response.status_code == 200, response.text
         variant_data = response.json()["data"]
@@ -630,11 +636,43 @@ class TestInstance:
             f"/items/{item_data['id']}/instances",
             data={
                 "variantId": variant_data["id"],
-                "cellId": cell_data["id"],
+                "cellId": cell_data_1["id"],
             },
         )
         assert response.status_code == 200, response.text
         instance_data = response.json()["data"]
-        print(instance_data)
+        assert instance_data["status"] == "available"
         assert instance_data["variant"]["id"] == variant_data["id"]
-        assert instance_data["cell"]["id"] == cell_data["id"]
+        assert instance_data["variant"]["name"] == variant_name
+        assert instance_data["variant"]["article"] == article
+
+        assert instance_data["cell"]["id"] == cell_data_1["id"]
+        assert instance_data["cell"]["alias"] == alias_1
+        assert instance_data["cell"]["row"] == 1
+        assert instance_data["cell"]["level"] == 1
+        assert instance_data["cell"]["position"] == 1
+
+        # create task
+        response = api_client_with_organization.post(
+            "/tasks",
+            data={
+                "name": "Перемещение",
+                "description": "Перемещение в ячейку 2",
+                "instanceId": instance_data["id"],
+                "type": "movement",
+                "unitId": organization_unit["id"],
+                "items": [
+                    {
+                        "instanceId": instance_data["id"],
+                        "targetCellId": cell_data_2["id"],
+                    }
+                ],
+            },
+        )
+
+        assert response.status_code == 200, print(response.text)
+
+        # # List
+        # response = api_client_with_organization.get(
+        #     f"/items/{item_data['id']}/instances"
+        # )

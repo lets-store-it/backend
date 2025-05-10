@@ -1085,6 +1085,167 @@ type CreateStorageGroupUnauthorized ErrorContent
 
 func (*CreateStorageGroupUnauthorized) createStorageGroupRes() {}
 
+type CreateTaskForbidden ErrorContent
+
+func (*CreateTaskForbidden) createTaskRes() {}
+
+// Ref: #/components/schemas/CreateTaskRequest
+type CreateTaskRequest struct {
+	Name        string                       `json:"name"`
+	Description OptNilString                 `json:"description"`
+	Type        CreateTaskRequestType        `json:"type"`
+	UnitId      uuid.UUID                    `json:"unitId"`
+	AssignedTo  OptNilUUID                   `json:"assignedTo"`
+	Items       []CreateTaskRequestItemsItem `json:"items"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateTaskRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateTaskRequest) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetType returns the value of Type.
+func (s *CreateTaskRequest) GetType() CreateTaskRequestType {
+	return s.Type
+}
+
+// GetUnitId returns the value of UnitId.
+func (s *CreateTaskRequest) GetUnitId() uuid.UUID {
+	return s.UnitId
+}
+
+// GetAssignedTo returns the value of AssignedTo.
+func (s *CreateTaskRequest) GetAssignedTo() OptNilUUID {
+	return s.AssignedTo
+}
+
+// GetItems returns the value of Items.
+func (s *CreateTaskRequest) GetItems() []CreateTaskRequestItemsItem {
+	return s.Items
+}
+
+// SetName sets the value of Name.
+func (s *CreateTaskRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateTaskRequest) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetType sets the value of Type.
+func (s *CreateTaskRequest) SetType(val CreateTaskRequestType) {
+	s.Type = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *CreateTaskRequest) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
+}
+
+// SetAssignedTo sets the value of AssignedTo.
+func (s *CreateTaskRequest) SetAssignedTo(val OptNilUUID) {
+	s.AssignedTo = val
+}
+
+// SetItems sets the value of Items.
+func (s *CreateTaskRequest) SetItems(val []CreateTaskRequestItemsItem) {
+	s.Items = val
+}
+
+type CreateTaskRequestItemsItem struct {
+	InstanceId   uuid.UUID `json:"instanceId"`
+	TargetCellId OptUUID   `json:"targetCellId"`
+}
+
+// GetInstanceId returns the value of InstanceId.
+func (s *CreateTaskRequestItemsItem) GetInstanceId() uuid.UUID {
+	return s.InstanceId
+}
+
+// GetTargetCellId returns the value of TargetCellId.
+func (s *CreateTaskRequestItemsItem) GetTargetCellId() OptUUID {
+	return s.TargetCellId
+}
+
+// SetInstanceId sets the value of InstanceId.
+func (s *CreateTaskRequestItemsItem) SetInstanceId(val uuid.UUID) {
+	s.InstanceId = val
+}
+
+// SetTargetCellId sets the value of TargetCellId.
+func (s *CreateTaskRequestItemsItem) SetTargetCellId(val OptUUID) {
+	s.TargetCellId = val
+}
+
+type CreateTaskRequestType string
+
+const (
+	CreateTaskRequestTypePick     CreateTaskRequestType = "pick"
+	CreateTaskRequestTypeMovement CreateTaskRequestType = "movement"
+)
+
+// AllValues returns all CreateTaskRequestType values.
+func (CreateTaskRequestType) AllValues() []CreateTaskRequestType {
+	return []CreateTaskRequestType{
+		CreateTaskRequestTypePick,
+		CreateTaskRequestTypeMovement,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateTaskRequestType) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateTaskRequestTypePick:
+		return []byte(s), nil
+	case CreateTaskRequestTypeMovement:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateTaskRequestType) UnmarshalText(data []byte) error {
+	switch CreateTaskRequestType(data) {
+	case CreateTaskRequestTypePick:
+		*s = CreateTaskRequestTypePick
+		return nil
+	case CreateTaskRequestTypeMovement:
+		*s = CreateTaskRequestTypeMovement
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/CreateTaskResponse
+type CreateTaskResponse struct {
+	Data TaskFull `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateTaskResponse) GetData() TaskFull {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateTaskResponse) SetData(val TaskFull) {
+	s.Data = val
+}
+
+func (*CreateTaskResponse) createTaskRes() {}
+
+type CreateTaskUnauthorized ErrorContent
+
+func (*CreateTaskUnauthorized) createTaskRes() {}
+
 type CreateUnitForbidden ErrorContent
 
 func (*CreateUnitForbidden) createUnitRes() {}
@@ -2018,6 +2179,31 @@ type GetStorageGroupsUnauthorized ErrorContent
 
 func (*GetStorageGroupsUnauthorized) getStorageGroupsRes() {}
 
+type GetTasksForbidden ErrorContent
+
+func (*GetTasksForbidden) getTasksRes() {}
+
+// Ref: #/components/schemas/GetTasksResponse
+type GetTasksResponse struct {
+	Data []TaskBase `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetTasksResponse) GetData() []TaskBase {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetTasksResponse) SetData(val []TaskBase) {
+	s.Data = val
+}
+
+func (*GetTasksResponse) getTasksRes() {}
+
+type GetTasksUnauthorized ErrorContent
+
+func (*GetTasksUnauthorized) getTasksRes() {}
+
 // Ref: #/components/schemas/InstanceForItem
 type InstanceForItem struct {
 	ID      uuid.UUID             `json:"id"`
@@ -2119,7 +2305,7 @@ type InstanceFull struct {
 	// Instance ID.
 	ID      uuid.UUID          `json:"id"`
 	Status  InstanceFullStatus `json:"status"`
-	Item    OptItem            `json:"item"`
+	Item    ItemForList        `json:"item"`
 	Variant ItemVariant        `json:"variant"`
 	Cell    CellForInstance    `json:"cell"`
 }
@@ -2135,7 +2321,7 @@ func (s *InstanceFull) GetStatus() InstanceFullStatus {
 }
 
 // GetItem returns the value of Item.
-func (s *InstanceFull) GetItem() OptItem {
+func (s *InstanceFull) GetItem() ItemForList {
 	return s.Item
 }
 
@@ -2160,7 +2346,7 @@ func (s *InstanceFull) SetStatus(val InstanceFullStatus) {
 }
 
 // SetItem sets the value of Item.
-func (s *InstanceFull) SetItem(val OptItem) {
+func (s *InstanceFull) SetItem(val ItemForList) {
 	s.Item = val
 }
 
@@ -2257,46 +2443,6 @@ type InviteEmployeeUnauthorized ErrorContent
 func (*InviteEmployeeUnauthorized) inviteEmployeeRes() {}
 
 // Merged schema.
-// Ref: #/components/schemas/Item
-type Item struct {
-	// Merged property.
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
-	// Merged property.
-	Description NilString `json:"description"`
-}
-
-// GetID returns the value of ID.
-func (s *Item) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *Item) GetName() string {
-	return s.Name
-}
-
-// GetDescription returns the value of Description.
-func (s *Item) GetDescription() NilString {
-	return s.Description
-}
-
-// SetID sets the value of ID.
-func (s *Item) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *Item) SetName(val string) {
-	s.Name = val
-}
-
-// SetDescription sets the value of Description.
-func (s *Item) SetDescription(val NilString) {
-	s.Description = val
-}
-
-// Merged schema.
 // Ref: #/components/schemas/ItemForList
 type ItemForList struct {
 	// Merged property.
@@ -2356,7 +2502,7 @@ type ItemFull struct {
 	// Merged property.
 	Description NilString         `json:"description"`
 	Variants    []ItemVariant     `json:"variants"`
-	Instances   []InstanceForItem `json:"instances"`
+	Items       []InstanceForItem `json:"items"`
 }
 
 // GetID returns the value of ID.
@@ -2379,9 +2525,9 @@ func (s *ItemFull) GetVariants() []ItemVariant {
 	return s.Variants
 }
 
-// GetInstances returns the value of Instances.
-func (s *ItemFull) GetInstances() []InstanceForItem {
-	return s.Instances
+// GetItems returns the value of Items.
+func (s *ItemFull) GetItems() []InstanceForItem {
+	return s.Items
 }
 
 // SetID sets the value of ID.
@@ -2404,9 +2550,9 @@ func (s *ItemFull) SetVariants(val []ItemVariant) {
 	s.Variants = val
 }
 
-// SetInstances sets the value of Instances.
-func (s *ItemFull) SetInstances(val []InstanceForItem) {
-	s.Instances = val
+// SetItems sets the value of Items.
+func (s *ItemFull) SetItems(val []InstanceForItem) {
+	s.Items = val
 }
 
 // Merged schema.
@@ -2561,6 +2707,51 @@ func (o NilAuditLogPrechangeState) Get() (v AuditLogPrechangeState, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilAuditLogPrechangeState) Or(d AuditLogPrechangeState) AuditLogPrechangeState {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilDateTime returns new NilDateTime with value set to v.
+func NewNilDateTime(v time.Time) NilDateTime {
+	return NilDateTime{
+		Value: v,
+	}
+}
+
+// NilDateTime is nullable time.Time.
+type NilDateTime struct {
+	Value time.Time
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilDateTime) SetTo(v time.Time) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilDateTime) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilDateTime) SetToNull() {
+	o.Null = true
+	var v time.Time
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilDateTime) Get() (v time.Time, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilDateTime) Or(d time.Time) time.Time {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -2742,52 +2933,6 @@ func (o OptInt) Get() (v int, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt) Or(d int) int {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptItem returns new OptItem with value set to v.
-func NewOptItem(v Item) OptItem {
-	return OptItem{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptItem is optional Item.
-type OptItem struct {
-	Value Item
-	Set   bool
-}
-
-// IsSet returns true if OptItem was set.
-func (o OptItem) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptItem) Reset() {
-	var v Item
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptItem) SetTo(v Item) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptItem) Get() (v Item, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptItem) Or(d Item) Item {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3369,6 +3514,500 @@ func (s *StorageGroup) SetName(val string) {
 // SetAlias sets the value of Alias.
 func (s *StorageGroup) SetAlias(val StorageAlias) {
 	s.Alias = val
+}
+
+// Ref: #/components/schemas/TaskBase
+type TaskBase struct {
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description NilString      `json:"description"`
+	Type        TaskBaseType   `json:"type"`
+	Status      TaskBaseStatus `json:"status"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	Unit        Unit           `json:"unit"`
+	AssignedTo  Employee       `json:"assignedTo"`
+	AssignedAt  NilDateTime    `json:"assignedAt"`
+	CompletedAt NilDateTime    `json:"completedAt"`
+}
+
+// GetID returns the value of ID.
+func (s *TaskBase) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TaskBase) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *TaskBase) GetDescription() NilString {
+	return s.Description
+}
+
+// GetType returns the value of Type.
+func (s *TaskBase) GetType() TaskBaseType {
+	return s.Type
+}
+
+// GetStatus returns the value of Status.
+func (s *TaskBase) GetStatus() TaskBaseStatus {
+	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *TaskBase) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUnit returns the value of Unit.
+func (s *TaskBase) GetUnit() Unit {
+	return s.Unit
+}
+
+// GetAssignedTo returns the value of AssignedTo.
+func (s *TaskBase) GetAssignedTo() Employee {
+	return s.AssignedTo
+}
+
+// GetAssignedAt returns the value of AssignedAt.
+func (s *TaskBase) GetAssignedAt() NilDateTime {
+	return s.AssignedAt
+}
+
+// GetCompletedAt returns the value of CompletedAt.
+func (s *TaskBase) GetCompletedAt() NilDateTime {
+	return s.CompletedAt
+}
+
+// SetID sets the value of ID.
+func (s *TaskBase) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TaskBase) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *TaskBase) SetDescription(val NilString) {
+	s.Description = val
+}
+
+// SetType sets the value of Type.
+func (s *TaskBase) SetType(val TaskBaseType) {
+	s.Type = val
+}
+
+// SetStatus sets the value of Status.
+func (s *TaskBase) SetStatus(val TaskBaseStatus) {
+	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *TaskBase) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUnit sets the value of Unit.
+func (s *TaskBase) SetUnit(val Unit) {
+	s.Unit = val
+}
+
+// SetAssignedTo sets the value of AssignedTo.
+func (s *TaskBase) SetAssignedTo(val Employee) {
+	s.AssignedTo = val
+}
+
+// SetAssignedAt sets the value of AssignedAt.
+func (s *TaskBase) SetAssignedAt(val NilDateTime) {
+	s.AssignedAt = val
+}
+
+// SetCompletedAt sets the value of CompletedAt.
+func (s *TaskBase) SetCompletedAt(val NilDateTime) {
+	s.CompletedAt = val
+}
+
+type TaskBaseStatus string
+
+const (
+	TaskBaseStatusPending           TaskBaseStatus = "pending"
+	TaskBaseStatusInProgress        TaskBaseStatus = "in_progress"
+	TaskBaseStatusAwaitingToCollect TaskBaseStatus = "awaiting_to_collect"
+	TaskBaseStatusCompleted         TaskBaseStatus = "completed"
+	TaskBaseStatusFailed            TaskBaseStatus = "failed"
+)
+
+// AllValues returns all TaskBaseStatus values.
+func (TaskBaseStatus) AllValues() []TaskBaseStatus {
+	return []TaskBaseStatus{
+		TaskBaseStatusPending,
+		TaskBaseStatusInProgress,
+		TaskBaseStatusAwaitingToCollect,
+		TaskBaseStatusCompleted,
+		TaskBaseStatusFailed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TaskBaseStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case TaskBaseStatusPending:
+		return []byte(s), nil
+	case TaskBaseStatusInProgress:
+		return []byte(s), nil
+	case TaskBaseStatusAwaitingToCollect:
+		return []byte(s), nil
+	case TaskBaseStatusCompleted:
+		return []byte(s), nil
+	case TaskBaseStatusFailed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TaskBaseStatus) UnmarshalText(data []byte) error {
+	switch TaskBaseStatus(data) {
+	case TaskBaseStatusPending:
+		*s = TaskBaseStatusPending
+		return nil
+	case TaskBaseStatusInProgress:
+		*s = TaskBaseStatusInProgress
+		return nil
+	case TaskBaseStatusAwaitingToCollect:
+		*s = TaskBaseStatusAwaitingToCollect
+		return nil
+	case TaskBaseStatusCompleted:
+		*s = TaskBaseStatusCompleted
+		return nil
+	case TaskBaseStatusFailed:
+		*s = TaskBaseStatusFailed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type TaskBaseType string
+
+const (
+	TaskBaseTypePick     TaskBaseType = "pick"
+	TaskBaseTypeMovement TaskBaseType = "movement"
+)
+
+// AllValues returns all TaskBaseType values.
+func (TaskBaseType) AllValues() []TaskBaseType {
+	return []TaskBaseType{
+		TaskBaseTypePick,
+		TaskBaseTypeMovement,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TaskBaseType) MarshalText() ([]byte, error) {
+	switch s {
+	case TaskBaseTypePick:
+		return []byte(s), nil
+	case TaskBaseTypeMovement:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TaskBaseType) UnmarshalText(data []byte) error {
+	switch TaskBaseType(data) {
+	case TaskBaseTypePick:
+		*s = TaskBaseTypePick
+		return nil
+	case TaskBaseTypeMovement:
+		*s = TaskBaseTypeMovement
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/TaskFull
+type TaskFull struct {
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description NilString      `json:"description"`
+	Type        TaskFullType   `json:"type"`
+	Status      TaskFullStatus `json:"status"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	Unit        Unit           `json:"unit"`
+	AssignedTo  Employee       `json:"assignedTo"`
+	AssignedAt  NilDateTime    `json:"assignedAt"`
+	CompletedAt NilDateTime    `json:"completedAt"`
+	Instances   []TaskItem     `json:"instances"`
+}
+
+// GetID returns the value of ID.
+func (s *TaskFull) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TaskFull) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *TaskFull) GetDescription() NilString {
+	return s.Description
+}
+
+// GetType returns the value of Type.
+func (s *TaskFull) GetType() TaskFullType {
+	return s.Type
+}
+
+// GetStatus returns the value of Status.
+func (s *TaskFull) GetStatus() TaskFullStatus {
+	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *TaskFull) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUnit returns the value of Unit.
+func (s *TaskFull) GetUnit() Unit {
+	return s.Unit
+}
+
+// GetAssignedTo returns the value of AssignedTo.
+func (s *TaskFull) GetAssignedTo() Employee {
+	return s.AssignedTo
+}
+
+// GetAssignedAt returns the value of AssignedAt.
+func (s *TaskFull) GetAssignedAt() NilDateTime {
+	return s.AssignedAt
+}
+
+// GetCompletedAt returns the value of CompletedAt.
+func (s *TaskFull) GetCompletedAt() NilDateTime {
+	return s.CompletedAt
+}
+
+// GetInstances returns the value of Instances.
+func (s *TaskFull) GetInstances() []TaskItem {
+	return s.Instances
+}
+
+// SetID sets the value of ID.
+func (s *TaskFull) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TaskFull) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *TaskFull) SetDescription(val NilString) {
+	s.Description = val
+}
+
+// SetType sets the value of Type.
+func (s *TaskFull) SetType(val TaskFullType) {
+	s.Type = val
+}
+
+// SetStatus sets the value of Status.
+func (s *TaskFull) SetStatus(val TaskFullStatus) {
+	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *TaskFull) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUnit sets the value of Unit.
+func (s *TaskFull) SetUnit(val Unit) {
+	s.Unit = val
+}
+
+// SetAssignedTo sets the value of AssignedTo.
+func (s *TaskFull) SetAssignedTo(val Employee) {
+	s.AssignedTo = val
+}
+
+// SetAssignedAt sets the value of AssignedAt.
+func (s *TaskFull) SetAssignedAt(val NilDateTime) {
+	s.AssignedAt = val
+}
+
+// SetCompletedAt sets the value of CompletedAt.
+func (s *TaskFull) SetCompletedAt(val NilDateTime) {
+	s.CompletedAt = val
+}
+
+// SetInstances sets the value of Instances.
+func (s *TaskFull) SetInstances(val []TaskItem) {
+	s.Instances = val
+}
+
+type TaskFullStatus string
+
+const (
+	TaskFullStatusPending           TaskFullStatus = "pending"
+	TaskFullStatusInProgress        TaskFullStatus = "in_progress"
+	TaskFullStatusAwaitingToCollect TaskFullStatus = "awaiting_to_collect"
+	TaskFullStatusCompleted         TaskFullStatus = "completed"
+	TaskFullStatusFailed            TaskFullStatus = "failed"
+)
+
+// AllValues returns all TaskFullStatus values.
+func (TaskFullStatus) AllValues() []TaskFullStatus {
+	return []TaskFullStatus{
+		TaskFullStatusPending,
+		TaskFullStatusInProgress,
+		TaskFullStatusAwaitingToCollect,
+		TaskFullStatusCompleted,
+		TaskFullStatusFailed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TaskFullStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case TaskFullStatusPending:
+		return []byte(s), nil
+	case TaskFullStatusInProgress:
+		return []byte(s), nil
+	case TaskFullStatusAwaitingToCollect:
+		return []byte(s), nil
+	case TaskFullStatusCompleted:
+		return []byte(s), nil
+	case TaskFullStatusFailed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TaskFullStatus) UnmarshalText(data []byte) error {
+	switch TaskFullStatus(data) {
+	case TaskFullStatusPending:
+		*s = TaskFullStatusPending
+		return nil
+	case TaskFullStatusInProgress:
+		*s = TaskFullStatusInProgress
+		return nil
+	case TaskFullStatusAwaitingToCollect:
+		*s = TaskFullStatusAwaitingToCollect
+		return nil
+	case TaskFullStatusCompleted:
+		*s = TaskFullStatusCompleted
+		return nil
+	case TaskFullStatusFailed:
+		*s = TaskFullStatusFailed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type TaskFullType string
+
+const (
+	TaskFullTypePick     TaskFullType = "pick"
+	TaskFullTypeMovement TaskFullType = "movement"
+)
+
+// AllValues returns all TaskFullType values.
+func (TaskFullType) AllValues() []TaskFullType {
+	return []TaskFullType{
+		TaskFullTypePick,
+		TaskFullTypeMovement,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TaskFullType) MarshalText() ([]byte, error) {
+	switch s {
+	case TaskFullTypePick:
+		return []byte(s), nil
+	case TaskFullTypeMovement:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TaskFullType) UnmarshalText(data []byte) error {
+	switch TaskFullType(data) {
+	case TaskFullTypePick:
+		*s = TaskFullTypePick
+		return nil
+	case TaskFullTypeMovement:
+		*s = TaskFullTypeMovement
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/TaskItem
+type TaskItem struct {
+	ID         uuid.UUID       `json:"id"`
+	Instance   InstanceFull    `json:"instance"`
+	SourceCell CellForInstance `json:"sourceCell"`
+	TargetCell CellForInstance `json:"targetCell"`
+}
+
+// GetID returns the value of ID.
+func (s *TaskItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetInstance returns the value of Instance.
+func (s *TaskItem) GetInstance() InstanceFull {
+	return s.Instance
+}
+
+// GetSourceCell returns the value of SourceCell.
+func (s *TaskItem) GetSourceCell() CellForInstance {
+	return s.SourceCell
+}
+
+// GetTargetCell returns the value of TargetCell.
+func (s *TaskItem) GetTargetCell() CellForInstance {
+	return s.TargetCell
+}
+
+// SetID sets the value of ID.
+func (s *TaskItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetInstance sets the value of Instance.
+func (s *TaskItem) SetInstance(val InstanceFull) {
+	s.Instance = val
+}
+
+// SetSourceCell sets the value of SourceCell.
+func (s *TaskItem) SetSourceCell(val CellForInstance) {
+	s.SourceCell = val
+}
+
+// SetTargetCell sets the value of TargetCell.
+func (s *TaskItem) SetTargetCell(val CellForInstance) {
+	s.TargetCell = val
 }
 
 // Ref: #/components/schemas/Token

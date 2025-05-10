@@ -44,6 +44,23 @@ func convertItemInstanceToDTO(itemInstance *models.ItemInstance) api.InstanceFor
 	}
 }
 
+func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.InstanceFull {
+	var description api.NilString
+	PtrToApiNil(itemInstance.Item.Description, &description)
+	return api.InstanceFull{
+		ID:      itemInstance.ID,
+		Status:  api.InstanceFullStatus(itemInstance.Status),
+		Variant: convertItemVariantToDTO(itemInstance.Variant),
+		Cell:    convertCellToDTO(itemInstance.Cell),
+		Item: api.ItemForList{
+			ID:          itemInstance.Item.ID,
+			Name:        itemInstance.Item.Name,
+			Description: description,
+			Variants:    convertItemVariantsToDTO(itemInstance.Item.Variants),
+		},
+	}
+}
+
 func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
 	var article api.NilString
 	PtrToApiNil(variant.Article, &article)
@@ -67,13 +84,13 @@ func convertItemVariantsToDTO(variants []*models.ItemVariant) []api.ItemVariant 
 	return dtoVariants
 }
 
-func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []api.InstanceForItem {
+func convertItemInstancesForItemToDTO(itemInstances []*models.ItemInstance) []api.InstanceForItem {
 	if itemInstances == nil {
-		return nil
+		return []api.InstanceForItem{}
 	}
 
-	dtoInstances := make([]api.InstanceForItem, 0, len(*itemInstances))
-	for _, instance := range *itemInstances {
+	dtoInstances := make([]api.InstanceForItem, 0, len(itemInstances))
+	for _, instance := range itemInstances {
 
 		var cellPath []api.CellForInstanceCellPathItem
 		for _, pathSegment := range *instance.Cell.Path {
@@ -112,11 +129,11 @@ func convertItemInstancesForItemToDTO(itemInstances *[]models.ItemInstance) []ap
 	}
 	return dtoInstances
 }
-func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstance) api.ItemFull {
-	var variants []api.ItemVariant
+func convertItemToFullDTO(item *models.Item, itemInstances []*models.ItemInstance) api.ItemFull {
+	variants := make([]api.ItemVariant, 0, len(item.Variants))
 	if item.Variants != nil {
-		for _, variant := range *item.Variants {
-			variants = append(variants, convertItemVariantToDTO(&variant))
+		for _, variant := range item.Variants {
+			variants = append(variants, convertItemVariantToDTO(variant))
 		}
 	}
 
@@ -128,7 +145,7 @@ func convertItemToFullDTO(item *models.Item, itemInstances *[]models.ItemInstanc
 		Name:        item.Name,
 		Description: description,
 		Variants:    variants,
-		Instances:   convertItemInstancesForItemToDTO(itemInstances),
+		Items:       convertItemInstancesForItemToDTO(itemInstances),
 	}
 }
 
@@ -172,10 +189,10 @@ func (h *RestApiImplementation) GetItems(ctx context.Context) (api.GetItemsRes, 
 
 	dtoItems := make([]api.ItemForList, 0, len(items))
 	for _, item := range items {
-		var variants []api.ItemVariant
+		variants := make([]api.ItemVariant, 0, len(item.Variants))
 		if item.Variants != nil {
-			for _, variant := range *item.Variants {
-				variants = append(variants, convertItemVariantToDTO(&variant))
+			for _, variant := range item.Variants {
+				variants = append(variants, convertItemVariantToDTO(variant))
 			}
 		}
 

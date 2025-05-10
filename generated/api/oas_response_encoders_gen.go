@@ -64,6 +64,14 @@ func encodeCreateApiTokenResponse(response CreateApiTokenRes, w http.ResponseWri
 func encodeCreateCellResponse(response CreateCellRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateCellResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -110,6 +118,14 @@ func encodeCreateCellResponse(response CreateCellRes, w http.ResponseWriter, spa
 func encodeCreateCellsGroupResponse(response CreateCellsGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateCellsGroupResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -156,6 +172,14 @@ func encodeCreateCellsGroupResponse(response CreateCellsGroupRes, w http.Respons
 func encodeCreateInstanceForItemResponse(response CreateInstanceForItemRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateInstanceForItemResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -202,6 +226,14 @@ func encodeCreateInstanceForItemResponse(response CreateInstanceForItemRes, w ht
 func encodeCreateItemResponse(response CreateItemRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateItemResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -294,6 +326,14 @@ func encodeCreateItemVariantResponse(response CreateItemVariantRes, w http.Respo
 func encodeCreateOrganizationResponse(response CreateOrganizationRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateOrganizationResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -340,6 +380,14 @@ func encodeCreateOrganizationResponse(response CreateOrganizationRes, w http.Res
 func encodeCreateStorageGroupResponse(response CreateStorageGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateStorageGroupResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -383,9 +431,71 @@ func encodeCreateStorageGroupResponse(response CreateStorageGroupRes, w http.Res
 	}
 }
 
+func encodeCreateTaskResponse(response CreateTaskRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *CreateTaskResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *CreateTaskUnauthorized:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *CreateTaskForbidden:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(403)
+		span.SetStatus(codes.Error, http.StatusText(403))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
+}
+
 func encodeCreateUnitResponse(response CreateUnitRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *CreateOrganizationUnitResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -793,6 +903,14 @@ func encodeExchangeYandexAccessTokenResponse(response ExchangeYandexAccessTokenR
 func encodeGetApiTokensResponse(response GetApiTokensRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetApiTokensResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -839,6 +957,14 @@ func encodeGetApiTokensResponse(response GetApiTokensRes, w http.ResponseWriter,
 func encodeGetAuditLogsResponse(response GetAuditLogsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetAuditLogsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -883,6 +1009,14 @@ func encodeGetAuditLogsResponse(response GetAuditLogsRes, w http.ResponseWriter,
 }
 
 func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWriter, span trace.Span) error {
+	if err := func() error {
+		if err := response.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "validate")
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -899,6 +1033,14 @@ func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWri
 func encodeGetCellsResponse(response GetCellsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetCellsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -945,6 +1087,14 @@ func encodeGetCellsResponse(response GetCellsRes, w http.ResponseWriter, span tr
 func encodeGetCellsGroupByIdResponse(response GetCellsGroupByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetCellsGroupByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -991,6 +1141,14 @@ func encodeGetCellsGroupByIdResponse(response GetCellsGroupByIdRes, w http.Respo
 func encodeGetCellsGroupsResponse(response GetCellsGroupsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetCellsGroupsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1116,6 +1274,14 @@ func encodeGetEmployeeByIdResponse(response GetEmployeeByIdRes, w http.ResponseW
 func encodeGetEmployeesResponse(response GetEmployeesRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetEmployeesResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1162,6 +1328,14 @@ func encodeGetEmployeesResponse(response GetEmployeesRes, w http.ResponseWriter,
 func encodeGetInstancesResponse(response GetInstancesRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetInstancesResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1208,6 +1382,14 @@ func encodeGetInstancesResponse(response GetInstancesRes, w http.ResponseWriter,
 func encodeGetInstancesByItemIdResponse(response GetInstancesByItemIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetInstancesByItemIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1254,6 +1436,14 @@ func encodeGetInstancesByItemIdResponse(response GetInstancesByItemIdRes, w http
 func encodeGetItemByIdResponse(response GetItemByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetItemByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1346,6 +1536,14 @@ func encodeGetItemVariantByIdResponse(response GetItemVariantByIdRes, w http.Res
 func encodeGetItemVariantsResponse(response GetItemVariantsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetItemVariantsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1392,6 +1590,14 @@ func encodeGetItemVariantsResponse(response GetItemVariantsRes, w http.ResponseW
 func encodeGetItemsResponse(response GetItemsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetItemsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1438,6 +1644,14 @@ func encodeGetItemsResponse(response GetItemsRes, w http.ResponseWriter, span tr
 func encodeGetOrganizationByIdResponse(response GetOrganizationByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetOrganizationByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1484,6 +1698,14 @@ func encodeGetOrganizationByIdResponse(response GetOrganizationByIdRes, w http.R
 func encodeGetOrganizationUnitByIdResponse(response GetOrganizationUnitByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetOrganizationUnitByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1530,6 +1752,14 @@ func encodeGetOrganizationUnitByIdResponse(response GetOrganizationUnitByIdRes, 
 func encodeGetOrganizationUnitsResponse(response GetOrganizationUnitsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetOrganizationUnitsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1576,6 +1806,14 @@ func encodeGetOrganizationUnitsResponse(response GetOrganizationUnitsRes, w http
 func encodeGetOrganizationsResponse(response GetOrganizationsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetOrganizationsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1609,6 +1847,14 @@ func encodeGetOrganizationsResponse(response GetOrganizationsRes, w http.Respons
 func encodeGetRolesResponse(response GetRolesRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetRolesOK:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1642,6 +1888,14 @@ func encodeGetRolesResponse(response GetRolesRes, w http.ResponseWriter, span tr
 func encodeGetStorageGroupByIdResponse(response GetStorageGroupByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetStorageGroupByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1688,6 +1942,14 @@ func encodeGetStorageGroupByIdResponse(response GetStorageGroupByIdRes, w http.R
 func encodeGetStorageGroupsResponse(response GetStorageGroupsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *GetStorageGroupsResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -1714,6 +1976,60 @@ func encodeGetStorageGroupsResponse(response GetStorageGroupsRes, w http.Respons
 		return nil
 
 	case *GetStorageGroupsForbidden:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(403)
+		span.SetStatus(codes.Error, http.StatusText(403))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
+}
+
+func encodeGetTasksResponse(response GetTasksRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *GetTasksResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *GetTasksUnauthorized:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *GetTasksForbidden:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(403)
 		span.SetStatus(codes.Error, http.StatusText(403))
@@ -1901,6 +2217,14 @@ func encodePatchEmployeeByIdResponse(response PatchEmployeeByIdRes, w http.Respo
 func encodePatchOrganizationUnitResponse(response PatchOrganizationUnitRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *PatchOrganizationUnitResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2019,6 +2343,14 @@ func encodeRevokeApiTokenResponse(response RevokeApiTokenRes, w http.ResponseWri
 func encodeUpdateCellResponse(response UpdateCellRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateCellResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2065,6 +2397,14 @@ func encodeUpdateCellResponse(response UpdateCellRes, w http.ResponseWriter, spa
 func encodeUpdateCellsGroupResponse(response UpdateCellsGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateCellsGroupResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2111,6 +2451,14 @@ func encodeUpdateCellsGroupResponse(response UpdateCellsGroupRes, w http.Respons
 func encodeUpdateItemResponse(response UpdateItemRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateItemResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2190,6 +2538,14 @@ func encodeUpdateItemVariantResponse(response UpdateItemVariantRes, w http.Respo
 func encodeUpdateOrganizationResponse(response UpdateOrganizationRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateOrganizationResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2236,6 +2592,14 @@ func encodeUpdateOrganizationResponse(response UpdateOrganizationRes, w http.Res
 func encodeUpdateOrganizationUnitResponse(response UpdateOrganizationUnitRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateOrganizationUnitResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -2282,6 +2646,14 @@ func encodeUpdateOrganizationUnitResponse(response UpdateOrganizationUnitRes, w 
 func encodeUpdateStorageGroupResponse(response UpdateStorageGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *UpdateStorageGroupResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))

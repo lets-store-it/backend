@@ -7,10 +7,10 @@ allOf:
         type: array
         items:
           $ref: ./ItemVariant.yaml
-      instances:
+      items:
         type: array
         items:
           $ref: ../../instances/models/InstanceForItem.yaml
     required:
       - variants
-      - instances
+      - items

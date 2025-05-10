@@ -16,7 +16,6 @@ get:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-
 post:
   tags:
     - tasks

@@ -1,0 +1,8 @@
+generator:
+  features:
+    enable:
+      - "paths/server"
+      - "client/request/validation"
+      - "server/response/validation"
+      - "ogen/otel"
+    disable_all: true

@@ -73,32 +73,3 @@ func (s *Server) securityCookie(ctx context.Context, operationName OperationName
 	}
 	return rctx, true, err
 }
-
-// SecuritySource is provider of security values (tokens, passwords, etc.).
-type SecuritySource interface {
-	// ApiToken provides apiToken security value.
-	// API key authentication.
-	ApiToken(ctx context.Context, operationName OperationName) (ApiToken, error)
-	// Cookie provides cookie security value.
-	Cookie(ctx context.Context, operationName OperationName) (Cookie, error)
-}
-
-func (s *Client) securityApiToken(ctx context.Context, operationName OperationName, req *http.Request) error {
-	t, err := s.sec.ApiToken(ctx, operationName)
-	if err != nil {
-		return errors.Wrap(err, "security source \"ApiToken\"")
-	}
-	req.Header.Set("X-Api-Key", t.APIKey)
-	return nil
-}
-func (s *Client) securityCookie(ctx context.Context, operationName OperationName, req *http.Request) error {
-	t, err := s.sec.Cookie(ctx, operationName)
-	if err != nil {
-		return errors.Wrap(err, "security source \"Cookie\"")
-	}
-	req.AddCookie(&http.Cookie{
-		Name:  "storeit_session",
-		Value: t.APIKey,
-	})
-	return nil
-}

@@ -130,8 +130,10 @@ CREATE TABLE task (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
+
     type VARCHAR(255) NOT NULL CHECK (type IN ('pick', 'movement')),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'in_progress', 'awaiting_to_collect', 'completed', 'failed')),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'in_progress', 'awaiting_to_collect', 'completed', 'failed')) DEFAULT 'pending',
+    
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
     
@@ -150,8 +152,8 @@ CREATE TABLE item_instance (
     variant_id UUID NOT NULL REFERENCES item_variant(id),
 
     cell_id UUID REFERENCES cell(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')),
-    -- affected_by_task_id UUID REFERENCES task(id),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')) DEFAULT 'available',
+    affected_by_task_id UUID REFERENCES task(id),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -159,12 +161,13 @@ CREATE TABLE item_instance (
 );
 
 CREATE TABLE task_item (
+    org_id UUID NOT NULL REFERENCES org(id),
     task_id UUID NOT NULL REFERENCES task(id),
     item_instance_id UUID NOT NULL REFERENCES item_instance(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')),
+    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')) DEFAULT 'pending',
+    source_cell_id UUID REFERENCES cell(id),
     destination_cell_id UUID REFERENCES cell(id)
 );
-
 
 
 CREATE TABLE app_user_session (

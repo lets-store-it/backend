@@ -277,4 +277,10 @@ SELECT org_id FROM app_api_token WHERE token = $1 AND revoked_at IS NULL;
 
 -- Tasks
 -- name: CreateTask :one
-INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+INSERT INTO task (org_id, unit_id, type, name, description, assigned_to_user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+
+-- name: CreateTaskItem :one
+INSERT INTO task_item (org_id, task_id, item_instance_id, source_cell_id, destination_cell_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;
+
+-- name: GetTasks :many
+SELECT * FROM task WHERE org_id = $1;

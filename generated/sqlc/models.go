@@ -99,14 +99,15 @@ type Item struct {
 }
 
 type ItemInstance struct {
-	ID        pgtype.UUID
-	OrgID     pgtype.UUID
-	ItemID    pgtype.UUID
-	VariantID pgtype.UUID
-	CellID    pgtype.UUID
-	Status    string
-	CreatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	ID               pgtype.UUID
+	OrgID            pgtype.UUID
+	ItemID           pgtype.UUID
+	VariantID        pgtype.UUID
+	CellID           pgtype.UUID
+	Status           string
+	AffectedByTaskID pgtype.UUID
+	CreatedAt        pgtype.Timestamp
+	DeletedAt        pgtype.Timestamp
 }
 
 type ItemVariant struct {
@@ -172,8 +173,10 @@ type Task struct {
 }
 
 type TaskItem struct {
+	OrgID             pgtype.UUID
 	TaskID            pgtype.UUID
 	ItemInstanceID    pgtype.UUID
 	Status            string
+	SourceCellID      pgtype.UUID
 	DestinationCellID pgtype.UUID
 }
