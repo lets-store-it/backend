@@ -178,7 +178,7 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 		attribute.String("item.id", id.String()),
 	)
 
-	item, err := s.queries.GetItem(ctx, sqlc.GetItemParams{
+	item, err := s.queries.GetItemById(ctx, sqlc.GetItemByIdParams{
 		ID:    database.PgUUID(id),
 		OrgID: database.PgUUID(orgID),
 	})
@@ -242,19 +242,12 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 		span.SetAttributes(attribute.String("description", *item.Description))
 	}
 
-	exists, err := s.IsItemExists(ctx, orgID, item.ID)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to check item existence")
-		return nil, fmt.Errorf("failed to check item existence: %w", err)
-	}
-	if !exists {
-		span.SetStatus(codes.Error, "item not found")
-		return nil, services.ErrNotFoundError
-	}
-
 	existingItem, err := s.GetItemByID(ctx, orgID, item.ID)
 	if err != nil {
+		if database.IsNotFound(err) {
+			span.SetStatus(codes.Error, "item not found")
+			return nil, services.ErrNotFoundError
+		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get existing item")
 		return nil, fmt.Errorf("failed to get existing item: %w", err)
@@ -361,29 +354,6 @@ func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 
 	span.SetStatus(codes.Ok, "item deleted successfully")
 	return nil
-}
-
-func (s *ItemService) IsItemExists(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (bool, error) {
-	ctx, span := s.tracer.Start(ctx, "IsItemExists")
-	defer span.End()
-
-	span.SetAttributes(
-		attribute.String("org.id", orgID.String()),
-		attribute.String("item.id", id.String()),
-	)
-
-	exists, err := s.queries.IsItemExists(ctx, sqlc.IsItemExistsParams{
-		ID:    database.PgUUID(id),
-		OrgID: database.PgUUID(orgID),
-	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to check item existence")
-		return false, fmt.Errorf("failed to check item existence: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "item existence checked successfully")
-	return exists, nil
 }
 
 func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
@@ -535,7 +505,7 @@ func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *mode
 		return nil, fmt.Errorf("failed to create item instance: %w", err)
 	}
 
-	result, err := toItemInstanceModel(createdInstance)
+	result, err := s.GetItemInstanceFull(ctx, itemInstance.OrgID, database.UUIDFromPgx(createdInstance.ID))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to convert item instance")

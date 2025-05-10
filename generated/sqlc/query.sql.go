@@ -24,7 +24,7 @@ type AssignRoleToUserParams struct {
 	OrgID  pgtype.UUID
 }
 
-// Role Bindings
+// RBAC
 func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserParams) error {
 	_, err := q.db.Exec(ctx, assignRoleToUser, arg.RoleID, arg.UserID, arg.OrgID)
 	return err
@@ -67,6 +67,7 @@ type CreateCellParams struct {
 	Position     int32
 }
 
+// Cells
 func (q *Queries) CreateCell(ctx context.Context, arg CreateCellParams) (Cell, error) {
 	row := q.db.QueryRow(ctx, createCell,
 		arg.OrgID,
@@ -103,6 +104,7 @@ type CreateCellsGroupParams struct {
 	Alias          string
 }
 
+// CellsGroups
 func (q *Queries) CreateCellsGroup(ctx context.Context, arg CreateCellsGroupParams) (CellsGroup, error) {
 	row := q.db.QueryRow(ctx, createCellsGroup,
 		arg.OrgID,
@@ -135,6 +137,7 @@ type CreateItemParams struct {
 	Description pgtype.Text
 }
 
+// Items
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, error) {
 	row := q.db.QueryRow(ctx, createItem, arg.OrgID, arg.Name, arg.Description)
 	var i Item
@@ -200,6 +203,7 @@ type CreateItemVariantParams struct {
 	Ean13   pgtype.Int4
 }
 
+// Item Variants
 func (q *Queries) CreateItemVariant(ctx context.Context, arg CreateItemVariantParams) (ItemVariant, error) {
 	row := q.db.QueryRow(ctx, createItemVariant,
 		arg.OrgID,
@@ -236,7 +240,6 @@ type CreateObjectChangeParams struct {
 	PostchangeState  []byte
 }
 
-// Audit Log
 func (q *Queries) CreateObjectChange(ctx context.Context, arg CreateObjectChangeParams) (AppObjectChange, error) {
 	row := q.db.QueryRow(ctx, createObjectChange,
 		arg.OrgID,
@@ -262,28 +265,6 @@ func (q *Queries) CreateObjectChange(ctx context.Context, arg CreateObjectChange
 	return i, err
 }
 
-const createOrg = `-- name: CreateOrg :one
-INSERT INTO org (name, subdomain) VALUES ($1, $2) RETURNING id, name, subdomain, created_at, deleted_at
-`
-
-type CreateOrgParams struct {
-	Name      string
-	Subdomain string
-}
-
-func (q *Queries) CreateOrg(ctx context.Context, arg CreateOrgParams) (Org, error) {
-	row := q.db.QueryRow(ctx, createOrg, arg.Name, arg.Subdomain)
-	var i Org
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Subdomain,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
 const createOrgUnit = `-- name: CreateOrgUnit :one
 INSERT INTO org_unit (org_id, name, alias, address) VALUES ($1, $2, $3, $4) RETURNING id, org_id, name, alias, address, created_at, deleted_at
 `
@@ -295,6 +276,7 @@ type CreateOrgUnitParams struct {
 	Address pgtype.Text
 }
 
+// Units
 func (q *Queries) CreateOrgUnit(ctx context.Context, arg CreateOrgUnitParams) (OrgUnit, error) {
 	row := q.db.QueryRow(ctx, createOrgUnit,
 		arg.OrgID,
@@ -315,6 +297,28 @@ func (q *Queries) CreateOrgUnit(ctx context.Context, arg CreateOrgUnitParams) (O
 	return i, err
 }
 
+const createOrganization = `-- name: CreateOrganization :one
+INSERT INTO org (name, subdomain) VALUES ($1, $2) RETURNING id, name, subdomain, created_at, deleted_at
+`
+
+type CreateOrganizationParams struct {
+	Name      string
+	Subdomain string
+}
+
+func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganizationParams) (Org, error) {
+	row := q.db.QueryRow(ctx, createOrganization, arg.Name, arg.Subdomain)
+	var i Org
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Subdomain,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createStorageGroup = `-- name: CreateStorageGroup :one
 INSERT INTO storage_group (org_id, unit_id, parent_id, name, alias) VALUES ($1, $2, $3, $4, $5) RETURNING id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at
 `
@@ -327,6 +331,7 @@ type CreateStorageGroupParams struct {
 	Alias    string
 }
 
+// Storage Groups
 func (q *Queries) CreateStorageGroup(ctx context.Context, arg CreateStorageGroupParams) (StorageGroup, error) {
 	row := q.db.QueryRow(ctx, createStorageGroup,
 		arg.OrgID,
@@ -401,6 +406,7 @@ type CreateUserParams struct {
 	YandexID   pgtype.Text
 }
 
+// User
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (AppUser, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Email,
@@ -431,6 +437,7 @@ type CreateUserSessionParams struct {
 	Token  string
 }
 
+// User Auth
 func (q *Queries) CreateUserSession(ctx context.Context, arg CreateUserSessionParams) (AppUserSession, error) {
 	row := q.db.QueryRow(ctx, createUserSession, arg.UserID, arg.Token)
 	var i AppUserSession
@@ -502,15 +509,6 @@ func (q *Queries) DeleteItemVariant(ctx context.Context, arg DeleteItemVariantPa
 	return err
 }
 
-const deleteOrg = `-- name: DeleteOrg :exec
-UPDATE org SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1
-`
-
-func (q *Queries) DeleteOrg(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteOrg, id)
-	return err
-}
-
 const deleteOrgUnit = `-- name: DeleteOrgUnit :exec
 UPDATE org_unit SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
 `
@@ -522,6 +520,15 @@ type DeleteOrgUnitParams struct {
 
 func (q *Queries) DeleteOrgUnit(ctx context.Context, arg DeleteOrgUnitParams) error {
 	_, err := q.db.Exec(ctx, deleteOrgUnit, arg.OrgID, arg.ID)
+	return err
+}
+
+const deleteOrganization = `-- name: DeleteOrganization :exec
+UPDATE org SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1
+`
+
+func (q *Queries) DeleteOrganization(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteOrganization, id)
 	return err
 }
 
@@ -571,17 +578,17 @@ func (q *Queries) GetApiTokens(ctx context.Context, orgID pgtype.UUID) ([]AppApi
 	return items, nil
 }
 
-const getCell = `-- name: GetCell :one
+const getCellById = `-- name: GetCellById :one
 SELECT id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at FROM cell WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
-type GetCellParams struct {
+type GetCellByIdParams struct {
 	OrgID pgtype.UUID
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetCell(ctx context.Context, arg GetCellParams) (Cell, error) {
-	row := q.db.QueryRow(ctx, getCell, arg.OrgID, arg.ID)
+func (q *Queries) GetCellById(ctx context.Context, arg GetCellByIdParams) (Cell, error) {
+	row := q.db.QueryRow(ctx, getCellById, arg.OrgID, arg.ID)
 	var i Cell
 	err := row.Scan(
 		&i.ID,
@@ -698,7 +705,6 @@ type GetCellsParams struct {
 	CellsGroupID pgtype.UUID
 }
 
-// Cells
 func (q *Queries) GetCells(ctx context.Context, arg GetCellsParams) ([]Cell, error) {
 	rows, err := q.db.Query(ctx, getCells, arg.OrgID, arg.CellsGroupID)
 	if err != nil {
@@ -729,17 +735,17 @@ func (q *Queries) GetCells(ctx context.Context, arg GetCellsParams) ([]Cell, err
 	return items, nil
 }
 
-const getCellsGroup = `-- name: GetCellsGroup :one
+const getCellsGroupById = `-- name: GetCellsGroupById :one
 SELECT id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
-type GetCellsGroupParams struct {
+type GetCellsGroupByIdParams struct {
 	OrgID pgtype.UUID
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetCellsGroup(ctx context.Context, arg GetCellsGroupParams) (CellsGroup, error) {
-	row := q.db.QueryRow(ctx, getCellsGroup, arg.OrgID, arg.ID)
+func (q *Queries) GetCellsGroupById(ctx context.Context, arg GetCellsGroupByIdParams) (CellsGroup, error) {
+	row := q.db.QueryRow(ctx, getCellsGroupById, arg.OrgID, arg.ID)
 	var i CellsGroup
 	err := row.Scan(
 		&i.ID,
@@ -758,7 +764,6 @@ const getCellsGroups = `-- name: GetCellsGroups :many
 SELECT id, org_id, unit_id, storage_group_id, name, alias, created_at, deleted_at FROM cells_group WHERE org_id = $1 AND deleted_at IS NULL
 `
 
-// CellsGroups
 func (q *Queries) GetCellsGroups(ctx context.Context, orgID pgtype.UUID) ([]CellsGroup, error) {
 	rows, err := q.db.Query(ctx, getCellsGroups, orgID)
 	if err != nil {
@@ -909,17 +914,17 @@ func (q *Queries) GetEmployees(ctx context.Context, orgID pgtype.UUID) ([]GetEmp
 	return items, nil
 }
 
-const getItem = `-- name: GetItem :one
+const getItemById = `-- name: GetItemById :one
 SELECT id, org_id, name, description, width, depth, height, weight, created_at, deleted_at FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
-type GetItemParams struct {
+type GetItemByIdParams struct {
 	OrgID pgtype.UUID
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) {
-	row := q.db.QueryRow(ctx, getItem, arg.OrgID, arg.ID)
+func (q *Queries) GetItemById(ctx context.Context, arg GetItemByIdParams) (Item, error) {
+	row := q.db.QueryRow(ctx, getItemById, arg.OrgID, arg.ID)
 	var i Item
 	err := row.Scan(
 		&i.ID,
@@ -1075,35 +1080,6 @@ func (q *Queries) GetItemInstancesForItem(ctx context.Context, arg GetItemInstan
 	return items, nil
 }
 
-const getItemVariant = `-- name: GetItemVariant :one
-
-SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL
-`
-
-type GetItemVariantParams struct {
-	OrgID  pgtype.UUID
-	ItemID pgtype.UUID
-	ID     pgtype.UUID
-}
-
-// -- name: GetActiveItemVariants :many
-// SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
-func (q *Queries) GetItemVariant(ctx context.Context, arg GetItemVariantParams) (ItemVariant, error) {
-	row := q.db.QueryRow(ctx, getItemVariant, arg.OrgID, arg.ItemID, arg.ID)
-	var i ItemVariant
-	err := row.Scan(
-		&i.ID,
-		&i.OrgID,
-		&i.ItemID,
-		&i.Name,
-		&i.Article,
-		&i.Ean13,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
 const getItemVariantById = `-- name: GetItemVariantById :one
 SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL
 `
@@ -1131,7 +1107,6 @@ func (q *Queries) GetItemVariantById(ctx context.Context, arg GetItemVariantById
 }
 
 const getItemVariants = `-- name: GetItemVariants :many
-
 SELECT id, org_id, item_id, name, article, ean13, created_at, deleted_at FROM item_variant WHERE org_id = $1 AND item_id = $2 AND deleted_at IS NULL
 `
 
@@ -1140,11 +1115,6 @@ type GetItemVariantsParams struct {
 	ItemID pgtype.UUID
 }
 
-// -- name: GetActiveItemWithVariants :many
-// SELECT * FROM item
-// JOIN item_variant ON item.id = item_variant.item_id
-// WHERE item.org_id = $1 AND item.deleted_at IS NULL
-// GROUP BY item.id;
 func (q *Queries) GetItemVariants(ctx context.Context, arg GetItemVariantsParams) ([]ItemVariant, error) {
 	rows, err := q.db.Query(ctx, getItemVariants, arg.OrgID, arg.ItemID)
 	if err != nil {
@@ -1178,7 +1148,6 @@ const getItems = `-- name: GetItems :many
 SELECT id, org_id, name, description, width, depth, height, weight, created_at, deleted_at FROM item WHERE org_id = $1 AND deleted_at IS NULL
 `
 
-// Items
 func (q *Queries) GetItems(ctx context.Context, orgID pgtype.UUID) ([]Item, error) {
 	rows, err := q.db.Query(ctx, getItems, orgID)
 	if err != nil {
@@ -1250,42 +1219,15 @@ func (q *Queries) GetObjectChanges(ctx context.Context, arg GetObjectChangesPara
 	return items, nil
 }
 
-const getObjectType = `-- name: GetObjectType :one
-SELECT id, object_group, object_name FROM object_type WHERE id = $1
-`
-
-func (q *Queries) GetObjectType(ctx context.Context, id int32) (ObjectType, error) {
-	row := q.db.QueryRow(ctx, getObjectType, id)
-	var i ObjectType
-	err := row.Scan(&i.ID, &i.ObjectGroup, &i.ObjectName)
-	return i, err
-}
-
 const getObjectTypeById = `-- name: GetObjectTypeById :one
 SELECT id, object_group, object_name FROM object_type WHERE id = $1
 `
 
+// Audit Log
 func (q *Queries) GetObjectTypeById(ctx context.Context, id int32) (ObjectType, error) {
 	row := q.db.QueryRow(ctx, getObjectTypeById, id)
 	var i ObjectType
 	err := row.Scan(&i.ID, &i.ObjectGroup, &i.ObjectName)
-	return i, err
-}
-
-const getOrg = `-- name: GetOrg :one
-SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id = $1 AND deleted_at IS NULL
-`
-
-func (q *Queries) GetOrg(ctx context.Context, id pgtype.UUID) (Org, error) {
-	row := q.db.QueryRow(ctx, getOrg, id)
-	var i Org
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Subdomain,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
 	return i, err
 }
 
@@ -1300,17 +1242,17 @@ func (q *Queries) GetOrgIdByApiToken(ctx context.Context, token string) (pgtype.
 	return org_id, err
 }
 
-const getOrgUnit = `-- name: GetOrgUnit :one
+const getOrgUnitById = `-- name: GetOrgUnitById :one
 SELECT id, org_id, name, alias, address, created_at, deleted_at FROM org_unit WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
-type GetOrgUnitParams struct {
+type GetOrgUnitByIdParams struct {
 	OrgID pgtype.UUID
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetOrgUnit(ctx context.Context, arg GetOrgUnitParams) (OrgUnit, error) {
-	row := q.db.QueryRow(ctx, getOrgUnit, arg.OrgID, arg.ID)
+func (q *Queries) GetOrgUnitById(ctx context.Context, arg GetOrgUnitByIdParams) (OrgUnit, error) {
+	row := q.db.QueryRow(ctx, getOrgUnitById, arg.OrgID, arg.ID)
 	var i OrgUnit
 	err := row.Scan(
 		&i.ID,
@@ -1328,7 +1270,6 @@ const getOrgUnits = `-- name: GetOrgUnits :many
 SELECT id, org_id, name, alias, address, created_at, deleted_at FROM org_unit WHERE org_id = $1 AND deleted_at IS NULL
 `
 
-// Units
 func (q *Queries) GetOrgUnits(ctx context.Context, orgID pgtype.UUID) ([]OrgUnit, error) {
 	rows, err := q.db.Query(ctx, getOrgUnits, orgID)
 	if err != nil {
@@ -1355,6 +1296,23 @@ func (q *Queries) GetOrgUnits(ctx context.Context, orgID pgtype.UUID) ([]OrgUnit
 		return nil, err
 	}
 	return items, nil
+}
+
+const getOrganization = `-- name: GetOrganization :one
+SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetOrganization(ctx context.Context, id pgtype.UUID) (Org, error) {
+	row := q.db.QueryRow(ctx, getOrganization, id)
+	var i Org
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Subdomain,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const getRoleById = `-- name: GetRoleById :one
@@ -1420,17 +1378,17 @@ func (q *Queries) GetSessionBySecret(ctx context.Context, token string) (AppUser
 	return i, err
 }
 
-const getStorageGroup = `-- name: GetStorageGroup :one
+const getStorageGroupById = `-- name: GetStorageGroupById :one
 SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
-type GetStorageGroupParams struct {
+type GetStorageGroupByIdParams struct {
 	OrgID pgtype.UUID
 	ID    pgtype.UUID
 }
 
-func (q *Queries) GetStorageGroup(ctx context.Context, arg GetStorageGroupParams) (StorageGroup, error) {
-	row := q.db.QueryRow(ctx, getStorageGroup, arg.OrgID, arg.ID)
+func (q *Queries) GetStorageGroupById(ctx context.Context, arg GetStorageGroupByIdParams) (StorageGroup, error) {
+	row := q.db.QueryRow(ctx, getStorageGroupById, arg.OrgID, arg.ID)
 	var i StorageGroup
 	err := row.Scan(
 		&i.ID,
@@ -1450,7 +1408,6 @@ const getStorageGroups = `-- name: GetStorageGroups :many
 SELECT id, org_id, unit_id, parent_id, name, alias, description, created_at, deleted_at FROM storage_group WHERE org_id = $1 AND deleted_at IS NULL
 `
 
-// Storage spaces
 func (q *Queries) GetStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]StorageGroup, error) {
 	rows, err := q.db.Query(ctx, getStorageGroups, orgID)
 	if err != nil {
@@ -1519,30 +1476,11 @@ func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (AppUser, err
 	return i, err
 }
 
-const getUserBySessionSecret = `-- name: GetUserBySessionSecret :one
-SELECT id, email, first_name, last_name, middle_name, yandex_id, created_at FROM app_user WHERE id = (SELECT user_id FROM app_user_session WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP LIMIT 1)
-`
-
-// Auth
-func (q *Queries) GetUserBySessionSecret(ctx context.Context, token string) (AppUser, error) {
-	row := q.db.QueryRow(ctx, getUserBySessionSecret, token)
-	var i AppUser
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.FirstName,
-		&i.LastName,
-		&i.MiddleName,
-		&i.YandexID,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
 const getUserOrgs = `-- name: GetUserOrgs :many
 SELECT id, name, subdomain, created_at, deleted_at FROM org WHERE id IN (SELECT org_id FROM app_role_binding WHERE user_id = $1) AND deleted_at IS NULL
 `
 
+// Organizations
 func (q *Queries) GetUserOrgs(ctx context.Context, userID pgtype.UUID) ([]Org, error) {
 	rows, err := q.db.Query(ctx, getUserOrgs, userID)
 	if err != nil {
@@ -1603,33 +1541,6 @@ UPDATE app_user_session SET revoked_at = CURRENT_TIMESTAMP WHERE id = $1
 func (q *Queries) InvalidateSession(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, invalidateSession, id)
 	return err
-}
-
-const isItemExists = `-- name: IsItemExists :one
-SELECT EXISTS (SELECT 1 FROM item WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL)
-`
-
-type IsItemExistsParams struct {
-	OrgID pgtype.UUID
-	ID    pgtype.UUID
-}
-
-func (q *Queries) IsItemExists(ctx context.Context, arg IsItemExistsParams) (bool, error) {
-	row := q.db.QueryRow(ctx, isItemExists, arg.OrgID, arg.ID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const isOrgExists = `-- name: IsOrgExists :one
-SELECT EXISTS (SELECT 1 FROM org WHERE id = $1 AND deleted_at IS NULL)
-`
-
-func (q *Queries) IsOrgExists(ctx context.Context, id pgtype.UUID) (bool, error) {
-	row := q.db.QueryRow(ctx, isOrgExists, id)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
 }
 
 const revokeApiToken = `-- name: RevokeApiToken :exec
@@ -1803,28 +1714,6 @@ func (q *Queries) UpdateItemVariant(ctx context.Context, arg UpdateItemVariantPa
 	return i, err
 }
 
-const updateOrg = `-- name: UpdateOrg :one
-UPDATE org SET name = $2 WHERE id = $1 RETURNING id, name, subdomain, created_at, deleted_at
-`
-
-type UpdateOrgParams struct {
-	ID   pgtype.UUID
-	Name string
-}
-
-func (q *Queries) UpdateOrg(ctx context.Context, arg UpdateOrgParams) (Org, error) {
-	row := q.db.QueryRow(ctx, updateOrg, arg.ID, arg.Name)
-	var i Org
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Subdomain,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
 const updateOrgUnit = `-- name: UpdateOrgUnit :one
 UPDATE org_unit SET name = $3, alias = $4, address = $5 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, name, alias, address, created_at, deleted_at
 `
@@ -1852,6 +1741,28 @@ func (q *Queries) UpdateOrgUnit(ctx context.Context, arg UpdateOrgUnitParams) (O
 		&i.Name,
 		&i.Alias,
 		&i.Address,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateOrganization = `-- name: UpdateOrganization :one
+UPDATE org SET name = $2 WHERE id = $1 RETURNING id, name, subdomain, created_at, deleted_at
+`
+
+type UpdateOrganizationParams struct {
+	ID   pgtype.UUID
+	Name string
+}
+
+func (q *Queries) UpdateOrganization(ctx context.Context, arg UpdateOrganizationParams) (Org, error) {
+	row := q.db.QueryRow(ctx, updateOrganization, arg.ID, arg.Name)
+	var i Org
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Subdomain,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)

@@ -101,7 +101,7 @@ func (s *OrganizationService) Create(ctx context.Context, name string, subdomain
 		return nil, err
 	}
 
-	org, err := s.queries.CreateOrg(ctx, sqlc.CreateOrgParams{
+	org, err := s.queries.CreateOrganization(ctx, sqlc.CreateOrganizationParams{
 		Name:      name,
 		Subdomain: subdomain,
 	})
@@ -159,7 +159,7 @@ func (s *OrganizationService) GetByID(ctx context.Context, id uuid.UUID) (*model
 	)
 	defer span.End()
 
-	org, err := s.queries.GetOrg(ctx, database.PgUUID(id))
+	org, err := s.queries.GetOrganization(ctx, database.PgUUID(id))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get organization")
@@ -178,7 +178,7 @@ func (s *OrganizationService) Delete(ctx context.Context, id uuid.UUID) error {
 	)
 	defer span.End()
 
-	err := s.queries.DeleteOrg(ctx, database.PgUUID(id))
+	err := s.queries.DeleteOrganization(ctx, database.PgUUID(id))
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to delete organization")
@@ -203,7 +203,7 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 		return nil, err
 	}
 
-	updatedOrg, err := s.queries.UpdateOrg(ctx, sqlc.UpdateOrgParams{
+	updatedOrg, err := s.queries.UpdateOrganization(ctx, sqlc.UpdateOrganizationParams{
 		ID:   database.PgUUID(org.ID),
 		Name: org.Name,
 	})
@@ -217,24 +217,6 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 	return toOrganization(updatedOrg)
 }
 
-func (s *OrganizationService) IsOrganizationExists(ctx context.Context, id uuid.UUID) (bool, error) {
-	ctx, span := s.tracer.Start(ctx, "IsOrganizationExists",
-		trace.WithAttributes(
-			attribute.String("org.id", id.String()),
-		),
-	)
-	defer span.End()
-
-	exists, err := s.queries.IsOrgExists(ctx, database.PgUUID(id))
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to check organization existence")
-		return false, fmt.Errorf("failed to check organization existence: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "successfully checked organization existence")
-	return exists, nil
-}
 
 // Organization Unit methods
 
@@ -314,7 +296,7 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 	)
 	defer span.End()
 
-	unit, err := s.queries.GetOrgUnit(ctx, sqlc.GetOrgUnitParams{
+	unit, err := s.queries.GetOrgUnitById(ctx, sqlc.GetOrgUnitByIdParams{
 		OrgID: database.PgUUID(orgID),
 		ID:    database.PgUUID(id),
 	})
