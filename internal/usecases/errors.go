@@ -21,6 +21,5 @@ func ErrDetailedValidationErrorWithMessage(message string) *ErrDetailedValidatio
 var (
 	ErrNotAuthorized         = errors.New("not authorized")
 	ErrOrganizationIDMissing = errors.New("organization ID missing")
-
-	ErrValidationError = &ErrDetailedValidationError{Message: "validation error"}
+	ErrValidationError       = &ErrDetailedValidationError{Message: "validation error"}
 )

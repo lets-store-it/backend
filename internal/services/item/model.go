@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -33,39 +32,14 @@ func toItemModel(item sqlc.Item) (*models.Item, error) {
 }
 
 func toItemVariantModel(variant sqlc.ItemVariant) (*models.ItemVariant, error) {
-	id := database.UUIDFromPgx(variant.ID)
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidVariant)
-	}
-	itemID := database.UUIDFromPgx(variant.ItemID)
-	if itemID == uuid.Nil {
-		return nil, fmt.Errorf("failed to convert variant: %w", ErrInvalidItemID)
-	}
-
-	var article *string
-	if variant.Article.Valid {
-		article = &variant.Article.String
-	}
-
-	var ean13 *int
-	if variant.Ean13.Valid {
-		inInt64 := int(variant.Ean13.Int32)
-		ean13 = &inInt64
-	}
-
-	var deletedAt *time.Time
-	if variant.DeletedAt.Valid {
-		deletedAt = &variant.DeletedAt.Time
-	}
-
 	return &models.ItemVariant{
-		ID:        id,
-		ItemID:    itemID,
+		ID:        database.UUIDFromPgx(variant.ID),
+		ItemID:    database.UUIDFromPgx(variant.ItemID),
 		Name:      variant.Name,
-		Article:   article,
-		EAN13:     ean13,
+		Article:   database.PgTextPtrFromPgx(variant.Article),
+		EAN13:     database.PgInt32PtrFromPgx(variant.Ean13),
 		CreatedAt: variant.CreatedAt.Time,
-		DeletedAt: deletedAt,
+		DeletedAt: database.PgTimePtrFromPgx(variant.DeletedAt),
 	}, nil
 }
 

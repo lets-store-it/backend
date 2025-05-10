@@ -81,6 +81,20 @@ func encodeCreateItemRequest(
 	return nil
 }
 
+func encodeCreateItemVariantRequest(
+	req *CreateItemVariantRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateOrganizationRequest(
 	req *CreateOrganizationRequest,
 	r *http.Request,
@@ -207,20 +221,6 @@ func encodePatchEmployeeByIdRequest(
 	return nil
 }
 
-func encodePatchItemRequest(
-	req *PatchItemRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
 func encodePatchOrganizationUnitRequest(
 	req *PatchOrganizationUnitRequest,
 	r *http.Request,
@@ -293,6 +293,20 @@ func encodeUpdateCellsGroupRequest(
 
 func encodeUpdateItemRequest(
 	req *UpdateItemRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateItemVariantRequest(
+	req *UpdateItemVariantRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

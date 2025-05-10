@@ -74,7 +74,7 @@ UPDATE item SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 INSERT INTO item_variant (org_id, item_id, name, article, ean13) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: UpdateItemVariant :one
-UPDATE item_variant SET name = $3, article = $4, ean13 = $5 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING *;
+UPDATE item_variant SET name = $4, article = $5, ean13 = $6 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING *;
 
 -- name: DeleteItemVariant :exec
 UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND item_id = $2 AND id = $3;
@@ -275,9 +275,11 @@ INSERT INTO task (org_id, unit_id, type, name, description) VALUES ($1, $2, $3, 
 -- -- name: GetActiveItemVariants :many
 -- SELECT * FROM item_variant WHERE item_id = $1 AND deleted_at IS NULL;
 
--- -- name: GetItemVariant :one
--- SELECT * FROM item_variant WHERE item_id = $1 AND id = $2 AND deleted_at IS NULL;
+-- name: GetItemVariant :one
+SELECT * FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL;
 
+-- name: GetItemVariantById :one
+SELECT * FROM item_variant WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL;
 
 -- name: GetObjectTypeById :one
 SELECT * FROM object_type WHERE id = $1;

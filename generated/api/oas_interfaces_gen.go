@@ -21,6 +21,10 @@ type CreateItemRes interface {
 	createItemRes()
 }
 
+type CreateItemVariantRes interface {
+	createItemVariantRes()
+}
+
 type CreateOrganizationRes interface {
 	createOrganizationRes()
 }
@@ -43,6 +47,14 @@ type DeleteEmployeeByIdRes interface {
 
 type DeleteInstanceByIdRes interface {
 	deleteInstanceByIdRes()
+}
+
+type DeleteItemRes interface {
+	deleteItemRes()
+}
+
+type DeleteItemVariantRes interface {
+	deleteItemVariantRes()
 }
 
 type DeleteOrganizationRes interface {
@@ -99,6 +111,18 @@ type GetInstancesByItemIdRes interface {
 
 type GetInstancesRes interface {
 	getInstancesRes()
+}
+
+type GetItemByIdRes interface {
+	getItemByIdRes()
+}
+
+type GetItemVariantByIdRes interface {
+	getItemVariantByIdRes()
+}
+
+type GetItemVariantsRes interface {
+	getItemVariantsRes()
 }
 
 type GetItemsRes interface {
@@ -179,6 +203,14 @@ type UpdateCellRes interface {
 
 type UpdateCellsGroupRes interface {
 	updateCellsGroupRes()
+}
+
+type UpdateItemRes interface {
+	updateItemRes()
+}
+
+type UpdateItemVariantRes interface {
+	updateItemVariantRes()
 }
 
 type UpdateOrganizationRes interface {

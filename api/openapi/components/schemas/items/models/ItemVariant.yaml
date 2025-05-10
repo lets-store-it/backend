@@ -18,6 +18,7 @@ allOf:
       ean13:
         type: integer
         nullable: true
+        format: int32
         example: 1234567890123
     required:
       - article

@@ -54,6 +54,13 @@ paths:
 
   /items:
     $ref: paths/items/items.yaml
+
+  /items/{id}/variants:
+    $ref: paths/items/items_{id}_variants.yaml
+
+  /items/{id}/variants/{variantId}:
+    $ref: paths/items/items_{id}_variants_{variantId}.yaml
+
   /items/{id}:
     $ref: paths/items/items_{id}.yaml
 

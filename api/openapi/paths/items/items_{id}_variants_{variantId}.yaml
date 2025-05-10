@@ -1,0 +1,71 @@
+parameters:
+  - name: id
+    in: path
+    description: Item ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+  - name: variantId
+    in: path
+    description: Variant ID
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - item
+  summary: Get Item Variant By ID
+  operationId: getItemVariantById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/GetItemVariantByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - item
+  summary: Update Item Variant By ID
+  operationId: updateItemVariant
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/items/UpdateItemVariantRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/items/UpdateItemVariantResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+delete:
+  tags:
+    - item
+  summary: Delete Item Variant By ID
+  operationId: deleteItemVariant
+  responses:
+    "204":
+      description: Successful operation
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

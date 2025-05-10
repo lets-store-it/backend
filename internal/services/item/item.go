@@ -12,6 +12,7 @@ import (
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/storage"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -493,4 +494,138 @@ func (s *ItemService) CreateInstance(ctx context.Context, orgID uuid.UUID, itemI
 
 	span.SetStatus(codes.Ok, "item instance created successfully")
 	return result, nil
+}
+
+func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
+	ctx, span := s.tracer.Start(ctx, "CreateItemVariant")
+	defer span.End()
+
+	// if orgID == uuid.Nil {
+	// 	span.SetStatus(codes.Error, "invalid organization ID")
+	// 	return nil, ErrInvalidOrganization
+	// }
+	// if variant == nil {
+	// 	span.SetStatus(codes.Error, "invalid item variant")
+	// 	return nil, service
+	// }
+
+	createdVariant, err := s.queries.CreateItemVariant(ctx, sqlc.CreateItemVariantParams{
+		OrgID:   database.PgUUID(orgID),
+		ItemID:  database.PgUUID(variant.ItemID),
+		Name:    variant.Name,
+		Article: database.PgTextPtr(variant.Article),
+		Ean13:   database.PgInt4Ptr(variant.EAN13),
+	})
+	if err != nil {
+		if database.IsUniqueViolation(err) {
+			span.SetStatus(codes.Error, "unique violation")
+			return nil, services.ErrDuplicationError
+		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to create item variant")
+		return nil, fmt.Errorf("failed to create item variant: %w", err)
+	}
+
+	span.SetStatus(codes.Ok, "item variant created successfully")
+	return toItemVariantModel(createdVariant)
+}
+
+func (s *ItemService) DeleteItemVariant(ctx context.Context, orgID uuid.UUID, id uuid.UUID, variantId uuid.UUID) error {
+	ctx, span := s.tracer.Start(ctx, "DeleteItemVariant")
+	defer span.End()
+
+	err := s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(id),
+		ID:     database.PgUUID(variantId),
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			span.SetStatus(codes.Error, "item variant not found")
+			return services.ErrNotFoundError
+		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to delete item variant")
+		return fmt.Errorf("failed to delete item variant: %w", err)
+	}
+
+	span.SetStatus(codes.Ok, "item variant deleted successfully")
+	return nil
+}
+
+func (s *ItemService) GetItemVariants(ctx context.Context, orgID uuid.UUID, id uuid.UUID) ([]*models.ItemVariant, error) {
+	ctx, span := s.tracer.Start(ctx, "GetItemVariants")
+	defer span.End()
+
+	variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(id),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item variants")
+		return nil, fmt.Errorf("failed to get item variants: %w", err)
+	}
+
+	variantsModels := make([]*models.ItemVariant, len(variants))
+	for i, variant := range variants {
+		variantsModels[i], err = toItemVariantModel(variant)
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "failed to convert item variant")
+			return nil, fmt.Errorf("failed to convert item variant: %w", err)
+		}
+	}
+
+	span.SetStatus(codes.Ok, "item variants retrieved successfully")
+	return variantsModels, nil
+}
+
+func (s *ItemService) GetItemVariantById(ctx context.Context, orgID uuid.UUID, id uuid.UUID, variantId uuid.UUID) (*models.ItemVariant, error) {
+	ctx, span := s.tracer.Start(ctx, "GetItemVariantById")
+	defer span.End()
+
+	variant, err := s.queries.GetItemVariantById(ctx, sqlc.GetItemVariantByIdParams{
+		OrgID:  database.PgUUID(orgID),
+		ItemID: database.PgUUID(id),
+		ID:     database.PgUUID(variantId),
+	})
+
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item variant by id")
+		return nil, fmt.Errorf("failed to get item variant by id: %w", err)
+	}
+
+	return toItemVariantModel(variant)
+}
+
+func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
+	ctx, span := s.tracer.Start(ctx, "UpdateItemVariant")
+	defer span.End()
+
+	updatedVariant, err := s.queries.UpdateItemVariant(ctx, sqlc.UpdateItemVariantParams{
+		OrgID:   database.PgUUID(orgID),
+		ItemID:  database.PgUUID(variant.ItemID),
+		ID:      database.PgUUID(variant.ID),
+		Name:    variant.Name,
+		Article: database.PgTextPtr(variant.Article),
+		Ean13:   database.PgInt4Ptr(variant.EAN13),
+	})
+	if err != nil {
+		if database.IsUniqueViolation(err) {
+			span.SetStatus(codes.Error, "unique violation")
+			return nil, services.ErrDuplicationError
+		}
+		if database.IsNotFound(err) {
+			span.SetStatus(codes.Error, "item variant not found")
+			return nil, services.ErrNotFoundError
+		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to update item variant")
+		return nil, fmt.Errorf("failed to update item variant: %w", err)
+	}
+
+	span.SetStatus(codes.Ok, "item variant updated successfully")
+	return toItemVariantModel(updatedVariant)
 }

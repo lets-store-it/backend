@@ -54,7 +54,7 @@ func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.De
 	// var ogenErr ogenerrors.Error
 	var detailedErr *usecases.ErrDetailedValidationError
 	switch {
-	case errors.As(err, &detailedErr):
+	case errors.As(err, &detailedErr) && detailedErr != nil:
 		return h.NewValidationError(ctx, detailedErr.Message)
 	case errors.Is(err, usecases.ErrNotAuthorized):
 		return h.NewUnauthorizedError(ctx)

@@ -18,6 +18,12 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/items/GetItemByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    # "404":
+    #   $ref: ../../components/responses/default-not-found.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 
@@ -29,28 +35,34 @@ delete:
   responses:
     "204":
       description: Successful operation
+    # "404":
+    #   $ref: ../../components/responses/default-not-found.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-patch:
-  tags:
-    - item
-  summary: Patch Item
-  operationId: patchItem
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: ../../components/schemas/items/PatchItemRequest.yaml
-  responses:
-    "200":
-      description: Successful operation
-      content:
-        application/json:
-          schema:
-            $ref: ../../components/schemas/items/PatchItemResponse.yaml
-    default:
-      $ref: ../../components/responses/default-error.yaml
+# patch:
+#   tags:
+#     - item
+#   summary: Patch Item
+#   operationId: patchItem
+#   requestBody:
+#     required: true
+#     content:
+#       application/json:
+#         schema:
+#           $ref: ../../components/schemas/items/PatchItemRequest.yaml
+#   responses:
+#     "200":
+#       description: Successful operation
+#       content:
+#         application/json:
+#           schema:
+#             $ref: ../../components/schemas/items/PatchItemResponse.yaml
+#     default:
+#       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
     - item
@@ -69,5 +81,9 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/items/UpdateItemResponse.yaml
+    # "404":
+    #   $ref: ../../components/responses/default-not-found.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

@@ -1,0 +1,7 @@
+type: object
+properties:
+  data:
+    type: object
+    $ref: models/ItemVariant.yaml
+required:
+  - data
