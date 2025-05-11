@@ -52,11 +52,13 @@ type Cell struct {
 	ID           uuid.UUID `json:"id"`
 	OrgID        uuid.UUID `json:"org_id"`
 	CellsGroupID uuid.UUID `json:"cells_group_id"`
+	Alias        string    `json:"alias"`
+	Row          int       `json:"row"`
+	Level        int       `json:"level"`
+	Position     int       `json:"position"`
+}
 
-	Alias    string `json:"alias"`
-	Row      int    `json:"row"`
-	Level    int    `json:"level"`
-	Position int    `json:"position"`
-
-	Path *[]CellPathSegment `json:"path"`
+type StorageGroupWithCells struct {
+	StorageGroup *StorageGroup `json:"storage_group"`
+	Cells        []Cell        `json:"cells"`
 }
