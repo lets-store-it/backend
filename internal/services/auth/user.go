@@ -98,7 +98,7 @@ func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models
 		}
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "failed to get user by email")
-		return nil, fmt.Errorf("failed to get user by email: %w", services.ErrUserNotFound)
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
 
 	span.SetStatus(codes.Ok, "user found")

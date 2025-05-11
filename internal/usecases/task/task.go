@@ -39,7 +39,7 @@ func (uc *TaskUseCase) CreateTask(ctx context.Context, task *models.Task) (*mode
 	}
 
 	if !validateResult.HasAccess {
-		return nil, services.ErrNotAuthorized
+		return nil, usecases.ErrNotAuthorized
 	}
 
 	task.OrgID = validateResult.OrgID
@@ -64,7 +64,7 @@ func (uc *TaskUseCase) GetTaskById(ctx context.Context, id uuid.UUID) (*models.T
 	}
 
 	if !validateResult.HasAccess {
-		return nil, services.ErrNotAuthorized
+		return nil, usecases.ErrNotAuthorized
 	}
 
 	task, err := uc.taskService.GetTaskById(ctx, validateResult.OrgID, id)
@@ -81,7 +81,7 @@ func (uc *TaskUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
 	}
 
 	if !validateResult.HasAccess {
-		return nil, services.ErrNotAuthorized
+		return nil, usecases.ErrNotAuthorized
 	}
 
 	tasks, err := uc.taskService.GetTasks(ctx, validateResult.OrgID)
@@ -98,7 +98,7 @@ func (uc *TaskUseCase) PickInstanceFromCell(ctx context.Context, taskID uuid.UUI
 	}
 
 	if !validateResult.HasAccess {
-		return services.ErrNotAuthorized
+		return usecases.ErrNotAuthorized
 	}
 
 	return uc.taskService.PickInstance(ctx, validateResult.OrgID, taskID, instanceID)

@@ -11,6 +11,7 @@ import (
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/yandex"
 	"github.com/let-store-it/backend/internal/usecases"
+	"github.com/let-store-it/backend/internal/database"
 )
 
 type AuthUseCase struct {
@@ -213,7 +214,7 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 	}
 	user, err := uc.authService.GetUserByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if database.IsNotFound(err) {
 			return nil, errors.Join(usecases.ErrDetailedValidationErrorWithMessage("user not found"))
 		}
 		return nil, err
