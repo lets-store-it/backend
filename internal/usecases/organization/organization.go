@@ -39,7 +39,7 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	org, err := uc.service.Create(ctx, name, subdomain)
+	org, err := uc.service.CreateOrganization(ctx, name, subdomain)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Orga
 		return nil, err
 	}
 
-	return uc.service.GetUsersOrgs(ctx, userId)
+	return uc.service.GetUsersOrganization(ctx, userId)
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
@@ -88,7 +88,7 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	return uc.service.GetByID(ctx, validateResult.OrgID)
+	return uc.service.GetOrganizationByID(ctx, validateResult.OrgID)
 }
 
 func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
@@ -101,12 +101,12 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return usecases.ErrNotAuthorized
 	}
 
-	org, err := uc.service.GetByID(ctx, id)
+	org, err := uc.service.GetOrganizationByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	err = uc.service.Delete(ctx, id)
+	err = uc.service.DeleteOrganization(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	org, err := uc.service.GetByID(ctx, id)
+	org, err := uc.service.GetOrganizationByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization: %w", err)
 	}

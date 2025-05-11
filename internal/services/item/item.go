@@ -118,19 +118,12 @@ func (s *ItemService) GetItemsAll(ctx context.Context, orgID uuid.UUID) ([]*mode
 				ItemID: database.PgUUID(uuid.UUID(item.ID.Bytes)),
 			})
 			if err != nil {
-				span.RecordError(err)
-				span.SetStatus(codes.Error, "failed to get item variants")
 				return nil, fmt.Errorf("failed to get item variants: %w", err)
 			}
-			itemModel, err := toItemModel(toItemModelParams{
+			itemModel := toItemModel(toItemModelParams{
 				item:     item,
 				variants: variants,
 			})
-			if err != nil {
-				span.RecordError(err)
-				span.SetStatus(codes.Error, "failed to convert item")
-				return nil, fmt.Errorf("failed to convert item: %w", err)
-			}
 			itemsModels[i] = itemModel
 		}
 
@@ -151,13 +144,7 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 			OrgID: database.PgUUID(orgID),
 		})
 		if err != nil {
-			if database.IsNotFound(err) {
-				span.SetStatus(codes.Error, "item not found")
-				return nil, services.ErrNotFoundError
-			}
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get item")
-			return nil, fmt.Errorf("failed to get item: %w", err)
+			return nil, services.MapDbErrorToService(err)
 		}
 
 		variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
@@ -165,8 +152,6 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 			ItemID: database.PgUUID(id),
 		})
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get item variants")
 			return nil, fmt.Errorf("failed to get item variants: %w", err)
 		}
 
@@ -175,21 +160,14 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 			ItemID: database.PgUUID(id),
 		})
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get item instances")
 			return nil, fmt.Errorf("failed to get item instances: %w", err)
 		}
 
-		result, err := toItemModel(toItemModelParams{
+		result := toItemModel(toItemModelParams{
 			item:      item,
 			variants:  variants,
 			instances: instances,
 		})
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to convert item model")
-			return nil, err
-		}
 
 		span.SetStatus(codes.Ok, "item retrieved successfully")
 		return result, nil

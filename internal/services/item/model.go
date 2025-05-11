@@ -24,7 +24,7 @@ type toItemModelParams struct {
 	instances []sqlc.ItemInstance
 }
 
-func toItemModel(params toItemModelParams) (*models.Item, error) {
+func toItemModel(params toItemModelParams) *models.Item {
 	itemModel := &models.Item{
 		ID:          database.UUIDFromPgx(params.item.ID),
 		Name:        params.item.Name,
@@ -47,7 +47,7 @@ func toItemModel(params toItemModelParams) (*models.Item, error) {
 		itemModel.Instances = itemInstances
 	}
 
-	return itemModel, nil
+	return itemModel
 }
 
 func toItemInstance(instance sqlc.ItemInstance) *models.ItemInstance {

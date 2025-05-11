@@ -6,15 +6,15 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
-func toOrganization(org sqlc.Org) (*models.Organization, error) {
+func toOrganizationModel(org sqlc.Org) *models.Organization {
 	return &models.Organization{
 		ID:        database.UUIDFromPgx(org.ID),
 		Name:      org.Name,
 		Subdomain: org.Subdomain,
-	}, nil
+	}
 }
 
-func toOrganizationUnit(unit sqlc.OrgUnit) (*models.OrganizationUnit, error) {
+func toOrganizationUnitModel(unit sqlc.OrgUnit) *models.OrganizationUnit {
 	return &models.OrganizationUnit{
 		ID:        database.UUIDFromPgx(unit.ID),
 		OrgID:     database.UUIDFromPgx(unit.OrgID),
@@ -23,5 +23,5 @@ func toOrganizationUnit(unit sqlc.OrgUnit) (*models.OrganizationUnit, error) {
 		Address:   database.PgTextPtrFromPgx(unit.Address),
 		CreatedAt: unit.CreatedAt.Time,
 		DeletedAt: database.PgTimePtrFromPgx(unit.DeletedAt),
-	}, nil
+	}
 }
