@@ -1,10 +1,8 @@
-CREATE TYPE task_type AS ENUM ('receiving', 'shipping', 'movement', 'inventory');
+CREATE TYPE task_type AS ENUM ('movement', 'pickment');
+CREATE TYPE task_status AS ENUM ('pending', 'in_progress', 'ready', 'completed', 'cancelled');
+CREATE TYPE task_item_status AS ENUM ('pending', 'picked', 'done', 'returned');
+CREATE TYPE item_instance_status AS ENUM ('available', 'reserved', 'consumed');
 
-CREATE TYPE task_status AS ENUM ('pending', 'in_progress', 'completed', 'cancelled');
-
-CREATE TYPE item_instance_status AS ENUM ('available', 'reserved', 'in_transit');
-
-CREATE TYPE task_item_status AS ENUM ('pending', 'in_progress', 'completed');
 
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -18,12 +16,14 @@ CREATE TABLE app_user (
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
+CREATE INDEX app_user_email_idx ON app_user(email);
 
 CREATE TABLE org (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
     name VARCHAR(255) NOT NULL,
     subdomain VARCHAR(255) NOT NULL UNIQUE CHECK (subdomain ~ '^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$'),
+    
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
@@ -32,13 +32,14 @@ CREATE INDEX org_subdomain_idx ON org(subdomain);
 CREATE TABLE org_unit (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
+
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NOT NULL,
     address VARCHAR(255),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    UNIQUE (org_id, name),
+
     UNIQUE (org_id, alias)
 );
 CREATE INDEX org_unit_org_id_idx ON org_unit(org_id, id);
@@ -49,12 +50,14 @@ CREATE TABLE storage_group (
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
     parent_id UUID,
+
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NOT NULL,
     description VARCHAR(255),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
+
     UNIQUE (org_id, alias),
     FOREIGN KEY (parent_id) REFERENCES storage_group(id) ON DELETE CASCADE,
     CHECK (parent_id != id)
@@ -103,6 +106,7 @@ CREATE TABLE cells_group (
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
     storage_group_id UUID REFERENCES storage_group(id),
+
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NOT NULL,
 
@@ -236,8 +240,8 @@ INSERT INTO object_type (id, object_group, object_name) VALUES
     (5, 'storage', 'cell'),
     (6, 'items', 'item'),
     (7, 'items', 'instance'),
-    -- (8, 'rbac', 'user-roles'),
-    (8, 'rbac', 'employee');
+    (8, 'rbac', 'employee'),
+    (9, 'tasks', 'task');
 
 
 CREATE TABLE app_object_change (
@@ -251,6 +255,9 @@ CREATE TABLE app_object_change (
     prechange_state JSONB,
     postchange_state JSONB
 );
+CREATE INDEX app_object_change_org_id_idx ON app_object_change(org_id);
+CREATE INDEX app_object_change_target_object_type_idx ON app_object_change(target_object_type);
+CREATE INDEX app_object_change_target_object_id_idx ON app_object_change(target_object_id);
 
 CREATE TABLE app_api_token (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -260,6 +267,7 @@ CREATE TABLE app_api_token (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP
 );
+CREATE INDEX app_api_token_org_id_idx ON app_api_token(org_id);
 
 CREATE TABLE tv_board (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -270,3 +278,5 @@ CREATE TABLE tv_board (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+CREATE INDEX tv_board_org_id_idx ON tv_board(org_id);
+CREATE INDEX tv_board_token_idx ON tv_board(token);
