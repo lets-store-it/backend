@@ -5,8 +5,185 @@
 package sqlc
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type ItemInstanceStatus string
+
+const (
+	ItemInstanceStatusAvailable ItemInstanceStatus = "available"
+	ItemInstanceStatusReserved  ItemInstanceStatus = "reserved"
+	ItemInstanceStatusConsumed  ItemInstanceStatus = "consumed"
+)
+
+func (e *ItemInstanceStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ItemInstanceStatus(s)
+	case string:
+		*e = ItemInstanceStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ItemInstanceStatus: %T", src)
+	}
+	return nil
+}
+
+type NullItemInstanceStatus struct {
+	ItemInstanceStatus ItemInstanceStatus
+	Valid              bool // Valid is true if ItemInstanceStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullItemInstanceStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ItemInstanceStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ItemInstanceStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullItemInstanceStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ItemInstanceStatus), nil
+}
+
+type TaskItemStatus string
+
+const (
+	TaskItemStatusPending  TaskItemStatus = "pending"
+	TaskItemStatusPicked   TaskItemStatus = "picked"
+	TaskItemStatusDone     TaskItemStatus = "done"
+	TaskItemStatusReturned TaskItemStatus = "returned"
+)
+
+func (e *TaskItemStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TaskItemStatus(s)
+	case string:
+		*e = TaskItemStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TaskItemStatus: %T", src)
+	}
+	return nil
+}
+
+type NullTaskItemStatus struct {
+	TaskItemStatus TaskItemStatus
+	Valid          bool // Valid is true if TaskItemStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTaskItemStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.TaskItemStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TaskItemStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTaskItemStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TaskItemStatus), nil
+}
+
+type TaskStatus string
+
+const (
+	TaskStatusPending    TaskStatus = "pending"
+	TaskStatusInProgress TaskStatus = "in_progress"
+	TaskStatusReady      TaskStatus = "ready"
+	TaskStatusCompleted  TaskStatus = "completed"
+	TaskStatusCancelled  TaskStatus = "cancelled"
+)
+
+func (e *TaskStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TaskStatus(s)
+	case string:
+		*e = TaskStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TaskStatus: %T", src)
+	}
+	return nil
+}
+
+type NullTaskStatus struct {
+	TaskStatus TaskStatus
+	Valid      bool // Valid is true if TaskStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTaskStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.TaskStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TaskStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTaskStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TaskStatus), nil
+}
+
+type TaskType string
+
+const (
+	TaskTypeMovement TaskType = "movement"
+	TaskTypePickment TaskType = "pickment"
+)
+
+func (e *TaskType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TaskType(s)
+	case string:
+		*e = TaskType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TaskType: %T", src)
+	}
+	return nil
+}
+
+type NullTaskType struct {
+	TaskType TaskType
+	Valid    bool // Valid is true if TaskType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTaskType) Scan(value interface{}) error {
+	if value == nil {
+		ns.TaskType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TaskType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTaskType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TaskType), nil
+}
 
 type AppApiToken struct {
 	ID        pgtype.UUID
@@ -104,7 +281,7 @@ type ItemInstance struct {
 	ItemID           pgtype.UUID
 	VariantID        pgtype.UUID
 	CellID           pgtype.UUID
-	Status           string
+	Status           ItemInstanceStatus
 	AffectedByTaskID pgtype.UUID
 	CreatedAt        pgtype.Timestamp
 	DeletedAt        pgtype.Timestamp
@@ -116,7 +293,7 @@ type ItemVariant struct {
 	ItemID    pgtype.UUID
 	Name      string
 	Article   pgtype.Text
-	Ean13     pgtype.Int4
+	Ean13     pgtype.Int8
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }
@@ -161,8 +338,8 @@ type Task struct {
 	ID               pgtype.UUID
 	OrgID            pgtype.UUID
 	UnitID           pgtype.UUID
-	Type             string
-	Status           string
+	Type             TaskType
+	Status           TaskStatus
 	Name             string
 	Description      pgtype.Text
 	AssignedToUserID pgtype.UUID
@@ -176,7 +353,7 @@ type TaskItem struct {
 	OrgID             pgtype.UUID
 	TaskID            pgtype.UUID
 	ItemInstanceID    pgtype.UUID
-	Status            string
+	Status            TaskItemStatus
 	SourceCellID      pgtype.UUID
 	DestinationCellID pgtype.UUID
 }

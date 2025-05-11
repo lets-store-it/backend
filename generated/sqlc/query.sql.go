@@ -165,7 +165,7 @@ type CreateItemInstanceParams struct {
 	ItemID    pgtype.UUID
 	VariantID pgtype.UUID
 	CellID    pgtype.UUID
-	Status    string
+	Status    ItemInstanceStatus
 }
 
 // Item Instances
@@ -201,7 +201,7 @@ type CreateItemVariantParams struct {
 	ItemID  pgtype.UUID
 	Name    string
 	Article pgtype.Text
-	Ean13   pgtype.Int4
+	Ean13   pgtype.Int8
 }
 
 // Item Variants
@@ -363,7 +363,7 @@ INSERT INTO task (org_id, unit_id, type, name, description, assigned_to_user_id)
 type CreateTaskParams struct {
 	OrgID            pgtype.UUID
 	UnitID           pgtype.UUID
-	Type             string
+	Type             TaskType
 	Name             string
 	Description      pgtype.Text
 	AssignedToUserID pgtype.UUID
@@ -1835,7 +1835,7 @@ UPDATE item_instance SET status = $3, affected_by_task_id = $4 WHERE org_id = $1
 type SetItemInstanceTaskStatusParams struct {
 	OrgID            pgtype.UUID
 	ID               pgtype.UUID
-	Status           string
+	Status           ItemInstanceStatus
 	AffectedByTaskID pgtype.UUID
 }
 
@@ -1856,7 +1856,7 @@ UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2
 type SetTaskItemStatusParams struct {
 	OrgID          pgtype.UUID
 	ItemInstanceID pgtype.UUID
-	Status         string
+	Status         TaskItemStatus
 }
 
 func (q *Queries) SetTaskItemStatus(ctx context.Context, arg SetTaskItemStatusParams) error {
@@ -1995,7 +1995,7 @@ type UpdateItemVariantParams struct {
 	ID      pgtype.UUID
 	Name    string
 	Article pgtype.Text
-	Ean13   pgtype.Int4
+	Ean13   pgtype.Int8
 }
 
 func (q *Queries) UpdateItemVariant(ctx context.Context, arg UpdateItemVariantParams) (ItemVariant, error) {

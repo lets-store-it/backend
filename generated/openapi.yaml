@@ -1934,7 +1934,7 @@ components:
           example: 123456789012
         ean13:
           type: integer
-          format: int32
+          format: int64
           nullable: true
           example: 1234567890123
       required:
@@ -1960,7 +1960,7 @@ components:
             ean13:
               type: integer
               nullable: true
-              format: int32
+              format: int64
               example: 1234567890123
           required:
             - article

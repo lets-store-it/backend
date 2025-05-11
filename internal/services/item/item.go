@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
@@ -89,7 +88,7 @@ func (s *ItemService) CreateItem(ctx context.Context, orgID uuid.UUID, item *mod
 				ItemID:  createdItem.ID,
 				Name:    variant.Name,
 				Article: database.PgText(article),
-				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
+				Ean13:   database.PgInt8Ptr(variant.EAN13),
 			})
 
 			if err != nil {
@@ -305,7 +304,7 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 				ItemID:  database.PgUUID(item.ID),
 				Name:    variant.Name,
 				Article: database.PgText(article),
-				Ean13:   pgtype.Int4{Int32: int32(*variant.EAN13), Valid: variant.EAN13 != nil},
+				Ean13:   database.PgInt8Ptr(variant.EAN13),
 			})
 			if err != nil {
 				span.RecordError(err)
@@ -362,7 +361,7 @@ func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, va
 		ItemID:  database.PgUUID(variant.ItemID),
 		Name:    variant.Name,
 		Article: database.PgTextPtr(variant.Article),
-		Ean13:   database.PgInt4Ptr(variant.EAN13),
+		Ean13:   database.PgInt8Ptr(variant.EAN13),
 	})
 	if err != nil {
 		if database.IsUniqueViolation(err) {
@@ -453,7 +452,7 @@ func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, va
 		ID:      database.PgUUID(variant.ID),
 		Name:    variant.Name,
 		Article: database.PgTextPtr(variant.Article),
-		Ean13:   database.PgInt4Ptr(variant.EAN13),
+		Ean13:   database.PgInt8Ptr(variant.EAN13),
 	})
 	if err != nil {
 		if database.IsUniqueViolation(err) {
@@ -489,7 +488,7 @@ func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *mode
 		ItemID:    database.PgUUID(itemInstance.ItemID),
 		VariantID: database.PgUUID(itemInstance.VariantID),
 		CellID:    database.PgUUIDPtr(itemInstance.CellID),
-		Status:    string(models.ItemInstanceStatusAvailable),
+		Status:    sqlc.ItemInstanceStatus(models.ItemInstanceStatusAvailable),
 	})
 	if err != nil {
 		span.RecordError(err)
@@ -585,7 +584,7 @@ func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *m
 	err := s.queries.SetItemInstanceTaskStatus(ctx, sqlc.SetItemInstanceTaskStatusParams{
 		OrgID:            database.PgUUID(itemInstance.OrgID),
 		ID:               database.PgUUID(itemInstance.ID),
-		Status:           string(itemInstance.Status),
+		Status:           sqlc.ItemInstanceStatus(itemInstance.Status),
 		AffectedByTaskID: database.PgUUIDPtr(itemInstance.AffectedByOperationID),
 	})
 	if err != nil {

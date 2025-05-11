@@ -72,7 +72,7 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 	createdTask, err := qtx.CreateTask(ctx, sqlc.CreateTaskParams{
 		OrgID:            database.PgUUID(orgID),
 		UnitID:           database.PgUUID(task.UnitID),
-		Type:             string(task.Type),
+		Type:             sqlc.TaskType(task.Type),
 		Name:             task.Name,
 		Description:      database.PgTextPtr(task.Description),
 		AssignedToUserID: database.PgUUIDPtr(task.AssignedToUserID),
@@ -270,7 +270,7 @@ func (s *TaskService) PickInstance(ctx context.Context, orgID uuid.UUID, taskID 
 	err = s.queries.SetTaskItemStatus(ctx, sqlc.SetTaskItemStatusParams{
 		OrgID:          database.PgUUID(orgID),
 		ItemInstanceID: database.PgUUID(instanceID),
-		Status:         string(models.TaskItemStatusPicked),
+		Status:         sqlc.TaskItemStatus(models.TaskItemStatusPicked),
 	})
 	if err != nil {
 		span.RecordError(err)

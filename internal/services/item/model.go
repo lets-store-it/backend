@@ -14,7 +14,7 @@ func toItemVariantModel(variant sqlc.ItemVariant) *models.ItemVariant {
 		ItemID:    database.UUIDFromPgx(variant.ItemID),
 		Name:      variant.Name,
 		Article:   database.PgTextPtrFromPgx(variant.Article),
-		EAN13:     database.PgInt32PtrFromPgx(variant.Ean13),
+		EAN13:     database.PgInt64PtrFromPgx(variant.Ean13),
 		CreatedAt: variant.CreatedAt.Time,
 		DeletedAt: database.PgTimePtrFromPgx(variant.DeletedAt),
 	}
