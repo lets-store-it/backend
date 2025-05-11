@@ -28,7 +28,7 @@ func (s *AuthService) CreateSession(ctx context.Context, userId uuid.UUID) (*mod
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toSessionModel(session), nil
+		return toUserSessionModel(session), nil
 	})
 }
 
@@ -39,7 +39,7 @@ func (s *AuthService) GetSessionBySecret(ctx context.Context, sessionSecret stri
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toSessionModel(session), nil
+		return toUserSessionModel(session), nil
 	})
 }
 

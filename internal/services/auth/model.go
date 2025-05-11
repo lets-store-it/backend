@@ -26,7 +26,7 @@ func toRoleModel(role sqlc.AppRole) *models.Role {
 	}
 }
 
-func toTokenModel(token sqlc.AppApiToken) *models.ApiToken {
+func toApiTokenModel(token sqlc.AppApiToken) *models.ApiToken {
 	return &models.ApiToken{
 		ID:        token.ID.Bytes,
 		OrgID:     token.OrgID.Bytes,
@@ -37,7 +37,6 @@ func toTokenModel(token sqlc.AppApiToken) *models.ApiToken {
 	}
 }
 
-// TODO: redo
 func toEmployeeModel(employee interface{}) *models.Employee {
 	var appUser sqlc.AppUser
 	var appRole sqlc.AppRole
@@ -62,7 +61,7 @@ func toEmployeeModel(employee interface{}) *models.Employee {
 	}
 }
 
-func toSessionModel(session sqlc.AppUserSession) *models.UserSession {
+func toUserSessionModel(session sqlc.AppUserSession) *models.UserSession {
 	return &models.UserSession{
 		ID:     session.ID.Bytes,
 		UserID: session.UserID.Bytes,
