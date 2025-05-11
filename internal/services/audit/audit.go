@@ -157,7 +157,7 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 			return err
 		}
 
-		employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, *objectChange.UserID)
+		employee, err := s.auth.GetEmployee(ctx, objectChange.OrgID, *objectChange.UserID)
 		if err != nil {
 			return err
 		}
@@ -222,7 +222,7 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 
 		objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
 		for i, change := range objectChanges {
-			employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, change.OrgID.Bytes, change.UserID.Bytes)
+			employee, err := s.auth.GetEmployee(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 			}
