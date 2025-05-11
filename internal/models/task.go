@@ -9,8 +9,8 @@ import (
 type TaskType string
 
 const (
-	TaskTypePickItem TaskType = "pick"
-	TaskTypeMovement TaskType = "movement"
+	TaskTypePickmentItem TaskType = "pickment"
+	TaskTypeMovement     TaskType = "movement"
 )
 
 type TaskStatus string
@@ -18,8 +18,9 @@ type TaskStatus string
 const (
 	TaskStatusPending    TaskStatus = "pending"
 	TaskStatusInProgress TaskStatus = "in_progress"
+	TaskStatusReady      TaskStatus = "ready"
 	TaskStatusCompleted  TaskStatus = "completed"
-	TaskStatusFailed     TaskStatus = "failed"
+	TaskStatusCancelled  TaskStatus = "cancelled"
 )
 
 type TaskItemStatus string
@@ -28,7 +29,6 @@ const (
 	TaskItemStatusPending  TaskItemStatus = "pending"
 	TaskItemStatusPicked   TaskItemStatus = "picked"
 	TaskItemStatusDone     TaskItemStatus = "done"
-	TaskItemStatusFailed   TaskItemStatus = "failed"
 	TaskItemStatusReturned TaskItemStatus = "returned"
 )
 
@@ -60,12 +60,11 @@ type Task struct {
 	AssignedToUserID *uuid.UUID `json:"assigned_to_user_id"`
 	Type             TaskType   `json:"type"`
 
-	Items []*TaskItem `json:"items"`
+	Items      []*TaskItem       `json:"items"`
+	AssignedTo *Employee         `json:"assigned_to"`
+	Unit       *OrganizationUnit `json:"unit"`
 
 	CreatedAt   time.Time  `json:"created_at"`
 	AssignedAt  *time.Time `json:"assigned_at"`
 	CompletedAt *time.Time `json:"completed_at"`
-
-	AssignedTo *Employee         `json:"assigned_to"`
-	Unit       *OrganizationUnit `json:"unit"`
 }
