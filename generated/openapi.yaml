@@ -1110,6 +1110,66 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - tasks
+      summary: Get Task by ID
+      operationId: getTaskById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tasks/{id}/pick-instance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - tasks
+      summary: Pick an item from cell
+      operationId: pickInstanceFromCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                instanceId:
+                  type: string
+                  format: uuid
+              required:
+                - instanceId
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
   /employees:
     get:
       summary: Get employees of the organization
@@ -1848,8 +1908,10 @@ components:
         - $ref: '#/components/schemas/ItemCreate'
     CellForInstance:
       allOf:
-        - $ref: '#/components/schemas/Cell'
+        - nullable: true
+          $ref: '#/components/schemas/Cell'
         - type: object
+          nullable: true
           properties:
             cellPath:
               type: array
@@ -2006,6 +2068,7 @@ components:
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:
+          nullable: true
           $ref: '#/components/schemas/CellForInstance'
       required:
         - id
@@ -2197,6 +2260,11 @@ components:
         - middleName
         - email
         - role
+    EmployeeOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/Employee'
     TaskBase:
       type: object
       properties:
@@ -2229,9 +2297,7 @@ components:
           type: object
           $ref: '#/components/schemas/Unit'
         assignedTo:
-          type: object
-          nullable: true
-          $ref: '#/components/schemas/Employee'
+          $ref: '#/components/schemas/EmployeeOptional'
         assignedAt:
           type: string
           format: date-time
@@ -2305,10 +2371,6 @@ components:
     TaskItem:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
         instance:
           $ref: '#/components/schemas/InstanceFull'
         sourceCell:
@@ -2316,26 +2378,40 @@ components:
         targetCell:
           nullable: true
           $ref: '#/components/schemas/CellForInstance'
+        status:
+          type: string
+          enum:
+            - pending
+            - picked
       required:
         - sourceCell
         - targetCell
         - instance
         - id
+        - status
     TaskFull:
       allOf:
         - $ref: '#/components/schemas/TaskBase'
         - type: object
           properties:
-            instances:
+            items:
               type: array
               items:
                 $ref: '#/components/schemas/TaskItem'
           required:
-            - instances
+            - items
     CreateTaskResponse:
       type: object
       properties:
         data:
+          $ref: '#/components/schemas/TaskFull'
+      required:
+        - data
+    GetTaskResponse:
+      type: object
+      properties:
+        data:
+          type: object
           $ref: '#/components/schemas/TaskFull'
       required:
         - data

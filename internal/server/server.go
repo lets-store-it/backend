@@ -99,11 +99,12 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	})
 
 	taskService := tasks.New(tasks.TaskServiceConfig{
-		Queries:     queries,
-		PGXPool:     pool,
-		Auth:        authService,
-		Org:         orgService,
-		ItemService: itemService,
+		Queries:        queries,
+		PGXPool:        pool,
+		Auth:           authService,
+		Org:            orgService,
+		ItemService:    itemService,
+		StorageService: storageGroupService,
 	})
 
 	// Initialize use cases
@@ -133,6 +134,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	taskUseCase := taskUC.New(taskUC.TaskUseCaseConfig{
 		TaskService: taskService,
 		AuthService: authService,
+		OrgService:  orgService,
 	})
 
 	// Initialize auth middleware

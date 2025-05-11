@@ -91,11 +91,12 @@ paths:
   /tasks:
     $ref: paths/tasks/tasks.yaml
 
-  # /tasks/{id}:
-  #   $ref: paths/tasks/tasks_{id}.yaml
+  /tasks/{id}:
+    $ref: paths/tasks/tasks_{id}.yaml
 
-  # /tasks/{id}/pick-item:
-  #   $ref: paths/tasks/tasks_{id}_pick-item.yaml
+  /tasks/{id}/pick-instance:
+    $ref: paths/tasks/tasks_{id}_pick-item.yaml
+
   # /tasks/{id}/put-item:
   #   $ref: paths/tasks/tasks_{id}_put-item.yaml
 

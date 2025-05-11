@@ -260,6 +260,12 @@ type Handler interface {
 	//
 	// GET /storage-groups
 	GetStorageGroups(ctx context.Context) (GetStorageGroupsRes, error)
+	// GetTaskById implements getTaskById operation.
+	//
+	// Get Task by ID.
+	//
+	// GET /tasks/{id}
+	GetTaskById(ctx context.Context, params GetTaskByIdParams) (GetTaskByIdRes, error)
 	// GetTasks implements getTasks operation.
 	//
 	// Get all tasks for organization.
@@ -296,6 +302,12 @@ type Handler interface {
 	//
 	// PATCH /units/{id}
 	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error)
+	// PickInstanceFromCell implements pickInstanceFromCell operation.
+	//
+	// Pick an item from cell.
+	//
+	// POST /tasks/{id}/pick-instance
+	PickInstanceFromCell(ctx context.Context, req *PickInstanceFromCellReq, params PickInstanceFromCellParams) (PickInstanceFromCellRes, error)
 	// PutCurrentUser implements putCurrentUser operation.
 	//
 	// Update Current User.

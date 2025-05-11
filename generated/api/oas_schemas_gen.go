@@ -1457,6 +1457,76 @@ func (s *Employee) SetRole(val Role) {
 	s.Role = val
 }
 
+// Ref: #/components/schemas/EmployeeOptional
+type EmployeeOptional struct {
+	UserId     uuid.UUID `json:"userId"`
+	FirstName  string    `json:"firstName"`
+	LastName   string    `json:"lastName"`
+	MiddleName NilString `json:"middleName"`
+	Email      string    `json:"email"`
+	Role       Role      `json:"role"`
+}
+
+// GetUserId returns the value of UserId.
+func (s *EmployeeOptional) GetUserId() uuid.UUID {
+	return s.UserId
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *EmployeeOptional) GetFirstName() string {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *EmployeeOptional) GetLastName() string {
+	return s.LastName
+}
+
+// GetMiddleName returns the value of MiddleName.
+func (s *EmployeeOptional) GetMiddleName() NilString {
+	return s.MiddleName
+}
+
+// GetEmail returns the value of Email.
+func (s *EmployeeOptional) GetEmail() string {
+	return s.Email
+}
+
+// GetRole returns the value of Role.
+func (s *EmployeeOptional) GetRole() Role {
+	return s.Role
+}
+
+// SetUserId sets the value of UserId.
+func (s *EmployeeOptional) SetUserId(val uuid.UUID) {
+	s.UserId = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *EmployeeOptional) SetFirstName(val string) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *EmployeeOptional) SetLastName(val string) {
+	s.LastName = val
+}
+
+// SetMiddleName sets the value of MiddleName.
+func (s *EmployeeOptional) SetMiddleName(val NilString) {
+	s.MiddleName = val
+}
+
+// SetEmail sets the value of Email.
+func (s *EmployeeOptional) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetRole sets the value of Role.
+func (s *EmployeeOptional) SetRole(val Role) {
+	s.Role = val
+}
+
 // Ref: #/components/schemas/ErrorContent
 type ErrorContent struct {
 	Error ErrorContentError `json:"error"`
@@ -2179,6 +2249,31 @@ type GetStorageGroupsUnauthorized ErrorContent
 
 func (*GetStorageGroupsUnauthorized) getStorageGroupsRes() {}
 
+type GetTaskByIdForbidden ErrorContent
+
+func (*GetTaskByIdForbidden) getTaskByIdRes() {}
+
+type GetTaskByIdUnauthorized ErrorContent
+
+func (*GetTaskByIdUnauthorized) getTaskByIdRes() {}
+
+// Ref: #/components/schemas/GetTaskResponse
+type GetTaskResponse struct {
+	Data TaskFull `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetTaskResponse) GetData() TaskFull {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetTaskResponse) SetData(val TaskFull) {
+	s.Data = val
+}
+
+func (*GetTaskResponse) getTaskByIdRes() {}
+
 type GetTasksForbidden ErrorContent
 
 func (*GetTasksForbidden) getTasksRes() {}
@@ -2307,7 +2402,7 @@ type InstanceFull struct {
 	Status  InstanceFullStatus `json:"status"`
 	Item    ItemForList        `json:"item"`
 	Variant ItemVariant        `json:"variant"`
-	Cell    CellForInstance    `json:"cell"`
+	Cell    NilCellForInstance `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2331,7 +2426,7 @@ func (s *InstanceFull) GetVariant() ItemVariant {
 }
 
 // GetCell returns the value of Cell.
-func (s *InstanceFull) GetCell() CellForInstance {
+func (s *InstanceFull) GetCell() NilCellForInstance {
 	return s.Cell
 }
 
@@ -2356,7 +2451,7 @@ func (s *InstanceFull) SetVariant(val ItemVariant) {
 }
 
 // SetCell sets the value of Cell.
-func (s *InstanceFull) SetCell(val CellForInstance) {
+func (s *InstanceFull) SetCell(val NilCellForInstance) {
 	s.Cell = val
 }
 
@@ -2713,6 +2808,51 @@ func (o NilAuditLogPrechangeState) Or(d AuditLogPrechangeState) AuditLogPrechang
 	return d
 }
 
+// NewNilCellForInstance returns new NilCellForInstance with value set to v.
+func NewNilCellForInstance(v CellForInstance) NilCellForInstance {
+	return NilCellForInstance{
+		Value: v,
+	}
+}
+
+// NilCellForInstance is nullable CellForInstance.
+type NilCellForInstance struct {
+	Value CellForInstance
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilCellForInstance) SetTo(v CellForInstance) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilCellForInstance) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilCellForInstance) SetToNull() {
+	o.Null = true
+	var v CellForInstance
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilCellForInstance) Get() (v CellForInstance, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilCellForInstance) Or(d CellForInstance) CellForInstance {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewNilDateTime returns new NilDateTime with value set to v.
 func NewNilDateTime(v time.Time) NilDateTime {
 	return NilDateTime{
@@ -2752,6 +2892,51 @@ func (o NilDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilEmployeeOptional returns new NilEmployeeOptional with value set to v.
+func NewNilEmployeeOptional(v EmployeeOptional) NilEmployeeOptional {
+	return NilEmployeeOptional{
+		Value: v,
+	}
+}
+
+// NilEmployeeOptional is nullable EmployeeOptional.
+type NilEmployeeOptional struct {
+	Value EmployeeOptional
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilEmployeeOptional) SetTo(v EmployeeOptional) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilEmployeeOptional) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilEmployeeOptional) SetToNull() {
+	o.Null = true
+	var v EmployeeOptional
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilEmployeeOptional) Get() (v EmployeeOptional, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilEmployeeOptional) Or(d EmployeeOptional) EmployeeOptional {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3391,6 +3576,33 @@ type PatchOrganizationUnitUnauthorized ErrorContent
 
 func (*PatchOrganizationUnitUnauthorized) patchOrganizationUnitRes() {}
 
+type PickInstanceFromCellForbidden ErrorContent
+
+func (*PickInstanceFromCellForbidden) pickInstanceFromCellRes() {}
+
+// PickInstanceFromCellNoContent is response for PickInstanceFromCell operation.
+type PickInstanceFromCellNoContent struct{}
+
+func (*PickInstanceFromCellNoContent) pickInstanceFromCellRes() {}
+
+type PickInstanceFromCellReq struct {
+	InstanceId uuid.UUID `json:"instanceId"`
+}
+
+// GetInstanceId returns the value of InstanceId.
+func (s *PickInstanceFromCellReq) GetInstanceId() uuid.UUID {
+	return s.InstanceId
+}
+
+// SetInstanceId sets the value of InstanceId.
+func (s *PickInstanceFromCellReq) SetInstanceId(val uuid.UUID) {
+	s.InstanceId = val
+}
+
+type PickInstanceFromCellUnauthorized ErrorContent
+
+func (*PickInstanceFromCellUnauthorized) pickInstanceFromCellRes() {}
+
 type RevokeApiTokenForbidden ErrorContent
 
 func (*RevokeApiTokenForbidden) revokeApiTokenRes() {}
@@ -3518,16 +3730,16 @@ func (s *StorageGroup) SetAlias(val StorageAlias) {
 
 // Ref: #/components/schemas/TaskBase
 type TaskBase struct {
-	ID          uuid.UUID      `json:"id"`
-	Name        string         `json:"name"`
-	Description NilString      `json:"description"`
-	Type        TaskBaseType   `json:"type"`
-	Status      TaskBaseStatus `json:"status"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	Unit        Unit           `json:"unit"`
-	AssignedTo  Employee       `json:"assignedTo"`
-	AssignedAt  NilDateTime    `json:"assignedAt"`
-	CompletedAt NilDateTime    `json:"completedAt"`
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description NilString           `json:"description"`
+	Type        TaskBaseType        `json:"type"`
+	Status      TaskBaseStatus      `json:"status"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	Unit        Unit                `json:"unit"`
+	AssignedTo  NilEmployeeOptional `json:"assignedTo"`
+	AssignedAt  NilDateTime         `json:"assignedAt"`
+	CompletedAt NilDateTime         `json:"completedAt"`
 }
 
 // GetID returns the value of ID.
@@ -3566,7 +3778,7 @@ func (s *TaskBase) GetUnit() Unit {
 }
 
 // GetAssignedTo returns the value of AssignedTo.
-func (s *TaskBase) GetAssignedTo() Employee {
+func (s *TaskBase) GetAssignedTo() NilEmployeeOptional {
 	return s.AssignedTo
 }
 
@@ -3616,7 +3828,7 @@ func (s *TaskBase) SetUnit(val Unit) {
 }
 
 // SetAssignedTo sets the value of AssignedTo.
-func (s *TaskBase) SetAssignedTo(val Employee) {
+func (s *TaskBase) SetAssignedTo(val NilEmployeeOptional) {
 	s.AssignedTo = val
 }
 
@@ -3736,17 +3948,17 @@ func (s *TaskBaseType) UnmarshalText(data []byte) error {
 // Merged schema.
 // Ref: #/components/schemas/TaskFull
 type TaskFull struct {
-	ID          uuid.UUID      `json:"id"`
-	Name        string         `json:"name"`
-	Description NilString      `json:"description"`
-	Type        TaskFullType   `json:"type"`
-	Status      TaskFullStatus `json:"status"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	Unit        Unit           `json:"unit"`
-	AssignedTo  Employee       `json:"assignedTo"`
-	AssignedAt  NilDateTime    `json:"assignedAt"`
-	CompletedAt NilDateTime    `json:"completedAt"`
-	Instances   []TaskItem     `json:"instances"`
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description NilString           `json:"description"`
+	Type        TaskFullType        `json:"type"`
+	Status      TaskFullStatus      `json:"status"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	Unit        Unit                `json:"unit"`
+	AssignedTo  NilEmployeeOptional `json:"assignedTo"`
+	AssignedAt  NilDateTime         `json:"assignedAt"`
+	CompletedAt NilDateTime         `json:"completedAt"`
+	Items       []TaskItem          `json:"items"`
 }
 
 // GetID returns the value of ID.
@@ -3785,7 +3997,7 @@ func (s *TaskFull) GetUnit() Unit {
 }
 
 // GetAssignedTo returns the value of AssignedTo.
-func (s *TaskFull) GetAssignedTo() Employee {
+func (s *TaskFull) GetAssignedTo() NilEmployeeOptional {
 	return s.AssignedTo
 }
 
@@ -3799,9 +4011,9 @@ func (s *TaskFull) GetCompletedAt() NilDateTime {
 	return s.CompletedAt
 }
 
-// GetInstances returns the value of Instances.
-func (s *TaskFull) GetInstances() []TaskItem {
-	return s.Instances
+// GetItems returns the value of Items.
+func (s *TaskFull) GetItems() []TaskItem {
+	return s.Items
 }
 
 // SetID sets the value of ID.
@@ -3840,7 +4052,7 @@ func (s *TaskFull) SetUnit(val Unit) {
 }
 
 // SetAssignedTo sets the value of AssignedTo.
-func (s *TaskFull) SetAssignedTo(val Employee) {
+func (s *TaskFull) SetAssignedTo(val NilEmployeeOptional) {
 	s.AssignedTo = val
 }
 
@@ -3854,9 +4066,9 @@ func (s *TaskFull) SetCompletedAt(val NilDateTime) {
 	s.CompletedAt = val
 }
 
-// SetInstances sets the value of Instances.
-func (s *TaskFull) SetInstances(val []TaskItem) {
-	s.Instances = val
+// SetItems sets the value of Items.
+func (s *TaskFull) SetItems(val []TaskItem) {
+	s.Items = val
 }
 
 type TaskFullStatus string
@@ -3964,15 +4176,10 @@ func (s *TaskFullType) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/TaskItem
 type TaskItem struct {
-	ID         uuid.UUID       `json:"id"`
 	Instance   InstanceFull    `json:"instance"`
 	SourceCell CellForInstance `json:"sourceCell"`
 	TargetCell CellForInstance `json:"targetCell"`
-}
-
-// GetID returns the value of ID.
-func (s *TaskItem) GetID() uuid.UUID {
-	return s.ID
+	Status     TaskItemStatus  `json:"status"`
 }
 
 // GetInstance returns the value of Instance.
@@ -3990,9 +4197,9 @@ func (s *TaskItem) GetTargetCell() CellForInstance {
 	return s.TargetCell
 }
 
-// SetID sets the value of ID.
-func (s *TaskItem) SetID(val uuid.UUID) {
-	s.ID = val
+// GetStatus returns the value of Status.
+func (s *TaskItem) GetStatus() TaskItemStatus {
+	return s.Status
 }
 
 // SetInstance sets the value of Instance.
@@ -4008,6 +4215,52 @@ func (s *TaskItem) SetSourceCell(val CellForInstance) {
 // SetTargetCell sets the value of TargetCell.
 func (s *TaskItem) SetTargetCell(val CellForInstance) {
 	s.TargetCell = val
+}
+
+// SetStatus sets the value of Status.
+func (s *TaskItem) SetStatus(val TaskItemStatus) {
+	s.Status = val
+}
+
+type TaskItemStatus string
+
+const (
+	TaskItemStatusPending TaskItemStatus = "pending"
+	TaskItemStatusPicked  TaskItemStatus = "picked"
+)
+
+// AllValues returns all TaskItemStatus values.
+func (TaskItemStatus) AllValues() []TaskItemStatus {
+	return []TaskItemStatus{
+		TaskItemStatusPending,
+		TaskItemStatusPicked,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TaskItemStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case TaskItemStatusPending:
+		return []byte(s), nil
+	case TaskItemStatusPicked:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TaskItemStatus) UnmarshalText(data []byte) error {
+	switch TaskItemStatus(data) {
+	case TaskItemStatusPending:
+		*s = TaskItemStatusPending
+		return nil
+	case TaskItemStatusPicked:
+		*s = TaskItemStatusPicked
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/Token

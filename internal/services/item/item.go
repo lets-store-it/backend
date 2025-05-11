@@ -558,7 +558,60 @@ func (s *ItemService) GetItemInstanceFull(ctx context.Context, orgID uuid.UUID, 
 	}
 	instance.Variant = variant
 
+	item, err := s.GetItemByID(ctx, orgID, instance.ItemID)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to get item")
+		return nil, fmt.Errorf("failed to get item: %w", err)
+	}
+
+	instance.Item = item
 	span.SetStatus(codes.Ok, "item instance retrieved successfully")
 
 	return instance, nil
+}
+
+func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *models.ItemInstance) error {
+	ctx, span := s.tracer.Start(ctx, "SetItemInstanceStatus")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("org.id", itemInstance.OrgID.String()),
+		attribute.String("item.id", itemInstance.ItemID.String()),
+		attribute.String("variant.id", itemInstance.VariantID.String()),
+		attribute.String("instance.id", itemInstance.ID.String()),
+	)
+
+	err := s.queries.SetItemInstanceTaskStatus(ctx, sqlc.SetItemInstanceTaskStatusParams{
+		OrgID:            database.PgUUID(itemInstance.OrgID),
+		ID:               database.PgUUID(itemInstance.ID),
+		Status:           string(itemInstance.Status),
+		AffectedByTaskID: database.PgUUIDPtr(itemInstance.AffectedByOperationID),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to set item instance task status")
+		return fmt.Errorf("failed to set item instance task status: %w", err)
+	}
+
+	span.SetStatus(codes.Ok, "item instance task status set successfully")
+	return nil
+}
+
+func (s *ItemService) SetInstanceCell(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID, cellID *uuid.UUID) error {
+	ctx, span := s.tracer.Start(ctx, "SetInstanceCell")
+	defer span.End()
+
+	err := s.queries.SetItemInstanceCell(ctx, sqlc.SetItemInstanceCellParams{
+		OrgID:  database.PgUUID(orgID),
+		ID:     database.PgUUID(instanceID),
+		CellID: database.PgUUIDPtr(cellID),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to set item instance cell")
+		return fmt.Errorf("failed to set item instance cell: %w", err)
+	}
+
+	return nil
 }

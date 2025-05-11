@@ -1,3 +1,4 @@
+import json
 import random
 import string
 import uuid
@@ -671,8 +672,3 @@ class TestInstance:
         )
 
         assert response.status_code == 200, print(response.text)
-
-        # # List
-        # response = api_client_with_organization.get(
-        #     f"/items/{item_data['id']}/instances"
-        # )

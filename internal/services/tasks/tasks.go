@@ -69,11 +69,6 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to get instance cell")
-		return nil, fmt.Errorf("failed to get instance cell: %w", err)
-	}
 	createdTask, err := qtx.CreateTask(ctx, sqlc.CreateTaskParams{
 		OrgID:            database.PgUUID(orgID),
 		UnitID:           database.PgUUID(task.UnitID),
@@ -139,6 +134,70 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 	return toTask(createdTask), nil
 }
 
+func (s *TaskService) GetTaskById(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.Task, error) {
+	ctx, span := s.tracer.Start(ctx, "GetTaskById",
+		trace.WithAttributes(
+			attribute.String("org.id", orgID.String()),
+			attribute.String("task.id", id.String()),
+		),
+	)
+	defer span.End()
+
+	task, err := s.queries.GetTaskById(ctx, sqlc.GetTaskByIdParams{
+		OrgID: database.PgUUID(orgID),
+		ID:    database.PgUUID(id),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get task: %w", err)
+	}
+	res, err := toTask(task), nil
+	if err != nil {
+		return nil, fmt.Errorf("failed to get task: %w", err)
+	}
+
+	items, err := s.queries.GetTaskItems(ctx, sqlc.GetTaskItemsParams{
+		OrgID:  database.PgUUID(orgID),
+		TaskID: database.PgUUID(id),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get task items: %w", err)
+	}
+
+	taskItems := make([]*models.TaskItem, len(items))
+	for i, item := range items {
+		taskItems[i] = toTaskItem(item)
+		taskItems[i].SourceCell, err = s.storageService.GetCellFull(ctx, orgID, *taskItems[i].SourceCellID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get source cell: %w", err)
+		}
+		taskItems[i].TargetCell, err = s.storageService.GetCellFull(ctx, orgID, *taskItems[i].TargetCellID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get target cell: %w", err)
+		}
+		taskItems[i].Instance, err = s.item.GetItemInstanceFull(ctx, orgID, taskItems[i].InstanceID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get instance: %w", err)
+		}
+	}
+	res.Items = taskItems
+
+	if res.AssignedToUserID != nil {
+		assignedTo, err := s.auth.GetEmployee(ctx, orgID, *res.AssignedToUserID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get assigned to: %w", err)
+		}
+		res.AssignedTo = assignedTo
+	}
+
+	unit, err := s.org.GetUnitByID(ctx, orgID, res.UnitID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get unit: %w", err)
+	}
+	res.Unit = unit
+
+	return res, nil
+}
+
 func (s *TaskService) GetTasks(ctx context.Context, orgID uuid.UUID) ([]*models.Task, error) {
 	ctx, span := s.tracer.Start(ctx, "GetTasks",
 		trace.WithAttributes(
@@ -175,4 +234,48 @@ func (s *TaskService) GetTasks(ctx context.Context, orgID uuid.UUID) ([]*models.
 	}
 
 	return models, nil
+}
+
+func (s *TaskService) PickInstance(ctx context.Context, orgID uuid.UUID, taskID uuid.UUID, instanceID uuid.UUID) error {
+	ctx, span := s.tracer.Start(ctx, "PickInstance",
+		trace.WithAttributes(
+			attribute.String("org.id", orgID.String()),
+			attribute.String("task.id", taskID.String()),
+			attribute.String("instance.id", instanceID.String()),
+		),
+	)
+	defer span.End()
+
+	err := s.item.SetItemInstanceStatus(ctx, &models.ItemInstance{
+		OrgID:                 orgID,
+		ID:                    instanceID,
+		Status:                models.ItemInstanceStatusReserved,
+		AffectedByOperationID: &taskID,
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to set item instance status")
+		return fmt.Errorf("failed to set item instance status: %w", err)
+	}
+
+	// set cell
+	err = s.item.SetInstanceCell(ctx, orgID, instanceID, nil)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to set item instance cell")
+		return fmt.Errorf("failed to set item instance cell: %w", err)
+	}
+
+	// set task item status to picked
+	err = s.queries.SetTaskItemStatus(ctx, sqlc.SetTaskItemStatusParams{
+		OrgID:          database.PgUUID(orgID),
+		ItemInstanceID: database.PgUUID(instanceID),
+		Status:         string(models.TaskItemStatusPicked),
+	})
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "failed to set task item status")
+		return fmt.Errorf("failed to set task item status: %w", err)
+	}
+	return nil
 }

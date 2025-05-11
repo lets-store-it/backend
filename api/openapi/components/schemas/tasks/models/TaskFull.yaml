@@ -2,9 +2,9 @@ allOf:
   - $ref: TaskBase.yaml
   - type: object
     properties:
-      instances:
+      items:
         type: array
         items:
           $ref: ../../tasks/models/TaskItem.yaml
     required:
-      - instances
+      - items

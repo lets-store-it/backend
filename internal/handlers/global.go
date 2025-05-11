@@ -22,7 +22,6 @@ type RestApiImplementation struct {
 	taskUseCase         *taskUC.TaskUseCase
 }
 
-
 // PatchCurrentUser implements api.Handler.
 func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (api.PatchCurrentUserRes, error) {
 	panic("unimplemented")

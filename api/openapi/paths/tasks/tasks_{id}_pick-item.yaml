@@ -9,15 +9,21 @@ post:
   tags:
     - tasks
   summary: Pick an item from cell
-  operationId: pickItemFromCell
+  operationId: pickInstanceFromCell
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/tasks/PickItemFromCellRequest.yaml
+          type: object
+          properties:
+            instanceId:
+              type: string
+              format: uuid
+          required:
+            - instanceId
   responses:
-    "201":
+    "204":
       description: Successful operation
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml

@@ -20,6 +20,7 @@ properties:
   variant:
     $ref: ../../items/models/ItemVariant.yaml
   cell:
+    nullable: true
     $ref: ../../cells-groups/models/CellForInstance.yaml
 required:
   - id
