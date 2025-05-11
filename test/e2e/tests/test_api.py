@@ -9,7 +9,7 @@ import pytest
 from tests.apiclient.apiclient import APIClient
 
 API_BASE = "http://localhost:8080"
-SESSION_COOKIE = "286d01ff-4718-4216-b945-7467d7f94b54"
+SESSION_COOKIE = "8f208879-576a-4eb5-829e-1cbe87490532"
 
 
 @pytest.fixture(scope="session")

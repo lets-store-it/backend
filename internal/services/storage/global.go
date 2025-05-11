@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/services"
 	"go.opentelemetry.io/otel"
@@ -29,20 +30,23 @@ const (
 
 type StorageService struct {
 	queries *database.Queries
+	pgxPool *pgxpool.Pool
 	tracer  trace.Tracer
 }
 
 type StorageServiceConfig struct {
 	Queries *database.Queries
+	PGXPool *pgxpool.Pool
 }
 
 func New(cfg *StorageServiceConfig) (*StorageService, error) {
-	if cfg == nil || cfg.Queries == nil {
+	if cfg == nil || cfg.Queries == nil || cfg.PGXPool == nil {
 		return nil, errors.New("invalid configuration")
 	}
 
 	return &StorageService{
 		queries: cfg.Queries,
+		pgxPool: cfg.PGXPool,
 		tracer:  otel.GetTracerProvider().Tracer("storage-service"),
 	}, nil
 }
