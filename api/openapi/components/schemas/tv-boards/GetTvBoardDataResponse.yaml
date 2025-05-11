@@ -1,0 +1,17 @@
+type: object
+properties:
+  data:
+    type: object
+    properties:
+      tvBoard:
+        type: object
+        $ref: models/TvBoard.yaml
+      tasks:
+        type: array
+        items:
+          $ref: ../tasks/models/TaskBase.yaml
+    required:
+      - tvBoard
+      - tasks
+required:
+  - data

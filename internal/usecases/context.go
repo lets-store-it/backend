@@ -19,6 +19,14 @@ func GetOrganizationIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	return orgID, nil
 }
 
+func GetTvBoardIDFromContext(ctx context.Context) (uuid.UUID, error) {
+	tvBoardID, ok := ctx.Value(models.TvBoardIDContextKey).(uuid.UUID)
+	if !ok {
+		return uuid.Nil, ErrTvBoardIDMissing
+	}
+	return tvBoardID, nil
+}
+
 func GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	userID, ok := ctx.Value(models.UserIDContextKey).(uuid.UUID)
 	if !ok {
@@ -75,9 +83,14 @@ func ValidateAccess(ctx context.Context, service AuthService, accessLevel models
 func ValidateAccessWithOptionalApiToken(ctx context.Context, service AuthService, accessLevel models.AccessLevel, allowApiToken bool) (ValidateAccessResult, error) {
 	isSystemUser, ok := ctx.Value(models.IsSystemUserContextKey).(bool)
 	if ok && isSystemUser {
+		orgID, err := GetOrganizationIDFromContext(ctx)
+		if err != nil {
+			return ValidateAccessResult{}, err
+		}
+
 		return ValidateAccessResult{
 			HasAccess:  true,
-			OrgID:      uuid.Nil,
+			OrgID:      orgID,
 			IsApiToken: true,
 			UserID:     nil,
 		}, nil

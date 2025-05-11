@@ -241,3 +241,13 @@ CREATE TABLE app_api_token (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP
 );
+
+CREATE TABLE tv_board (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID NOT NULL REFERENCES org(id),
+    unit_id UUID NOT NULL REFERENCES org_unit(id),
+    name VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);

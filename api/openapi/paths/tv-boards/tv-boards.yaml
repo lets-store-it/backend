@@ -1,0 +1,42 @@
+get:
+  tags:
+    - tv-boards
+  summary: Get list of TV Boards
+  operationId: getTvBoards
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tv-boards/GetTvBoardsResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+post:
+  tags:
+    - tv-boards
+  summary: Create TV Board
+  operationId: createTvBoard
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/tv-boards/CreateTvBoardRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tv-boards/CreateTvBoardResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

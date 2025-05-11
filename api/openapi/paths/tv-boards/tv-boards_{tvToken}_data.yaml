@@ -1,0 +1,23 @@
+parameters:
+  - name: tvToken
+    in: path
+    required: true
+    schema:
+      type: string
+get:
+  security: []
+  tags:
+    - tv-boards
+  summary: Get data for rendering on TV Board
+  operationId: getTvBoardsData
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tv-boards/GetTvBoardDataResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

@@ -16,6 +16,7 @@ import (
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/storage"
 	"github.com/let-store-it/backend/internal/services/tasks"
+	"github.com/let-store-it/backend/internal/services/tvboard"
 	"github.com/let-store-it/backend/internal/services/yandex"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -26,6 +27,7 @@ import (
 	organizationUC "github.com/let-store-it/backend/internal/usecases/organization"
 	storageUC "github.com/let-store-it/backend/internal/usecases/storage"
 	taskUC "github.com/let-store-it/backend/internal/usecases/task"
+	tvboardUC "github.com/let-store-it/backend/internal/usecases/tv_board"
 )
 
 // Server represents the main server instance and its dependencies
@@ -106,6 +108,10 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		ItemService:    itemService,
 		StorageService: storageGroupService,
 	})
+	tvBoardService := tvboard.New(tvboard.TvBoardServiceConfig{
+		Queries: queries,
+		PGXPool: pool,
+	})
 
 	// Initialize use cases
 	itemUseCase := itemUC.New(itemUC.ItemUseCaseConfig{
@@ -136,6 +142,11 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		AuthService: authService,
 		OrgService:  orgService,
 	})
+	tvBoardUseCase := tvboardUC.New(tvboardUC.TvBoardUseCaseConfig{
+		TvBoardService:      tvBoardService,
+		OrganizationService: orgService,
+		AuthService:         authService,
+	})
 
 	// Initialize auth middleware
 	e.Use(echo.WrapMiddleware(handlers.WithOrganizationID))
@@ -150,6 +161,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		authUseCase,
 		auditUseCase,
 		taskUseCase,
+		tvBoardUseCase,
 	)
 
 	// Setup API server with global telemetry providers

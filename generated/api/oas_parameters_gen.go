@@ -912,6 +912,71 @@ func decodeDeleteStorageGroupParams(args [1]string, argsEscaped bool, r *http.Re
 	return params, nil
 }
 
+// DeleteTvBoardParams is parameters of deleteTvBoard operation.
+type DeleteTvBoardParams struct {
+	ID uuid.UUID
+}
+
+func unpackDeleteTvBoardParams(packed middleware.Parameters) (params DeleteTvBoardParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteTvBoardParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteTvBoardParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetAuditLogsParams is parameters of getAuditLogs operation.
 type GetAuditLogsParams struct {
 	// The type of the object to filter by.
@@ -1917,6 +1982,71 @@ func decodeGetTaskByIdParams(args [1]string, argsEscaped bool, r *http.Request) 
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetTvBoardsDataParams is parameters of getTvBoardsData operation.
+type GetTvBoardsDataParams struct {
+	TvToken string
+}
+
+func unpackGetTvBoardsDataParams(packed middleware.Parameters) (params GetTvBoardsDataParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "tvToken",
+			In:   "path",
+		}
+		params.TvToken = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetTvBoardsDataParams(args [1]string, argsEscaped bool, r *http.Request) (params GetTvBoardsDataParams, _ error) {
+	// Decode path: tvToken.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "tvToken",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.TvToken = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "tvToken",
 			In:   "path",
 			Err:  err,
 		}

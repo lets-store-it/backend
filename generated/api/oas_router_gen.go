@@ -855,77 +855,168 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 't': // Prefix: "tasks"
+			case 't': // Prefix: "t"
 
-				if l := len("tasks"); len(elem) >= l && elem[0:l] == "tasks" {
+				if l := len("t"); len(elem) >= l && elem[0:l] == "t" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleGetTasksRequest([0]string{}, elemIsEscaped, w, r)
-					case "POST":
-						s.handleCreateTaskRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'a': // Prefix: "asks"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("asks"); len(elem) >= l && elem[0:l] == "asks" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
 					if len(elem) == 0 {
 						switch r.Method {
 						case "GET":
-							s.handleGetTaskByIdRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
+							s.handleGetTasksRequest([0]string{}, elemIsEscaped, w, r)
+						case "POST":
+							s.handleCreateTaskRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "GET,POST")
 						}
 
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/pick-instance"
+					case '/': // Prefix: "/"
 
-						if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
 						if len(elem) == 0 {
-							// Leaf node.
 							switch r.Method {
-							case "POST":
-								s.handlePickInstanceFromCellRequest([1]string{
+							case "GET":
+								s.handleGetTaskByIdRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "POST")
+								s.notAllowed(w, r, "GET")
 							}
 
 							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/pick-instance"
+
+							if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handlePickInstanceFromCellRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+						}
+
+					}
+
+				case 'v': // Prefix: "v-boards"
+
+					if l := len("v-boards"); len(elem) >= l && elem[0:l] == "v-boards" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "GET":
+							s.handleGetTvBoardsRequest([0]string{}, elemIsEscaped, w, r)
+						case "POST":
+							s.handleCreateTvBoardRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET,POST")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							switch r.Method {
+							case "DELETE":
+								s.handleDeleteTvBoardRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/data"
+
+							if l := len("/data"); len(elem) >= l && elem[0:l] == "/data" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleGetTvBoardsDataRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
 						}
 
 					}
@@ -2066,91 +2157,196 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 't': // Prefix: "tasks"
+			case 't': // Prefix: "t"
 
-				if l := len("tasks"); len(elem) >= l && elem[0:l] == "tasks" {
+				if l := len("t"); len(elem) >= l && elem[0:l] == "t" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = GetTasksOperation
-						r.summary = "Get all tasks for organization"
-						r.operationID = "getTasks"
-						r.pathPattern = "/tasks"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = CreateTaskOperation
-						r.summary = "Create a task"
-						r.operationID = "createTask"
-						r.pathPattern = "/tasks"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'a': // Prefix: "asks"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("asks"); len(elem) >= l && elem[0:l] == "asks" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
 					if len(elem) == 0 {
 						switch method {
 						case "GET":
-							r.name = GetTaskByIdOperation
-							r.summary = "Get Task by ID"
-							r.operationID = "getTaskById"
-							r.pathPattern = "/tasks/{id}"
+							r.name = GetTasksOperation
+							r.summary = "Get all tasks for organization"
+							r.operationID = "getTasks"
+							r.pathPattern = "/tasks"
 							r.args = args
-							r.count = 1
+							r.count = 0
+							return r, true
+						case "POST":
+							r.name = CreateTaskOperation
+							r.summary = "Create a task"
+							r.operationID = "createTask"
+							r.pathPattern = "/tasks"
+							r.args = args
+							r.count = 0
 							return r, true
 						default:
 							return
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/pick-instance"
+					case '/': // Prefix: "/"
 
-						if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
 						if len(elem) == 0 {
-							// Leaf node.
 							switch method {
-							case "POST":
-								r.name = PickInstanceFromCellOperation
-								r.summary = "Pick an item from cell"
-								r.operationID = "pickInstanceFromCell"
-								r.pathPattern = "/tasks/{id}/pick-instance"
+							case "GET":
+								r.name = GetTaskByIdOperation
+								r.summary = "Get Task by ID"
+								r.operationID = "getTaskById"
+								r.pathPattern = "/tasks/{id}"
 								r.args = args
 								r.count = 1
 								return r, true
 							default:
 								return
 							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/pick-instance"
+
+							if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = PickInstanceFromCellOperation
+									r.summary = "Pick an item from cell"
+									r.operationID = "pickInstanceFromCell"
+									r.pathPattern = "/tasks/{id}/pick-instance"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					}
+
+				case 'v': // Prefix: "v-boards"
+
+					if l := len("v-boards"); len(elem) >= l && elem[0:l] == "v-boards" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							r.name = GetTvBoardsOperation
+							r.summary = "Get list of TV Boards"
+							r.operationID = "getTvBoards"
+							r.pathPattern = "/tv-boards"
+							r.args = args
+							r.count = 0
+							return r, true
+						case "POST":
+							r.name = CreateTvBoardOperation
+							r.summary = "Create TV Board"
+							r.operationID = "createTvBoard"
+							r.pathPattern = "/tv-boards"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							switch method {
+							case "DELETE":
+								r.name = DeleteTvBoardOperation
+								r.summary = "Delete TV Board"
+								r.operationID = "deleteTvBoard"
+								r.pathPattern = "/tv-boards/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/data"
+
+							if l := len("/data"); len(elem) >= l && elem[0:l] == "/data" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = GetTvBoardsDataOperation
+									r.summary = "Get data for rendering on TV Board"
+									r.operationID = "getTvBoardsData"
+									r.pathPattern = "/tv-boards/{tvToken}/data"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
 						}
 
 					}

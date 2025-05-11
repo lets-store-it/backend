@@ -9,4 +9,5 @@ const (
 	UserIDContextKey         ContextKey = "user-id"
 	IsSystemUserContextKey   ContextKey = "is-system-user"
 	SetCookieContextKey      ContextKey = "set-cookie"
+	TvBoardIDContextKey      ContextKey = "tv-board-id"
 )

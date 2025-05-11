@@ -180,3 +180,13 @@ type TaskItem struct {
 	SourceCellID      pgtype.UUID
 	DestinationCellID pgtype.UUID
 }
+
+type TvBoard struct {
+	ID        pgtype.UUID
+	OrgID     pgtype.UUID
+	UnitID    pgtype.UUID
+	Name      string
+	Token     string
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
