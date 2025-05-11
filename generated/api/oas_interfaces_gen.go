@@ -161,6 +161,10 @@ type GetStorageGroupsRes interface {
 	getStorageGroupsRes()
 }
 
+type GetTaskByIdRes interface {
+	getTaskByIdRes()
+}
+
 type GetTasksRes interface {
 	getTasksRes()
 }
@@ -183,6 +187,10 @@ type PatchEmployeeByIdRes interface {
 
 type PatchOrganizationUnitRes interface {
 	patchOrganizationUnitRes()
+}
+
+type PickInstanceFromCellRes interface {
+	pickInstanceFromCellRes()
 }
 
 type PutCurrentUserRes interface {

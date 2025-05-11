@@ -24,6 +24,17 @@ func convertCellPathToDTO(cellPath *[]models.CellPathSegment) []api.CellForInsta
 	return dtoCellPath
 }
 
+func convertCellToNilDTO(cell *models.Cell) api.NilCellForInstance {
+	res := api.NilCellForInstance{}
+	if cell == nil {
+		res.SetToNull()
+		return res
+	}
+	modelCell := convertCellToDTO(cell)
+	res.SetTo(modelCell)
+	return res
+}
+
 func convertCellToDTO(cell *models.Cell) api.CellForInstance {
 	return api.CellForInstance{
 		ID:       cell.ID,
@@ -46,18 +57,22 @@ func convertItemInstanceToDTO(itemInstance *models.ItemInstance) api.InstanceFor
 
 func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.InstanceFull {
 	var description api.NilString
-	PtrToApiNil(itemInstance.Item.Description, &description)
-	return api.InstanceFull{
-		ID:      itemInstance.ID,
-		Status:  api.InstanceFullStatus(itemInstance.Status),
-		Variant: convertItemVariantToDTO(itemInstance.Variant),
-		Cell:    convertCellToDTO(itemInstance.Cell),
-		Item: api.ItemForList{
+	var item api.ItemForList
+	if itemInstance.Item != nil {
+		PtrToApiNil(itemInstance.Item.Description, &description)
+		item = api.ItemForList{
 			ID:          itemInstance.Item.ID,
 			Name:        itemInstance.Item.Name,
 			Description: description,
 			Variants:    convertItemVariantsToDTO(itemInstance.Item.Variants),
-		},
+		}
+	}
+	return api.InstanceFull{
+		ID:      itemInstance.ID,
+		Status:  api.InstanceFullStatus(itemInstance.Status),
+		Variant: convertItemVariantToDTO(itemInstance.Variant),
+		Cell:    convertCellToNilDTO(itemInstance.Cell),
+		Item:    item,
 	}
 }
 

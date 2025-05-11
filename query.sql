@@ -284,3 +284,18 @@ INSERT INTO task_item (org_id, task_id, item_instance_id, source_cell_id, destin
 
 -- name: GetTasks :many
 SELECT * FROM task WHERE org_id = $1;
+
+-- name: GetTaskById :one
+SELECT * FROM task WHERE org_id = $1 AND id = $2;
+
+-- name: GetTaskItems :many
+SELECT * FROM task_item WHERE org_id = $1 AND task_id = $2;
+
+-- name: SetItemInstanceTaskStatus :exec
+UPDATE item_instance SET status = $3, affected_by_task_id = $4 WHERE org_id = $1 AND id = $2;
+
+-- name: SetItemInstanceCell :exec
+UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2;
+
+-- name: SetTaskItemStatus :exec
+UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2;

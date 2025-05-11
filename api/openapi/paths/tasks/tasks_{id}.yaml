@@ -1,0 +1,25 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+get:
+  tags:
+    - tasks
+  summary: Get Task by ID
+  operationId: getTaskById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/tasks/GetTaskResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml

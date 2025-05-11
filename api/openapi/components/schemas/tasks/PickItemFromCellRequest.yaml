@@ -1,7 +1,0 @@
-type: object
-properties:
-  instanceId:
-    type: string
-    format: uuid
-required:
-  - instanceId

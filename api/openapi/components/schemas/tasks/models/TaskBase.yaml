@@ -29,9 +29,7 @@ properties:
     type: object
     $ref: ../../units/models/Unit.yaml
   assignedTo:
-    type: object
-    nullable: true
-    $ref: ../../employees/models/Employee.yaml
+    $ref: ../../employees/models/EmployeeOptional.yaml
   assignedAt:
     type: string
     format: date-time

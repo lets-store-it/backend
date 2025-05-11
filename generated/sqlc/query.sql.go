@@ -1477,6 +1477,71 @@ func (q *Queries) GetStorageGroups(ctx context.Context, orgID pgtype.UUID) ([]St
 	return items, nil
 }
 
+const getTaskById = `-- name: GetTaskById :one
+SELECT id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at FROM task WHERE org_id = $1 AND id = $2
+`
+
+type GetTaskByIdParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) GetTaskById(ctx context.Context, arg GetTaskByIdParams) (Task, error) {
+	row := q.db.QueryRow(ctx, getTaskById, arg.OrgID, arg.ID)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Type,
+		&i.Status,
+		&i.Name,
+		&i.Description,
+		&i.AssignedToUserID,
+		&i.AssignedAt,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getTaskItems = `-- name: GetTaskItems :many
+SELECT org_id, task_id, item_instance_id, status, source_cell_id, destination_cell_id FROM task_item WHERE org_id = $1 AND task_id = $2
+`
+
+type GetTaskItemsParams struct {
+	OrgID  pgtype.UUID
+	TaskID pgtype.UUID
+}
+
+func (q *Queries) GetTaskItems(ctx context.Context, arg GetTaskItemsParams) ([]TaskItem, error) {
+	rows, err := q.db.Query(ctx, getTaskItems, arg.OrgID, arg.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []TaskItem
+	for rows.Next() {
+		var i TaskItem
+		if err := rows.Scan(
+			&i.OrgID,
+			&i.TaskID,
+			&i.ItemInstanceID,
+			&i.Status,
+			&i.SourceCellID,
+			&i.DestinationCellID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTasks = `-- name: GetTasks :many
 SELECT id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at FROM task WHERE org_id = $1
 `
@@ -1630,6 +1695,57 @@ type RevokeApiTokenParams struct {
 
 func (q *Queries) RevokeApiToken(ctx context.Context, arg RevokeApiTokenParams) error {
 	_, err := q.db.Exec(ctx, revokeApiToken, arg.OrgID, arg.ID)
+	return err
+}
+
+const setItemInstanceCell = `-- name: SetItemInstanceCell :exec
+UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2
+`
+
+type SetItemInstanceCellParams struct {
+	OrgID  pgtype.UUID
+	ID     pgtype.UUID
+	CellID pgtype.UUID
+}
+
+func (q *Queries) SetItemInstanceCell(ctx context.Context, arg SetItemInstanceCellParams) error {
+	_, err := q.db.Exec(ctx, setItemInstanceCell, arg.OrgID, arg.ID, arg.CellID)
+	return err
+}
+
+const setItemInstanceTaskStatus = `-- name: SetItemInstanceTaskStatus :exec
+UPDATE item_instance SET status = $3, affected_by_task_id = $4 WHERE org_id = $1 AND id = $2
+`
+
+type SetItemInstanceTaskStatusParams struct {
+	OrgID            pgtype.UUID
+	ID               pgtype.UUID
+	Status           string
+	AffectedByTaskID pgtype.UUID
+}
+
+func (q *Queries) SetItemInstanceTaskStatus(ctx context.Context, arg SetItemInstanceTaskStatusParams) error {
+	_, err := q.db.Exec(ctx, setItemInstanceTaskStatus,
+		arg.OrgID,
+		arg.ID,
+		arg.Status,
+		arg.AffectedByTaskID,
+	)
+	return err
+}
+
+const setTaskItemStatus = `-- name: SetTaskItemStatus :exec
+UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2
+`
+
+type SetTaskItemStatusParams struct {
+	OrgID          pgtype.UUID
+	ItemInstanceID pgtype.UUID
+	Status         string
+}
+
+func (q *Queries) SetTaskItemStatus(ctx context.Context, arg SetTaskItemStatusParams) error {
+	_, err := q.db.Exec(ctx, setTaskItemStatus, arg.OrgID, arg.ItemInstanceID, arg.Status)
 	return err
 }
 

@@ -1,0 +1,4 @@
+type: object
+nullable: true
+allOf:
+  - $ref: ./Employee.yaml

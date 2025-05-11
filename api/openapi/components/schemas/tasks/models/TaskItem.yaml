@@ -1,9 +1,9 @@
 type: object
 properties:
-  id:
-    type: string
-    format: uuid
-    readOnly: true
+  # id:
+  #   type: string
+  #   format: uuid
+  #   readOnly: true
   instance:
     $ref: ../../../schemas/instances/models/InstanceFull.yaml
   sourceCell:
@@ -11,8 +11,17 @@ properties:
   targetCell:
     nullable: true
     $ref: ../../../schemas/cells-groups/models/CellForInstance.yaml
+  status:
+    type: string 
+    enum:
+      - pending
+      - picked
+      # - done
+      # - failed
 required:
   - sourceCell
   - targetCell
   - instance
   - id
+  - status
+
