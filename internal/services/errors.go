@@ -2,8 +2,9 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
-	"storeit/internal/database"
+	"github.com/let-store-it/backend/internal/database"
 )
 
 var (
@@ -12,11 +13,9 @@ var (
 	ErrValidationError  = errors.New("validation error")
 )
 
-// MapDbErrorToService maps database errors to corresponding service errors.
-// If the error is not a known database error, it returns the original error.
 func MapDbErrorToService(err error) error {
 	if err == nil {
-		return nil
+		return fmt.Errorf("untranslated DB error: %w", err)
 	}
 
 	if database.IsNotFound(err) {
