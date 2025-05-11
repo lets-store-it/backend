@@ -1,8 +1,6 @@
 package item
 
 import (
-	"context"
-
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
@@ -20,24 +18,13 @@ func toItemVariantModel(variant sqlc.ItemVariant) *models.ItemVariant {
 	}
 }
 
-func toItemInstanceModel(instance sqlc.ItemInstance) *models.ItemInstance {
-	return &models.ItemInstance{
-		ID:        database.UUIDFromPgx(instance.ID),
-		OrgID:     database.UUIDFromPgx(instance.OrgID),
-		ItemID:    database.UUIDFromPgx(instance.ItemID),
-		VariantID: database.UUIDFromPgx(instance.VariantID),
-		CellID:    database.UUIDPtrFromPgx(instance.CellID),
-		Status:    models.ItemInstanceStatus(instance.Status),
-	}
-}
-
 type toItemModelParams struct {
 	item      sqlc.Item
 	variants  []sqlc.ItemVariant
 	instances []sqlc.ItemInstance
 }
 
-func toItemModel(ctx context.Context, params toItemModelParams) (*models.Item, error) {
+func toItemModel(params toItemModelParams) (*models.Item, error) {
 	itemModel := &models.Item{
 		ID:          database.UUIDFromPgx(params.item.ID),
 		Name:        params.item.Name,
@@ -74,7 +61,18 @@ func toItemInstance(instance sqlc.ItemInstance) *models.ItemInstance {
 	}
 }
 
-func toItemInstances(instances []sqlc.ItemInstance) []*models.ItemInstance {
+func toItemInstanceModel(instance sqlc.ItemInstance) *models.ItemInstance {
+	return &models.ItemInstance{
+		ID:        database.UUIDFromPgx(instance.ID),
+		OrgID:     database.UUIDFromPgx(instance.OrgID),
+		ItemID:    database.UUIDFromPgx(instance.ItemID),
+		VariantID: database.UUIDFromPgx(instance.VariantID),
+		CellID:    database.UUIDPtrFromPgx(instance.CellID),
+		Status:    models.ItemInstanceStatus(instance.Status),
+	}
+}
+
+func toItemInstancesModel(instances []sqlc.ItemInstance) []*models.ItemInstance {
 	instancesModels := make([]*models.ItemInstance, len(instances))
 	for i, instance := range instances {
 		instancesModels[i] = toItemInstance(instance)
