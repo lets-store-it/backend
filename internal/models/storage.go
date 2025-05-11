@@ -56,6 +56,11 @@ type Cell struct {
 	Row          int       `json:"row"`
 	Level        int       `json:"level"`
 	Position     int       `json:"position"`
+
+	Path *[]CellPathSegment `json:"path"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type StorageGroupWithCells struct {

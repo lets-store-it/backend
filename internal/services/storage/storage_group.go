@@ -9,6 +9,7 @@ import (
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
+	"github.com/let-store-it/backend/internal/telemetry"
 	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -23,45 +24,46 @@ func (s *StorageService) validateStorageGroupData(name, alias string) error {
 }
 
 func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
-	ctx, span := s.tracer.Start(ctx, "CreateStorageGroup",
-		trace.WithAttributes(
-			attribute.String("org.id", group.OrgID.String()),
-			attribute.String("unit.id", group.UnitID.String()),
-			attribute.String("storage_group.name", group.Name),
-			attribute.String("storage_group.alias", group.Alias),
-			attribute.String("storage_group.parent_id", utils.SafeUUIDString(group.ParentID)),
-		),
+	return telemetry.WithTrace(
+		ctx,
+		s.tracer,
+		"CreateStorageGroup",
+		func(ctx context.Context, span trace.Span) (*models.StorageGroup, error) {
+			// Add relevant attributes
+			span.SetAttributes(
+				attribute.String("org.id", group.OrgID.String()),
+				attribute.String("unit.id", group.UnitID.String()),
+				attribute.String("storage_group.name", group.Name),
+				attribute.String("storage_group.alias", group.Alias),
+				attribute.String("storage_group.parent_id", utils.SafeUUIDString(group.ParentID)),
+			)
+
+			// Validate input
+			if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
+				return nil, fmt.Errorf("validation failed: %w", err)
+			}
+
+			// Create storage group
+			sqlGroup, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
+				OrgID:    database.PgUUID(group.OrgID),
+				UnitID:   database.PgUUID(group.UnitID),
+				ParentID: database.PgUUIDPtr(group.ParentID),
+				Name:     group.Name,
+				Alias:    group.Alias,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to create storage group: %w", err)
+			}
+
+			// Convert to model
+			result, err := toStorageGroup(sqlGroup)
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert storage group: %w", err)
+			}
+
+			return result, nil
+		},
 	)
-	defer span.End()
-
-	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "validation failed")
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
-
-	sqlGroup, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
-		OrgID:    database.PgUUID(group.OrgID),
-		UnitID:   database.PgUUID(group.UnitID),
-		ParentID: database.PgUUIDPtr(group.ParentID),
-		Name:     group.Name,
-		Alias:    group.Alias,
-	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to create storage group")
-		return nil, fmt.Errorf("failed to create storage group: %w", err)
-	}
-
-	result, err := toStorageGroup(sqlGroup)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to convert storage group")
-		return nil, err
-	}
-
-	span.SetStatus(codes.Ok, "storage group created successfully")
-	return result, nil
 }
 
 func (s *StorageService) GetAllStorageGroups(ctx context.Context, orgID uuid.UUID) ([]*models.StorageGroup, error) {
@@ -124,26 +126,22 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 }
 
 func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
-	ctx, span := s.tracer.Start(ctx, "DeleteStorageGroup",
-		trace.WithAttributes(
+	return telemetry.WithVoidTrace(ctx, s.tracer, "DeleteStorageGroup", func(ctx context.Context, span trace.Span) error {
+		span.SetAttributes(
 			attribute.String("org.id", orgID.String()),
 			attribute.String("storage_group.id", id.String()),
-		),
-	)
-	defer span.End()
+		)
 
-	err := s.queries.DeleteStorageGroup(ctx, sqlc.DeleteStorageGroupParams{
-		OrgID: database.PgUUID(orgID),
-		ID:    database.PgUUID(id),
+		err := s.queries.DeleteStorageGroup(ctx, sqlc.DeleteStorageGroupParams{
+			OrgID: database.PgUUID(orgID),
+			ID:    database.PgUUID(id),
+		})
+		if err != nil {
+			return fmt.Errorf("failed to delete storage group: %w", err)
+		}
+
+		return nil
 	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to delete storage group")
-		return fmt.Errorf("failed to delete storage group: %w", err)
-	}
-
-	span.SetStatus(codes.Ok, "storage group deleted successfully")
-	return nil
 }
 
 func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
