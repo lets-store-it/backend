@@ -120,3 +120,10 @@ paths:
 
   /audit-logs:
     $ref: paths/audit-logs/audit-logs.yaml
+
+  /tv-boards:
+    $ref: paths/tv-boards/tv-boards.yaml
+  /tv-boards/{id}:
+    $ref: paths/tv-boards/tv-boards_{id}.yaml
+  /tv-boards/{tvToken}/data:
+    $ref: paths/tv-boards/tv-boards_{tvToken}_data.yaml

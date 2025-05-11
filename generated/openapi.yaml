@@ -1338,6 +1338,95 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
+  /tv-boards:
+    get:
+      tags:
+        - tv-boards
+      summary: Get list of TV Boards
+      operationId: getTvBoards
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTvBoardsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - tv-boards
+      summary: Create TV Board
+      operationId: createTvBoard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTvBoardRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTvBoardResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tv-boards/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - tv-boards
+      summary: Delete TV Board
+      operationId: deleteTvBoard
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tv-boards/{tvToken}/data:
+    parameters:
+      - name: tvToken
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security: []
+      tags:
+        - tv-boards
+      summary: Get data for rendering on TV Board
+      operationId: getTvBoardsData
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTvBoardDataResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        default:
+          $ref: '#/components/responses/default-error'
 components:
   securitySchemes:
     apiToken:
@@ -2510,6 +2599,77 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+      required:
+        - data
+    TvBoard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: The name of the TV Board
+        token:
+          type: string
+          readOnly: true
+        unit:
+          type: object
+          nullable: true
+          $ref: '#/components/schemas/Unit'
+      required:
+        - id
+        - token
+        - unit
+        - name
+    GetTvBoardsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TvBoard'
+      required:
+        - data
+    TvBoardBase:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the TV Board
+        unitId:
+          type: string
+          format: uuid
+          description: The ID of the unit that the TV Board belongs to
+      required:
+        - name
+        - unitId
+    CreateTvBoardRequest:
+      allOf:
+        - $ref: '#/components/schemas/TvBoardBase'
+    CreateTvBoardResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/TvBoard'
+      required:
+        - data
+    GetTvBoardDataResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            tvBoard:
+              type: object
+              $ref: '#/components/schemas/TvBoard'
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskBase'
+          required:
+            - tvBoard
+            - tasks
       required:
         - data
   responses:

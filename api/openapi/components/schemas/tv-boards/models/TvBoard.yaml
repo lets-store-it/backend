@@ -1,0 +1,20 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+    description: The name of the TV Board
+  token:
+    type: string
+    readOnly: true
+  unit:
+    type: object
+    nullable: true
+    $ref: ../../units/models/Unit.yaml
+required:
+  - id
+  - token
+  - unit
+  - name

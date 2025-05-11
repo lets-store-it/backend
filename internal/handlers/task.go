@@ -19,6 +19,15 @@ func toAssignedToDTO(assignedTo *models.Employee) api.EmployeeOptional {
 		Role:       toRoleDTO(assignedTo.Role),
 	}
 }
+
+func tasksToDto(tasks []*models.Task) []api.TaskBase {
+	res := make([]api.TaskBase, len(tasks))
+	for i, task := range tasks {
+		res[i] = taskToDto(task)
+	}
+	return res
+}
+
 func taskToDto(task *models.Task) api.TaskBase {
 	var description api.NilString
 	PtrToApiNil(task.Description, &description)

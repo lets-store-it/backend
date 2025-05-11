@@ -62,6 +62,12 @@ type Handler interface {
 	//
 	// POST /tasks
 	CreateTask(ctx context.Context, req *CreateTaskRequest) (CreateTaskRes, error)
+	// CreateTvBoard implements createTvBoard operation.
+	//
+	// Create TV Board.
+	//
+	// POST /tv-boards
+	CreateTvBoard(ctx context.Context, req *CreateTvBoardRequest) (CreateTvBoardRes, error)
 	// CreateUnit implements createUnit operation.
 	//
 	// Create Organization Unit.
@@ -122,6 +128,12 @@ type Handler interface {
 	//
 	// DELETE /storage-groups/{id}
 	DeleteStorageGroup(ctx context.Context, params DeleteStorageGroupParams) (DeleteStorageGroupRes, error)
+	// DeleteTvBoard implements deleteTvBoard operation.
+	//
+	// Delete TV Board.
+	//
+	// DELETE /tv-boards/{id}
+	DeleteTvBoard(ctx context.Context, params DeleteTvBoardParams) (DeleteTvBoardRes, error)
 	// ExchangeYandexAccessToken implements exchangeYandexAccessToken operation.
 	//
 	// Exchange Yandex Access token for Session token.
@@ -272,6 +284,18 @@ type Handler interface {
 	//
 	// GET /tasks
 	GetTasks(ctx context.Context) (GetTasksRes, error)
+	// GetTvBoards implements getTvBoards operation.
+	//
+	// Get list of TV Boards.
+	//
+	// GET /tv-boards
+	GetTvBoards(ctx context.Context) (GetTvBoardsRes, error)
+	// GetTvBoardsData implements getTvBoardsData operation.
+	//
+	// Get data for rendering on TV Board.
+	//
+	// GET /tv-boards/{tvToken}/data
+	GetTvBoardsData(ctx context.Context, params GetTvBoardsDataParams) (GetTvBoardsDataRes, error)
 	// InviteEmployee implements inviteEmployee operation.
 	//
 	// Invite employee to the organization.

@@ -1246,6 +1246,59 @@ type CreateTaskUnauthorized ErrorContent
 
 func (*CreateTaskUnauthorized) createTaskRes() {}
 
+type CreateTvBoardForbidden ErrorContent
+
+func (*CreateTvBoardForbidden) createTvBoardRes() {}
+
+// Ref: #/components/schemas/CreateTvBoardRequest
+type CreateTvBoardRequest struct {
+	// The name of the TV Board.
+	Name string `json:"name"`
+	// The ID of the unit that the TV Board belongs to.
+	UnitId uuid.UUID `json:"unitId"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateTvBoardRequest) GetName() string {
+	return s.Name
+}
+
+// GetUnitId returns the value of UnitId.
+func (s *CreateTvBoardRequest) GetUnitId() uuid.UUID {
+	return s.UnitId
+}
+
+// SetName sets the value of Name.
+func (s *CreateTvBoardRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *CreateTvBoardRequest) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
+}
+
+// Ref: #/components/schemas/CreateTvBoardResponse
+type CreateTvBoardResponse struct {
+	Data TvBoard `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *CreateTvBoardResponse) GetData() TvBoard {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *CreateTvBoardResponse) SetData(val TvBoard) {
+	s.Data = val
+}
+
+func (*CreateTvBoardResponse) createTvBoardRes() {}
+
+type CreateTvBoardUnauthorized ErrorContent
+
+func (*CreateTvBoardUnauthorized) createTvBoardRes() {}
+
 type CreateUnitForbidden ErrorContent
 
 func (*CreateUnitForbidden) createUnitRes() {}
@@ -1386,6 +1439,19 @@ func (*DeleteStorageGroupNoContent) deleteStorageGroupRes() {}
 type DeleteStorageGroupUnauthorized ErrorContent
 
 func (*DeleteStorageGroupUnauthorized) deleteStorageGroupRes() {}
+
+type DeleteTvBoardForbidden ErrorContent
+
+func (*DeleteTvBoardForbidden) deleteTvBoardRes() {}
+
+// DeleteTvBoardNoContent is response for DeleteTvBoard operation.
+type DeleteTvBoardNoContent struct{}
+
+func (*DeleteTvBoardNoContent) deleteTvBoardRes() {}
+
+type DeleteTvBoardUnauthorized ErrorContent
+
+func (*DeleteTvBoardUnauthorized) deleteTvBoardRes() {}
 
 // Ref: #/components/schemas/Employee
 type Employee struct {
@@ -1546,6 +1612,7 @@ func (*ErrorContent) exchangeYandexAccessTokenRes() {}
 func (*ErrorContent) getCurrentUserRes()            {}
 func (*ErrorContent) getOrganizationsRes()          {}
 func (*ErrorContent) getRolesRes()                  {}
+func (*ErrorContent) getTvBoardsDataRes()           {}
 func (*ErrorContent) logoutRes()                    {}
 func (*ErrorContent) patchCurrentUserRes()          {}
 func (*ErrorContent) putCurrentUserRes()            {}
@@ -2298,6 +2365,73 @@ func (*GetTasksResponse) getTasksRes() {}
 type GetTasksUnauthorized ErrorContent
 
 func (*GetTasksUnauthorized) getTasksRes() {}
+
+// Ref: #/components/schemas/GetTvBoardDataResponse
+type GetTvBoardDataResponse struct {
+	Data GetTvBoardDataResponseData `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetTvBoardDataResponse) GetData() GetTvBoardDataResponseData {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetTvBoardDataResponse) SetData(val GetTvBoardDataResponseData) {
+	s.Data = val
+}
+
+func (*GetTvBoardDataResponse) getTvBoardsDataRes() {}
+
+type GetTvBoardDataResponseData struct {
+	TvBoard TvBoard    `json:"tvBoard"`
+	Tasks   []TaskBase `json:"tasks"`
+}
+
+// GetTvBoard returns the value of TvBoard.
+func (s *GetTvBoardDataResponseData) GetTvBoard() TvBoard {
+	return s.TvBoard
+}
+
+// GetTasks returns the value of Tasks.
+func (s *GetTvBoardDataResponseData) GetTasks() []TaskBase {
+	return s.Tasks
+}
+
+// SetTvBoard sets the value of TvBoard.
+func (s *GetTvBoardDataResponseData) SetTvBoard(val TvBoard) {
+	s.TvBoard = val
+}
+
+// SetTasks sets the value of Tasks.
+func (s *GetTvBoardDataResponseData) SetTasks(val []TaskBase) {
+	s.Tasks = val
+}
+
+type GetTvBoardsForbidden ErrorContent
+
+func (*GetTvBoardsForbidden) getTvBoardsRes() {}
+
+// Ref: #/components/schemas/GetTvBoardsResponse
+type GetTvBoardsResponse struct {
+	Data []TvBoard `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetTvBoardsResponse) GetData() []TvBoard {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetTvBoardsResponse) SetData(val []TvBoard) {
+	s.Data = val
+}
+
+func (*GetTvBoardsResponse) getTvBoardsRes() {}
+
+type GetTvBoardsUnauthorized ErrorContent
+
+func (*GetTvBoardsUnauthorized) getTvBoardsRes() {}
 
 // Ref: #/components/schemas/InstanceForItem
 type InstanceForItem struct {
@@ -4300,6 +4434,55 @@ func (s *Token) SetName(val string) {
 // SetToken sets the value of Token.
 func (s *Token) SetToken(val string) {
 	s.Token = val
+}
+
+// Ref: #/components/schemas/TvBoard
+type TvBoard struct {
+	ID uuid.UUID `json:"id"`
+	// The name of the TV Board.
+	Name  string `json:"name"`
+	Token string `json:"token"`
+	Unit  Unit   `json:"unit"`
+}
+
+// GetID returns the value of ID.
+func (s *TvBoard) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TvBoard) GetName() string {
+	return s.Name
+}
+
+// GetToken returns the value of Token.
+func (s *TvBoard) GetToken() string {
+	return s.Token
+}
+
+// GetUnit returns the value of Unit.
+func (s *TvBoard) GetUnit() Unit {
+	return s.Unit
+}
+
+// SetID sets the value of ID.
+func (s *TvBoard) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TvBoard) SetName(val string) {
+	s.Name = val
+}
+
+// SetToken sets the value of Token.
+func (s *TvBoard) SetToken(val string) {
+	s.Token = val
+}
+
+// SetUnit sets the value of Unit.
+func (s *TvBoard) SetUnit(val Unit) {
+	s.Unit = val
 }
 
 // Merged schema.

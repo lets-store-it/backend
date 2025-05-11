@@ -429,6 +429,32 @@ func (q *Queries) CreateTaskItem(ctx context.Context, arg CreateTaskItemParams) 
 	return i, err
 }
 
+const createTvBoard = `-- name: CreateTvBoard :one
+INSERT INTO tv_board (org_id, unit_id, name) VALUES ($1, $2, $3) RETURNING id, org_id, unit_id, name, token, created_at, deleted_at
+`
+
+type CreateTvBoardParams struct {
+	OrgID  pgtype.UUID
+	UnitID pgtype.UUID
+	Name   string
+}
+
+// TV Boards
+func (q *Queries) CreateTvBoard(ctx context.Context, arg CreateTvBoardParams) (TvBoard, error) {
+	row := q.db.QueryRow(ctx, createTvBoard, arg.OrgID, arg.UnitID, arg.Name)
+	var i TvBoard
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Name,
+		&i.Token,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, middle_name, yandex_id, created_at
 `
@@ -578,6 +604,20 @@ type DeleteStorageGroupParams struct {
 
 func (q *Queries) DeleteStorageGroup(ctx context.Context, arg DeleteStorageGroupParams) error {
 	_, err := q.db.Exec(ctx, deleteStorageGroup, arg.OrgID, arg.ID)
+	return err
+}
+
+const deleteTvBoard = `-- name: DeleteTvBoard :exec
+UPDATE tv_board SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
+`
+
+type DeleteTvBoardParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) DeleteTvBoard(ctx context.Context, arg DeleteTvBoardParams) error {
+	_, err := q.db.Exec(ctx, deleteTvBoard, arg.OrgID, arg.ID)
 	return err
 }
 
@@ -1566,6 +1606,81 @@ func (q *Queries) GetTasks(ctx context.Context, orgID pgtype.UUID) ([]Task, erro
 			&i.AssignedToUserID,
 			&i.AssignedAt,
 			&i.CompletedAt,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTvBoardById = `-- name: GetTvBoardById :one
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1 AND id = $2
+`
+
+type GetTvBoardByIdParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) GetTvBoardById(ctx context.Context, arg GetTvBoardByIdParams) (TvBoard, error) {
+	row := q.db.QueryRow(ctx, getTvBoardById, arg.OrgID, arg.ID)
+	var i TvBoard
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Name,
+		&i.Token,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getTvBoardByToken = `-- name: GetTvBoardByToken :one
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE token = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetTvBoardByToken(ctx context.Context, token string) (TvBoard, error) {
+	row := q.db.QueryRow(ctx, getTvBoardByToken, token)
+	var i TvBoard
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Name,
+		&i.Token,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getTvBoards = `-- name: GetTvBoards :many
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1
+`
+
+func (q *Queries) GetTvBoards(ctx context.Context, orgID pgtype.UUID) ([]TvBoard, error) {
+	rows, err := q.db.Query(ctx, getTvBoards, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []TvBoard
+	for rows.Next() {
+		var i TvBoard
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.UnitID,
+			&i.Name,
+			&i.Token,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {

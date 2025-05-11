@@ -37,6 +37,10 @@ type CreateTaskRes interface {
 	createTaskRes()
 }
 
+type CreateTvBoardRes interface {
+	createTvBoardRes()
+}
+
 type CreateUnitRes interface {
 	createUnitRes()
 }
@@ -71,6 +75,10 @@ type DeleteOrganizationUnitRes interface {
 
 type DeleteStorageGroupRes interface {
 	deleteStorageGroupRes()
+}
+
+type DeleteTvBoardRes interface {
+	deleteTvBoardRes()
 }
 
 type ExchangeYandexAccessTokenRes interface {
@@ -167,6 +175,14 @@ type GetTaskByIdRes interface {
 
 type GetTasksRes interface {
 	getTasksRes()
+}
+
+type GetTvBoardsDataRes interface {
+	getTvBoardsDataRes()
+}
+
+type GetTvBoardsRes interface {
+	getTvBoardsRes()
 }
 
 type InviteEmployeeRes interface {

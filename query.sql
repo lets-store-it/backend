@@ -299,3 +299,19 @@ UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2;
 
 -- name: SetTaskItemStatus :exec
 UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2;
+
+-- TV Boards
+-- name: CreateTvBoard :one
+INSERT INTO tv_board (org_id, unit_id, name) VALUES ($1, $2, $3) RETURNING *;
+
+-- name: GetTvBoards :many
+SELECT * FROM tv_board WHERE org_id = $1;
+
+-- name: GetTvBoardById :one
+SELECT * FROM tv_board WHERE org_id = $1 AND id = $2;
+
+-- name: DeleteTvBoard :exec
+UPDATE tv_board SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
+
+-- name: GetTvBoardByToken :one
+SELECT * FROM tv_board WHERE token = $1 AND deleted_at IS NULL;
