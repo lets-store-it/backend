@@ -66,6 +66,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	// Initialize services
 	storageGroupService, err := storage.New(&storage.StorageServiceConfig{
 		Queries: queries,
+		PGXPool: pool,
 	})
 	if err != nil {
 		return nil, err

@@ -12,6 +12,7 @@ import (
 )
 
 type TxFn[T any] func(ctx context.Context, tx pgx.Tx) (T, error)
+type VoidTxFn func(ctx context.Context, tx pgx.Tx) error
 
 func WithTransaction[T any](ctx context.Context, pool *pgxpool.Pool, tracer trace.Tracer, f TxFn[T]) (result T, err error) {
 	ctx, span := tracer.Start(ctx, "database.WithTransaction")
@@ -70,7 +71,9 @@ func WithTransaction[T any](ctx context.Context, pool *pgxpool.Pool, tracer trac
 	return result, nil
 }
 
-// func WithVoidTransaction(ctx context.Context, pool *pgxpool.Pool, tracer trace.Tracer, f TxFn[struct{}]) error {
-// 	_, err := WithTransaction(ctx, pool, tracer, f)
-// 	return err
-// }
+func WithVoidTransaction(ctx context.Context, pool *pgxpool.Pool, tracer trace.Tracer, f VoidTxFn) error {
+	_, err := WithTransaction(ctx, pool, tracer, func(ctx context.Context, tx pgx.Tx) (struct{}, error) {
+		return struct{}{}, f(ctx, tx)
+	})
+	return err
+}
