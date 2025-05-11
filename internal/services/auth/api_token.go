@@ -48,7 +48,7 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 		}
 
 		span.SetAttributes(attribute.String("token.id", database.UUIDFromPgx(token.ID).String()))
-		return toTokenModel(token), nil
+		return toApiTokenModel(token), nil
 	})
 }
 
@@ -65,7 +65,7 @@ func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*mod
 
 		modelsTokens := make([]*models.ApiToken, len(tokens))
 		for i, token := range tokens {
-			modelsTokens[i] = toTokenModel(token)
+			modelsTokens[i] = toApiTokenModel(token)
 		}
 
 		span.SetAttributes(attribute.Int("tokens_count", len(modelsTokens)))
