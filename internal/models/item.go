@@ -27,7 +27,7 @@ type ItemVariant struct {
 	Name string `json:"name"`
 
 	Article *string `json:"article"`
-	EAN13   *int32  `json:"ean13"`
+	EAN13   *int64  `json:"ean13"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
@@ -48,7 +48,7 @@ type ItemInstance struct {
 	VariantID             uuid.UUID          `json:"variant_id"`
 	CellID                *uuid.UUID         `json:"cell_id"`
 	Status                ItemInstanceStatus `json:"status"`
-	AffectedByOperationID *uuid.UUID          `json:"affected_by_operation_id"`
+	AffectedByOperationID *uuid.UUID         `json:"affected_by_operation_id"`
 
 	Item    *Item        `json:"item"`
 	Cell    *Cell        `json:"cell"`
