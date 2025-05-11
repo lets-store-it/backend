@@ -154,15 +154,11 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 		)
 
 		if err := s.validateObjectChange(objectChange); err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "invalid object change")
 			return err
 		}
 
 		employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, objectChange.OrgID, *objectChange.UserID)
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get employee with role")
 			return err
 		}
 
@@ -184,11 +180,13 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 			objectChange.ID = change.ID.Bytes
 			objectChange.Employee = employee
 
+			if err := s.publishToKafka(ctx, objectChange); err != nil {
+				return err
+			}
+
 			return nil
 		})
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "transaction failed")
 			return err
 		}
 
@@ -196,13 +194,6 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 			attribute.String("change.id", objectChange.ID.String()),
 		)
 
-		if err := s.publishToKafka(ctx, objectChange); err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to publish to kafka")
-			return err
-		}
-
-		span.SetStatus(codes.Ok, "object change created successfully")
 		return nil
 	})
 }
@@ -221,15 +212,11 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			TargetObjectID:   database.PgUUID(targetObjectID),
 		})
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get object changes")
 			return nil, fmt.Errorf("failed to get object changes: %w", err)
 		}
 
 		objectType, err := s.getObjectTypeInfo(ctx, int32(targetObjectTypeId))
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to get object type info")
 			return nil, err
 		}
 
@@ -237,8 +224,6 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 		for i, change := range objectChanges {
 			employee, err := s.auth.GetUserAsEmployeeInOrg(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 			if err != nil {
-				span.RecordError(err)
-				span.SetStatus(codes.Error, "failed to get employee info")
 				return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 			}
 
@@ -261,8 +246,6 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			attribute.Int("changes.count", len(objectChangesModels)),
 			attribute.String("object.type", objectType.Name),
 		)
-		span.SetStatus(codes.Ok, "successfully retrieved object changes")
-
 		return objectChangesModels, nil
 	})
 }
