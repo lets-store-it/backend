@@ -853,7 +853,7 @@ func (*CreateItemVariantForbidden) createItemVariantRes() {}
 type CreateItemVariantRequest struct {
 	Name    string       `json:"name"`
 	Article OptNilString `json:"article"`
-	Ean13   OptNilInt32  `json:"ean13"`
+	Ean13   OptNilInt64  `json:"ean13"`
 }
 
 // GetName returns the value of Name.
@@ -867,7 +867,7 @@ func (s *CreateItemVariantRequest) GetArticle() OptNilString {
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *CreateItemVariantRequest) GetEan13() OptNilInt32 {
+func (s *CreateItemVariantRequest) GetEan13() OptNilInt64 {
 	return s.Ean13
 }
 
@@ -882,7 +882,7 @@ func (s *CreateItemVariantRequest) SetArticle(val OptNilString) {
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *CreateItemVariantRequest) SetEan13(val OptNilInt32) {
+func (s *CreateItemVariantRequest) SetEan13(val OptNilInt64) {
 	s.Ean13 = val
 }
 
@@ -2792,7 +2792,7 @@ type ItemVariant struct {
 	// Merged property.
 	Article NilString `json:"article"`
 	// Merged property.
-	Ean13 NilInt32 `json:"ean13"`
+	Ean13 NilInt64 `json:"ean13"`
 }
 
 // GetID returns the value of ID.
@@ -2811,7 +2811,7 @@ func (s *ItemVariant) GetArticle() NilString {
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *ItemVariant) GetEan13() NilInt32 {
+func (s *ItemVariant) GetEan13() NilInt64 {
 	return s.Ean13
 }
 
@@ -2831,7 +2831,7 @@ func (s *ItemVariant) SetArticle(val NilString) {
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *ItemVariant) SetEan13(val NilInt32) {
+func (s *ItemVariant) SetEan13(val NilInt64) {
 	s.Ean13 = val
 }
 
@@ -3077,37 +3077,37 @@ func (o NilEmployeeOptional) Or(d EmployeeOptional) EmployeeOptional {
 	return d
 }
 
-// NewNilInt32 returns new NilInt32 with value set to v.
-func NewNilInt32(v int32) NilInt32 {
-	return NilInt32{
+// NewNilInt64 returns new NilInt64 with value set to v.
+func NewNilInt64(v int64) NilInt64 {
+	return NilInt64{
 		Value: v,
 	}
 }
 
-// NilInt32 is nullable int32.
-type NilInt32 struct {
-	Value int32
+// NilInt64 is nullable int64.
+type NilInt64 struct {
+	Value int64
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilInt32) SetTo(v int32) {
+func (o *NilInt64) SetTo(v int64) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilInt32) IsNull() bool { return o.Null }
+func (o NilInt64) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilInt32) SetToNull() {
+func (o *NilInt64) SetToNull() {
 	o.Null = true
-	var v int32
+	var v int64
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilInt32) Get() (v int32, ok bool) {
+func (o NilInt64) Get() (v int64, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -3115,7 +3115,7 @@ func (o NilInt32) Get() (v int32, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilInt32) Or(d int32) int32 {
+func (o NilInt64) Or(d int64) int64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3258,52 +3258,52 @@ func (o OptInt) Or(d int) int {
 	return d
 }
 
-// NewOptNilInt32 returns new OptNilInt32 with value set to v.
-func NewOptNilInt32(v int32) OptNilInt32 {
-	return OptNilInt32{
+// NewOptNilInt64 returns new OptNilInt64 with value set to v.
+func NewOptNilInt64(v int64) OptNilInt64 {
+	return OptNilInt64{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptNilInt32 is optional nullable int32.
-type OptNilInt32 struct {
-	Value int32
+// OptNilInt64 is optional nullable int64.
+type OptNilInt64 struct {
+	Value int64
 	Set   bool
 	Null  bool
 }
 
-// IsSet returns true if OptNilInt32 was set.
-func (o OptNilInt32) IsSet() bool { return o.Set }
+// IsSet returns true if OptNilInt64 was set.
+func (o OptNilInt64) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptNilInt32) Reset() {
-	var v int32
+func (o *OptNilInt64) Reset() {
+	var v int64
 	o.Value = v
 	o.Set = false
 	o.Null = false
 }
 
 // SetTo sets value to v.
-func (o *OptNilInt32) SetTo(v int32) {
+func (o *OptNilInt64) SetTo(v int64) {
 	o.Set = true
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o OptNilInt32) IsNull() bool { return o.Null }
+func (o OptNilInt64) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *OptNilInt32) SetToNull() {
+func (o *OptNilInt64) SetToNull() {
 	o.Set = true
 	o.Null = true
-	var v int32
+	var v int64
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptNilInt32) Get() (v int32, ok bool) {
+func (o OptNilInt64) Get() (v int64, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -3314,7 +3314,7 @@ func (o OptNilInt32) Get() (v int32, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptNilInt32) Or(d int32) int32 {
+func (o OptNilInt64) Or(d int64) int64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -4780,7 +4780,7 @@ func (*UpdateItemVariantForbidden) updateItemVariantRes() {}
 type UpdateItemVariantRequest struct {
 	Name    string       `json:"name"`
 	Article OptNilString `json:"article"`
-	Ean13   OptNilInt32  `json:"ean13"`
+	Ean13   OptNilInt64  `json:"ean13"`
 }
 
 // GetName returns the value of Name.
@@ -4794,7 +4794,7 @@ func (s *UpdateItemVariantRequest) GetArticle() OptNilString {
 }
 
 // GetEan13 returns the value of Ean13.
-func (s *UpdateItemVariantRequest) GetEan13() OptNilInt32 {
+func (s *UpdateItemVariantRequest) GetEan13() OptNilInt64 {
 	return s.Ean13
 }
 
@@ -4809,7 +4809,7 @@ func (s *UpdateItemVariantRequest) SetArticle(val OptNilString) {
 }
 
 // SetEan13 sets the value of Ean13.
-func (s *UpdateItemVariantRequest) SetEan13(val OptNilInt32) {
+func (s *UpdateItemVariantRequest) SetEan13(val OptNilInt64) {
 	s.Ean13 = val
 }
 

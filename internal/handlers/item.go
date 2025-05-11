@@ -80,7 +80,7 @@ func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
 	var article api.NilString
 	PtrToApiNil(variant.Article, &article)
 
-	var ean13 api.NilInt32
+	var ean13 api.NilInt64
 	PtrToApiNil(variant.EAN13, &ean13)
 
 	return api.ItemVariant{
@@ -120,7 +120,7 @@ func convertItemInstancesForItemToDTO(itemInstances []*models.ItemInstance) []ap
 		var article api.NilString
 		PtrToApiNil(instance.Variant.Article, &article)
 
-		var ean13 api.NilInt32
+		var ean13 api.NilInt64
 		PtrToApiNil(instance.Variant.EAN13, &ean13)
 
 		dtoInstances = append(dtoInstances, api.InstanceForItem{

@@ -93,6 +93,17 @@ func PgInt4Ptr(i *int32) pgtype.Int4 {
 	return pgtype.Int4{Int32: *i, Valid: true}
 }
 
+func PgInt8(i int64) pgtype.Int8 {
+	return pgtype.Int8{Int64: i, Valid: true}
+}
+
+func PgInt8Ptr(i *int64) pgtype.Int8 {
+	if i == nil {
+		return pgtype.Int8{Valid: false}
+	}
+	return pgtype.Int8{Int64: *i, Valid: true}
+}
+
 func PgInt32PtrFromPgx(i pgtype.Int4) *int32 {
 	if !i.Valid {
 		return nil
@@ -105,4 +116,18 @@ func PgInt32FromPgx(i pgtype.Int4) int32 {
 		return 0
 	}
 	return i.Int32
+}
+
+func PgInt64PtrFromPgx(i pgtype.Int8) *int64 {
+	if !i.Valid {
+		return nil
+	}
+	return &i.Int64
+}
+
+func PgInt64FromPgx(i pgtype.Int8) int64 {
+	if !i.Valid {
+		return 0
+	}
+	return i.Int64
 }

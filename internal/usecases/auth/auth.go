@@ -79,7 +79,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 
 	user, err := u.authService.GetUserByEmail(ctx, userInfo.DefaultEmail)
 	if err != nil {
-		if errors.Is(err, yandex.ErrInvalidOrExpiredToken) {
+		if errors.Is(err, services.ErrNotFoundError) {
 			user = &models.User{
 				Email:     userInfo.DefaultEmail,
 				FirstName: userInfo.FirstName,
