@@ -1,3 +1,11 @@
+CREATE TYPE task_type AS ENUM ('receiving', 'shipping', 'movement', 'inventory');
+
+CREATE TYPE task_status AS ENUM ('pending', 'in_progress', 'completed', 'cancelled');
+
+CREATE TYPE item_instance_status AS ENUM ('available', 'reserved', 'in_transit');
+
+CREATE TYPE task_item_status AS ENUM ('pending', 'in_progress', 'completed');
+
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -61,10 +69,10 @@ CREATE TABLE item (
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
 
-    width INTEGER, -- in mm
-    depth INTEGER, -- in mm
-    height INTEGER, -- in mm
-    weight INTEGER, -- in g
+    width INTEGER CHECK (width > 0), -- in mm
+    depth INTEGER CHECK (depth > 0), -- in mm
+    height INTEGER CHECK (height > 0), -- in mm
+    weight INTEGER CHECK (weight > 0), -- in g
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -79,7 +87,7 @@ CREATE TABLE item_variant (
     name VARCHAR(255) NOT NULL,
 
     article VARCHAR(255),
-    ean13 INTEGER,
+    ean13 BIGINT CHECK (ean13::text ~ '^[0-9]{13}$'),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -131,8 +139,8 @@ CREATE TABLE task (
     org_id UUID NOT NULL REFERENCES org(id),
     unit_id UUID NOT NULL REFERENCES org_unit(id),
 
-    type VARCHAR(255) NOT NULL CHECK (type IN ('pick', 'movement')),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'in_progress', 'awaiting_to_collect', 'completed', 'failed')) DEFAULT 'pending',
+    type task_type NOT NULL,
+    status task_status NOT NULL DEFAULT 'pending',
     
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
@@ -144,30 +152,41 @@ CREATE TABLE task (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+CREATE INDEX task_org_id_idx ON task(org_id);
+CREATE INDEX task_status_idx ON task(status) WHERE deleted_at IS NULL;
+CREATE INDEX task_assigned_user_idx ON task(assigned_to_user_id, status) WHERE deleted_at IS NULL;
+CREATE INDEX task_unit_id_idx ON task(unit_id);
 
 CREATE TABLE item_instance (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES org(id),
-    item_id UUID NOT NULL REFERENCES item(id),
-    variant_id UUID NOT NULL REFERENCES item_variant(id),
+    item_id UUID NOT NULL REFERENCES item(id) ON DELETE RESTRICT,
+    variant_id UUID NOT NULL REFERENCES item_variant(id) ON DELETE RESTRICT,
 
-    cell_id UUID REFERENCES cell(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('available', 'reserved', 'consumed')) DEFAULT 'available',
-    affected_by_task_id UUID REFERENCES task(id),
+    cell_id UUID REFERENCES cell(id) ON DELETE RESTRICT,
+    status item_instance_status NOT NULL DEFAULT 'available',
+    affected_by_task_id UUID REFERENCES task(id) ON DELETE SET NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
     UNIQUE (item_id, variant_id)
 );
+CREATE INDEX item_instance_status_idx ON item_instance(status) WHERE deleted_at IS NULL;
+CREATE INDEX item_instance_task_idx ON item_instance(affected_by_task_id) WHERE affected_by_task_id IS NOT NULL;
+CREATE INDEX item_instance_cell_idx ON item_instance(cell_id) WHERE cell_id IS NOT NULL;
 
 CREATE TABLE task_item (
     org_id UUID NOT NULL REFERENCES org(id),
-    task_id UUID NOT NULL REFERENCES task(id),
-    item_instance_id UUID NOT NULL REFERENCES item_instance(id),
-    status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'picked', 'done', 'failed', 'returned')) DEFAULT 'pending',
-    source_cell_id UUID REFERENCES cell(id),
-    destination_cell_id UUID REFERENCES cell(id)
+    task_id UUID NOT NULL REFERENCES task(id) ON DELETE CASCADE,
+    item_instance_id UUID NOT NULL REFERENCES item_instance(id) ON DELETE RESTRICT,
+    status task_item_status NOT NULL DEFAULT 'pending',
+    source_cell_id UUID REFERENCES cell(id) ON DELETE RESTRICT,
+    destination_cell_id UUID REFERENCES cell(id) ON DELETE RESTRICT,
+    PRIMARY KEY (task_id, item_instance_id)
 );
+CREATE INDEX task_item_instance_idx ON task_item(item_instance_id);
+CREATE INDEX task_item_source_cell_idx ON task_item(source_cell_id) WHERE source_cell_id IS NOT NULL;
+CREATE INDEX task_item_dest_cell_idx ON task_item(destination_cell_id) WHERE destination_cell_id IS NOT NULL;
 
 
 CREATE TABLE app_user_session (
