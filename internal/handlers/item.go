@@ -51,6 +51,24 @@ func convertCellToNilDTO(cell *models.Cell) api.CellForInstance {
 	return res
 }
 
+func convertCellOptionalToNilDTO(cell *models.Cell) api.NilCellForInstanceOptional {
+	res := api.NilCellForInstanceOptional{}
+	if cell == nil {
+		res.SetToNull()
+		return res
+	}
+	modelCell := api.CellForInstanceOptional{
+		ID:       cell.ID,
+		Alias:    cell.Alias,
+		Row:      cell.Row,
+		Level:    cell.Level,
+		Position: cell.Position,
+		CellPath: convertCellPathToOptionalDTO(cell.Path),
+	}
+	res.SetTo(modelCell)
+	return res
+}
+
 func convertCellToDTO(cell *models.Cell) api.CellForInstance {
 	return api.CellForInstance{
 		ID:       cell.ID,
@@ -87,7 +105,7 @@ func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.Ins
 		ID:      itemInstance.ID,
 		Status:  api.InstanceFullStatus(itemInstance.Status),
 		Variant: convertItemVariantToDTO(itemInstance.Variant),
-		Cell:    convertCellToNilDTO(itemInstance.Cell),
+		Cell:    convertCellOptionalToNilDTO(itemInstance.Cell),
 		Item:    item,
 	}
 }

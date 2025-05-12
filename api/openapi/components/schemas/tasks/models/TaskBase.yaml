@@ -19,9 +19,9 @@ properties:
     enum:
       - pending
       - in_progress
-      - awaiting_to_collect
+      - ready
       - completed
-      - failed
+      - cancelled
   createdAt:
     type: string
     format: date-time

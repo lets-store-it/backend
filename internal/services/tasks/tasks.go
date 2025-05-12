@@ -12,6 +12,7 @@ import (
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/employee"
 	"github.com/let-store-it/backend/internal/services/item"
@@ -32,16 +33,18 @@ type TaskService struct {
 	storageService *storage.StorageService
 	item           *item.ItemService
 	employee       *employee.EmployeeService
+	audit          *audit.AuditService
 }
 
 type TaskServiceConfig struct {
-	Queries        *sqlc.Queries
-	PGXPool        *pgxpool.Pool
-	Auth           *auth.AuthService
-	Org            *organization.OrganizationService
-	StorageService *storage.StorageService
-	ItemService    *item.ItemService
+	Queries         *sqlc.Queries
+	PGXPool         *pgxpool.Pool
+	Auth            *auth.AuthService
+	Org             *organization.OrganizationService
+	StorageService  *storage.StorageService
+	ItemService     *item.ItemService
 	EmployeeService *employee.EmployeeService
+	AuditService    *audit.AuditService
 }
 
 func New(cfg TaskServiceConfig) *TaskService {
@@ -54,6 +57,7 @@ func New(cfg TaskServiceConfig) *TaskService {
 		storageService: cfg.StorageService,
 		item:           cfg.ItemService,
 		employee:       cfg.EmployeeService,
+		audit:          cfg.AuditService,
 	}
 }
 
@@ -263,12 +267,12 @@ func (s *TaskService) PickInstance(ctx context.Context, orgID uuid.UUID, taskID 
 			AffectedByOperationID: &taskID,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to set item instance status: %w", err)
+			return services.MapDbErrorToService(err)
 		}
 
 		err = s.item.SetInstanceCell(ctx, orgID, instanceID, nil)
 		if err != nil {
-			return fmt.Errorf("failed to set item instance cell: %w", err)
+			return services.MapDbErrorToService(err)
 		}
 
 		err = s.queries.SetTaskItemStatus(ctx, sqlc.SetTaskItemStatusParams{
@@ -281,5 +285,43 @@ func (s *TaskService) PickInstance(ctx context.Context, orgID uuid.UUID, taskID 
 		}
 
 		return nil
+	})
+}
+
+func (s *TaskService) UpdateTask(ctx context.Context, task *models.Task) (*models.Task, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "UpdateTask", func(ctx context.Context, span trace.Span) (*models.Task, error) {
+		span.SetAttributes(
+			attribute.String("org.id", task.OrgID.String()),
+			attribute.String("task.id", task.ID.String()),
+			attribute.String("task.status", string(task.Status)),
+		)
+
+		before, err := s.GetTaskById(ctx, task.OrgID, task.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		updated, err := s.queries.UpdateTask(ctx, sqlc.UpdateTaskParams{
+			OrgID:  database.PgUUID(task.OrgID),
+			ID:     database.PgUUID(task.ID),
+			Status: sqlc.TaskStatus(task.Status),
+		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		model := toTask(updated)
+
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeTask,
+			TargetObjectID:   task.ID,
+			PrechangeState:   before,
+			PostchangeState:  model,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return toTask(updated), nil
 	})
 }

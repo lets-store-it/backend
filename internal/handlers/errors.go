@@ -24,7 +24,7 @@ func (h *RestApiImplementation) NewConflictError(ctx context.Context, message st
 }
 
 func (h *RestApiImplementation) NewUnauthorizedError(ctx context.Context) *api.DefaultErrorStatusCode {
-	return h.NewUnauthorizedErrorWithMessage(ctx, "you are not authorized to access this resource")
+	return h.NewUnauthorizedErrorWithMessage(ctx, "you are not authorized")
 }
 
 func (h *RestApiImplementation) NewUnauthorizedErrorWithMessage(ctx context.Context, message string) *api.DefaultErrorStatusCode {
@@ -63,30 +63,53 @@ func (h *RestApiImplementation) NewForbiddenError(ctx context.Context, err error
 	}
 }
 
+func (h *RestApiImplementation) NewNotFoundError(ctx context.Context, message string) *api.DefaultErrorStatusCode {
+	return &api.DefaultErrorStatusCode{
+		StatusCode: http.StatusNotFound,
+		Response: api.ErrorContent{
+			Error: api.ErrorContentError{
+				Code:    "not_found",
+				Message: message,
+			},
+		},
+	}
+}
+
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
 	// var ogenErr ogenerrors.Error
 	var detailedErr *common.ErrDetailedValidationError
 	switch {
+	// common errors
 	case errors.As(err, &detailedErr) && detailedErr != nil:
 		return h.NewValidationError(ctx, detailedErr.Message)
+
 	case errors.Is(err, usecases.ErrNotAuthorized):
 		return h.NewUnauthorizedError(ctx)
+
 	case errors.Is(err, usecases.ErrForbidden):
 		return h.NewForbiddenError(ctx, err)
+
 	case errors.Is(err, common.ErrOrganizationIDMissing):
 		return h.NewValidationError(ctx, "x-organization-id header is missing")
-	case errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied):
-		return h.NewUnauthorizedError(ctx)
-	case errors.Is(err, ErrSessionNotFound):
-		return h.NewUnauthorizedError(ctx)
-	case errors.Is(err, ErrSessionRevoked):
-		return h.NewUnauthorizedErrorWithMessage(ctx, "Session was revoked")
+
 	case errors.Is(err, common.ErrDuplicationError):
 		return h.NewConflictError(ctx, err.Error())
+
+	case errors.Is(err, common.ErrNotFound):
+		return h.NewNotFoundError(ctx, err.Error())
+
+	// security middleware errors
+	case errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied):
+		return h.NewUnauthorizedError(ctx)
+
+	case errors.Is(err, ErrSessionNotFound):
+		return h.NewUnauthorizedError(ctx)
+
+	case errors.Is(err, ErrSessionRevoked):
+		return h.NewUnauthorizedErrorWithMessage(ctx, "Session was revoked")
+
 	case errors.Is(err, ErrSessionExpired):
 		return h.NewUnauthorizedErrorWithMessage(ctx, "Session expired")
-		// case errors.As(err, &ogenErr):
-		// code = ogenErr.
 	}
 
 	return &api.DefaultErrorStatusCode{

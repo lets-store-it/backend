@@ -94,7 +94,7 @@ func (uc *TaskUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
 	return tasks, nil
 }
 
-func (uc *TaskUseCase) PickInstanceFromCell(ctx context.Context, taskID uuid.UUID, instanceID uuid.UUID) error {
+func (uc *TaskUseCase) PickInstanceFromCellForTask(ctx context.Context, taskID uuid.UUID, instanceID uuid.UUID) error {
 	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return err
@@ -105,4 +105,52 @@ func (uc *TaskUseCase) PickInstanceFromCell(ctx context.Context, taskID uuid.UUI
 	}
 
 	return uc.taskService.PickInstance(ctx, validateResult.OrgID, taskID, instanceID)
+}
+
+func (uc *TaskUseCase) MarkTaskAsAwaiting(ctx context.Context, taskID uuid.UUID) error {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return err
+	}
+
+	if !validateResult.IsAllowed {
+		return usecases.ErrNotAuthorized
+	}
+
+	task, err := uc.taskService.GetTaskById(ctx, validateResult.OrgID, taskID)
+	if err != nil {
+		return err
+	}
+	task.Status = models.TaskStatusReady
+
+	_, err = uc.taskService.UpdateTask(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *TaskUseCase) MarkTaskAsCompleted(ctx context.Context, taskID uuid.UUID) error {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return err
+	}
+
+	if !validateResult.IsAllowed {
+		return usecases.ErrForbidden
+	}
+
+	task, err := uc.taskService.GetTaskById(ctx, validateResult.OrgID, taskID)
+	if err != nil {
+		return err
+	}
+	task.Status = models.TaskStatusCompleted
+
+	_, err = uc.taskService.UpdateTask(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

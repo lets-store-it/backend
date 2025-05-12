@@ -11,7 +11,7 @@ post:
   summary: Mark task as completed
   operationId: markTaskAsCompleted
   responses:
-    "201":
+    "204":
       description: Successful operation
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml

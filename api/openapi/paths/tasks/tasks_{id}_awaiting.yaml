@@ -9,9 +9,9 @@ post:
   tags:
     - tasks
   summary: Mark task as awaiting to collect
-  operationId: markTaskAsAwaitingToCollect
+  operationId: markTaskAsAwaiting
   responses:
-    "201":
+    "204":
       description: Successful operation
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml

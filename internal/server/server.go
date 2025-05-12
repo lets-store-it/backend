@@ -122,6 +122,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		ItemService:     itemService,
 		StorageService:  storageGroupService,
 		EmployeeService: employeeService,
+		AuditService:    auditService,
 	})
 	tvBoardService := tvboard.New(tvboard.TvBoardServiceConfig{
 		Queries: queries,

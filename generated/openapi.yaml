@@ -1264,6 +1264,54 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
+  /tasks/{id}/awaiting:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - tasks
+      summary: Mark task as awaiting to collect
+      operationId: markTaskAsAwaiting
+      responses:
+        '204':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/default-bad-request'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tasks/{id}/done:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - tasks
+      summary: Mark task as completed
+      operationId: markTaskAsCompleted
+      responses:
+        '204':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/default-bad-request'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
   /employees:
     get:
       summary: Get employees of the organization
@@ -2208,6 +2256,11 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
+    CellForInstanceOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/CellForInstance'
     InstanceFull:
       type: object
       properties:
@@ -2228,8 +2281,7 @@ components:
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:
-          nullable: true
-          $ref: '#/components/schemas/CellForInstance'
+          $ref: '#/components/schemas/CellForInstanceOptional'
       required:
         - id
         - itemId
@@ -2432,9 +2484,9 @@ components:
           enum:
             - pending
             - in_progress
-            - awaiting_to_collect
+            - ready
             - completed
-            - failed
+            - cancelled
         createdAt:
           type: string
           format: date-time
@@ -2513,11 +2565,6 @@ components:
     CreateTaskRequest:
       allOf:
         - $ref: '#/components/schemas/TaskCreate'
-    CellForInstanceOptional:
-      type: object
-      nullable: true
-      allOf:
-        - $ref: '#/components/schemas/CellForInstance'
     TaskItem:
       type: object
       properties:

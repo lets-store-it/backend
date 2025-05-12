@@ -310,6 +310,9 @@ UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2;
 -- name: SetTaskItemStatus :exec
 UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2;
 
+-- name: UpdateTask :one
+UPDATE task SET status = $3 WHERE org_id = $1 AND id = $2 RETURNING *;
+
 -- TV Boards
 -- name: CreateTvBoard :one
 INSERT INTO tv_board (org_id, unit_id, name) VALUES ($1, $2, $3) RETURNING *;

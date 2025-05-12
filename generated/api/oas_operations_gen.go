@@ -57,6 +57,8 @@ const (
 	GetTvBoardsDataOperation           OperationName = "GetTvBoardsData"
 	InviteEmployeeOperation            OperationName = "InviteEmployee"
 	LogoutOperation                    OperationName = "Logout"
+	MarkTaskAsAwaitingOperation        OperationName = "MarkTaskAsAwaiting"
+	MarkTaskAsCompletedOperation       OperationName = "MarkTaskAsCompleted"
 	PatchEmployeeByIdOperation         OperationName = "PatchEmployeeById"
 	PickInstanceFromCellOperation      OperationName = "PickInstanceFromCell"
 	RevokeApiTokenOperation            OperationName = "RevokeApiToken"

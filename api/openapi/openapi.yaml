@@ -98,11 +98,11 @@ paths:
   /tasks/{id}/pick-instance:
     $ref: paths/tasks/tasks_{id}_pick-item.yaml
 
-  # /tasks/{id}/awaiting:
-  #   $ref: paths/tasks/tasks_{id}_awaiting.yaml
+  /tasks/{id}/awaiting:
+    $ref: paths/tasks/tasks_{id}_awaiting.yaml
 
-  # /tasks/{id}/done:
-  #   $ref: paths/tasks/tasks_{id}_done.yaml
+  /tasks/{id}/done:
+    $ref: paths/tasks/tasks_{id}_done.yaml
 
   /employees:
     $ref: paths/employees/employees.yaml
