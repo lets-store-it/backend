@@ -37,7 +37,7 @@ func (uc *TaskUseCase) CreateTask(ctx context.Context, task *models.Task) (*mode
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -62,7 +62,7 @@ func (uc *TaskUseCase) GetTaskById(ctx context.Context, id uuid.UUID) (*models.T
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -79,7 +79,7 @@ func (uc *TaskUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -96,7 +96,7 @@ func (uc *TaskUseCase) PickInstanceFromCell(ctx context.Context, taskID uuid.UUI
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
 	}
 

@@ -477,5 +477,4 @@ func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstan
 // GetInstancesByItemId implements api.Handler.
 func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
 	panic("unimplemented")
-
 }

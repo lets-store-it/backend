@@ -116,15 +116,18 @@ func (s *OrganizationService) CreateOrganization(ctx context.Context, name strin
 
 		orgModel := toOrganizationModel(org)
 
-		s.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
 			Action:           models.ObjectChangeActionCreate,
 			TargetObjectID:   orgModel.ID,
 			TargetObjectType: models.ObjectTypeOrganization,
 			PostchangeState:  orgModel,
 		})
+		if err != nil {
+			return nil, err
+		}
 
 		span.SetAttributes(attribute.String("org.id", org.ID.String()))
-		return toOrganizationModel(org), nil
+		return orgModel, nil
 	})
 }
 
@@ -168,17 +171,31 @@ func (s *OrganizationService) DeleteOrganization(ctx context.Context, id uuid.UU
 		span.SetAttributes(
 			attribute.String("org.id", id.String()),
 		)
+		org, err := s.GetOrganizationByID(ctx, id)
+		if err != nil {
+			return err
+		}
 
-		err := s.queries.DeleteOrganization(ctx, database.PgUUID(id))
+		err = s.queries.DeleteOrganization(ctx, database.PgUUID(id))
 		if err != nil {
 			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectID:   org.ID,
+			TargetObjectType: models.ObjectTypeOrganization,
+			PrechangeState:   org,
+		})
+		if err != nil {
+			return err
 		}
 
 		return nil
 	})
 }
 
-func (s *OrganizationService) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+func (s *OrganizationService) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "Update", func(ctx context.Context, span trace.Span) (*models.Organization, error) {
 		span.SetAttributes(
 			attribute.String("org.id", org.ID.String()),
@@ -188,19 +205,35 @@ func (s *OrganizationService) Update(ctx context.Context, org *models.Organizati
 			return nil, err
 		}
 
+		beforeUpdateOrg, err := s.GetOrganizationByID(ctx, org.ID)
+		if err != nil {
+			return nil, err
+		}
+
 		updatedOrg, err := s.queries.UpdateOrganization(ctx, sqlc.UpdateOrganizationParams{
 			ID:   database.PgUUID(org.ID),
 			Name: org.Name,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to update organization: %w", err)
+			return nil, services.MapDbErrorToService(err)
+		}
+		updatedOrgModel := toOrganizationModel(updatedOrg)
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectID:   org.ID,
+			TargetObjectType: models.ObjectTypeOrganization,
+			PrechangeState:   beforeUpdateOrg,
+			PostchangeState:  updatedOrgModel,
+		})
+		if err != nil {
+			return nil, err
 		}
 
-		return toOrganizationModel(updatedOrg), nil
+		return updatedOrgModel, nil
 	})
 }
 
-// Organization Unit methods
 func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, name string, alias string, address string) (*models.OrganizationUnit, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "CreateUnit", func(ctx context.Context, span trace.Span) (*models.OrganizationUnit, error) {
 		span.SetAttributes(
@@ -227,7 +260,20 @@ func (s *OrganizationService) CreateUnit(ctx context.Context, orgID uuid.UUID, n
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toOrganizationUnitModel(unit), nil
+		unitModel := toOrganizationUnitModel(unit)
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectID:   unitModel.ID,
+			TargetObjectType: models.ObjectTypeUnit,
+			PostchangeState:  unitModel,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		span.SetAttributes(attribute.String("org_unit.id", unit.ID.String()))
+		return unitModel, nil
 	})
 }
 
@@ -266,7 +312,10 @@ func (s *OrganizationService) GetUnitByID(ctx context.Context, orgID uuid.UUID, 
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toOrganizationUnitModel(unit), nil
+		unitModel := toOrganizationUnitModel(unit)
+
+		span.SetAttributes(attribute.String("org_unit.id", unit.ID.String()))
+		return unitModel, nil
 	})
 }
 
@@ -277,12 +326,27 @@ func (s *OrganizationService) DeleteUnit(ctx context.Context, orgID uuid.UUID, i
 			attribute.String("unit.id", id.String()),
 		)
 
-		err := s.queries.DeleteOrgUnit(ctx, sqlc.DeleteOrgUnitParams{
+		unitBeforeDelete, err := s.GetUnitByID(ctx, orgID, id)
+		if err != nil {
+			return err
+		}
+
+		err = s.queries.DeleteOrgUnit(ctx, sqlc.DeleteOrgUnitParams{
 			OrgID: database.PgUUID(orgID),
 			ID:    database.PgUUID(id),
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectID:   unitBeforeDelete.ID,
+			TargetObjectType: models.ObjectTypeUnit,
+			PrechangeState:   unitBeforeDelete,
+		})
+		if err != nil {
+			return err
 		}
 
 		return nil
@@ -303,9 +367,9 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 			return nil, err
 		}
 
-		var address string
-		if unit.Address != nil {
-			address = *unit.Address
+		unitBeforeUpdate, err := s.GetUnitByID(ctx, unit.OrgID, unit.ID)
+		if err != nil {
+			return nil, err
 		}
 
 		updatedUnit, err := s.queries.UpdateOrgUnit(ctx, sqlc.UpdateOrgUnitParams{
@@ -313,12 +377,26 @@ func (s *OrganizationService) UpdateUnit(ctx context.Context, unit *models.Organ
 			OrgID:   database.PgUUID(unit.OrgID),
 			Name:    unit.Name,
 			Alias:   unit.Alias,
-			Address: database.PgText(address),
+			Address: database.PgTextPtr(unit.Address),
 		})
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toOrganizationUnitModel(updatedUnit), nil
+		updatedUnitModel := toOrganizationUnitModel(updatedUnit)
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectID:   unitBeforeUpdate.ID,
+			TargetObjectType: models.ObjectTypeUnit,
+			PrechangeState:   unitBeforeUpdate,
+			PostchangeState:  updatedUnitModel,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		span.SetAttributes(attribute.String("org_unit.id", updatedUnit.ID.String()))
+		return updatedUnitModel, nil
 	})
 }

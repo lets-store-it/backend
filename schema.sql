@@ -242,7 +242,8 @@ INSERT INTO object_type (id, object_group, object_name) VALUES
     (7, 'items', 'instance'),
     (8, 'rbac', 'employee'),
     (9, 'tasks', 'task'),
-    (10, 'items', 'variant');
+    (10, 'items', 'variant'),
+    (11, 'org', 'api-token');
 
 
 CREATE TABLE app_object_change (

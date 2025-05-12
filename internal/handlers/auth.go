@@ -166,7 +166,6 @@ func (h *RestApiImplementation) GetRoles(ctx context.Context) (api.GetRolesRes, 
 	}, nil
 }
 
-// InviteEmployee implements api.Handler.
 func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.InviteEmployeeRequest) (api.InviteEmployeeRes, error) {
 	employee, err := h.authUseCase.InviteEmployee(ctx, req.Email, req.RoleId)
 	if err != nil {

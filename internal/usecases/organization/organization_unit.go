@@ -2,7 +2,6 @@ package organization
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -16,29 +15,11 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
 	createdUnit, err := uc.service.CreateUnit(ctx, validateResult.OrgID, name, alias, address)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(createdUnit)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeUnit,
-		TargetObjectID:   createdUnit.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +33,7 @@ func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.Organ
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -65,7 +46,7 @@ func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -83,7 +64,7 @@ func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
 	}
 
@@ -96,41 +77,13 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
-	}
-
-	beforeUpdate, err := uc.service.GetUnitByID(ctx, validateResult.OrgID, unit.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get organization unit: %w", err)
-	}
-
-	prechangeState, err := json.Marshal(beforeUpdate)
-	if err != nil {
-		return nil, err
 	}
 
 	unit.OrgID = validateResult.OrgID
 
 	updatedUnit, err := uc.service.UpdateUnit(ctx, unit)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(updatedUnit)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeUnit,
-		TargetObjectID:   unit.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +97,7 @@ func (uc *OrganizationUseCase) PatchUnit(ctx context.Context, id uuid.UUID, upda
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 

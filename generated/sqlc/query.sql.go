@@ -635,6 +635,29 @@ func (q *Queries) DeleteTvBoard(ctx context.Context, arg DeleteTvBoardParams) er
 	return err
 }
 
+const getApiToken = `-- name: GetApiToken :one
+SELECT id, org_id, name, token, created_at, revoked_at FROM app_api_token WHERE org_id = $1 AND id = $2 AND revoked_at IS NULL
+`
+
+type GetApiTokenParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) GetApiToken(ctx context.Context, arg GetApiTokenParams) (AppApiToken, error) {
+	row := q.db.QueryRow(ctx, getApiToken, arg.OrgID, arg.ID)
+	var i AppApiToken
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.Name,
+		&i.Token,
+		&i.CreatedAt,
+		&i.RevokedAt,
+	)
+	return i, err
+}
+
 const getApiTokens = `-- name: GetApiTokens :many
 SELECT id, org_id, name, token, created_at, revoked_at FROM app_api_token WHERE org_id = $1 AND revoked_at IS NULL
 `

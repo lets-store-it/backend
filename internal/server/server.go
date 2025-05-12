@@ -12,6 +12,7 @@ import (
 	"github.com/let-store-it/backend/internal/handlers"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/employee"
 	"github.com/let-store-it/backend/internal/services/item"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/storage"
@@ -63,7 +64,12 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	}))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
 	// Initialize services
+	employeeService := employee.New(employee.EmployeeServiceConfig{
+		Queries: queries,
+		PGXPool: pool,
+	})
 	storageGroupService, err := storage.New(&storage.StorageServiceConfig{
 		Queries: queries,
 		PGXPool: pool,
@@ -71,20 +77,25 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	if err != nil {
 		return nil, err
 	}
-	authService := auth.New(queries, pool)
 
 	auditService, err := audit.New(audit.AuditServiceConfig{
-		Queries:      queries,
-		KafkaEnabled: cfg.Kafka.Enabled,
-		KafkaBrokers: cfg.Kafka.GetBrokersList(),
-		KafkaTopic:   cfg.Kafka.AuditTopic,
-		PGXPool:      pool,
-		Auth:         authService,
+		Queries:         queries,
+		KafkaEnabled:    cfg.Kafka.Enabled,
+		KafkaBrokers:    cfg.Kafka.GetBrokersList(),
+		KafkaTopic:      cfg.Kafka.AuditTopic,
+		PGXPool:         pool,
+		EmployeeService: employeeService,
 	})
 	if err != nil {
 		return nil, err
 	}
 	defer auditService.Close()
+
+	authService := auth.New(auth.AuthServiceConfig{
+		Queries:      queries,
+		PGXPool:      pool,
+		AuditService: auditService,
+	})
 
 	itemService := item.New(item.ItemServiceConfig{
 		Queries:        queries,
@@ -97,17 +108,19 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		ClientSecret: cfg.YandexOAuth.ClientSecret,
 	})
 	orgService := organization.New(organization.OrganizationServiceConfig{
-		Queries: queries,
-		PGXPool: pool,
+		Queries:      queries,
+		PGXPool:      pool,
+		AuditService: auditService,
 	})
 
 	taskService := tasks.New(tasks.TaskServiceConfig{
-		Queries:        queries,
-		PGXPool:        pool,
-		Auth:           authService,
-		Org:            orgService,
-		ItemService:    itemService,
-		StorageService: storageGroupService,
+		Queries:         queries,
+		PGXPool:         pool,
+		Auth:            authService,
+		Org:             orgService,
+		ItemService:     itemService,
+		StorageService:  storageGroupService,
+		EmployeeService: employeeService,
 	})
 	tvBoardService := tvboard.New(tvboard.TvBoardServiceConfig{
 		Queries: queries,
@@ -123,6 +136,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	authUseCase := authUC.New(authUC.AuthUseCaseConfig{
 		AuthService:        authService,
 		YandexOAuthService: yandexOAuthService,
+		EmployeeService:    employeeService,
 	})
 	orgUseCase := organizationUC.New(organizationUC.OrganizationUseCaseConfig{
 		Service:      orgService,

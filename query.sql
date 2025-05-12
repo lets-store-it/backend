@@ -279,6 +279,8 @@ UPDATE app_api_token SET revoked_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id
 -- name: GetOrgIdByApiToken :one
 SELECT org_id FROM app_api_token WHERE token = $1 AND revoked_at IS NULL;
 
+-- name: GetApiToken :one
+SELECT * FROM app_api_token WHERE org_id = $1 AND id = $2 AND revoked_at IS NULL;
 
 -- Tasks
 -- name: CreateTask :one

@@ -13,6 +13,7 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/employee"
 	"github.com/let-store-it/backend/internal/services/item"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/storage"
@@ -30,6 +31,7 @@ type TaskService struct {
 	org            *organization.OrganizationService
 	storageService *storage.StorageService
 	item           *item.ItemService
+	employee       *employee.EmployeeService
 }
 
 type TaskServiceConfig struct {
@@ -39,6 +41,7 @@ type TaskServiceConfig struct {
 	Org            *organization.OrganizationService
 	StorageService *storage.StorageService
 	ItemService    *item.ItemService
+	EmployeeService *employee.EmployeeService
 }
 
 func New(cfg TaskServiceConfig) *TaskService {
@@ -50,6 +53,7 @@ func New(cfg TaskServiceConfig) *TaskService {
 		tracer:         otel.GetTracerProvider().Tracer("tasks-service"),
 		storageService: cfg.StorageService,
 		item:           cfg.ItemService,
+		employee:       cfg.EmployeeService,
 	}
 }
 
@@ -126,7 +130,7 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 
 			// Get assigned to if set
 			if resultTask.AssignedToUserID != nil {
-				assignedTo, err := s.auth.GetEmployee(ctx, orgID, *resultTask.AssignedToUserID)
+				assignedTo, err := s.employee.GetEmployee(ctx, orgID, *resultTask.AssignedToUserID)
 				if err != nil {
 					return nil, fmt.Errorf("failed to get assigned to: %w", err)
 				}
@@ -192,7 +196,7 @@ func (s *TaskService) GetTaskById(ctx context.Context, orgID uuid.UUID, id uuid.
 		res.Items = taskItems
 
 		if res.AssignedToUserID != nil {
-			assignedTo, err := s.auth.GetEmployee(ctx, orgID, *res.AssignedToUserID)
+			assignedTo, err := s.employee.GetEmployee(ctx, orgID, *res.AssignedToUserID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get assigned to: %w", err)
 			}
@@ -227,7 +231,7 @@ func (s *TaskService) GetTasks(ctx context.Context, orgID uuid.UUID) ([]*models.
 		for i, task := range tasks {
 			models[i] = toTask(task)
 			if models[i].AssignedToUserID != nil {
-				empl, err := s.auth.GetEmployee(ctx, orgID, *models[i].AssignedToUserID)
+				empl, err := s.employee.GetEmployee(ctx, orgID, *models[i].AssignedToUserID)
 				if err != nil {
 					return nil, err
 				}

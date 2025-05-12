@@ -13,7 +13,7 @@ import (
 	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/employee"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"github.com/let-store-it/backend/internal/utils"
 	"go.opentelemetry.io/otel"
@@ -26,7 +26,7 @@ type AuditService struct {
 	pgxPool *pgxpool.Pool
 	queries *sqlc.Queries
 
-	auth *auth.AuthService
+	employeeService *employee.EmployeeService
 
 	kafka      *KafkaConfig
 	kafkaTopic string
@@ -37,7 +37,7 @@ type AuditServiceConfig struct {
 	PGXPool *pgxpool.Pool
 	Queries *sqlc.Queries
 
-	Auth *auth.AuthService
+	EmployeeService *employee.EmployeeService
 
 	KafkaEnabled bool
 	KafkaBrokers []string
@@ -46,11 +46,11 @@ type AuditServiceConfig struct {
 
 func New(cfg AuditServiceConfig) (*AuditService, error) {
 	service := &AuditService{
-		pgxPool:    cfg.PGXPool,
-		queries:    cfg.Queries,
-		auth:       cfg.Auth,
-		tracer:     otel.GetTracerProvider().Tracer("audit-service"),
-		kafkaTopic: cfg.KafkaTopic,
+		pgxPool:         cfg.PGXPool,
+		queries:         cfg.Queries,
+		employeeService: cfg.EmployeeService,
+		tracer:          otel.GetTracerProvider().Tracer("audit-service"),
+		kafkaTopic:      cfg.KafkaTopic,
 	}
 
 	if cfg.KafkaEnabled {
@@ -76,12 +76,9 @@ func (s *AuditService) Close() error {
 	return nil
 }
 
-func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) error {
+func (s *AuditService) validateObjectChange(objectChange *models.ObjectChangeCreate) error {
 	if objectChange == nil {
 		return fmt.Errorf("%w: object change is nil", common.ErrValidationError)
-	}
-	if objectChange.OrgID == uuid.Nil {
-		return fmt.Errorf("%w: organization ID is nil", common.ErrValidationError)
 	}
 	if objectChange.TargetObjectID == uuid.Nil {
 		return fmt.Errorf("%w: target object ID is nil", common.ErrValidationError)
@@ -144,22 +141,21 @@ func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.
 	})
 }
 
-func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
+func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChangeCreate) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "CreateObjectChange", func(ctx context.Context, span trace.Span) error {
 		userID, err := common.GetUserIDFromContextIfExists(ctx)
 		if err != nil {
 			return err
 		}
+
 		orgID, err := common.GetOrganizationIDFromContext(ctx)
 		if err != nil {
 			return err
 		}
-		objectChange.OrgID = orgID
-		objectChange.UserID = userID
 
 		span.SetAttributes(
-			attribute.String("org.id", objectChange.OrgID.String()),
-			attribute.String("user.id", utils.SafeUUIDString(objectChange.UserID)),
+			attribute.String("org.id", orgID.String()),
+			attribute.String("user.id", utils.SafeUUIDString(userID)),
 			attribute.String("action", string(objectChange.Action)),
 			attribute.String("target.object.id", objectChange.TargetObjectID.String()),
 		)
@@ -168,12 +164,6 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 			return err
 		}
 
-		employee, err := s.auth.GetEmployee(ctx, objectChange.OrgID, *objectChange.UserID)
-		if err != nil {
-			return err
-		}
-
-		// convert prechange and postchange state from any to json.RawMessage
 		prechangeState, err := json.Marshal(objectChange.PrechangeState)
 		if err != nil {
 			return fmt.Errorf("failed to marshal prechange state: %w", err)
@@ -188,9 +178,9 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 
 		err = database.WithVoidTransaction(ctx, s.pgxPool, s.tracer, func(ctx context.Context, tx pgx.Tx) error {
 			qtx := s.queries.WithTx(tx)
-			change, err := qtx.CreateObjectChange(ctx, sqlc.CreateObjectChangeParams{
-				OrgID:            database.PgUUID(objectChange.OrgID),
-				UserID:           database.PgUUIDPtr(objectChange.UserID),
+			changed, err := qtx.CreateObjectChange(ctx, sqlc.CreateObjectChangeParams{
+				OrgID:            database.PgUUID(orgID),
+				UserID:           database.PgUUIDPtr(userID),
 				Action:           string(objectChange.Action),
 				TargetObjectType: int32(objectChange.TargetObjectType),
 				TargetObjectID:   database.PgUUID(objectChange.TargetObjectID),
@@ -201,22 +191,31 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 				return fmt.Errorf("failed to create object change: %w", err)
 			}
 
-			objectChange.ID = change.ID.Bytes
-			objectChange.Employee = employee
+			changedModel := toObjectChange(changed)
+			if userID != nil {
+				employee, err := s.employeeService.GetEmployee(ctx, orgID, *userID)
+				if err != nil {
+					return fmt.Errorf("failed to get employee: %w", err)
+				}
+				changedModel.Employee = employee
+			}
+			objectType, err := s.getObjectTypeInfo(ctx, int32(objectChange.TargetObjectType))
+			if err != nil {
+				return fmt.Errorf("failed to get object type: %w", err)
+			}
+			changedModel.ObjectType = objectType
 
-			if err := s.publishToKafka(ctx, objectChange); err != nil {
+			if err := s.publishToKafka(ctx, changedModel); err != nil {
 				return err
 			}
-
+			span.SetAttributes(
+				attribute.String("change.id", changedModel.ID.String()),
+			)
 			return nil
 		})
 		if err != nil {
 			return err
 		}
-
-		span.SetAttributes(
-			attribute.String("change.id", objectChange.ID.String()),
-		)
 
 		return nil
 	})
@@ -246,24 +245,14 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 
 		objectChangesModels := make([]*models.ObjectChange, len(objectChanges))
 		for i, change := range objectChanges {
-			employee, err := s.auth.GetEmployee(ctx, change.OrgID.Bytes, change.UserID.Bytes)
+			employee, err := s.employeeService.GetEmployee(ctx, change.OrgID.Bytes, change.UserID.Bytes)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get employee info for change %s: %w", change.ID.Bytes, err)
 			}
 
-			objectChangesModels[i] = &models.ObjectChange{
-				ID:               change.ID.Bytes,
-				OrgID:            change.OrgID.Bytes,
-				UserID:           database.UUIDPtrFromPgx(change.UserID),
-				Action:           models.ObjectChangeAction(change.Action),
-				TargetObjectType: models.ObjectTypeId(objectType.ID),
-				TargetObjectID:   change.TargetObjectID.Bytes,
-				PrechangeState:   change.PrechangeState,
-				PostchangeState:  change.PostchangeState,
-				Timestamp:        change.Time.Time,
-				ObjectType:       objectType,
-				Employee:         employee,
-			}
+			objectChangesModels[i] = toObjectChange(change)
+			objectChangesModels[i].Employee = employee
+			objectChangesModels[i].ObjectType = objectType
 		}
 
 		span.SetAttributes(
