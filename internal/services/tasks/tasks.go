@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -217,7 +218,7 @@ func (s *TaskService) GetTasks(ctx context.Context, orgID uuid.UUID) ([]*models.
 		tasks, err := s.queries.GetTasks(ctx, database.PgUUID(orgID))
 		if err != nil {
 			if database.IsNotFound(err) {
-				return nil, services.ErrNotFoundError
+				return nil, common.ErrNotFound
 			}
 			return nil, services.MapDbErrorToService(err)
 		}

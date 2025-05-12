@@ -9,9 +9,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -26,38 +28,38 @@ const (
 
 func validateName(name string) error {
 	if strings.TrimSpace(name) == "" {
-		return fmt.Errorf("%w: name cannot be empty", services.ErrValidationError)
+		return fmt.Errorf("%w: name cannot be empty", common.ErrValidationError)
 	}
 	if len(name) > maxNameLength {
-		return fmt.Errorf("%w: name is too long", services.ErrValidationError)
+		return fmt.Errorf("%w: name is too long", common.ErrValidationError)
 	}
 	return nil
 }
 
 func validateSubdomain(subdomain string) error {
 	if strings.TrimSpace(subdomain) == "" {
-		return fmt.Errorf("%w: subdomain cannot be empty", services.ErrValidationError)
+		return fmt.Errorf("%w: subdomain cannot be empty", common.ErrValidationError)
 	}
 	if len(subdomain) > maxSubdomainLength {
-		return fmt.Errorf("%w: subdomain is too long", services.ErrValidationError)
+		return fmt.Errorf("%w: subdomain is too long", common.ErrValidationError)
 	}
 	matched, _ := regexp.MatchString("^[a-z0-9-]+$", subdomain)
 	if !matched {
-		return fmt.Errorf("%w: subdomain can only contain lowercase letters, numbers, and hyphens", services.ErrValidationError)
+		return fmt.Errorf("%w: subdomain can only contain lowercase letters, numbers, and hyphens", common.ErrValidationError)
 	}
 	return nil
 }
 
 func validateAlias(alias string) error {
 	if strings.TrimSpace(alias) == "" {
-		return fmt.Errorf("%w: alias cannot be empty", services.ErrValidationError)
+		return fmt.Errorf("%w: alias cannot be empty", common.ErrValidationError)
 	}
 	if len(alias) > maxAliasLength {
-		return fmt.Errorf("%w: alias is too long", services.ErrValidationError)
+		return fmt.Errorf("%w: alias is too long", common.ErrValidationError)
 	}
 	matched, _ := regexp.MatchString("^[\\w-]+$", alias)
 	if !matched {
-		return fmt.Errorf("%w: alias can only contain letters, numbers, and hyphens (no spaces)", services.ErrValidationError)
+		return fmt.Errorf("%w: alias can only contain letters, numbers, and hyphens (no spaces)", common.ErrValidationError)
 	}
 	return nil
 }
@@ -66,18 +68,27 @@ type OrganizationService struct {
 	queries *sqlc.Queries
 	pgxPool *pgxpool.Pool
 	tracer  trace.Tracer
+
+	auditService *audit.AuditService
 }
 
 type OrganizationServiceConfig struct {
 	Queries *sqlc.Queries
 	PGXPool *pgxpool.Pool
+
+	AuditService *audit.AuditService
 }
 
 func New(cfg OrganizationServiceConfig) *OrganizationService {
+	if cfg.AuditService == nil || cfg.Queries == nil || cfg.PGXPool == nil {
+		panic("AuditService, Queries and PGXPool are required")
+	}
+
 	return &OrganizationService{
-		queries: cfg.Queries,
-		pgxPool: cfg.PGXPool,
-		tracer:  otel.GetTracerProvider().Tracer("organization-service"),
+		queries:      cfg.Queries,
+		pgxPool:      cfg.PGXPool,
+		tracer:       otel.GetTracerProvider().Tracer("organization-service"),
+		auditService: cfg.AuditService,
 	}
 }
 
@@ -102,6 +113,15 @@ func (s *OrganizationService) CreateOrganization(ctx context.Context, name strin
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
 		}
+
+		orgModel := toOrganizationModel(org)
+
+		s.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectID:   orgModel.ID,
+			TargetObjectType: models.ObjectTypeOrganization,
+			PostchangeState:  orgModel,
+		})
 
 		span.SetAttributes(attribute.String("org.id", org.ID.String()))
 		return toOrganizationModel(org), nil

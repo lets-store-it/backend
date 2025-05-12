@@ -59,13 +59,13 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeItem,
-		TargetObjectID:     fullItem.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeItem,
+		TargetObjectID:   fullItem.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -132,13 +132,13 @@ func (uc *ItemUseCase) UpdateItem(ctx context.Context, item *models.Item) (*mode
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeItem,
-		TargetObjectID:     updatedItem.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeItem,
+		TargetObjectID:   updatedItem.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -174,13 +174,13 @@ func (uc *ItemUseCase) DeleteItem(ctx context.Context, id uuid.UUID) error {
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeItem,
-		TargetObjectID:     id,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeItem,
+		TargetObjectID:   id,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err
@@ -210,13 +210,13 @@ func (uc *ItemUseCase) CreateItemVariant(ctx context.Context, variant *models.It
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeItemVariant,
-		TargetObjectID:     createdVariant.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeItemVariant,
+		TargetObjectID:   createdVariant.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -283,13 +283,13 @@ func (uc *ItemUseCase) UpdateItemVariant(ctx context.Context, variant *models.It
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeItemVariant,
-		TargetObjectID:     updatedVariant.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeItemVariant,
+		TargetObjectID:   updatedVariant.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -325,13 +325,13 @@ func (uc *ItemUseCase) DeleteItemVariant(ctx context.Context, id uuid.UUID, vari
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeItemVariant,
-		TargetObjectID:     variantId,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeItemVariant,
+		TargetObjectID:   variantId,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err
@@ -368,13 +368,13 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeItemInstance,
-		TargetObjectID:     createdInstance.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeItemInstance,
+		TargetObjectID:   createdInstance.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -454,13 +454,13 @@ func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *mod
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeItemInstance,
-		TargetObjectID:     updatedInstance.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeItemInstance,
+		TargetObjectID:   updatedInstance.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -495,13 +495,13 @@ func (uc *ItemUseCase) DeleteItemInstance(ctx context.Context, id uuid.UUID) err
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeItemInstance,
-		TargetObjectID:     id,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeItemInstance,
+		TargetObjectID:   id,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err

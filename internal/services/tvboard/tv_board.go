@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -131,7 +132,7 @@ func (s *TvBoardService) GetTvBoardByToken(ctx context.Context, token string) (*
 		res, err := s.queries.GetTvBoardByToken(ctx, token)
 		if err != nil {
 			if database.IsNotFound(err) {
-				return nil, services.ErrNotFoundError
+				return nil, common.ErrNotFound
 			}
 			return nil, services.MapDbErrorToService(err)
 		}

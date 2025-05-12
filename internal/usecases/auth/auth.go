@@ -5,13 +5,12 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/yandex"
-	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type AuthUseCase struct {
@@ -33,7 +32,7 @@ func New(config AuthUseCaseConfig) *AuthUseCase {
 }
 
 func (u *AuthUseCase) GetCurrentUser(ctx context.Context) (*models.User, error) {
-	userID, err := usecases.GetUserIDFromContext(ctx)
+	userID, err := common.GetUserIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +79,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 
 	user, err := u.authService.GetUserByEmail(ctx, userInfo.DefaultEmail)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFoundError) {
+		if errors.Is(err, common.ErrNotFound) {
 			user = &models.User{
 				Email:     userInfo.DefaultEmail,
 				FirstName: userInfo.FirstName,
@@ -105,7 +104,7 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 }
 
 func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +118,7 @@ func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, er
 }
 
 func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models.ApiToken, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +132,7 @@ func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models
 }
 
 func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -147,7 +146,7 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +160,7 @@ func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, er
 }
 
 func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +174,7 @@ func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.E
 }
 
 func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID int) (*models.Employee, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +193,7 @@ func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID
 }
 
 func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -208,14 +207,14 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
-	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
+	orgID, err := common.GetOrganizationIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	user, err := uc.authService.GetUserByEmail(ctx, email)
 	if err != nil {
 		if database.IsNotFound(err) {
-			return nil, errors.Join(usecases.ErrDetailedValidationErrorWithMessage("user not found"))
+			return nil, errors.Join(common.ErrDetailedValidationErrorWithMessage("user not found"))
 		}
 		return nil, err
 	}

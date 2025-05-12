@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
@@ -34,7 +35,7 @@ func New(config OrganizationUseCaseConfig) *OrganizationUseCase {
 }
 
 func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomain string) (*models.Organization, error) {
-	userId, err := usecases.GetUserIDFromContext(ctx)
+	userId, err := common.GetUserIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,21 +56,21 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:                 uuid.New(),
-		OrgID:              org.ID,
-		UserID:             &userId,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeOrganization,
-		TargetObjectID:     org.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		ID:               uuid.New(),
+		OrgID:            org.ID,
+		UserID:           &userId,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeOrganization,
+		TargetObjectID:   org.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 
 	return org, nil
 }
 
 func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Organization, error) {
-	userId, err := usecases.GetUserIDFromContext(ctx)
+	userId, err := common.GetUserIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Orga
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 
 	if err != nil {
 		return nil, err
@@ -117,14 +118,14 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:                 uuid.New(),
-		OrgID:              org.ID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeOrganization,
-		TargetObjectID:     org.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		ID:               uuid.New(),
+		OrgID:            org.ID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeOrganization,
+		TargetObjectID:   org.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	return nil
 }
@@ -155,14 +156,14 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:                 uuid.New(),
-		OrgID:              org.ID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeOrganization,
-		TargetObjectID:     org.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		ID:               uuid.New(),
+		OrgID:            org.ID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeOrganization,
+		TargetObjectID:   org.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 
 	return orgUpdated, nil
@@ -207,14 +208,14 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 	}
 
 	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:                 uuid.New(),
-		OrgID:              org.ID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeOrganization,
-		TargetObjectID:     org.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		ID:               uuid.New(),
+		OrgID:            org.ID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeOrganization,
+		TargetObjectID:   org.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 
 	return orgUpdated, nil
