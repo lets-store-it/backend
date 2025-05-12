@@ -69,8 +69,13 @@ jobs:
 
       - name: Start Go app
         run: |
-          ./storeit &
+          ./server &
+          SERVER_PID=$!
           sleep 5
+          if ! kill -0 $SERVER_PID 2>/dev/null; then
+            echo "Server failed to start"
+            exit 1
+          fi
         env:
           DB_HOST: localhost
           DB_PORT: 5432
