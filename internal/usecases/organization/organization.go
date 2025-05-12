@@ -2,34 +2,32 @@ package organization
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type OrganizationUseCase struct {
-	service      *organization.OrganizationService
-	authService  *auth.AuthService
-	auditService *audit.AuditService
+	service     *organization.OrganizationService
+	authService *auth.AuthService
 }
 
 type OrganizationUseCaseConfig struct {
-	Service      *organization.OrganizationService
-	AuthService  *auth.AuthService
-	AuditService *audit.AuditService
+	Service     *organization.OrganizationService
+	AuthService *auth.AuthService
 }
 
 func New(config OrganizationUseCaseConfig) *OrganizationUseCase {
+	if config.Service == nil || config.AuthService == nil {
+		panic("Service and AuthService are required")
+	}
 	return &OrganizationUseCase{
-		service:      config.Service,
-		authService:  config.AuthService,
-		auditService: config.AuditService,
+		service:     config.Service,
+		authService: config.AuthService,
 	}
 }
 
@@ -69,7 +67,7 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetOrganizationByID(ctx, validateResult.OrgID)
@@ -100,41 +98,10 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	org.ID = validateResult.OrgID
-
-	orgUpdated, err := uc.service.UpdateOrganization(ctx, org)
-	if err != nil {
-		return nil, err
-	}
-
-	return orgUpdated, nil
-}
-
-func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
-	if err != nil {
-		return nil, err
-	}
-
-	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
-	}
-
-	org, err := uc.service.GetOrganizationByID(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get organization: %w", err)
-	}
-
-	// Apply updates
-	if name, ok := updates["name"].(string); ok {
-		org.Name = name
-	}
-	if subdomain, ok := updates["subdomain"].(string); ok {
-		org.Subdomain = subdomain
-	}
 
 	orgUpdated, err := uc.service.UpdateOrganization(ctx, org)
 	if err != nil {

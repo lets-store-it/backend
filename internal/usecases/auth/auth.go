@@ -163,7 +163,7 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelOwner, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, er
 }
 
 func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelOwner, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
 	}
@@ -251,6 +251,9 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 	}
 
 	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, neededAccessLevel, false)
+	if err != nil {
+		return nil, err
+	}
 	if !valRes.IsAllowed {
 		return nil, usecases.ErrForbidden
 	}

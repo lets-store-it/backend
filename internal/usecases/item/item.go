@@ -5,29 +5,28 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/item"
 	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type ItemUseCase struct {
-	service      *item.ItemService
-	authService  *auth.AuthService
-	auditService *audit.AuditService
+	service     *item.ItemService
+	authService *auth.AuthService
 }
 
 type ItemUseCaseConfig struct {
-	Service      *item.ItemService
-	AuthService  *auth.AuthService
-	AuditService *audit.AuditService
+	Service     *item.ItemService
+	AuthService *auth.AuthService
 }
 
 func New(config ItemUseCaseConfig) *ItemUseCase {
+	if config.Service == nil || config.AuthService == nil {
+		panic("Service and AuthService are required")
+	}
 	return &ItemUseCase{
-		service:      config.Service,
-		authService:  config.AuthService,
-		auditService: config.AuditService,
+		service:     config.Service,
+		authService: config.AuthService,
 	}
 }
 
@@ -38,7 +37,7 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	createdItem, err := uc.service.CreateItem(ctx, validateResult.OrgID, item)
@@ -62,7 +61,7 @@ func (uc *ItemUseCase) GetItemsAll(ctx context.Context) ([]*models.Item, error) 
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemsAll(ctx, validateResult.OrgID)
@@ -75,7 +74,7 @@ func (uc *ItemUseCase) GetItemById(ctx context.Context, id uuid.UUID) (*models.I
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemByID(ctx, validateResult.OrgID, id)
@@ -88,7 +87,7 @@ func (uc *ItemUseCase) UpdateItem(ctx context.Context, item *models.Item) (*mode
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	updatedItem, err := uc.service.UpdateItem(ctx, validateResult.OrgID, item)
@@ -124,7 +123,7 @@ func (uc *ItemUseCase) CreateItemVariant(ctx context.Context, variant *models.It
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	createdVariant, err := uc.service.CreateItemVariant(ctx, validateResult.OrgID, variant)
@@ -142,7 +141,7 @@ func (uc *ItemUseCase) GetItemVariantById(ctx context.Context, id uuid.UUID, var
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemVariantById(ctx, validateResult.OrgID, id, variantId)
@@ -155,7 +154,7 @@ func (uc *ItemUseCase) GetItemVariants(ctx context.Context, id uuid.UUID) ([]*mo
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemVariantsAll(ctx, validateResult.OrgID, id)
@@ -168,7 +167,7 @@ func (uc *ItemUseCase) UpdateItemVariant(ctx context.Context, variant *models.It
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	updatedVariant, err := uc.service.UpdateItemVariant(ctx, validateResult.OrgID, variant)
@@ -204,7 +203,7 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	itemInstance.OrgID = validateResult.OrgID
@@ -213,11 +212,6 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 	if err != nil {
 		return nil, err
 	}
-
-	// cellPath, err := uc.service.GetCellPath(ctx, validateResult.OrgID, createdInstance.CellID)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	return createdInstance, nil
 }
@@ -229,7 +223,7 @@ func (uc *ItemUseCase) GetItemInstances(ctx context.Context, id uuid.UUID) ([]*m
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemInstances(ctx, validateResult.OrgID, id)
@@ -242,7 +236,7 @@ func (uc *ItemUseCase) GetItemInstanceById(ctx context.Context, id uuid.UUID) (*
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemInstanceById(ctx, validateResult.OrgID, id)
@@ -255,7 +249,7 @@ func (uc *ItemUseCase) GetItemInstancesAll(ctx context.Context) ([]*models.ItemI
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetItemInstancesAll(ctx, validateResult.OrgID)
@@ -268,7 +262,7 @@ func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *mod
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	itemInstance.OrgID = validateResult.OrgID

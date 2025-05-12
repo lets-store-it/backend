@@ -26,6 +26,9 @@ type TvBoardUseCaseConfig struct {
 }
 
 func New(config TvBoardUseCaseConfig) *TvBoardUseCase {
+	if config.TvBoardService == nil || config.OrganizationService == nil || config.AuthService == nil {
+		panic("TvBoardService, OrganizationService and AuthService are required")
+	}
 	return &TvBoardUseCase{
 		tvBoardService:      config.TvBoardService,
 		organizationService: config.OrganizationService,
@@ -34,13 +37,13 @@ func New(config TvBoardUseCaseConfig) *TvBoardUseCase {
 }
 
 func (uc *TvBoardUseCase) CreateTvBoard(ctx context.Context, tvBoard *models.TvBoard) (*models.TvBoard, error) {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
 	if !valRes.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	tvBoard.OrgID = valRes.OrgID
@@ -61,13 +64,13 @@ func (uc *TvBoardUseCase) CreateTvBoard(ctx context.Context, tvBoard *models.TvB
 }
 
 func (uc *TvBoardUseCase) GetTvBoard(ctx context.Context, id uuid.UUID) (*models.TvBoard, error) {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
 	if !valRes.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	res, err := uc.tvBoardService.GetTvBoard(ctx, valRes.OrgID, id)
@@ -86,13 +89,13 @@ func (uc *TvBoardUseCase) GetTvBoard(ctx context.Context, id uuid.UUID) (*models
 }
 
 func (uc *TvBoardUseCase) GetTvBoards(ctx context.Context) ([]*models.TvBoard, error) {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
 	if !valRes.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	res, err := uc.tvBoardService.GetTvBoards(ctx, valRes.OrgID)
@@ -111,7 +114,7 @@ func (uc *TvBoardUseCase) GetTvBoards(ctx context.Context) ([]*models.TvBoard, e
 }
 
 func (uc *TvBoardUseCase) DeleteTvBoard(ctx context.Context, id uuid.UUID) error {
-	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return err
 	}

@@ -369,6 +369,9 @@ func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *mode
 			TargetObjectID:   model.ID,
 			PostchangeState:  model,
 		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to create audit log: %w", err)
+		}
 
 		result, err := s.GetItemInstanceFull(ctx, itemInstance.OrgID, database.UUIDFromPgx(createdInstance.ID))
 		if err != nil {
@@ -580,6 +583,9 @@ func (s *ItemService) DeleteItemInstance(ctx context.Context, orgID uuid.UUID, i
 			TargetObjectID:   instanceID,
 			PrechangeState:   instanceBeforeDelete,
 		})
+		if err != nil {
+			return fmt.Errorf("failed to create audit log: %w", err)
+		}
 
 		return nil
 	})

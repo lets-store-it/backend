@@ -24,7 +24,7 @@ func storageGroupToDTO(group *models.StorageGroup) api.StorageGroup {
 }
 
 func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.StorageGroupBase) (api.CreateStorageGroupRes, error) {
-	group, err := h.storageGroupUseCase.Create(ctx, &models.StorageGroup{
+	group, err := h.storageGroupUseCase.CreateStorageGroup(ctx, &models.StorageGroup{
 		UnitID:   req.UnitId,
 		ParentID: ApiValueToPtr(req.ParentId),
 		Name:     req.Name,
@@ -41,7 +41,7 @@ func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api
 }
 
 func (h *RestApiImplementation) GetStorageGroupById(ctx context.Context, params api.GetStorageGroupByIdParams) (api.GetStorageGroupByIdRes, error) {
-	group, err := h.storageGroupUseCase.GetByID(ctx, params.ID)
+	group, err := h.storageGroupUseCase.GetStorageGroupByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (h *RestApiImplementation) GetStorageGroupById(ctx context.Context, params 
 }
 
 func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (api.GetStorageGroupsRes, error) {
-	groups, err := h.storageGroupUseCase.GetAll(ctx)
+	groups, err := h.storageGroupUseCase.GetAllStorageGroup(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (h *RestApiImplementation) GetStorageGroups(ctx context.Context) (api.GetSt
 }
 
 func (h *RestApiImplementation) DeleteStorageGroup(ctx context.Context, params api.DeleteStorageGroupParams) (api.DeleteStorageGroupRes, error) {
-	err := h.storageGroupUseCase.Delete(ctx, params.ID)
+	err := h.storageGroupUseCase.DeleteStorageGroup(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api
 		UnitID:   req.UnitId,
 	}
 
-	updatedGroup, err := h.storageGroupUseCase.Update(ctx, group)
+	updatedGroup, err := h.storageGroupUseCase.UpdateStorageGroup(ctx, group)
 	if err != nil {
 		return nil, err
 	}
