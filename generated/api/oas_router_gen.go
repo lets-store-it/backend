@@ -922,26 +922,84 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/pick-instance"
+						case '/': // Prefix: "/"
 
-							if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handlePickInstanceFromCellRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
+								break
+							}
+							switch elem[0] {
+							case 'a': // Prefix: "awaiting"
+
+								if l := len("awaiting"); len(elem) >= l && elem[0:l] == "awaiting" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleMarkTaskAsAwaitingRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 'd': // Prefix: "done"
+
+								if l := len("done"); len(elem) >= l && elem[0:l] == "done" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleMarkTaskAsCompletedRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 'p': // Prefix: "pick-instance"
+
+								if l := len("pick-instance"); len(elem) >= l && elem[0:l] == "pick-instance" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handlePickInstanceFromCellRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
 							}
 
 						}
@@ -2232,28 +2290,90 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/pick-instance"
+						case '/': // Prefix: "/"
 
-							if l := len("/pick-instance"); len(elem) >= l && elem[0:l] == "/pick-instance" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = PickInstanceFromCellOperation
-									r.summary = "Pick an item from cell"
-									r.operationID = "pickInstanceFromCell"
-									r.pathPattern = "/tasks/{id}/pick-instance"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'a': // Prefix: "awaiting"
+
+								if l := len("awaiting"); len(elem) >= l && elem[0:l] == "awaiting" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = MarkTaskAsAwaitingOperation
+										r.summary = "Mark task as awaiting to collect"
+										r.operationID = "markTaskAsAwaiting"
+										r.pathPattern = "/tasks/{id}/awaiting"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'd': // Prefix: "done"
+
+								if l := len("done"); len(elem) >= l && elem[0:l] == "done" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = MarkTaskAsCompletedOperation
+										r.summary = "Mark task as completed"
+										r.operationID = "markTaskAsCompleted"
+										r.pathPattern = "/tasks/{id}/done"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'p': // Prefix: "pick-instance"
+
+								if l := len("pick-instance"); len(elem) >= l && elem[0:l] == "pick-instance" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = PickInstanceFromCellOperation
+										r.summary = "Pick an item from cell"
+										r.operationID = "pickInstanceFromCell"
+										r.pathPattern = "/tasks/{id}/pick-instance"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
 						}

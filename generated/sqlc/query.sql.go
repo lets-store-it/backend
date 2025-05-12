@@ -2208,3 +2208,33 @@ func (q *Queries) UpdateStorageGroup(ctx context.Context, arg UpdateStorageGroup
 	)
 	return i, err
 }
+
+const updateTask = `-- name: UpdateTask :one
+UPDATE task SET status = $3 WHERE org_id = $1 AND id = $2 RETURNING id, org_id, unit_id, type, status, name, description, assigned_to_user_id, assigned_at, completed_at, created_at, deleted_at
+`
+
+type UpdateTaskParams struct {
+	OrgID  pgtype.UUID
+	ID     pgtype.UUID
+	Status TaskStatus
+}
+
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {
+	row := q.db.QueryRow(ctx, updateTask, arg.OrgID, arg.ID, arg.Status)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.UnitID,
+		&i.Type,
+		&i.Status,
+		&i.Name,
+		&i.Description,
+		&i.AssignedToUserID,
+		&i.AssignedAt,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}

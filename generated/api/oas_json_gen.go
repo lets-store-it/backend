@@ -14035,6 +14035,234 @@ func (s *ItemVariant) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes MarkTaskAsAwaitingBadRequest as json.
+func (s *MarkTaskAsAwaitingBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsAwaitingBadRequest from json.
+func (s *MarkTaskAsAwaitingBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsAwaitingBadRequest to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsAwaitingBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsAwaitingBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsAwaitingBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MarkTaskAsAwaitingForbidden as json.
+func (s *MarkTaskAsAwaitingForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsAwaitingForbidden from json.
+func (s *MarkTaskAsAwaitingForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsAwaitingForbidden to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsAwaitingForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsAwaitingForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsAwaitingForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MarkTaskAsAwaitingUnauthorized as json.
+func (s *MarkTaskAsAwaitingUnauthorized) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsAwaitingUnauthorized from json.
+func (s *MarkTaskAsAwaitingUnauthorized) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsAwaitingUnauthorized to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsAwaitingUnauthorized(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsAwaitingUnauthorized) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsAwaitingUnauthorized) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MarkTaskAsCompletedBadRequest as json.
+func (s *MarkTaskAsCompletedBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsCompletedBadRequest from json.
+func (s *MarkTaskAsCompletedBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsCompletedBadRequest to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsCompletedBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsCompletedBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsCompletedBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MarkTaskAsCompletedForbidden as json.
+func (s *MarkTaskAsCompletedForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsCompletedForbidden from json.
+func (s *MarkTaskAsCompletedForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsCompletedForbidden to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsCompletedForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsCompletedForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsCompletedForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MarkTaskAsCompletedUnauthorized as json.
+func (s *MarkTaskAsCompletedUnauthorized) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorContent)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MarkTaskAsCompletedUnauthorized from json.
+func (s *MarkTaskAsCompletedUnauthorized) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MarkTaskAsCompletedUnauthorized to nil")
+	}
+	var unwrapped ErrorContent
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MarkTaskAsCompletedUnauthorized(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MarkTaskAsCompletedUnauthorized) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MarkTaskAsCompletedUnauthorized) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes AuditLogPostchangeState as json.
 func (o NilAuditLogPostchangeState) Encode(e *jx.Encoder) {
 	if o.Null {
@@ -16183,12 +16411,12 @@ func (s *TaskBaseStatus) Decode(d *jx.Decoder) error {
 		*s = TaskBaseStatusPending
 	case TaskBaseStatusInProgress:
 		*s = TaskBaseStatusInProgress
-	case TaskBaseStatusAwaitingToCollect:
-		*s = TaskBaseStatusAwaitingToCollect
+	case TaskBaseStatusReady:
+		*s = TaskBaseStatusReady
 	case TaskBaseStatusCompleted:
 		*s = TaskBaseStatusCompleted
-	case TaskBaseStatusFailed:
-		*s = TaskBaseStatusFailed
+	case TaskBaseStatusCancelled:
+		*s = TaskBaseStatusCancelled
 	default:
 		*s = TaskBaseStatus(v)
 	}
@@ -16532,12 +16760,12 @@ func (s *TaskFullStatus) Decode(d *jx.Decoder) error {
 		*s = TaskFullStatusPending
 	case TaskFullStatusInProgress:
 		*s = TaskFullStatusInProgress
-	case TaskFullStatusAwaitingToCollect:
-		*s = TaskFullStatusAwaitingToCollect
+	case TaskFullStatusReady:
+		*s = TaskFullStatusReady
 	case TaskFullStatusCompleted:
 		*s = TaskFullStatusCompleted
-	case TaskFullStatusFailed:
-		*s = TaskFullStatusFailed
+	case TaskFullStatusCancelled:
+		*s = TaskFullStatusCancelled
 	default:
 		*s = TaskFullStatus(v)
 	}

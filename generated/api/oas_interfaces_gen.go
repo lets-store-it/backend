@@ -205,6 +205,14 @@ type LogoutRes interface {
 	logoutRes()
 }
 
+type MarkTaskAsAwaitingRes interface {
+	markTaskAsAwaitingRes()
+}
+
+type MarkTaskAsCompletedRes interface {
+	markTaskAsCompletedRes()
+}
+
 type PatchEmployeeByIdRes interface {
 	patchEmployeeByIdRes()
 }

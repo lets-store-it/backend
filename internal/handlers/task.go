@@ -188,11 +188,26 @@ func (h *RestApiImplementation) GetTasks(ctx context.Context) (api.GetTasksRes, 
 	}, nil
 }
 
-// PickInstanceFromCell implements api.Handler.
 func (h *RestApiImplementation) PickInstanceFromCell(ctx context.Context, req *api.PickInstanceFromCellReq, params api.PickInstanceFromCellParams) (api.PickInstanceFromCellRes, error) {
-	err := h.taskUseCase.PickInstanceFromCell(ctx, params.ID, req.InstanceId)
+	err := h.taskUseCase.PickInstanceFromCellForTask(ctx, params.ID, req.InstanceId)
 	if err != nil {
 		return nil, err
 	}
 	return &api.PickInstanceFromCellNoContent{}, nil
+}
+
+func (h *RestApiImplementation) MarkTaskAsAwaiting(ctx context.Context, params api.MarkTaskAsAwaitingParams) (api.MarkTaskAsAwaitingRes, error) {
+	err := h.taskUseCase.MarkTaskAsAwaiting(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &api.MarkTaskAsAwaitingNoContent{}, nil
+}
+
+func (h *RestApiImplementation) MarkTaskAsCompleted(ctx context.Context, params api.MarkTaskAsCompletedParams) (api.MarkTaskAsCompletedRes, error) {
+	err := h.taskUseCase.MarkTaskAsCompleted(ctx, params.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &api.MarkTaskAsCompletedNoContent{}, nil
 }

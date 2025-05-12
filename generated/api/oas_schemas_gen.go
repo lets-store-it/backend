@@ -2856,11 +2856,11 @@ func (s *InstanceForItemStatus) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/InstanceFull
 type InstanceFull struct {
 	// Instance ID.
-	ID      uuid.UUID          `json:"id"`
-	Status  InstanceFullStatus `json:"status"`
-	Item    ItemForList        `json:"item"`
-	Variant ItemVariant        `json:"variant"`
-	Cell    CellForInstance    `json:"cell"`
+	ID      uuid.UUID                  `json:"id"`
+	Status  InstanceFullStatus         `json:"status"`
+	Item    ItemForList                `json:"item"`
+	Variant ItemVariant                `json:"variant"`
+	Cell    NilCellForInstanceOptional `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2884,7 +2884,7 @@ func (s *InstanceFull) GetVariant() ItemVariant {
 }
 
 // GetCell returns the value of Cell.
-func (s *InstanceFull) GetCell() CellForInstance {
+func (s *InstanceFull) GetCell() NilCellForInstanceOptional {
 	return s.Cell
 }
 
@@ -2909,7 +2909,7 @@ func (s *InstanceFull) SetVariant(val ItemVariant) {
 }
 
 // SetCell sets the value of Cell.
-func (s *InstanceFull) SetCell(val CellForInstance) {
+func (s *InstanceFull) SetCell(val NilCellForInstanceOptional) {
 	s.Cell = val
 }
 
@@ -3179,6 +3179,40 @@ func (s *LogoutResponse) SetSetCookie(val string) {
 }
 
 func (*LogoutResponse) logoutRes() {}
+
+type MarkTaskAsAwaitingBadRequest ErrorContent
+
+func (*MarkTaskAsAwaitingBadRequest) markTaskAsAwaitingRes() {}
+
+type MarkTaskAsAwaitingForbidden ErrorContent
+
+func (*MarkTaskAsAwaitingForbidden) markTaskAsAwaitingRes() {}
+
+// MarkTaskAsAwaitingNoContent is response for MarkTaskAsAwaiting operation.
+type MarkTaskAsAwaitingNoContent struct{}
+
+func (*MarkTaskAsAwaitingNoContent) markTaskAsAwaitingRes() {}
+
+type MarkTaskAsAwaitingUnauthorized ErrorContent
+
+func (*MarkTaskAsAwaitingUnauthorized) markTaskAsAwaitingRes() {}
+
+type MarkTaskAsCompletedBadRequest ErrorContent
+
+func (*MarkTaskAsCompletedBadRequest) markTaskAsCompletedRes() {}
+
+type MarkTaskAsCompletedForbidden ErrorContent
+
+func (*MarkTaskAsCompletedForbidden) markTaskAsCompletedRes() {}
+
+// MarkTaskAsCompletedNoContent is response for MarkTaskAsCompleted operation.
+type MarkTaskAsCompletedNoContent struct{}
+
+func (*MarkTaskAsCompletedNoContent) markTaskAsCompletedRes() {}
+
+type MarkTaskAsCompletedUnauthorized ErrorContent
+
+func (*MarkTaskAsCompletedUnauthorized) markTaskAsCompletedRes() {}
 
 // NewNilAuditLogPostchangeState returns new NilAuditLogPostchangeState with value set to v.
 func NewNilAuditLogPostchangeState(v AuditLogPostchangeState) NilAuditLogPostchangeState {
@@ -4241,11 +4275,11 @@ func (s *TaskBase) SetCompletedAt(val NilDateTime) {
 type TaskBaseStatus string
 
 const (
-	TaskBaseStatusPending           TaskBaseStatus = "pending"
-	TaskBaseStatusInProgress        TaskBaseStatus = "in_progress"
-	TaskBaseStatusAwaitingToCollect TaskBaseStatus = "awaiting_to_collect"
-	TaskBaseStatusCompleted         TaskBaseStatus = "completed"
-	TaskBaseStatusFailed            TaskBaseStatus = "failed"
+	TaskBaseStatusPending    TaskBaseStatus = "pending"
+	TaskBaseStatusInProgress TaskBaseStatus = "in_progress"
+	TaskBaseStatusReady      TaskBaseStatus = "ready"
+	TaskBaseStatusCompleted  TaskBaseStatus = "completed"
+	TaskBaseStatusCancelled  TaskBaseStatus = "cancelled"
 )
 
 // AllValues returns all TaskBaseStatus values.
@@ -4253,9 +4287,9 @@ func (TaskBaseStatus) AllValues() []TaskBaseStatus {
 	return []TaskBaseStatus{
 		TaskBaseStatusPending,
 		TaskBaseStatusInProgress,
-		TaskBaseStatusAwaitingToCollect,
+		TaskBaseStatusReady,
 		TaskBaseStatusCompleted,
-		TaskBaseStatusFailed,
+		TaskBaseStatusCancelled,
 	}
 }
 
@@ -4266,11 +4300,11 @@ func (s TaskBaseStatus) MarshalText() ([]byte, error) {
 		return []byte(s), nil
 	case TaskBaseStatusInProgress:
 		return []byte(s), nil
-	case TaskBaseStatusAwaitingToCollect:
+	case TaskBaseStatusReady:
 		return []byte(s), nil
 	case TaskBaseStatusCompleted:
 		return []byte(s), nil
-	case TaskBaseStatusFailed:
+	case TaskBaseStatusCancelled:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -4286,14 +4320,14 @@ func (s *TaskBaseStatus) UnmarshalText(data []byte) error {
 	case TaskBaseStatusInProgress:
 		*s = TaskBaseStatusInProgress
 		return nil
-	case TaskBaseStatusAwaitingToCollect:
-		*s = TaskBaseStatusAwaitingToCollect
+	case TaskBaseStatusReady:
+		*s = TaskBaseStatusReady
 		return nil
 	case TaskBaseStatusCompleted:
 		*s = TaskBaseStatusCompleted
 		return nil
-	case TaskBaseStatusFailed:
-		*s = TaskBaseStatusFailed
+	case TaskBaseStatusCancelled:
+		*s = TaskBaseStatusCancelled
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -4470,11 +4504,11 @@ func (s *TaskFull) SetItems(val []TaskItem) {
 type TaskFullStatus string
 
 const (
-	TaskFullStatusPending           TaskFullStatus = "pending"
-	TaskFullStatusInProgress        TaskFullStatus = "in_progress"
-	TaskFullStatusAwaitingToCollect TaskFullStatus = "awaiting_to_collect"
-	TaskFullStatusCompleted         TaskFullStatus = "completed"
-	TaskFullStatusFailed            TaskFullStatus = "failed"
+	TaskFullStatusPending    TaskFullStatus = "pending"
+	TaskFullStatusInProgress TaskFullStatus = "in_progress"
+	TaskFullStatusReady      TaskFullStatus = "ready"
+	TaskFullStatusCompleted  TaskFullStatus = "completed"
+	TaskFullStatusCancelled  TaskFullStatus = "cancelled"
 )
 
 // AllValues returns all TaskFullStatus values.
@@ -4482,9 +4516,9 @@ func (TaskFullStatus) AllValues() []TaskFullStatus {
 	return []TaskFullStatus{
 		TaskFullStatusPending,
 		TaskFullStatusInProgress,
-		TaskFullStatusAwaitingToCollect,
+		TaskFullStatusReady,
 		TaskFullStatusCompleted,
-		TaskFullStatusFailed,
+		TaskFullStatusCancelled,
 	}
 }
 
@@ -4495,11 +4529,11 @@ func (s TaskFullStatus) MarshalText() ([]byte, error) {
 		return []byte(s), nil
 	case TaskFullStatusInProgress:
 		return []byte(s), nil
-	case TaskFullStatusAwaitingToCollect:
+	case TaskFullStatusReady:
 		return []byte(s), nil
 	case TaskFullStatusCompleted:
 		return []byte(s), nil
-	case TaskFullStatusFailed:
+	case TaskFullStatusCancelled:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -4515,14 +4549,14 @@ func (s *TaskFullStatus) UnmarshalText(data []byte) error {
 	case TaskFullStatusInProgress:
 		*s = TaskFullStatusInProgress
 		return nil
-	case TaskFullStatusAwaitingToCollect:
-		*s = TaskFullStatusAwaitingToCollect
+	case TaskFullStatusReady:
+		*s = TaskFullStatusReady
 		return nil
 	case TaskFullStatusCompleted:
 		*s = TaskFullStatusCompleted
 		return nil
-	case TaskFullStatusFailed:
-		*s = TaskFullStatusFailed
+	case TaskFullStatusCancelled:
+		*s = TaskFullStatusCancelled
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

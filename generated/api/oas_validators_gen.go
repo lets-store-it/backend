@@ -1732,8 +1732,15 @@ func (s *InstanceFull) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.Cell.Validate(); err != nil {
-			return err
+		if value, ok := s.Cell.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {
@@ -2067,11 +2074,11 @@ func (s TaskBaseStatus) Validate() error {
 		return nil
 	case "in_progress":
 		return nil
-	case "awaiting_to_collect":
+	case "ready":
 		return nil
 	case "completed":
 		return nil
-	case "failed":
+	case "cancelled":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -2168,11 +2175,11 @@ func (s TaskFullStatus) Validate() error {
 		return nil
 	case "in_progress":
 		return nil
-	case "awaiting_to_collect":
+	case "ready":
 		return nil
 	case "completed":
 		return nil
-	case "failed":
+	case "cancelled":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

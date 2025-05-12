@@ -314,6 +314,18 @@ type Handler interface {
 	//
 	// GET /auth/logout
 	Logout(ctx context.Context) (LogoutRes, error)
+	// MarkTaskAsAwaiting implements markTaskAsAwaiting operation.
+	//
+	// Mark task as awaiting to collect.
+	//
+	// POST /tasks/{id}/awaiting
+	MarkTaskAsAwaiting(ctx context.Context, params MarkTaskAsAwaitingParams) (MarkTaskAsAwaitingRes, error)
+	// MarkTaskAsCompleted implements markTaskAsCompleted operation.
+	//
+	// Mark task as completed.
+	//
+	// POST /tasks/{id}/done
+	MarkTaskAsCompleted(ctx context.Context, params MarkTaskAsCompletedParams) (MarkTaskAsCompletedRes, error)
 	// PatchEmployeeById implements patchEmployeeById operation.
 	//
 	// Update employee by id.
