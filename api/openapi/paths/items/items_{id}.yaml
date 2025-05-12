@@ -22,11 +22,10 @@ get:
       $ref: ../../components/responses/default-unauthorized.yaml
     "403":
       $ref: ../../components/responses/default-forbidden.yaml
-    # "404":
-    #   $ref: ../../components/responses/default-not-found.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 delete:
   tags:
     - item
@@ -35,14 +34,14 @@ delete:
   responses:
     "204":
       description: Successful operation
-    # "404":
-    #   $ref: ../../components/responses/default-not-found.yaml
     "403":
       $ref: ../../components/responses/default-forbidden.yaml
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 put:
   tags:
     - item
@@ -61,9 +60,11 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/items/UpdateItemResponse.yaml
-    # "404":
-    #   $ref: ../../components/responses/default-not-found.yaml
     "403":
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml

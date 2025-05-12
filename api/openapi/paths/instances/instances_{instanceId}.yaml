@@ -24,6 +24,8 @@ get:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 put:
   tags:
     - instance
@@ -48,6 +50,10 @@ put:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
 delete:
   tags:
     - instance
@@ -62,3 +68,5 @@ delete:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml

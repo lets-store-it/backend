@@ -24,6 +24,8 @@ get:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 delete:
   tags:
     - org
@@ -38,6 +40,8 @@ delete:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 put:
   tags:
     - org
@@ -62,3 +66,7 @@ put:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
