@@ -4,7 +4,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server ./cmd/server.go
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server ./cmd/server/server.go
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/init_db ./cmd/init_db/main.go
 
 FROM alpine:latest
