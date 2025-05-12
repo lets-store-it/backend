@@ -43,26 +43,6 @@ delete:
       $ref: ../../components/responses/default-unauthorized.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-# patch:
-#   tags:
-#     - item
-#   summary: Patch Item
-#   operationId: patchItem
-#   requestBody:
-#     required: true
-#     content:
-#       application/json:
-#         schema:
-#           $ref: ../../components/schemas/items/PatchItemRequest.yaml
-#   responses:
-#     "200":
-#       description: Successful operation
-#       content:
-#         application/json:
-#           schema:
-#             $ref: ../../components/schemas/items/PatchItemResponse.yaml
-#     default:
-#       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
     - item

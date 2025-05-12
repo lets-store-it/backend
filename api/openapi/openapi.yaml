@@ -8,22 +8,23 @@ info:
     name: PRIVATE
     url: https://store-it.ru
 servers:
-  - url: http://localhost:8080/
+  - url: http://localhost:8080
+  - url: https://store-it.ru/api
 security:
   - apiToken: []
   - cookie: []
 components:
   securitySchemes:
     apiToken:
-      description: API key authentication
+      description: API Token Authentication
       type: apiKey
       name: X-Api-Key
       in: header
     cookie:
+      description: Session Cookie Authentication for User
       type: apiKey
       in: cookie
       name: storeit_session
-tags: []
 paths:
   /orgs:
     $ref: paths/orgs/orgs.yaml
@@ -111,10 +112,13 @@ paths:
 
   /employees:
     $ref: paths/employees/employees.yaml
+
   /employees/{id}:
     $ref: paths/employees/employees_{id}.yaml
+
   /employees/invite:
     $ref: paths/employees/employees_invite.yaml
+
   /app/roles:
     $ref: paths/employees/roles.yaml
 

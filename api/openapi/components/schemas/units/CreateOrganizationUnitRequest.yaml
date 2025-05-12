@@ -1,3 +1,1 @@
-type: object
-allOf:
-  - $ref: ./models/UnitBase.yaml
+$ref: ./models/UnitBase.yaml

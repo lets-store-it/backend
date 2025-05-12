@@ -11,6 +11,8 @@ properties:
     type: string
     nullable: true
     example: 123 Main St, Moscow, Russia
+    minLength: 1
+    maxLength: 255
 required:
   - name
   - alias

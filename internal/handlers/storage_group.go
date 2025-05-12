@@ -23,7 +23,7 @@ func storageGroupToDTO(group *models.StorageGroup) api.StorageGroup {
 	}
 }
 
-func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.CreateStorageGroupRequest) (api.CreateStorageGroupRes, error) {
+func (h *RestApiImplementation) CreateStorageGroup(ctx context.Context, req *api.StorageGroupBase) (api.CreateStorageGroupRes, error) {
 	group, err := h.storageGroupUseCase.Create(ctx, &models.StorageGroup{
 		UnitID:   req.UnitId,
 		ParentID: ApiValueToPtr(req.ParentId),
@@ -73,10 +73,10 @@ func (h *RestApiImplementation) DeleteStorageGroup(ctx context.Context, params a
 		return nil, err
 	}
 
-	return &api.DeleteStorageGroupNoContent{}, nil
+	return &api.DefaultNoContent{}, nil
 }
 
-func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api.UpdateStorageGroupRequest, params api.UpdateStorageGroupParams) (api.UpdateStorageGroupRes, error) {
+func (h *RestApiImplementation) UpdateStorageGroup(ctx context.Context, req *api.StorageGroupBase, params api.UpdateStorageGroupParams) (api.UpdateStorageGroupRes, error) {
 	group := &models.StorageGroup{
 		ID:       params.ID,
 		ParentID: ApiValueToPtr(req.ParentId),
@@ -220,7 +220,7 @@ func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateC
 	}, nil
 }
 
-func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (*api.GetCellByIdResponse, error) {
+func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (api.GetCellByIdRes, error) {
 	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
 	if err != nil {
 		return nil, err
@@ -273,6 +273,11 @@ func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateC
 	}, nil
 }
 
-func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) error {
-	return h.storageGroupUseCase.DeleteCell(ctx, params.CellId)
+func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) (api.DeleteCellRes, error) {
+	err := h.storageGroupUseCase.DeleteCell(ctx, params.CellId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.DeleteCellNoContent{}, nil
 }

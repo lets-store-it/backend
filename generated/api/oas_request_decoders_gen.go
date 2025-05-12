@@ -481,7 +481,7 @@ func (s *Server) decodeCreateOrganizationRequest(r *http.Request) (
 }
 
 func (s *Server) decodeCreateStorageGroupRequest(r *http.Request) (
-	req *CreateStorageGroupRequest,
+	req *StorageGroupBase,
 	close func() error,
 	rerr error,
 ) {
@@ -520,7 +520,7 @@ func (s *Server) decodeCreateStorageGroupRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request CreateStorageGroupRequest
+		var request StorageGroupBase
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -686,7 +686,7 @@ func (s *Server) decodeCreateTvBoardRequest(r *http.Request) (
 }
 
 func (s *Server) decodeCreateUnitRequest(r *http.Request) (
-	req *CreateOrganizationUnitRequest,
+	req *UnitBase,
 	close func() error,
 	rerr error,
 ) {
@@ -725,7 +725,7 @@ func (s *Server) decodeCreateUnitRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request CreateOrganizationUnitRequest
+		var request UnitBase
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -882,69 +882,6 @@ func (s *Server) decodeInviteEmployeeRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodePatchCurrentUserRequest(r *http.Request) (
-	req *PatchCurrentUserRequest,
-	close func() error,
-	rerr error,
-) {
-	var closers []func() error
-	close = func() error {
-		var merr error
-		// Close in reverse order, to match defer behavior.
-		for i := len(closers) - 1; i >= 0; i-- {
-			c := closers[i]
-			merr = multierr.Append(merr, c())
-		}
-		return merr
-	}
-	defer func() {
-		if rerr != nil {
-			rerr = multierr.Append(rerr, close())
-		}
-	}()
-	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil {
-		return req, close, errors.Wrap(err, "parse media type")
-	}
-	switch {
-	case ct == "application/json":
-		if r.ContentLength == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-		buf, err := io.ReadAll(r.Body)
-		if err != nil {
-			return req, close, err
-		}
-
-		if len(buf) == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-
-		d := jx.DecodeBytes(buf)
-
-		var request PatchCurrentUserRequest
-		if err := func() error {
-			if err := request.Decode(d); err != nil {
-				return err
-			}
-			if err := d.Skip(); err != io.EOF {
-				return errors.New("unexpected trailing data")
-			}
-			return nil
-		}(); err != nil {
-			err = &ogenerrors.DecodeBodyError{
-				ContentType: ct,
-				Body:        buf,
-				Err:         err,
-			}
-			return req, close, err
-		}
-		return &request, close, nil
-	default:
-		return req, close, validate.InvalidContentType(ct)
-	}
-}
-
 func (s *Server) decodePatchEmployeeByIdRequest(r *http.Request) (
 	req *PatchEmployeeRequest,
 	close func() error,
@@ -1008,77 +945,6 @@ func (s *Server) decodePatchEmployeeByIdRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodePatchOrganizationUnitRequest(r *http.Request) (
-	req *PatchOrganizationUnitRequest,
-	close func() error,
-	rerr error,
-) {
-	var closers []func() error
-	close = func() error {
-		var merr error
-		// Close in reverse order, to match defer behavior.
-		for i := len(closers) - 1; i >= 0; i-- {
-			c := closers[i]
-			merr = multierr.Append(merr, c())
-		}
-		return merr
-	}
-	defer func() {
-		if rerr != nil {
-			rerr = multierr.Append(rerr, close())
-		}
-	}()
-	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil {
-		return req, close, errors.Wrap(err, "parse media type")
-	}
-	switch {
-	case ct == "application/json":
-		if r.ContentLength == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-		buf, err := io.ReadAll(r.Body)
-		if err != nil {
-			return req, close, err
-		}
-
-		if len(buf) == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-
-		d := jx.DecodeBytes(buf)
-
-		var request PatchOrganizationUnitRequest
-		if err := func() error {
-			if err := request.Decode(d); err != nil {
-				return err
-			}
-			if err := d.Skip(); err != io.EOF {
-				return errors.New("unexpected trailing data")
-			}
-			return nil
-		}(); err != nil {
-			err = &ogenerrors.DecodeBodyError{
-				ContentType: ct,
-				Body:        buf,
-				Err:         err,
-			}
-			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
-		return &request, close, nil
-	default:
-		return req, close, validate.InvalidContentType(ct)
-	}
-}
-
 func (s *Server) decodePickInstanceFromCellRequest(r *http.Request) (
 	req *PickInstanceFromCellReq,
 	close func() error,
@@ -1120,69 +986,6 @@ func (s *Server) decodePickInstanceFromCellRequest(r *http.Request) (
 		d := jx.DecodeBytes(buf)
 
 		var request PickInstanceFromCellReq
-		if err := func() error {
-			if err := request.Decode(d); err != nil {
-				return err
-			}
-			if err := d.Skip(); err != io.EOF {
-				return errors.New("unexpected trailing data")
-			}
-			return nil
-		}(); err != nil {
-			err = &ogenerrors.DecodeBodyError{
-				ContentType: ct,
-				Body:        buf,
-				Err:         err,
-			}
-			return req, close, err
-		}
-		return &request, close, nil
-	default:
-		return req, close, validate.InvalidContentType(ct)
-	}
-}
-
-func (s *Server) decodePutCurrentUserRequest(r *http.Request) (
-	req *UpdateCurrentUserRequest,
-	close func() error,
-	rerr error,
-) {
-	var closers []func() error
-	close = func() error {
-		var merr error
-		// Close in reverse order, to match defer behavior.
-		for i := len(closers) - 1; i >= 0; i-- {
-			c := closers[i]
-			merr = multierr.Append(merr, c())
-		}
-		return merr
-	}
-	defer func() {
-		if rerr != nil {
-			rerr = multierr.Append(rerr, close())
-		}
-	}()
-	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil {
-		return req, close, errors.Wrap(err, "parse media type")
-	}
-	switch {
-	case ct == "application/json":
-		if r.ContentLength == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-		buf, err := io.ReadAll(r.Body)
-		if err != nil {
-			return req, close, err
-		}
-
-		if len(buf) == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-
-		d := jx.DecodeBytes(buf)
-
-		var request UpdateCurrentUserRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -1537,7 +1340,7 @@ func (s *Server) decodeUpdateItemVariantRequest(r *http.Request) (
 }
 
 func (s *Server) decodeUpdateOrganizationRequest(r *http.Request) (
-	req *UpdateOrganizationRequest,
+	req *OrganizationUpdate,
 	close func() error,
 	rerr error,
 ) {
@@ -1576,7 +1379,7 @@ func (s *Server) decodeUpdateOrganizationRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request UpdateOrganizationRequest
+		var request OrganizationUpdate
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -1608,7 +1411,7 @@ func (s *Server) decodeUpdateOrganizationRequest(r *http.Request) (
 }
 
 func (s *Server) decodeUpdateOrganizationUnitRequest(r *http.Request) (
-	req *UpdateOrganizationUnitRequest,
+	req *UnitBase,
 	close func() error,
 	rerr error,
 ) {
@@ -1647,7 +1450,7 @@ func (s *Server) decodeUpdateOrganizationUnitRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request UpdateOrganizationUnitRequest
+		var request UnitBase
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -1679,7 +1482,7 @@ func (s *Server) decodeUpdateOrganizationUnitRequest(r *http.Request) (
 }
 
 func (s *Server) decodeUpdateStorageGroupRequest(r *http.Request) (
-	req *UpdateStorageGroupRequest,
+	req *StorageGroupBase,
 	close func() error,
 	rerr error,
 ) {
@@ -1718,7 +1521,7 @@ func (s *Server) decodeUpdateStorageGroupRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request UpdateStorageGroupRequest
+		var request StorageGroupBase
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err

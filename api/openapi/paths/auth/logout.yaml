@@ -6,7 +6,7 @@ get:
   responses:
     "200":
       $ref: ../../components/responses/LogoutResponse.yaml
-    "401":
-      $ref: ../../components/responses/default-unauthorized.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
     default:
       $ref: ../../components/responses/default-error.yaml

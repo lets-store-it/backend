@@ -56,7 +56,7 @@ func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params a
 		return nil, err
 	}
 
-	return &api.DeleteOrganizationNoContent{}, nil
+	return &api.DefaultNoContent{}, nil
 }
 
 // GetOrganizationById implements api.Handler.
@@ -93,7 +93,7 @@ func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params 
 // }
 
 // UpdateOrganization implements api.Handler.
-func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.UpdateOrganizationRequest, params api.UpdateOrganizationParams) (api.UpdateOrganizationRes, error) {
+func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.OrganizationUpdate, params api.UpdateOrganizationParams) (api.UpdateOrganizationRes, error) {
 	org := &models.Organization{
 		ID:   params.ID,
 		Name: req.Name,

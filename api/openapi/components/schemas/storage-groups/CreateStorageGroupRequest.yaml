@@ -1,3 +1,1 @@
-type: object
-allOf:
-  - $ref: ./models/StorageGroupBase.yaml
+$ref: ./models/StorageGroupBase.yaml

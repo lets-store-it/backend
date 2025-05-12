@@ -38,30 +38,6 @@ delete:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-# patch:
-#   tags:
-#     - storage-group
-#   summary: Patch Cells Group
-#   operationId: patchCellsGroup
-#   requestBody:
-#     required: true
-#     content:
-#       application/json:
-#         schema:
-#           $ref: ../../components/schemas/cells-groups/PatchCellsGroupRequest.yaml
-#   responses:
-#     "200":
-#       description: Successful operation
-#       content:
-#         application/json:
-#           schema:
-#             $ref: ../../components/schemas/cells-groups/PatchCellsGroupResponse.yaml
-#     "401":
-#       $ref: ../../components/responses/default-unauthorized.yaml
-#     "403":
-#       $ref: ../../components/responses/default-forbidden.yaml
-#     default:
-#       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
     - cells-group

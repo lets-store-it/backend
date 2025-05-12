@@ -593,11 +593,43 @@ func encodeCreateUnitResponse(response CreateUnitRes, w http.ResponseWriter, spa
 	}
 }
 
-func encodeDeleteCellResponse(response *DeleteCellNoContent, w http.ResponseWriter, span trace.Span) error {
-	w.WriteHeader(204)
-	span.SetStatus(codes.Ok, http.StatusText(204))
+func encodeDeleteCellResponse(response DeleteCellRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *DeleteCellNoContent:
+		w.WriteHeader(204)
+		span.SetStatus(codes.Ok, http.StatusText(204))
 
-	return nil
+		return nil
+
+	case *DeleteCellUnauthorized:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *DeleteCellForbidden:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(403)
+		span.SetStatus(codes.Error, http.StatusText(403))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
 }
 
 func encodeDeleteCellsGroupResponse(response DeleteCellsGroupRes, w http.ResponseWriter, span trace.Span) error {
@@ -797,7 +829,7 @@ func encodeDeleteItemVariantResponse(response DeleteItemVariantRes, w http.Respo
 
 func encodeDeleteOrganizationResponse(response DeleteOrganizationRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteOrganizationNoContent:
+	case *DefaultNoContent:
 		w.WriteHeader(204)
 		span.SetStatus(codes.Ok, http.StatusText(204))
 
@@ -836,7 +868,7 @@ func encodeDeleteOrganizationResponse(response DeleteOrganizationRes, w http.Res
 
 func encodeDeleteOrganizationUnitResponse(response DeleteOrganizationUnitRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteOrganizationUnitNoContent:
+	case *DefaultNoContent:
 		w.WriteHeader(204)
 		span.SetStatus(codes.Ok, http.StatusText(204))
 
@@ -875,7 +907,7 @@ func encodeDeleteOrganizationUnitResponse(response DeleteOrganizationUnitRes, w 
 
 func encodeDeleteStorageGroupResponse(response DeleteStorageGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *DeleteStorageGroupNoContent:
+	case *DefaultNoContent:
 		w.WriteHeader(204)
 		span.SetStatus(codes.Ok, http.StatusText(204))
 
@@ -1101,26 +1133,58 @@ func encodeGetAuditLogsResponse(response GetAuditLogsRes, w http.ResponseWriter,
 	}
 }
 
-func encodeGetCellByIdResponse(response *GetCellByIdResponse, w http.ResponseWriter, span trace.Span) error {
-	if err := func() error {
-		if err := response.Validate(); err != nil {
-			return err
+func encodeGetCellByIdResponse(response GetCellByIdRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *GetCellByIdResponse:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
 		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
 		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "validate")
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-	span.SetStatus(codes.Ok, http.StatusText(200))
 
-	e := new(jx.Encoder)
-	response.Encode(e)
-	if _, err := e.WriteTo(w); err != nil {
-		return errors.Wrap(err, "write")
-	}
+	case *GetCellByIdUnauthorized:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
 
-	return nil
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *GetCellByIdForbidden:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(403)
+		span.SetStatus(codes.Error, http.StatusText(403))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
 }
 
 func encodeGetCellsResponse(response GetCellsRes, w http.ResponseWriter, span trace.Span) error {
@@ -2415,41 +2479,8 @@ func encodeLogoutResponse(response LogoutRes, w http.ResponseWriter, span trace.
 
 	case *ErrorContent:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
-func encodePatchCurrentUserResponse(response PatchCurrentUserRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *GetCurrentUserResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *ErrorContent:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
+		w.WriteHeader(400)
+		span.SetStatus(codes.Error, http.StatusText(400))
 
 		e := new(jx.Encoder)
 		response.Encode(e)
@@ -2510,60 +2541,6 @@ func encodePatchEmployeeByIdResponse(response PatchEmployeeByIdRes, w http.Respo
 	}
 }
 
-func encodePatchOrganizationUnitResponse(response PatchOrganizationUnitRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *PatchOrganizationUnitResponse:
-		if err := func() error {
-			if err := response.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "validate")
-		}
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *PatchOrganizationUnitUnauthorized:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *PatchOrganizationUnitForbidden:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(403)
-		span.SetStatus(codes.Error, http.StatusText(403))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
 func encodePickInstanceFromCellResponse(response PickInstanceFromCellRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *PickInstanceFromCellNoContent:
@@ -2589,39 +2566,6 @@ func encodePickInstanceFromCellResponse(response PickInstanceFromCellRes, w http
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(403)
 		span.SetStatus(codes.Error, http.StatusText(403))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
-func encodePutCurrentUserResponse(response PutCurrentUserRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *GetCurrentUserResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *ErrorContent:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
 
 		e := new(jx.Encoder)
 		response.Encode(e)

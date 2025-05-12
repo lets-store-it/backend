@@ -55,7 +55,7 @@ type Handler interface {
 	// Create Storage Group.
 	//
 	// POST /storage-groups
-	CreateStorageGroup(ctx context.Context, req *CreateStorageGroupRequest) (CreateStorageGroupRes, error)
+	CreateStorageGroup(ctx context.Context, req *StorageGroupBase) (CreateStorageGroupRes, error)
 	// CreateTask implements createTask operation.
 	//
 	// Create a task.
@@ -73,13 +73,13 @@ type Handler interface {
 	// Create Organization Unit.
 	//
 	// POST /units
-	CreateUnit(ctx context.Context, req *CreateOrganizationUnitRequest) (CreateUnitRes, error)
+	CreateUnit(ctx context.Context, req *UnitBase) (CreateUnitRes, error)
 	// DeleteCell implements deleteCell operation.
 	//
 	// Delete Cell.
 	//
 	// DELETE /cells-groups/{groupId}/cells/{cellId}
-	DeleteCell(ctx context.Context, params DeleteCellParams) error
+	DeleteCell(ctx context.Context, params DeleteCellParams) (DeleteCellRes, error)
 	// DeleteCellsGroup implements deleteCellsGroup operation.
 	//
 	// Delete Cells Group.
@@ -157,7 +157,7 @@ type Handler interface {
 	// Get Cell by ID.
 	//
 	// GET /cells-groups/{groupId}/cells/{cellId}
-	GetCellById(ctx context.Context, params GetCellByIdParams) (*GetCellByIdResponse, error)
+	GetCellById(ctx context.Context, params GetCellByIdParams) (GetCellByIdRes, error)
 	// GetCells implements getCells operation.
 	//
 	// Get list of Cells.
@@ -314,36 +314,18 @@ type Handler interface {
 	//
 	// GET /auth/logout
 	Logout(ctx context.Context) (LogoutRes, error)
-	// PatchCurrentUser implements patchCurrentUser operation.
-	//
-	// Update Current User.
-	//
-	// PATCH /me
-	PatchCurrentUser(ctx context.Context, req *PatchCurrentUserRequest) (PatchCurrentUserRes, error)
 	// PatchEmployeeById implements patchEmployeeById operation.
 	//
 	// Update employee by id.
 	//
 	// PATCH /employees/{id}
 	PatchEmployeeById(ctx context.Context, req *PatchEmployeeRequest, params PatchEmployeeByIdParams) (PatchEmployeeByIdRes, error)
-	// PatchOrganizationUnit implements patchOrganizationUnit operation.
-	//
-	// Patch Organization Unit.
-	//
-	// PATCH /units/{id}
-	PatchOrganizationUnit(ctx context.Context, req *PatchOrganizationUnitRequest, params PatchOrganizationUnitParams) (PatchOrganizationUnitRes, error)
 	// PickInstanceFromCell implements pickInstanceFromCell operation.
 	//
 	// Pick an item from cell.
 	//
 	// POST /tasks/{id}/pick-instance
 	PickInstanceFromCell(ctx context.Context, req *PickInstanceFromCellReq, params PickInstanceFromCellParams) (PickInstanceFromCellRes, error)
-	// PutCurrentUser implements putCurrentUser operation.
-	//
-	// Update Current User.
-	//
-	// PUT /me
-	PutCurrentUser(ctx context.Context, req *UpdateCurrentUserRequest) (PutCurrentUserRes, error)
 	// RevokeApiToken implements revokeApiToken operation.
 	//
 	// Revoke Service API Token.
@@ -385,19 +367,19 @@ type Handler interface {
 	// Update Organization.
 	//
 	// PUT /orgs/{id}
-	UpdateOrganization(ctx context.Context, req *UpdateOrganizationRequest, params UpdateOrganizationParams) (UpdateOrganizationRes, error)
+	UpdateOrganization(ctx context.Context, req *OrganizationUpdate, params UpdateOrganizationParams) (UpdateOrganizationRes, error)
 	// UpdateOrganizationUnit implements updateOrganizationUnit operation.
 	//
 	// Update Organization Unit.
 	//
 	// PUT /units/{id}
-	UpdateOrganizationUnit(ctx context.Context, req *UpdateOrganizationUnitRequest, params UpdateOrganizationUnitParams) (UpdateOrganizationUnitRes, error)
+	UpdateOrganizationUnit(ctx context.Context, req *UnitBase, params UpdateOrganizationUnitParams) (UpdateOrganizationUnitRes, error)
 	// UpdateStorageGroup implements updateStorageGroup operation.
 	//
 	// Update Storage Group.
 	//
 	// PUT /storage-groups/{id}
-	UpdateStorageGroup(ctx context.Context, req *UpdateStorageGroupRequest, params UpdateStorageGroupParams) (UpdateStorageGroupRes, error)
+	UpdateStorageGroup(ctx context.Context, req *StorageGroupBase, params UpdateStorageGroupParams) (UpdateStorageGroupRes, error)
 	// NewError creates *DefaultErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
