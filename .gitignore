@@ -47,3 +47,4 @@ debug/
 # Log files
 *.log
 
+.env
