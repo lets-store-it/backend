@@ -85,7 +85,7 @@ func convertItemInstanceToDTO(itemInstance *models.ItemInstance) api.InstanceFor
 		ID:      itemInstance.ID,
 		Status:  api.InstanceForItemStatus(itemInstance.Status),
 		Variant: convertItemVariantToDTO(itemInstance.Variant),
-		Cell:    convertCellToDTO(itemInstance.Cell),
+		Cell:    convertCellOptionalToNilDTO(itemInstance.Cell),
 	}
 }
 
@@ -177,23 +177,11 @@ func convertItemInstancesForItemToDTO(itemInstances []*models.ItemInstance) []ap
 			}
 		}
 
-		var cell api.CellForInstance
-		if instance.Cell != nil {
-			cell = api.CellForInstance{
-				ID:       instance.Cell.ID,
-				Alias:    instance.Cell.Alias,
-				Row:      instance.Cell.Row,
-				Level:    instance.Cell.Level,
-				Position: instance.Cell.Position,
-				CellPath: cellPath,
-			}
-		}
-
 		dtoInstances = append(dtoInstances, api.InstanceForItem{
 			ID:      instance.ID,
 			Status:  api.InstanceForItemStatus(instance.Status),
 			Variant: variant,
-			Cell:    cell,
+			Cell:    convertCellOptionalToNilDTO(instance.Cell),
 		})
 	}
 	return dtoInstances

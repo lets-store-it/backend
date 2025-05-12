@@ -10688,14 +10688,14 @@ func (s *Server) handleLogoutRequest(args [0]string, argsEscaped bool, w http.Re
 //
 // Mark task as awaiting to collect.
 //
-// POST /tasks/{id}/awaiting
+// POST /tasks/{id}/ready
 func (s *Server) handleMarkTaskAsAwaitingRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("markTaskAsAwaiting"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/tasks/{id}/awaiting"),
+		semconv.HTTPRouteKey.String("/tasks/{id}/ready"),
 	}
 
 	// Start a span for this request.
@@ -10902,14 +10902,14 @@ func (s *Server) handleMarkTaskAsAwaitingRequest(args [1]string, argsEscaped boo
 //
 // Mark task as completed.
 //
-// POST /tasks/{id}/done
+// POST /tasks/{id}/completed
 func (s *Server) handleMarkTaskAsCompletedRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("markTaskAsCompleted"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/tasks/{id}/done"),
+		semconv.HTTPRouteKey.String("/tasks/{id}/completed"),
 	}
 
 	// Start a span for this request.

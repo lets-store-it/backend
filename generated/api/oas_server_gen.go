@@ -318,13 +318,13 @@ type Handler interface {
 	//
 	// Mark task as awaiting to collect.
 	//
-	// POST /tasks/{id}/awaiting
+	// POST /tasks/{id}/ready
 	MarkTaskAsAwaiting(ctx context.Context, params MarkTaskAsAwaitingParams) (MarkTaskAsAwaitingRes, error)
 	// MarkTaskAsCompleted implements markTaskAsCompleted operation.
 	//
 	// Mark task as completed.
 	//
-	// POST /tasks/{id}/done
+	// POST /tasks/{id}/completed
 	MarkTaskAsCompleted(ctx context.Context, params MarkTaskAsCompletedParams) (MarkTaskAsCompletedRes, error)
 	// PatchEmployeeById implements patchEmployeeById operation.
 	//

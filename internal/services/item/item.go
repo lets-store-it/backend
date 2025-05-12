@@ -466,7 +466,7 @@ func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *m
 			OrgID:            database.PgUUID(itemInstance.OrgID),
 			ID:               database.PgUUID(itemInstance.ID),
 			Status:           sqlc.ItemInstanceStatus(itemInstance.Status),
-			AffectedByTaskID: database.PgUUIDPtr(itemInstance.AffectedByOperationID),
+			AffectedByTaskID: database.PgUUIDPtr(itemInstance.AffectedByTaskID),
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
@@ -484,6 +484,9 @@ func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *m
 			PrechangeState:   instanceBeforeUpdate,
 			PostchangeState:  updatedInstance,
 		})
+		if err != nil {
+			return fmt.Errorf("failed to create audit log: %w", err)
+		}
 		return nil
 	})
 }

@@ -14,9 +14,10 @@ properties:
   item:
     type: object
     $ref: ../../items/models/ItemForList.yaml
-  # affectedByOperationId:
-  #   type: string
-  #   format: uuid
+  affectedByTaskId:
+    type: string
+    nullable: true
+    format: uuid
   variant:
     $ref: ../../items/models/ItemVariant.yaml
   cell:

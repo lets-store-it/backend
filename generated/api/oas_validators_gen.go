@@ -1112,8 +1112,15 @@ func (s *GetInstancesByItemIdResponseDataItem) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.Cell.Validate(); err != nil {
-			return err
+		if value, ok := s.Cell.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {
@@ -1674,8 +1681,15 @@ func (s *InstanceForItem) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.Cell.Validate(); err != nil {
-			return err
+		if value, ok := s.Cell.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {

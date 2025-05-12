@@ -52,12 +52,13 @@ func toItemModel(params toItemModelParams) *models.Item {
 
 func toItemInstance(instance sqlc.ItemInstance) *models.ItemInstance {
 	return &models.ItemInstance{
-		ID:        database.UUIDFromPgx(instance.ID),
-		OrgID:     database.UUIDFromPgx(instance.OrgID),
-		ItemID:    database.UUIDFromPgx(instance.ItemID),
-		VariantID: database.UUIDFromPgx(instance.VariantID),
-		CellID:    database.UUIDPtrFromPgx(instance.CellID),
-		Status:    models.ItemInstanceStatus(instance.Status),
+		ID:               database.UUIDFromPgx(instance.ID),
+		OrgID:            database.UUIDFromPgx(instance.OrgID),
+		ItemID:           database.UUIDFromPgx(instance.ItemID),
+		VariantID:        database.UUIDFromPgx(instance.VariantID),
+		CellID:           database.UUIDPtrFromPgx(instance.CellID),
+		Status:           models.ItemInstanceStatus(instance.Status),
+		AffectedByTaskID: database.UUIDPtrFromPgx(instance.AffectedByTaskID),
 	}
 }
 

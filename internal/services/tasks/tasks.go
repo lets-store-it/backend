@@ -261,10 +261,10 @@ func (s *TaskService) PickInstance(ctx context.Context, orgID uuid.UUID, taskID 
 		)
 
 		err := s.item.SetItemInstanceStatus(ctx, &models.ItemInstance{
-			OrgID:                 orgID,
-			ID:                    instanceID,
-			Status:                models.ItemInstanceStatusReserved,
-			AffectedByOperationID: &taskID,
+			OrgID:            orgID,
+			ID:               instanceID,
+			Status:           models.ItemInstanceStatusReserved,
+			AffectedByTaskID: &taskID,
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
