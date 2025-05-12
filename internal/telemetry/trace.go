@@ -15,7 +15,7 @@ type VoidTraceFn func(context.Context, trace.Span) error
 
 func safeEndSpan(span trace.Span) {
 	defer func() {
-		recover() // Silently recover from any panic during span.End()
+		recover()
 	}()
 	if span != nil {
 		span.End()
@@ -24,7 +24,7 @@ func safeEndSpan(span trace.Span) {
 
 func safeRecordError(span trace.Span, err error) {
 	defer func() {
-		recover() // Silently recover from any panic during error recording
+		recover()
 	}()
 	if span != nil && err != nil {
 		span.RecordError(err)
@@ -33,7 +33,7 @@ func safeRecordError(span trace.Span, err error) {
 
 func safeSetStatus(span trace.Span, code codes.Code, description string) {
 	defer func() {
-		recover() // Silently recover from any panic during status setting
+		recover()
 	}()
 	if span != nil {
 		span.SetStatus(code, description)
@@ -42,7 +42,7 @@ func safeSetStatus(span trace.Span, code codes.Code, description string) {
 
 func safeSetAttributes(span trace.Span, attrs ...attribute.KeyValue) {
 	defer func() {
-		recover() // Silently recover from any panic during attribute setting
+		recover()
 	}()
 	if span != nil {
 		span.SetAttributes(attrs...)
@@ -75,7 +75,7 @@ func WithTrace[T any](
 				)
 				safeEndSpan(span)
 			}
-			panic(r) // Re-panic after recording
+			panic(r)
 		}
 	}()
 

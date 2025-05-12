@@ -30,7 +30,6 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.S
 		s.tracer,
 		"CreateStorageGroup",
 		func(ctx context.Context, span trace.Span) (*models.StorageGroup, error) {
-			// Add relevant attributes
 			span.SetAttributes(
 				attribute.String("org.id", group.OrgID.String()),
 				attribute.String("unit.id", group.UnitID.String()),
@@ -39,12 +38,10 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.S
 				attribute.String("storage_group.parent_id", utils.SafeUUIDString(group.ParentID)),
 			)
 
-			// Validate input
 			if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
 				return nil, fmt.Errorf("validation failed: %w", err)
 			}
 
-			// Create storage group
 			sqlGroup, err := s.queries.CreateStorageGroup(ctx, sqlc.CreateStorageGroupParams{
 				OrgID:    database.PgUUID(group.OrgID),
 				UnitID:   database.PgUUID(group.UnitID),
@@ -56,7 +53,6 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.S
 				return nil, fmt.Errorf("failed to create storage group: %w", err)
 			}
 
-			// Convert to model
 			result := toStorageGroupModel(sqlGroup)
 			return result, nil
 		},

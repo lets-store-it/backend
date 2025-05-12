@@ -623,13 +623,6 @@ func (s *ItemService) GetItemInstancesAll(ctx context.Context, orgID uuid.UUID) 
 			}
 			instancesModels[i].Item = item
 
-			// if instancesModels[i].AffectedByTaskID != nil {
-			// 	task, err := s.GetTaskByID(ctx, orgID, *instancesModels[i].AffectedByTaskID)
-			// 	if err != nil {
-			// 		return nil, err
-			// 	}
-			// 	instancesModels[i].AffectedByTask = task
-			// }
 		}
 
 		return instancesModels, nil

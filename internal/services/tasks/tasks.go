@@ -125,14 +125,12 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 				resultTask.Items = append(resultTask.Items, taskItem)
 			}
 
-			// Get the unit
 			unit, err := s.org.GetUnitByID(ctx, orgID, resultTask.UnitID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get unit: %w", err)
 			}
 			resultTask.Unit = unit
 
-			// Get assigned to if set
 			if resultTask.AssignedToUserID != nil {
 				assignedTo, err := s.employee.GetEmployee(ctx, orgID, *resultTask.AssignedToUserID)
 				if err != nil {

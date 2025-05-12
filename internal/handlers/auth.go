@@ -10,7 +10,6 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
-// / GetCurrentUser implements api.Handler.
 func (h *RestApiImplementation) GetCurrentUser(ctx context.Context) (api.GetCurrentUserRes, error) {
 	user, err := h.authUseCase.GetCurrentUser(ctx)
 	if err != nil {
@@ -56,7 +55,6 @@ func toApiToken(token *models.ApiToken) api.Token {
 	}
 }
 
-// GetApiTokens implements api.Handler.
 func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (api.GetApiTokensRes, error) {
 	apiTokens, err := h.authUseCase.GetApiTokens(ctx)
 	if err != nil {
@@ -72,7 +70,6 @@ func (h *RestApiImplementation) GetApiTokens(ctx context.Context) (api.GetApiTok
 	}, nil
 }
 
-// CreateApiToken implements api.Handler.
 func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.CreateApiTokenRequest) (api.CreateApiTokenRes, error) {
 	apiToken, err := h.authUseCase.CreateApiToken(ctx, req.Name)
 	if err != nil {
@@ -83,7 +80,6 @@ func (h *RestApiImplementation) CreateApiToken(ctx context.Context, req *api.Cre
 	}, nil
 }
 
-// RevokeApiToken implements api.Handler.
 func (h *RestApiImplementation) RevokeApiToken(ctx context.Context, params api.RevokeApiTokenParams) (api.RevokeApiTokenRes, error) {
 	err := h.authUseCase.RevokeApiToken(ctx, params.ID)
 	if err != nil {
@@ -116,7 +112,6 @@ func toEmployeeDTO(employee *models.Employee) api.Employee {
 	}
 }
 
-// GetEmployees implements api.Handler.
 func (h *RestApiImplementation) GetEmployees(ctx context.Context) (api.GetEmployeesRes, error) {
 	employees, err := h.authUseCase.GetEmployees(ctx)
 	if err != nil {
@@ -131,7 +126,6 @@ func (h *RestApiImplementation) GetEmployees(ctx context.Context) (api.GetEmploy
 	}, nil
 }
 
-// DeleteEmployeeById implements api.Handler.
 func (h *RestApiImplementation) DeleteEmployeeById(ctx context.Context, params api.DeleteEmployeeByIdParams) (api.DeleteEmployeeByIdRes, error) {
 	err := h.authUseCase.DeleteEmployee(ctx, params.ID)
 	if err != nil {
@@ -140,7 +134,6 @@ func (h *RestApiImplementation) DeleteEmployeeById(ctx context.Context, params a
 	return &api.DeleteEmployeeByIdOK{}, nil
 }
 
-// GetEmployeeById implements api.Handler.
 func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.GetEmployeeByIdParams) (api.GetEmployeeByIdRes, error) {
 	employee, err := h.authUseCase.GetEmployee(ctx, params.ID)
 	if err != nil {
@@ -151,7 +144,6 @@ func (h *RestApiImplementation) GetEmployeeById(ctx context.Context, params api.
 	}, nil
 }
 
-// GetRoles implements api.Handler.
 func (h *RestApiImplementation) GetRoles(ctx context.Context) (api.GetRolesRes, error) {
 	roles, err := h.authUseCase.GetRoles(ctx)
 	if err != nil {
@@ -176,7 +168,6 @@ func (h *RestApiImplementation) InviteEmployee(ctx context.Context, req *api.Inv
 	}, nil
 }
 
-// PatchEmployeeById implements api.Handler.
 func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.PatchEmployeeRequest, params api.PatchEmployeeByIdParams) (api.PatchEmployeeByIdRes, error) {
 	roleID := req.RoleId.Value
 	employee, err := h.authUseCase.SetEmployeeRole(ctx, params.ID, roleID)

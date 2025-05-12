@@ -11,8 +11,6 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
-// GetAuditLogs implements api.Handler.
-
 func toObjectTypeDTO(objectType *models.ObjectType) api.AuditLogTargetObjectType {
 	return api.AuditLogTargetObjectType{
 		ID:    int(objectType.ID),
@@ -22,20 +20,15 @@ func toObjectTypeDTO(objectType *models.ObjectType) api.AuditLogTargetObjectType
 }
 
 func convertJsonRawMessageToJxMap(rawMsg json.RawMessage) (map[string]jx.Raw, error) {
-	// Handle nil or empty JSON
 	if len(rawMsg) == 0 || string(rawMsg) == "null" {
 		return make(map[string]jx.Raw), nil
 	}
 
-	// Create a decoder from the raw message
 	d := jx.DecodeBytes(rawMsg)
 
-	// Create the target map
 	result := make(map[string]jx.Raw)
 
-	// Decode the object
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		// For each field in the object
 		v, err := d.RawAppend(nil)
 		if err != nil {
 			return err

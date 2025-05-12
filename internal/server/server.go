@@ -31,14 +31,12 @@ import (
 	tvboardUC "github.com/let-store-it/backend/internal/usecases/tv_board"
 )
 
-// Server represents the main server instance and its dependencies
 type Server struct {
 	echo         *echo.Echo
 	config       *config.Config
 	auditService *audit.AuditService
 }
 
-// New creates and configures a new server instance
 func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server, error) {
 	// Initialize telemetry
 	if err := telemetry.InitTelemetry(context.Background(), cfg.ServiceName); err != nil {
@@ -48,19 +46,19 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: cfg.Server.CorsOrigins,
-		// AllowMethods: []string{
-		// 	echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS,
-		// },
-		// AllowHeaders: []string{
-		// 	echo.HeaderOrigin,
-		// 	echo.HeaderContentType,
-		// 	echo.HeaderAccept,
-		// 	echo.HeaderAuthorization,
-		// 	"X-Organization-Id",
-		// 	"X-Api-Key",
-		// 	"X-Requested-With",
-		// 	"Access-Control-Allow-Origin",
-		// },
+		AllowMethods: []string{
+			echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept,
+			echo.HeaderAuthorization,
+			"X-Organization-Id",
+			"X-Api-Key",
+			"X-Requested-With",
+			"Access-Control-Allow-Origin",
+		},
 		AllowCredentials: true,
 	}))
 	e.Use(middleware.Logger())
