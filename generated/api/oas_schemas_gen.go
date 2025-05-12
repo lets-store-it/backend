@@ -725,6 +725,10 @@ func (s *Cookie) SetAPIKey(val string) {
 	s.APIKey = val
 }
 
+type CreateApiTokenBadRequest ErrorContent
+
+func (*CreateApiTokenBadRequest) createApiTokenRes() {}
+
 type CreateApiTokenForbidden ErrorContent
 
 func (*CreateApiTokenForbidden) createApiTokenRes() {}
@@ -765,6 +769,10 @@ func (*CreateApiTokenResponse) createApiTokenRes() {}
 type CreateApiTokenUnauthorized ErrorContent
 
 func (*CreateApiTokenUnauthorized) createApiTokenRes() {}
+
+type CreateCellBadRequest ErrorContent
+
+func (*CreateCellBadRequest) createCellRes() {}
 
 type CreateCellForbidden ErrorContent
 
@@ -839,6 +847,10 @@ type CreateCellUnauthorized ErrorContent
 
 func (*CreateCellUnauthorized) createCellRes() {}
 
+type CreateCellsGroupBadRequest ErrorContent
+
+func (*CreateCellsGroupBadRequest) createCellsGroupRes() {}
+
 type CreateCellsGroupForbidden ErrorContent
 
 func (*CreateCellsGroupForbidden) createCellsGroupRes() {}
@@ -912,6 +924,10 @@ type CreateCellsGroupUnauthorized ErrorContent
 
 func (*CreateCellsGroupUnauthorized) createCellsGroupRes() {}
 
+type CreateInstanceForItemBadRequest ErrorContent
+
+func (*CreateInstanceForItemBadRequest) createInstanceForItemRes() {}
+
 type CreateInstanceForItemForbidden ErrorContent
 
 func (*CreateInstanceForItemForbidden) createInstanceForItemRes() {}
@@ -962,6 +978,10 @@ func (*CreateInstanceForItemResponse) createInstanceForItemRes() {}
 type CreateInstanceForItemUnauthorized ErrorContent
 
 func (*CreateInstanceForItemUnauthorized) createInstanceForItemRes() {}
+
+type CreateItemBadRequest ErrorContent
+
+func (*CreateItemBadRequest) createItemRes() {}
 
 type CreateItemForbidden ErrorContent
 
@@ -1025,6 +1045,10 @@ type CreateItemUnauthorized ErrorContent
 
 func (*CreateItemUnauthorized) createItemRes() {}
 
+type CreateItemVariantBadRequest ErrorContent
+
+func (*CreateItemVariantBadRequest) createItemVariantRes() {}
+
 type CreateItemVariantForbidden ErrorContent
 
 func (*CreateItemVariantForbidden) createItemVariantRes() {}
@@ -1086,6 +1110,10 @@ func (*CreateItemVariantResponse) createItemVariantRes() {}
 type CreateItemVariantUnauthorized ErrorContent
 
 func (*CreateItemVariantUnauthorized) createItemVariantRes() {}
+
+type CreateOrganizationBadRequest ErrorContent
+
+func (*CreateOrganizationBadRequest) createOrganizationRes() {}
 
 type CreateOrganizationConflict ErrorContent
 
@@ -1155,6 +1183,10 @@ func (s *CreateOrganizationUnitResponse) SetData(val Unit) {
 
 func (*CreateOrganizationUnitResponse) createUnitRes() {}
 
+type CreateStorageGroupBadRequest ErrorContent
+
+func (*CreateStorageGroupBadRequest) createStorageGroupRes() {}
+
 type CreateStorageGroupForbidden ErrorContent
 
 func (*CreateStorageGroupForbidden) createStorageGroupRes() {}
@@ -1179,6 +1211,10 @@ func (*CreateStorageGroupResponse) createStorageGroupRes() {}
 type CreateStorageGroupUnauthorized ErrorContent
 
 func (*CreateStorageGroupUnauthorized) createStorageGroupRes() {}
+
+type CreateTaskBadRequest ErrorContent
+
+func (*CreateTaskBadRequest) createTaskRes() {}
 
 type CreateTaskForbidden ErrorContent
 
@@ -1341,6 +1377,10 @@ type CreateTaskUnauthorized ErrorContent
 
 func (*CreateTaskUnauthorized) createTaskRes() {}
 
+type CreateTvBoardBadRequest ErrorContent
+
+func (*CreateTvBoardBadRequest) createTvBoardRes() {}
+
 type CreateTvBoardForbidden ErrorContent
 
 func (*CreateTvBoardForbidden) createTvBoardRes() {}
@@ -1394,6 +1434,10 @@ type CreateTvBoardUnauthorized ErrorContent
 
 func (*CreateTvBoardUnauthorized) createTvBoardRes() {}
 
+type CreateUnitBadRequest ErrorContent
+
+func (*CreateUnitBadRequest) createUnitRes() {}
+
 type CreateUnitForbidden ErrorContent
 
 func (*CreateUnitForbidden) createUnitRes() {}
@@ -1444,6 +1488,10 @@ type DeleteCellNoContent struct{}
 
 func (*DeleteCellNoContent) deleteCellRes() {}
 
+type DeleteCellNotFound ErrorContent
+
+func (*DeleteCellNotFound) deleteCellRes() {}
+
 type DeleteCellUnauthorized ErrorContent
 
 func (*DeleteCellUnauthorized) deleteCellRes() {}
@@ -1457,6 +1505,10 @@ type DeleteCellsGroupNoContent struct{}
 
 func (*DeleteCellsGroupNoContent) deleteCellsGroupRes() {}
 
+type DeleteCellsGroupNotFound ErrorContent
+
+func (*DeleteCellsGroupNotFound) deleteCellsGroupRes() {}
+
 type DeleteCellsGroupUnauthorized ErrorContent
 
 func (*DeleteCellsGroupUnauthorized) deleteCellsGroupRes() {}
@@ -1464,6 +1516,10 @@ func (*DeleteCellsGroupUnauthorized) deleteCellsGroupRes() {}
 type DeleteEmployeeByIdForbidden ErrorContent
 
 func (*DeleteEmployeeByIdForbidden) deleteEmployeeByIdRes() {}
+
+type DeleteEmployeeByIdNotFound ErrorContent
+
+func (*DeleteEmployeeByIdNotFound) deleteEmployeeByIdRes() {}
 
 // DeleteEmployeeByIdOK is response for DeleteEmployeeById operation.
 type DeleteEmployeeByIdOK struct{}
@@ -1477,6 +1533,10 @@ func (*DeleteEmployeeByIdUnauthorized) deleteEmployeeByIdRes() {}
 type DeleteInstanceByIdForbidden ErrorContent
 
 func (*DeleteInstanceByIdForbidden) deleteInstanceByIdRes() {}
+
+type DeleteInstanceByIdNotFound ErrorContent
+
+func (*DeleteInstanceByIdNotFound) deleteInstanceByIdRes() {}
 
 // DeleteInstanceByIdOK is response for DeleteInstanceById operation.
 type DeleteInstanceByIdOK struct{}
@@ -1496,6 +1556,10 @@ type DeleteItemNoContent struct{}
 
 func (*DeleteItemNoContent) deleteItemRes() {}
 
+type DeleteItemNotFound ErrorContent
+
+func (*DeleteItemNotFound) deleteItemRes() {}
+
 type DeleteItemUnauthorized ErrorContent
 
 func (*DeleteItemUnauthorized) deleteItemRes() {}
@@ -1509,6 +1573,10 @@ type DeleteItemVariantNoContent struct{}
 
 func (*DeleteItemVariantNoContent) deleteItemVariantRes() {}
 
+type DeleteItemVariantNotFound ErrorContent
+
+func (*DeleteItemVariantNotFound) deleteItemVariantRes() {}
+
 type DeleteItemVariantUnauthorized ErrorContent
 
 func (*DeleteItemVariantUnauthorized) deleteItemVariantRes() {}
@@ -1516,6 +1584,10 @@ func (*DeleteItemVariantUnauthorized) deleteItemVariantRes() {}
 type DeleteOrganizationForbidden ErrorContent
 
 func (*DeleteOrganizationForbidden) deleteOrganizationRes() {}
+
+type DeleteOrganizationNotFound ErrorContent
+
+func (*DeleteOrganizationNotFound) deleteOrganizationRes() {}
 
 type DeleteOrganizationUnauthorized ErrorContent
 
@@ -1525,6 +1597,10 @@ type DeleteOrganizationUnitForbidden ErrorContent
 
 func (*DeleteOrganizationUnitForbidden) deleteOrganizationUnitRes() {}
 
+type DeleteOrganizationUnitNotFound ErrorContent
+
+func (*DeleteOrganizationUnitNotFound) deleteOrganizationUnitRes() {}
+
 type DeleteOrganizationUnitUnauthorized ErrorContent
 
 func (*DeleteOrganizationUnitUnauthorized) deleteOrganizationUnitRes() {}
@@ -1532,6 +1608,10 @@ func (*DeleteOrganizationUnitUnauthorized) deleteOrganizationUnitRes() {}
 type DeleteStorageGroupForbidden ErrorContent
 
 func (*DeleteStorageGroupForbidden) deleteStorageGroupRes() {}
+
+type DeleteStorageGroupNotFound ErrorContent
+
+func (*DeleteStorageGroupNotFound) deleteStorageGroupRes() {}
 
 type DeleteStorageGroupUnauthorized ErrorContent
 
@@ -1545,6 +1625,10 @@ func (*DeleteTvBoardForbidden) deleteTvBoardRes() {}
 type DeleteTvBoardNoContent struct{}
 
 func (*DeleteTvBoardNoContent) deleteTvBoardRes() {}
+
+type DeleteTvBoardNotFound ErrorContent
+
+func (*DeleteTvBoardNotFound) deleteTvBoardRes() {}
 
 type DeleteTvBoardUnauthorized ErrorContent
 
@@ -1707,11 +1791,7 @@ func (s *ErrorContent) SetError(val ErrorContentError) {
 
 func (*ErrorContent) exchangeYandexAccessTokenRes() {}
 func (*ErrorContent) getCurrentUserRes()            {}
-func (*ErrorContent) getOrganizationsRes()          {}
-func (*ErrorContent) getRolesRes()                  {}
-func (*ErrorContent) getTvBoardsDataRes()           {}
 func (*ErrorContent) logoutRes()                    {}
-func (*ErrorContent) updateItemRes()                {}
 
 type ErrorContentError struct {
 	Code    string `json:"code"`
@@ -1757,6 +1837,10 @@ type GetApiTokensForbidden ErrorContent
 
 func (*GetApiTokensForbidden) getApiTokensRes() {}
 
+type GetApiTokensNotFound ErrorContent
+
+func (*GetApiTokensNotFound) getApiTokensRes() {}
+
 // Ref: #/components/schemas/GetApiTokensResponse
 type GetApiTokensResponse struct {
 	Data []Token `json:"data"`
@@ -1782,6 +1866,10 @@ type GetAuditLogsForbidden ErrorContent
 
 func (*GetAuditLogsForbidden) getAuditLogsRes() {}
 
+type GetAuditLogsNotFound ErrorContent
+
+func (*GetAuditLogsNotFound) getAuditLogsRes() {}
+
 // Ref: #/components/schemas/GetAuditLogsResponse
 type GetAuditLogsResponse struct {
 	Data []AuditLog `json:"data"`
@@ -1806,6 +1894,10 @@ func (*GetAuditLogsUnauthorized) getAuditLogsRes() {}
 type GetCellByIdForbidden ErrorContent
 
 func (*GetCellByIdForbidden) getCellByIdRes() {}
+
+type GetCellByIdNotFound ErrorContent
+
+func (*GetCellByIdNotFound) getCellByIdRes() {}
 
 // Ref: #/components/schemas/GetCellByIdResponse
 type GetCellByIdResponse struct {
@@ -1836,6 +1928,10 @@ type GetCellsGroupByIdForbidden ErrorContent
 
 func (*GetCellsGroupByIdForbidden) getCellsGroupByIdRes() {}
 
+type GetCellsGroupByIdNotFound ErrorContent
+
+func (*GetCellsGroupByIdNotFound) getCellsGroupByIdRes() {}
+
 // Ref: #/components/schemas/GetCellsGroupByIdResponse
 type GetCellsGroupByIdResponse struct {
 	Data CellGroup `json:"data"`
@@ -1861,6 +1957,10 @@ type GetCellsGroupsForbidden ErrorContent
 
 func (*GetCellsGroupsForbidden) getCellsGroupsRes() {}
 
+type GetCellsGroupsNotFound ErrorContent
+
+func (*GetCellsGroupsNotFound) getCellsGroupsRes() {}
+
 // Ref: #/components/schemas/GetCellsGroupsResponse
 type GetCellsGroupsResponse struct {
 	Data []CellGroup `json:"data"`
@@ -1881,6 +1981,10 @@ func (*GetCellsGroupsResponse) getCellsGroupsRes() {}
 type GetCellsGroupsUnauthorized ErrorContent
 
 func (*GetCellsGroupsUnauthorized) getCellsGroupsRes() {}
+
+type GetCellsNotFound ErrorContent
+
+func (*GetCellsNotFound) getCellsRes() {}
 
 // Ref: #/components/schemas/GetCellsResponse
 type GetCellsResponse struct {
@@ -1968,6 +2072,10 @@ type GetEmployeeByIdForbidden ErrorContent
 
 func (*GetEmployeeByIdForbidden) getEmployeeByIdRes() {}
 
+type GetEmployeeByIdNotFound ErrorContent
+
+func (*GetEmployeeByIdNotFound) getEmployeeByIdRes() {}
+
 type GetEmployeeByIdUnauthorized ErrorContent
 
 func (*GetEmployeeByIdUnauthorized) getEmployeeByIdRes() {}
@@ -1995,6 +2103,10 @@ type GetEmployeesForbidden ErrorContent
 
 func (*GetEmployeesForbidden) getEmployeesRes() {}
 
+type GetEmployeesNotFound ErrorContent
+
+func (*GetEmployeesNotFound) getEmployeesRes() {}
+
 // Ref: #/components/schemas/GetEmployeesResponse
 type GetEmployeesResponse struct {
 	Data []Employee `json:"data"`
@@ -2020,6 +2132,10 @@ type GetInstanceByIdForbidden ErrorContent
 
 func (*GetInstanceByIdForbidden) getInstanceByIdRes() {}
 
+type GetInstanceByIdNotFound ErrorContent
+
+func (*GetInstanceByIdNotFound) getInstanceByIdRes() {}
+
 // Ref: #/components/schemas/GetInstanceByIdResponse
 type GetInstanceByIdResponse struct {
 	Data InstanceFull `json:"data"`
@@ -2044,6 +2160,10 @@ func (*GetInstanceByIdUnauthorized) getInstanceByIdRes() {}
 type GetInstancesByItemIdForbidden ErrorContent
 
 func (*GetInstancesByItemIdForbidden) getInstancesByItemIdRes() {}
+
+type GetInstancesByItemIdNotFound ErrorContent
+
+func (*GetInstancesByItemIdNotFound) getInstancesByItemIdRes() {}
 
 // Ref: #/components/schemas/GetInstancesByItemIdResponse
 type GetInstancesByItemIdResponse struct {
@@ -2165,6 +2285,10 @@ type GetInstancesForbidden ErrorContent
 
 func (*GetInstancesForbidden) getInstancesRes() {}
 
+type GetInstancesNotFound ErrorContent
+
+func (*GetInstancesNotFound) getInstancesRes() {}
+
 // Ref: #/components/schemas/GetInstancesResponse
 type GetInstancesResponse struct {
 	Data []InstanceFull `json:"data"`
@@ -2189,6 +2313,10 @@ func (*GetInstancesUnauthorized) getInstancesRes() {}
 type GetItemByIdForbidden ErrorContent
 
 func (*GetItemByIdForbidden) getItemByIdRes() {}
+
+type GetItemByIdNotFound ErrorContent
+
+func (*GetItemByIdNotFound) getItemByIdRes() {}
 
 // Ref: #/components/schemas/GetItemByIdResponse
 type GetItemByIdResponse struct {
@@ -2215,6 +2343,10 @@ type GetItemVariantByIdForbidden ErrorContent
 
 func (*GetItemVariantByIdForbidden) getItemVariantByIdRes() {}
 
+type GetItemVariantByIdNotFound ErrorContent
+
+func (*GetItemVariantByIdNotFound) getItemVariantByIdRes() {}
+
 // Ref: #/components/schemas/GetItemVariantByIdResponse
 type GetItemVariantByIdResponse struct {
 	Data ItemVariant `json:"data"`
@@ -2239,6 +2371,10 @@ func (*GetItemVariantByIdUnauthorized) getItemVariantByIdRes() {}
 type GetItemVariantsForbidden ErrorContent
 
 func (*GetItemVariantsForbidden) getItemVariantsRes() {}
+
+type GetItemVariantsNotFound ErrorContent
+
+func (*GetItemVariantsNotFound) getItemVariantsRes() {}
 
 // Ref: #/components/schemas/GetItemVariantsResponse
 type GetItemVariantsResponse struct {
@@ -2265,6 +2401,10 @@ type GetItemsForbidden ErrorContent
 
 func (*GetItemsForbidden) getItemsRes() {}
 
+type GetItemsNotFound ErrorContent
+
+func (*GetItemsNotFound) getItemsRes() {}
+
 // Ref: #/components/schemas/GetItemsResponse
 type GetItemsResponse struct {
 	Data []ItemForList `json:"data"`
@@ -2289,6 +2429,10 @@ func (*GetItemsUnauthorized) getItemsRes() {}
 type GetOrganizationByIdForbidden ErrorContent
 
 func (*GetOrganizationByIdForbidden) getOrganizationByIdRes() {}
+
+type GetOrganizationByIdNotFound ErrorContent
+
+func (*GetOrganizationByIdNotFound) getOrganizationByIdRes() {}
 
 // Ref: #/components/schemas/GetOrganizationByIdResponse
 type GetOrganizationByIdResponse struct {
@@ -2315,6 +2459,10 @@ type GetOrganizationUnitByIdForbidden ErrorContent
 
 func (*GetOrganizationUnitByIdForbidden) getOrganizationUnitByIdRes() {}
 
+type GetOrganizationUnitByIdNotFound ErrorContent
+
+func (*GetOrganizationUnitByIdNotFound) getOrganizationUnitByIdRes() {}
+
 // Ref: #/components/schemas/GetOrganizationUnitByIdResponse
 type GetOrganizationUnitByIdResponse struct {
 	Data Unit `json:"data"`
@@ -2340,6 +2488,10 @@ type GetOrganizationUnitsForbidden ErrorContent
 
 func (*GetOrganizationUnitsForbidden) getOrganizationUnitsRes() {}
 
+type GetOrganizationUnitsNotFound ErrorContent
+
+func (*GetOrganizationUnitsNotFound) getOrganizationUnitsRes() {}
+
 // Ref: #/components/schemas/GetOrganizationUnitsResponse
 type GetOrganizationUnitsResponse struct {
 	Data []Unit `json:"data"`
@@ -2361,6 +2513,10 @@ type GetOrganizationUnitsUnauthorized ErrorContent
 
 func (*GetOrganizationUnitsUnauthorized) getOrganizationUnitsRes() {}
 
+type GetOrganizationsNotFound ErrorContent
+
+func (*GetOrganizationsNotFound) getOrganizationsRes() {}
+
 // Ref: #/components/schemas/GetOrganizationsResponse
 type GetOrganizationsResponse struct {
 	Data []Organization `json:"data"`
@@ -2378,6 +2534,14 @@ func (s *GetOrganizationsResponse) SetData(val []Organization) {
 
 func (*GetOrganizationsResponse) getOrganizationsRes() {}
 
+type GetOrganizationsUnauthorized ErrorContent
+
+func (*GetOrganizationsUnauthorized) getOrganizationsRes() {}
+
+type GetRolesNotFound ErrorContent
+
+func (*GetRolesNotFound) getRolesRes() {}
+
 type GetRolesOK struct {
 	Data []Role `json:"data"`
 }
@@ -2394,9 +2558,17 @@ func (s *GetRolesOK) SetData(val []Role) {
 
 func (*GetRolesOK) getRolesRes() {}
 
+type GetRolesUnauthorized ErrorContent
+
+func (*GetRolesUnauthorized) getRolesRes() {}
+
 type GetStorageGroupByIdForbidden ErrorContent
 
 func (*GetStorageGroupByIdForbidden) getStorageGroupByIdRes() {}
+
+type GetStorageGroupByIdNotFound ErrorContent
+
+func (*GetStorageGroupByIdNotFound) getStorageGroupByIdRes() {}
 
 // Ref: #/components/schemas/GetStorageGroupByIdResponse
 type GetStorageGroupByIdResponse struct {
@@ -2423,6 +2595,10 @@ type GetStorageGroupsForbidden ErrorContent
 
 func (*GetStorageGroupsForbidden) getStorageGroupsRes() {}
 
+type GetStorageGroupsNotFound ErrorContent
+
+func (*GetStorageGroupsNotFound) getStorageGroupsRes() {}
+
 // Ref: #/components/schemas/GetStorageGroupsResponse
 type GetStorageGroupsResponse struct {
 	Data []StorageGroup `json:"data"`
@@ -2448,6 +2624,10 @@ type GetTaskByIdForbidden ErrorContent
 
 func (*GetTaskByIdForbidden) getTaskByIdRes() {}
 
+type GetTaskByIdNotFound ErrorContent
+
+func (*GetTaskByIdNotFound) getTaskByIdRes() {}
+
 type GetTaskByIdUnauthorized ErrorContent
 
 func (*GetTaskByIdUnauthorized) getTaskByIdRes() {}
@@ -2472,6 +2652,10 @@ func (*GetTaskResponse) getTaskByIdRes() {}
 type GetTasksForbidden ErrorContent
 
 func (*GetTasksForbidden) getTasksRes() {}
+
+type GetTasksNotFound ErrorContent
+
+func (*GetTasksNotFound) getTasksRes() {}
 
 // Ref: #/components/schemas/GetTasksResponse
 type GetTasksResponse struct {
@@ -2536,9 +2720,21 @@ func (s *GetTvBoardDataResponseData) SetTasks(val []TaskBase) {
 	s.Tasks = val
 }
 
+type GetTvBoardsDataNotFound ErrorContent
+
+func (*GetTvBoardsDataNotFound) getTvBoardsDataRes() {}
+
+type GetTvBoardsDataUnauthorized ErrorContent
+
+func (*GetTvBoardsDataUnauthorized) getTvBoardsDataRes() {}
+
 type GetTvBoardsForbidden ErrorContent
 
 func (*GetTvBoardsForbidden) getTvBoardsRes() {}
+
+type GetTvBoardsNotFound ErrorContent
+
+func (*GetTvBoardsNotFound) getTvBoardsRes() {}
 
 // Ref: #/components/schemas/GetTvBoardsResponse
 type GetTvBoardsResponse struct {
@@ -2764,6 +2960,10 @@ func (s *InstanceFullStatus) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+type InviteEmployeeBadRequest ErrorContent
+
+func (*InviteEmployeeBadRequest) inviteEmployeeRes() {}
 
 type InviteEmployeeForbidden ErrorContent
 
@@ -3674,9 +3874,17 @@ func (s *OrganizationUpdate) SetName(val string) {
 	s.Name = val
 }
 
+type PatchEmployeeByIdBadRequest ErrorContent
+
+func (*PatchEmployeeByIdBadRequest) patchEmployeeByIdRes() {}
+
 type PatchEmployeeByIdForbidden ErrorContent
 
 func (*PatchEmployeeByIdForbidden) patchEmployeeByIdRes() {}
+
+type PatchEmployeeByIdNotFound ErrorContent
+
+func (*PatchEmployeeByIdNotFound) patchEmployeeByIdRes() {}
 
 type PatchEmployeeByIdUnauthorized ErrorContent
 
@@ -3707,6 +3915,10 @@ func (s *PatchEmployeeRequest) SetUserId(val uuid.UUID) {
 func (s *PatchEmployeeRequest) SetRoleId(val OptInt) {
 	s.RoleId = val
 }
+
+type PickInstanceFromCellBadRequest ErrorContent
+
+func (*PickInstanceFromCellBadRequest) pickInstanceFromCellRes() {}
 
 type PickInstanceFromCellForbidden ErrorContent
 
@@ -3743,6 +3955,10 @@ func (*RevokeApiTokenForbidden) revokeApiTokenRes() {}
 type RevokeApiTokenNoContent struct{}
 
 func (*RevokeApiTokenNoContent) revokeApiTokenRes() {}
+
+type RevokeApiTokenNotFound ErrorContent
+
+func (*RevokeApiTokenNotFound) revokeApiTokenRes() {}
 
 type RevokeApiTokenUnauthorized ErrorContent
 
@@ -4618,9 +4834,17 @@ func (s *UnitBase) SetAddress(val OptNilString) {
 	s.Address = val
 }
 
+type UpdateCellBadRequest ErrorContent
+
+func (*UpdateCellBadRequest) updateCellRes() {}
+
 type UpdateCellForbidden ErrorContent
 
 func (*UpdateCellForbidden) updateCellRes() {}
+
+type UpdateCellNotFound ErrorContent
+
+func (*UpdateCellNotFound) updateCellRes() {}
 
 // Ref: #/components/schemas/UpdateCellRequest
 type UpdateCellRequest struct {
@@ -4691,9 +4915,17 @@ type UpdateCellUnauthorized ErrorContent
 
 func (*UpdateCellUnauthorized) updateCellRes() {}
 
+type UpdateCellsGroupBadRequest ErrorContent
+
+func (*UpdateCellsGroupBadRequest) updateCellsGroupRes() {}
+
 type UpdateCellsGroupForbidden ErrorContent
 
 func (*UpdateCellsGroupForbidden) updateCellsGroupRes() {}
+
+type UpdateCellsGroupNotFound ErrorContent
+
+func (*UpdateCellsGroupNotFound) updateCellsGroupRes() {}
 
 // Ref: #/components/schemas/UpdateCellsGroupRequest
 type UpdateCellsGroupRequest struct {
@@ -4764,9 +4996,17 @@ type UpdateCellsGroupUnauthorized ErrorContent
 
 func (*UpdateCellsGroupUnauthorized) updateCellsGroupRes() {}
 
+type UpdateInstanceByIdBadRequest ErrorContent
+
+func (*UpdateInstanceByIdBadRequest) updateInstanceByIdRes() {}
+
 type UpdateInstanceByIdForbidden ErrorContent
 
 func (*UpdateInstanceByIdForbidden) updateInstanceByIdRes() {}
+
+type UpdateInstanceByIdNotFound ErrorContent
+
+func (*UpdateInstanceByIdNotFound) updateInstanceByIdRes() {}
 
 type UpdateInstanceByIdUnauthorized ErrorContent
 
@@ -4814,6 +5054,18 @@ func (s *UpdateInstanceResponse) SetData(val InstanceFull) {
 }
 
 func (*UpdateInstanceResponse) updateInstanceByIdRes() {}
+
+type UpdateItemBadRequest ErrorContent
+
+func (*UpdateItemBadRequest) updateItemRes() {}
+
+type UpdateItemForbidden ErrorContent
+
+func (*UpdateItemForbidden) updateItemRes() {}
+
+type UpdateItemNotFound ErrorContent
+
+func (*UpdateItemNotFound) updateItemRes() {}
 
 // Ref: #/components/schemas/UpdateItemRequest
 type UpdateItemRequest struct {
@@ -4869,9 +5121,17 @@ func (s *UpdateItemResponse) SetData(val ItemFull) {
 
 func (*UpdateItemResponse) updateItemRes() {}
 
+type UpdateItemVariantBadRequest ErrorContent
+
+func (*UpdateItemVariantBadRequest) updateItemVariantRes() {}
+
 type UpdateItemVariantForbidden ErrorContent
 
 func (*UpdateItemVariantForbidden) updateItemVariantRes() {}
+
+type UpdateItemVariantNotFound ErrorContent
+
+func (*UpdateItemVariantNotFound) updateItemVariantRes() {}
 
 // Ref: #/components/schemas/UpdateItemVariantRequest
 type UpdateItemVariantRequest struct {
@@ -4931,9 +5191,17 @@ type UpdateItemVariantUnauthorized ErrorContent
 
 func (*UpdateItemVariantUnauthorized) updateItemVariantRes() {}
 
+type UpdateOrganizationBadRequest ErrorContent
+
+func (*UpdateOrganizationBadRequest) updateOrganizationRes() {}
+
 type UpdateOrganizationForbidden ErrorContent
 
 func (*UpdateOrganizationForbidden) updateOrganizationRes() {}
+
+type UpdateOrganizationNotFound ErrorContent
+
+func (*UpdateOrganizationNotFound) updateOrganizationRes() {}
 
 // Ref: #/components/schemas/UpdateOrganizationResponse
 type UpdateOrganizationResponse struct {
@@ -4956,9 +5224,17 @@ type UpdateOrganizationUnauthorized ErrorContent
 
 func (*UpdateOrganizationUnauthorized) updateOrganizationRes() {}
 
+type UpdateOrganizationUnitBadRequest ErrorContent
+
+func (*UpdateOrganizationUnitBadRequest) updateOrganizationUnitRes() {}
+
 type UpdateOrganizationUnitForbidden ErrorContent
 
 func (*UpdateOrganizationUnitForbidden) updateOrganizationUnitRes() {}
+
+type UpdateOrganizationUnitNotFound ErrorContent
+
+func (*UpdateOrganizationUnitNotFound) updateOrganizationUnitRes() {}
 
 // Ref: #/components/schemas/UpdateOrganizationUnitResponse
 type UpdateOrganizationUnitResponse struct {
@@ -4981,9 +5257,17 @@ type UpdateOrganizationUnitUnauthorized ErrorContent
 
 func (*UpdateOrganizationUnitUnauthorized) updateOrganizationUnitRes() {}
 
+type UpdateStorageGroupBadRequest ErrorContent
+
+func (*UpdateStorageGroupBadRequest) updateStorageGroupRes() {}
+
 type UpdateStorageGroupForbidden ErrorContent
 
 func (*UpdateStorageGroupForbidden) updateStorageGroupRes() {}
+
+type UpdateStorageGroupNotFound ErrorContent
+
+func (*UpdateStorageGroupNotFound) updateStorageGroupRes() {}
 
 // Ref: #/components/schemas/UpdateStorageGroupResponse
 type UpdateStorageGroupResponse struct {

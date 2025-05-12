@@ -29,6 +29,8 @@ paths:
                 $ref: '#/components/schemas/GetOrganizationsResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -49,6 +51,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateOrganizationResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '409':
@@ -80,6 +84,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -94,6 +100,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -114,10 +122,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOrganizationResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /units:
@@ -137,6 +149,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -157,6 +171,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateOrganizationUnitResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -188,6 +204,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -202,6 +220,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -222,10 +242,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOrganizationUnitResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /storage-groups:
@@ -245,6 +269,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -265,6 +291,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateStorageGroupResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -296,6 +324,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -310,6 +340,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -330,10 +362,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateStorageGroupResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /cells-groups:
@@ -353,6 +389,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -373,6 +411,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateCellsGroupResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -404,6 +444,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -418,6 +460,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -438,10 +482,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateCellsGroupResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /cells-groups/{groupId}/cells:
@@ -468,6 +516,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -488,6 +538,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateCellResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -524,6 +576,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -538,6 +592,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -558,10 +614,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateCellResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /items:
@@ -581,6 +641,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -601,6 +663,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateItemResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -632,6 +696,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -652,6 +718,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateItemVariantResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -690,6 +758,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -710,10 +780,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateItemVariantResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -728,6 +802,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /items/{id}:
@@ -755,6 +831,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -769,6 +847,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -789,8 +869,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateItemResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /instances:
@@ -810,6 +894,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /items/{itemId}/instances:
@@ -837,6 +923,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -857,6 +945,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateInstanceForItemResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -888,6 +978,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -908,10 +1000,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateInstanceResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -926,6 +1022,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /api-tokens:
@@ -945,6 +1043,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -965,6 +1065,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateApiTokenResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -991,6 +1093,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /auth/oauth2/yandex:
@@ -1066,6 +1170,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -1086,6 +1192,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTaskResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -1116,6 +1224,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /tasks/{id}/pick-instance:
@@ -1146,6 +1256,8 @@ paths:
       responses:
         '204':
           description: Successful operation
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -1170,6 +1282,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /employees/{id}:
@@ -1196,6 +1310,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     patch:
@@ -1216,10 +1332,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeeResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -1234,6 +1354,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /employees/invite:
@@ -1256,6 +1378,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEmployeeResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -1284,6 +1408,8 @@ paths:
                   - data
         '401':
           $ref: '#/components/responses/default-unauthorized'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /audit-logs:
@@ -1318,6 +1444,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /tv-boards:
@@ -1337,6 +1465,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
     post:
@@ -1357,6 +1487,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTvBoardResponse'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -1383,6 +1515,8 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
   /tv-boards/{tvToken}/data:
@@ -1407,6 +1541,8 @@ paths:
                 $ref: '#/components/schemas/GetTvBoardDataResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
+        '404':
+          $ref: '#/components/responses/default-not-found'
         default:
           $ref: '#/components/responses/default-error'
 components:
@@ -2609,6 +2745,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorContent'
+    default-not-found:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
+    default-bad-request:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorContent'
     default-conflict:
       description: Conflict, resource duplication
       content:
@@ -2631,12 +2779,6 @@ components:
             type: string
             description: Auth cookie
           required: true
-    default-bad-request:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorContent'
     LogoutResponse:
       description: Logout response
       headers:

@@ -23,6 +23,8 @@ get:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 patch:
   summary: Update employee by id
   tags:
@@ -47,6 +49,10 @@ patch:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
 delete:
   summary: Delete employee by id
   tags:
@@ -61,3 +67,5 @@ delete:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml

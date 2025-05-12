@@ -24,6 +24,8 @@ get:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "404":
+      $ref: ../../components/responses/default-not-found.yaml
 post:
   tags:
     - instance
@@ -48,3 +50,5 @@ post:
       $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
+    "400":
+      $ref: ../../components/responses/default-bad-request.yaml
