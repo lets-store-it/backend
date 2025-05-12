@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -93,7 +94,7 @@ func (s *StorageService) CreateCell(ctx context.Context, cell *models.Cell) (*mo
 func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*models.Cell, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "UpdateCell", func(ctx context.Context, span trace.Span) (*models.Cell, error) {
 		if cell == nil {
-			return nil, services.ErrValidationError
+			return nil, common.ErrValidationError
 		}
 
 		if err := s.validateAlias(cell.Alias); err != nil {
@@ -157,7 +158,7 @@ func (s *StorageService) GetCellFull(ctx context.Context, orgID uuid.UUID, cellI
 		if err != nil {
 			if database.IsNotFound(err) {
 				span.SetStatus(codes.Error, "cell not found")
-				return nil, services.ErrNotFoundError
+				return nil, common.ErrNotFound
 			}
 
 			return nil, services.MapDbErrorToService(err)

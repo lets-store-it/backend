@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/usecases"
 )
 
 func toTvBoard(tvBoard *models.TvBoard) api.TvBoard {
@@ -61,7 +61,7 @@ func (h *RestApiImplementation) GetTvBoards(ctx context.Context) (api.GetTvBoard
 func (h *RestApiImplementation) GetTvBoardsData(ctx context.Context, params api.GetTvBoardsDataParams) (api.GetTvBoardsDataRes, error) {
 	tvBoard, err := h.tvBoardUseCase.GetTvBoardByToken(ctx, params.TvToken)
 	if err != nil {
-		if errors.Is(err, usecases.ErrNotFound) {
+		if errors.Is(err, common.ErrNotFound) {
 			return nil, h.NewUnauthorizedErrorWithMessage(ctx, "Invalid TV board token")
 		}
 		return nil, fmt.Errorf("failed to get TV board: %w", err)
@@ -71,7 +71,7 @@ func (h *RestApiImplementation) GetTvBoardsData(ctx context.Context, params api.
 	ctx = context.WithValue(ctx, models.IsSystemUserContextKey, true)
 	ctx = context.WithValue(ctx, models.TvBoardIDContextKey, tvBoard.ID)
 
-	tvBoardID, err := usecases.GetTvBoardIDFromContext(ctx)
+	tvBoardID, err := common.GetTvBoardIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

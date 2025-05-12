@@ -6,8 +6,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services"
 )
 
 // / GetCurrentUser implements api.Handler.
@@ -207,7 +207,7 @@ func (h *RestApiImplementation) TestAuth(c echo.Context) error {
 
 	session, err := h.authUseCase.CreateSessionByEmail(c.Request().Context(), body.Email)
 	if err != nil {
-		if err == services.ErrNotFoundError {
+		if err == common.ErrNotFound {
 			user, err := h.authUseCase.CreateUser(c.Request().Context(), body.Email, body.FirstName, body.LastName)
 			if err != nil {
 				return h.NewError(c.Request().Context(), err)

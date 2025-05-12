@@ -60,13 +60,13 @@ func (uc *StorageUseCase) Create(ctx context.Context, group *models.StorageGroup
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeStorageGroup,
-		TargetObjectID:     createdGroup.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeStorageGroup,
+		TargetObjectID:   createdGroup.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -133,13 +133,13 @@ func (uc *StorageUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeStorageGroup,
-		TargetObjectID:     id,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeStorageGroup,
+		TargetObjectID:   id,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err
@@ -182,13 +182,13 @@ func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeStorageGroup,
-		TargetObjectID:     updatedGroup.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeStorageGroup,
+		TargetObjectID:   updatedGroup.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -235,13 +235,13 @@ func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, group *models.Ce
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeCellsGroup,
-		TargetObjectID:     createdGroup.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeCellsGroup,
+		TargetObjectID:   createdGroup.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -297,13 +297,13 @@ func (uc *StorageUseCase) UpdateCellsGroup(ctx context.Context, cellGroup *model
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeCellsGroup,
-		TargetObjectID:     updatedGroup.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeCellsGroup,
+		TargetObjectID:   updatedGroup.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -339,13 +339,13 @@ func (uc *StorageUseCase) DeleteCellsGroup(ctx context.Context, id uuid.UUID) er
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeCellsGroup,
-		TargetObjectID:     id,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeCellsGroup,
+		TargetObjectID:   id,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err
@@ -392,13 +392,13 @@ func (uc *StorageUseCase) CreateCell(ctx context.Context, cell *models.Cell) (*m
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeCell,
-		TargetObjectID:     createdCell.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeCell,
+		TargetObjectID:   createdCell.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -447,13 +447,13 @@ func (uc *StorageUseCase) DeleteCell(ctx context.Context, id uuid.UUID) error {
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionDelete,
-		TargetObjectTypeId: models.ObjectTypeCell,
-		TargetObjectID:     id,
-		PrechangeState:     prechangeState,
-		PostchangeState:    nil,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionDelete,
+		TargetObjectType: models.ObjectTypeCell,
+		TargetObjectID:   id,
+		PrechangeState:   prechangeState,
+		PostchangeState:  nil,
 	})
 	if err != nil {
 		return err
@@ -497,13 +497,13 @@ func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeCell,
-		TargetObjectID:     updatedCell.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeCell,
+		TargetObjectID:   updatedCell.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err

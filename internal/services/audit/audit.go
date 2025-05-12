@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"github.com/let-store-it/backend/internal/utils"
@@ -78,13 +78,13 @@ func (s *AuditService) Close() error {
 
 func (s *AuditService) validateObjectChange(objectChange *models.ObjectChange) error {
 	if objectChange == nil {
-		return fmt.Errorf("%w: object change is nil", services.ErrValidationError)
+		return fmt.Errorf("%w: object change is nil", common.ErrValidationError)
 	}
 	if objectChange.OrgID == uuid.Nil {
-		return fmt.Errorf("%w: organization ID is nil", services.ErrValidationError)
+		return fmt.Errorf("%w: organization ID is nil", common.ErrValidationError)
 	}
 	if objectChange.TargetObjectID == uuid.Nil {
-		return fmt.Errorf("%w: target object ID is nil", services.ErrValidationError)
+		return fmt.Errorf("%w: target object ID is nil", common.ErrValidationError)
 	}
 	return nil
 }
@@ -146,6 +146,17 @@ func (s *AuditService) publishToKafka(ctx context.Context, objectChange *models.
 
 func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *models.ObjectChange) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "CreateObjectChange", func(ctx context.Context, span trace.Span) error {
+		userID, err := common.GetUserIDFromContextIfExists(ctx)
+		if err != nil {
+			return err
+		}
+		orgID, err := common.GetOrganizationIDFromContext(ctx)
+		if err != nil {
+			return err
+		}
+		objectChange.OrgID = orgID
+		objectChange.UserID = userID
+
 		span.SetAttributes(
 			attribute.String("org.id", objectChange.OrgID.String()),
 			attribute.String("user.id", utils.SafeUUIDString(objectChange.UserID)),
@@ -162,16 +173,29 @@ func (s *AuditService) CreateObjectChange(ctx context.Context, objectChange *mod
 			return err
 		}
 
+		// convert prechange and postchange state from any to json.RawMessage
+		prechangeState, err := json.Marshal(objectChange.PrechangeState)
+		if err != nil {
+			return fmt.Errorf("failed to marshal prechange state: %w", err)
+		}
+		postchangeState, err := json.Marshal(objectChange.PostchangeState)
+		if err != nil {
+			return fmt.Errorf("failed to marshal postchange state: %w", err)
+		}
+
+		objectChange.PrechangeState = prechangeState
+		objectChange.PostchangeState = postchangeState
+
 		err = database.WithVoidTransaction(ctx, s.pgxPool, s.tracer, func(ctx context.Context, tx pgx.Tx) error {
 			qtx := s.queries.WithTx(tx)
 			change, err := qtx.CreateObjectChange(ctx, sqlc.CreateObjectChangeParams{
 				OrgID:            database.PgUUID(objectChange.OrgID),
 				UserID:           database.PgUUIDPtr(objectChange.UserID),
 				Action:           string(objectChange.Action),
-				TargetObjectType: int32(objectChange.TargetObjectTypeId),
+				TargetObjectType: int32(objectChange.TargetObjectType),
 				TargetObjectID:   database.PgUUID(objectChange.TargetObjectID),
-				PrechangeState:   objectChange.PrechangeState,
-				PostchangeState:  objectChange.PostchangeState,
+				PrechangeState:   prechangeState,
+				PostchangeState:  postchangeState,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create object change: %w", err)
@@ -228,17 +252,17 @@ func (s *AuditService) GetObjectChanges(ctx context.Context, orgID uuid.UUID, ta
 			}
 
 			objectChangesModels[i] = &models.ObjectChange{
-				ID:                 change.ID.Bytes,
-				OrgID:              change.OrgID.Bytes,
-				UserID:             database.UUIDPtrFromPgx(change.UserID),
-				Action:             models.ObjectChangeAction(change.Action),
-				TargetObjectTypeId: models.ObjectTypeId(objectType.ID),
-				TargetObjectID:     change.TargetObjectID.Bytes,
-				PrechangeState:     change.PrechangeState,
-				PostchangeState:    change.PostchangeState,
-				Timestamp:          change.Time.Time,
-				ObjectType:         objectType,
-				Employee:           employee,
+				ID:               change.ID.Bytes,
+				OrgID:            change.OrgID.Bytes,
+				UserID:           database.UUIDPtrFromPgx(change.UserID),
+				Action:           models.ObjectChangeAction(change.Action),
+				TargetObjectType: models.ObjectTypeId(objectType.ID),
+				TargetObjectID:   change.TargetObjectID.Bytes,
+				PrechangeState:   change.PrechangeState,
+				PostchangeState:  change.PostchangeState,
+				Timestamp:        change.Time.Time,
+				ObjectType:       objectType,
+				Employee:         employee,
 			}
 		}
 

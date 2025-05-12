@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -44,7 +45,7 @@ func (s *AuthService) SetUserRole(ctx context.Context, orgID uuid.UUID, userID u
 		)
 
 		if roleID < models.RoleOwnerID || roleID > models.RoleWorkerID {
-			return services.ErrValidationError
+			return common.ErrValidationError
 		}
 
 		err := s.queries.AssignRoleToUser(ctx, sqlc.AssignRoleToUserParams{

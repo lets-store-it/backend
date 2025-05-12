@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/let-store-it/backend/generated/api"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/usecases"
 	"github.com/ogen-go/ogen/ogenerrors"
 )
@@ -50,15 +51,29 @@ func (h *RestApiImplementation) NewValidationError(ctx context.Context, message 
 	}
 }
 
+func (h *RestApiImplementation) NewForbiddenError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
+	return &api.DefaultErrorStatusCode{
+		StatusCode: http.StatusForbidden,
+		Response: api.ErrorContent{
+			Error: api.ErrorContentError{
+				Code:    "forbidden",
+				Message: err.Error(),
+			},
+		},
+	}
+}
+
 func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.DefaultErrorStatusCode {
 	// var ogenErr ogenerrors.Error
-	var detailedErr *usecases.ErrDetailedValidationError
+	var detailedErr *common.ErrDetailedValidationError
 	switch {
 	case errors.As(err, &detailedErr) && detailedErr != nil:
 		return h.NewValidationError(ctx, detailedErr.Message)
 	case errors.Is(err, usecases.ErrNotAuthorized):
 		return h.NewUnauthorizedError(ctx)
-	case errors.Is(err, usecases.ErrOrganizationIDMissing):
+	case errors.Is(err, usecases.ErrForbidden):
+		return h.NewForbiddenError(ctx, err)
+	case errors.Is(err, common.ErrOrganizationIDMissing):
 		return h.NewValidationError(ctx, "x-organization-id header is missing")
 	case errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied):
 		return h.NewUnauthorizedError(ctx)
@@ -66,6 +81,8 @@ func (h *RestApiImplementation) NewError(ctx context.Context, err error) *api.De
 		return h.NewUnauthorizedError(ctx)
 	case errors.Is(err, ErrSessionRevoked):
 		return h.NewUnauthorizedErrorWithMessage(ctx, "Session was revoked")
+	case errors.Is(err, common.ErrDuplicationError):
+		return h.NewConflictError(ctx, err.Error())
 	case errors.Is(err, ErrSessionExpired):
 		return h.NewUnauthorizedErrorWithMessage(ctx, "Session expired")
 		// case errors.As(err, &ogenErr):

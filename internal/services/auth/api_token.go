@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -35,7 +36,7 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 		)
 
 		if name == "" {
-			return nil, services.ErrValidationError
+			return nil, common.ErrValidationError
 		}
 
 		token, err := s.queries.CreateApiToken(ctx, sqlc.CreateApiTokenParams{

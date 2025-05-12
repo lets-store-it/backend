@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,11 +42,11 @@ type ObjectChange struct {
 
 	Action ObjectChangeAction `json:"action"`
 
-	TargetObjectTypeId ObjectTypeId `json:"target_object_type_id"`
-	TargetObjectID     uuid.UUID    `json:"target_object_id"`
+	TargetObjectType ObjectTypeId `json:"target_object_type_id"`
+	TargetObjectID   uuid.UUID    `json:"target_object_id"`
 
-	PrechangeState  json.RawMessage `json:"prechange_state"`
-	PostchangeState json.RawMessage `json:"postchange_state"`
+	PrechangeState  any `json:"prechange_state"`
+	PostchangeState any `json:"postchange_state"`
 
 	Timestamp time.Time `json:"timestamp"`
 

@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/models"
-	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/tvboard"
@@ -126,8 +126,8 @@ func (uc *TvBoardUseCase) DeleteTvBoard(ctx context.Context, id uuid.UUID) error
 func (uc *TvBoardUseCase) GetTvBoardByToken(ctx context.Context, token string) (*models.TvBoard, error) {
 	res, err := uc.tvBoardService.GetTvBoardByToken(ctx, token)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFoundError) {
-			return nil, usecases.ErrNotFound
+		if errors.Is(err, common.ErrNotFound) {
+			return nil, common.ErrNotFound
 		}
 		return nil, err
 	}

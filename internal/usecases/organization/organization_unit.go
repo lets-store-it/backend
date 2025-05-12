@@ -31,13 +31,13 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionCreate,
-		TargetObjectTypeId: models.ObjectTypeUnit,
-		TargetObjectID:     createdUnit.ID,
-		PrechangeState:     nil,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionCreate,
+		TargetObjectType: models.ObjectTypeUnit,
+		TargetObjectID:   createdUnit.ID,
+		PrechangeState:   nil,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err
@@ -123,13 +123,13 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 	}
 
 	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:              validateResult.OrgID,
-		UserID:             validateResult.UserID,
-		Action:             models.ObjectChangeActionUpdate,
-		TargetObjectTypeId: models.ObjectTypeUnit,
-		TargetObjectID:     unit.ID,
-		PrechangeState:     prechangeState,
-		PostchangeState:    postchangeState,
+		OrgID:            validateResult.OrgID,
+		UserID:           validateResult.UserID,
+		Action:           models.ObjectChangeActionUpdate,
+		TargetObjectType: models.ObjectTypeUnit,
+		TargetObjectID:   unit.ID,
+		PrechangeState:   prechangeState,
+		PostchangeState:  postchangeState,
 	})
 	if err != nil {
 		return nil, err

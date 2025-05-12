@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -133,7 +134,7 @@ func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID
 func (s *StorageService) UpdateStorageGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "UpdateStorageGroup", func(ctx context.Context, span trace.Span) (*models.StorageGroup, error) {
 		if group == nil {
-			return nil, services.ErrValidationError
+			return nil, common.ErrValidationError
 		}
 		span.SetAttributes(
 			attribute.String("org.id", group.OrgID.String()),

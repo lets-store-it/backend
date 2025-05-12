@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/sqlc"
+	"github.com/let-store-it/backend/internal/common"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
@@ -53,19 +54,19 @@ func (s *AuthService) CreateUser(ctx context.Context, user *models.User) (*model
 
 func (s *AuthService) validateUserData(user *models.User) error {
 	if user == nil {
-		return fmt.Errorf("%w: user is nil", services.ErrValidationError)
+		return fmt.Errorf("%w: user is nil", common.ErrValidationError)
 	}
 	if strings.TrimSpace(user.Email) == "" {
-		return fmt.Errorf("%w: email is required", services.ErrValidationError)
+		return fmt.Errorf("%w: email is required", common.ErrValidationError)
 	}
 	if !emailRegex.MatchString(user.Email) {
-		return fmt.Errorf("%w: invalid email format", services.ErrValidationError)
+		return fmt.Errorf("%w: invalid email format", common.ErrValidationError)
 	}
 	if strings.TrimSpace(user.FirstName) == "" {
-		return fmt.Errorf("%w: first name is required", services.ErrValidationError)
+		return fmt.Errorf("%w: first name is required", common.ErrValidationError)
 	}
 	if strings.TrimSpace(user.LastName) == "" {
-		return fmt.Errorf("%w: last name is required", services.ErrValidationError)
+		return fmt.Errorf("%w: last name is required", common.ErrValidationError)
 	}
 	return nil
 }
