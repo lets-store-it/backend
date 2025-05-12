@@ -5,13 +5,13 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/yandex"
 	"github.com/let-store-it/backend/internal/usecases"
-	"github.com/let-store-it/backend/internal/database"
 )
 
 type AuthUseCase struct {
@@ -247,4 +247,14 @@ func (uc *AuthUseCase) GetOrgIdByApiToken(ctx context.Context, token string) (uu
 		return uuid.Nil, err
 	}
 	return orgID, nil
+}
+
+func (u *AuthUseCase) CreateUser(ctx context.Context, email, firstName, lastName string) (*models.User, error) {
+	user := &models.User{
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+	}
+
+	return u.authService.CreateUser(ctx, user)
 }

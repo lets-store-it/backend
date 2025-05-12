@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/let-store-it/backend/generated/api"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services"
 )
 
 // / GetCurrentUser implements api.Handler.
@@ -184,4 +187,43 @@ func (h *RestApiImplementation) PatchEmployeeById(ctx context.Context, req *api.
 	return &api.GetEmployeeResponse{
 		Data: toEmployeeDTO(employee),
 	}, nil
+}
+
+func (h *RestApiImplementation) TestAuth(c echo.Context) error {
+	var body struct {
+		Email     string `json:"email"`
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return h.NewError(c.Request().Context(), err)
+	}
+	if body.Email == "" || body.FirstName == "" || body.LastName == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "email, firstName and lastName are required",
+		})
+	}
+
+	session, err := h.authUseCase.CreateSessionByEmail(c.Request().Context(), body.Email)
+	if err != nil {
+		if err == services.ErrNotFoundError {
+			user, err := h.authUseCase.CreateUser(c.Request().Context(), body.Email, body.FirstName, body.LastName)
+			if err != nil {
+				return h.NewError(c.Request().Context(), err)
+			}
+
+			session, err = h.authUseCase.CreateSession(c.Request().Context(), user.ID)
+			if err != nil {
+				return h.NewError(c.Request().Context(), err)
+			}
+		} else {
+			return h.NewError(c.Request().Context(), err)
+		}
+	}
+
+	cookie := generateAuthCookie(session.Token, defaultExpiresIn)
+	c.SetCookie(cookie)
+
+	return c.NoContent(http.StatusOK)
 }

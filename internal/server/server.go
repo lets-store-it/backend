@@ -178,6 +178,9 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 
 	// Setup routes
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	e.POST("/auth/test", func(c echo.Context) error {
+		return handler.TestAuth(c)
+	})
 	e.Any("/*", echo.WrapHandler(server))
 
 	return &Server{
