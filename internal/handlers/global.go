@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"github.com/let-store-it/backend/generated/api"
 	auditUC "github.com/let-store-it/backend/internal/usecases/audit"
 	authUC "github.com/let-store-it/backend/internal/usecases/auth"
 	itemUC "github.com/let-store-it/backend/internal/usecases/item"
@@ -19,6 +21,11 @@ type RestApiImplementation struct {
 	auditUseCase        *auditUC.AuditUseCase
 	taskUseCase         *taskUC.TaskUseCase
 	tvBoardUseCase      *tvboardUC.TvBoardUseCase
+}
+
+// GetInstancesByItemId implements api.Handler.
+func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
+	panic("unimplemented")
 }
 
 func NewRestApiImplementation(

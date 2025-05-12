@@ -311,50 +311,6 @@ func (h *RestApiImplementation) UpdateItem(ctx context.Context, req *api.UpdateI
 	}, nil
 }
 
-// // PatchItem implements api.Handler.
-// func (h *RestApiImplementation) PatchItem(ctx context.Context, req *api.PatchItemRequest, params api.PatchItemParams) (*api.PatchItemResponse, error) {
-// 	updates := make(map[string]interface{})
-
-// 	if val, ok := req.Name.Get(); ok {
-// 		updates["name"] = val
-// 	}
-// 	if val, ok := req.Description.Get(); ok {
-// 		updates["description"] = &val
-// 	}
-
-// 	// Handle variants updates
-// 	if req.Variants != nil {
-// 		variants := make([]interface{}, len(req.Variants))
-// 		for i, v := range req.Variants {
-// 			variant := make(map[string]interface{})
-// 			variant["id"] = v.ID
-// 			variant["name"] = v.Name
-// 			if v.Article.Set {
-// 				variant["article"] = &v.Article.Value
-// 			}
-// 			if v.Ean13.Set {
-// 				variant["ean13"] = float64(v.Ean13.Value)
-// 			}
-// 			variants[i] = variant
-// 		}
-// 		updates["variants"] = variants
-// 	}
-
-// 	orgID, err := usecases.GetOrganizationIDFromContext(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	item, err := h.itemUseCase.Patch(ctx, orgID, params.ID, updates)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &api.PatchItemResponse{
-// 		Data: *convertItemToFullDTO(item, nil),
-// 	}, nil
-// }
-
 func (h *RestApiImplementation) CreateItemVariant(ctx context.Context, req *api.CreateItemVariantRequest, params api.CreateItemVariantParams) (api.CreateItemVariantRes, error) {
 	variant := &models.ItemVariant{
 		Name:    req.Name,
@@ -423,7 +379,6 @@ func (h *RestApiImplementation) DeleteItemVariant(ctx context.Context, params ap
 
 // instances
 
-// CreateInstanceForItem implements api.Handler.
 func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *api.CreateInstanceForItemRequest, params api.CreateInstanceForItemParams) (api.CreateInstanceForItemRes, error) {
 	itemInstance := &models.ItemInstance{
 		ItemID:    params.ItemId,
@@ -450,7 +405,6 @@ func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params a
 	return &api.DeleteInstanceByIdOK{}, nil
 }
 
-// GetInstanceById implements api.Handler.
 func (h *RestApiImplementation) GetInstanceById(ctx context.Context, params api.GetInstanceByIdParams) (api.GetInstanceByIdRes, error) {
 	instance, err := h.itemUseCase.GetItemInstanceById(ctx, params.InstanceId)
 	if err != nil {
@@ -492,9 +446,4 @@ func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstan
 	return &api.GetInstancesResponse{
 		Data: dtoInstances,
 	}, nil
-}
-
-// GetInstancesByItemId implements api.Handler.
-func (h *RestApiImplementation) GetInstancesByItemId(ctx context.Context, params api.GetInstancesByItemIdParams) (api.GetInstancesByItemIdRes, error) {
-	panic("unimplemented")
 }

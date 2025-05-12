@@ -146,7 +146,6 @@ func (h *RestApiImplementation) CreateCellsGroup(ctx context.Context, req *api.C
 	}, nil
 }
 
-// GetCellsGroupById implements api.Handler.
 func (h *RestApiImplementation) GetCellsGroupById(ctx context.Context, params api.GetCellsGroupByIdParams) (api.GetCellsGroupByIdRes, error) {
 	cellGroup, err := h.storageGroupUseCase.GetCellsGroupByID(ctx, params.GroupId)
 	if err != nil {
@@ -231,7 +230,6 @@ func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetC
 	}, nil
 }
 
-// GetCells implements api.Handler.
 func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCellsParams) (api.GetCellsRes, error) {
 	cells, err := h.storageGroupUseCase.GetCells(ctx, params.GroupId)
 	if err != nil {

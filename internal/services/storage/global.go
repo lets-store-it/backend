@@ -12,16 +12,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-var (
-// ErrStorageGroupNotFound = errors.New("storage group not found")
-// ErrCellsGroupNotFound   = errors.New("cells group not found")
-// ErrCellNotFound         = errors.New("cell not found")
-
-// ErrInvalidStorageGroup = errors.New("invalid storage group")
-// ErrInvalidCellsGroup   = errors.New("invalid cells group")
-// ErrInvalidCell         = errors.New("invalid cell")
-)
-
 const (
 	maxNameLength  = 100
 	maxAliasLength = 100

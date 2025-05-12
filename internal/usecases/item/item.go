@@ -45,7 +45,6 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	// Fetch the full item with variants
 	fullItem, err := uc.service.GetItemByID(ctx, validateResult.OrgID, createdItem.ID)
 	if err != nil {
 		return nil, err
