@@ -2,7 +2,6 @@ package item
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
@@ -38,7 +37,7 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -53,24 +52,6 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	postchangeState, err := json.Marshal(fullItem)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeItem,
-		TargetObjectID:   fullItem.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	return fullItem, nil
 }
 
@@ -80,7 +61,7 @@ func (uc *ItemUseCase) GetItemsAll(ctx context.Context) ([]*models.Item, error) 
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -93,7 +74,7 @@ func (uc *ItemUseCase) GetItemById(ctx context.Context, id uuid.UUID) (*models.I
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -106,40 +87,11 @@ func (uc *ItemUseCase) UpdateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	// Get the current state for audit
-	currentItem, err := uc.service.GetItemByID(ctx, validateResult.OrgID, item.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	prechangeState, err := json.Marshal(currentItem)
-	if err != nil {
-		return nil, err
-	}
-
 	updatedItem, err := uc.service.UpdateItem(ctx, validateResult.OrgID, item)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(updatedItem)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeItem,
-		TargetObjectID:   updatedItem.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -153,35 +105,11 @@ func (uc *ItemUseCase) DeleteItem(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
 	}
 
-	// Get the current state for audit
-	currentItem, err := uc.service.GetItemByID(ctx, validateResult.OrgID, id)
-	if err != nil {
-		return err
-	}
-
-	prechangeState, err := json.Marshal(currentItem)
-	if err != nil {
-		return err
-	}
-
 	err = uc.service.DeleteItem(ctx, validateResult.OrgID, id)
-	if err != nil {
-		return err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionDelete,
-		TargetObjectType: models.ObjectTypeItem,
-		TargetObjectID:   id,
-		PrechangeState:   prechangeState,
-		PostchangeState:  nil,
-	})
 	if err != nil {
 		return err
 	}
@@ -195,29 +123,11 @@ func (uc *ItemUseCase) CreateItemVariant(ctx context.Context, variant *models.It
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
 	createdVariant, err := uc.service.CreateItemVariant(ctx, validateResult.OrgID, variant)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(createdVariant)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeItemVariant,
-		TargetObjectID:   createdVariant.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +141,7 @@ func (uc *ItemUseCase) GetItemVariantById(ctx context.Context, id uuid.UUID, var
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -244,7 +154,7 @@ func (uc *ItemUseCase) GetItemVariants(ctx context.Context, id uuid.UUID) ([]*mo
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -257,40 +167,11 @@ func (uc *ItemUseCase) UpdateItemVariant(ctx context.Context, variant *models.It
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	// Get the current state for audit
-	currentVariant, err := uc.service.GetItemVariantById(ctx, validateResult.OrgID, variant.ItemID, variant.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	prechangeState, err := json.Marshal(currentVariant)
-	if err != nil {
-		return nil, err
-	}
-
 	updatedVariant, err := uc.service.UpdateItemVariant(ctx, validateResult.OrgID, variant)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(updatedVariant)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeItemVariant,
-		TargetObjectID:   updatedVariant.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -304,35 +185,11 @@ func (uc *ItemUseCase) DeleteItemVariant(ctx context.Context, id uuid.UUID, vari
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
 	}
 
-	// Get the current state for audit
-	currentVariant, err := uc.service.GetItemVariantById(ctx, validateResult.OrgID, id, variantId)
-	if err != nil {
-		return err
-	}
-
-	prechangeState, err := json.Marshal(currentVariant)
-	if err != nil {
-		return err
-	}
-
 	err = uc.service.DeleteItemVariant(ctx, validateResult.OrgID, id, variantId)
-	if err != nil {
-		return err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionDelete,
-		TargetObjectType: models.ObjectTypeItemVariant,
-		TargetObjectID:   variantId,
-		PrechangeState:   prechangeState,
-		PostchangeState:  nil,
-	})
 	if err != nil {
 		return err
 	}
@@ -346,7 +203,7 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -362,24 +219,6 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 	// 	return nil, err
 	// }
 
-	postchangeState, err := json.Marshal(createdInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeItemInstance,
-		TargetObjectID:   createdInstance.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	return createdInstance, nil
 }
 
@@ -389,7 +228,7 @@ func (uc *ItemUseCase) GetItemInstances(ctx context.Context, id uuid.UUID) ([]*m
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -402,7 +241,7 @@ func (uc *ItemUseCase) GetItemInstanceById(ctx context.Context, id uuid.UUID) (*
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -415,7 +254,7 @@ func (uc *ItemUseCase) GetItemInstancesAll(ctx context.Context) ([]*models.ItemI
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -428,40 +267,13 @@ func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
 	itemInstance.OrgID = validateResult.OrgID
-	currentInstance, err := uc.service.GetItemInstanceById(ctx, validateResult.OrgID, itemInstance.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	prechangeState, err := json.Marshal(currentInstance)
-	if err != nil {
-		return nil, err
-	}
 
 	updatedInstance, err := uc.service.UpdateItemInstance(ctx, validateResult.OrgID, itemInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(updatedInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeItemInstance,
-		TargetObjectID:   updatedInstance.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -475,34 +287,11 @@ func (uc *ItemUseCase) DeleteItemInstance(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
 	}
 
-	currentInstance, err := uc.service.GetItemInstanceById(ctx, validateResult.OrgID, id)
-	if err != nil {
-		return err
-	}
-
-	prechangeState, err := json.Marshal(currentInstance)
-	if err != nil {
-		return err
-	}
-
 	err = uc.service.DeleteItemInstance(ctx, validateResult.OrgID, id)
-	if err != nil {
-		return err
-	}
-
-	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		OrgID:            validateResult.OrgID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionDelete,
-		TargetObjectType: models.ObjectTypeItemInstance,
-		TargetObjectID:   id,
-		PrechangeState:   prechangeState,
-		PostchangeState:  nil,
-	})
 	if err != nil {
 		return err
 	}

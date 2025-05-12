@@ -10,24 +10,29 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
+	"github.com/let-store-it/backend/internal/services/employee"
 	"github.com/let-store-it/backend/internal/services/yandex"
+	"github.com/let-store-it/backend/internal/usecases"
 )
 
 type AuthUseCase struct {
 	authService        *auth.AuthService
 	yandexOAuthService *yandex.YandexOAuthService
+	employeeService    *employee.EmployeeService
 }
 
 type AuthUseCaseConfig struct {
 	AuditService       *audit.AuditService
 	AuthService        *auth.AuthService
 	YandexOAuthService *yandex.YandexOAuthService
+	EmployeeService    *employee.EmployeeService
 }
 
 func New(config AuthUseCaseConfig) *AuthUseCase {
 	return &AuthUseCase{
 		authService:        config.AuthService,
 		yandexOAuthService: config.YandexOAuthService,
+		employeeService:    config.EmployeeService,
 	}
 }
 
@@ -104,12 +109,16 @@ func (u *AuthUseCase) ExchangeYandexAccessToken(ctx context.Context, accessToken
 }
 
 func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, false)
 	if err != nil {
 		return nil, err
 	}
 
-	apiTokens, err := uc.authService.GetApiTokens(ctx, orgID)
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
+	}
+
+	apiTokens, err := uc.authService.GetApiTokens(ctx, valRes.OrgID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,12 +127,16 @@ func (uc *AuthUseCase) GetApiTokens(ctx context.Context) ([]*models.ApiToken, er
 }
 
 func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models.ApiToken, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, false)
 	if err != nil {
 		return nil, err
 	}
 
-	apiToken, err := uc.authService.CreateApiToken(ctx, orgID, name)
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
+	}
+
+	apiToken, err := uc.authService.CreateApiToken(ctx, valRes.OrgID, name)
 	if err != nil {
 		return nil, err
 	}
@@ -132,12 +145,16 @@ func (uc *AuthUseCase) CreateApiToken(ctx context.Context, name string) (*models
 }
 
 func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, false)
 	if err != nil {
 		return err
 	}
 
-	err = uc.authService.RevokeApiToken(ctx, orgID, id)
+	if !valRes.IsAllowed {
+		return usecases.ErrForbidden
+	}
+
+	err = uc.authService.RevokeApiToken(ctx, valRes.OrgID, id)
 	if err != nil {
 		return err
 	}
@@ -146,12 +163,16 @@ func (uc *AuthUseCase) RevokeApiToken(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelOwner, true)
 	if err != nil {
 		return nil, err
 	}
 
-	employees, err := uc.authService.GetEmployees(ctx, orgID)
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
+	}
+
+	employees, err := uc.employeeService.GetEmployees(ctx, valRes.OrgID)
 	if err != nil {
 		return nil, err
 	}
@@ -160,12 +181,16 @@ func (uc *AuthUseCase) GetEmployees(ctx context.Context) ([]*models.Employee, er
 }
 
 func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.Employee, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelOwner, true)
 	if err != nil {
 		return nil, err
 	}
 
-	employee, err := uc.authService.GetEmployee(ctx, orgID, id)
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
+	}
+
+	employee, err := uc.employeeService.GetEmployee(ctx, valRes.OrgID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -174,17 +199,30 @@ func (uc *AuthUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*models.E
 }
 
 func (uc *AuthUseCase) SetEmployeeRole(ctx context.Context, id uuid.UUID, roleID int) (*models.Employee, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
+	neededAccessLevel := models.AccessLevelAdmin
+	if models.RoleID(roleID) == models.RoleOwnerID {
+		neededAccessLevel = models.AccessLevelOwner
+	}
+
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, neededAccessLevel, true)
 	if err != nil {
 		return nil, err
 	}
 
-	err = uc.authService.SetUserRole(ctx, orgID, id, models.RoleID(roleID))
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
+	}
+
+	if id == *valRes.UserID {
+		return nil, errors.New("cannot set role for yourself")
+	}
+
+	err = uc.authService.SetUserRole(ctx, valRes.OrgID, id, models.RoleID(roleID))
 	if err != nil {
 		return nil, err
 	}
 
-	employee, err := uc.authService.GetEmployee(ctx, orgID, id)
+	employee, err := uc.employeeService.GetEmployee(ctx, valRes.OrgID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -207,9 +245,14 @@ func (uc *AuthUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID int) (*models.Employee, error) {
-	orgID, err := common.GetOrganizationIDFromContext(ctx)
-	if err != nil {
-		return nil, err
+	neededAccessLevel := models.AccessLevelAdmin
+	if models.RoleID(roleID) == models.RoleOwnerID {
+		neededAccessLevel = models.AccessLevelOwner
+	}
+
+	valRes, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, neededAccessLevel, false)
+	if !valRes.IsAllowed {
+		return nil, usecases.ErrForbidden
 	}
 	user, err := uc.authService.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -219,12 +262,16 @@ func (uc *AuthUseCase) InviteEmployee(ctx context.Context, email string, roleID 
 		return nil, err
 	}
 
-	err = uc.authService.SetUserRole(ctx, orgID, user.ID, models.RoleID(roleID))
+	if user.ID == *valRes.UserID {
+		return nil, common.ErrDetailedValidationErrorWithMessage("cannot invite yourself")
+	}
+
+	err = uc.authService.SetUserRole(ctx, valRes.OrgID, user.ID, models.RoleID(roleID))
 	if err != nil {
 		return nil, err
 	}
 
-	employee, err := uc.authService.GetEmployee(ctx, orgID, user.ID)
+	employee, err := uc.employeeService.GetEmployee(ctx, valRes.OrgID, user.ID)
 	if err != nil {
 		return nil, err
 	}

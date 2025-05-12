@@ -14,10 +14,10 @@ type AuthService interface {
 }
 
 type ValidateAccessResult struct {
-	IsAuthorized bool
-	OrgID        uuid.UUID
-	IsApiToken   bool
-	UserID       *uuid.UUID
+	IsAllowed  bool
+	OrgID      uuid.UUID
+	IsApiToken bool
+	UserID     *uuid.UUID
 }
 
 func ValidateAccessWithOptionalApiToken(ctx context.Context, service AuthService, accessLevel models.AccessLevel, allowApiToken bool) (ValidateAccessResult, error) {
@@ -32,10 +32,10 @@ func ValidateAccessWithOptionalApiToken(ctx context.Context, service AuthService
 		}
 
 		return ValidateAccessResult{
-			IsAuthorized: true,
-			OrgID:        orgID,
-			IsApiToken:   true,
-			UserID:       nil,
+			IsAllowed:  true,
+			OrgID:      orgID,
+			IsApiToken: true,
+			UserID:     nil,
 		}, nil
 	}
 
@@ -54,8 +54,8 @@ func ValidateAccessWithOptionalApiToken(ctx context.Context, service AuthService
 	}
 
 	return ValidateAccessResult{
-		IsAuthorized: ok,
-		OrgID:        orgID,
-		UserID:       &userID,
+		IsAllowed: ok,
+		OrgID:     orgID,
+		UserID:    &userID,
 	}, nil
 }

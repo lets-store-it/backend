@@ -33,7 +33,7 @@ func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 	changes, err := uc.auditService.GetObjectChanges(ctx, validateResult.OrgID, targetObjectTypeId, targetObjectID)

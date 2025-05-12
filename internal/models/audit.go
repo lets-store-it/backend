@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,12 +28,23 @@ const (
 	ObjectTypeEmployee     ObjectTypeId = 8
 	ObjectTypeTask         ObjectTypeId = 9
 	ObjectTypeItemVariant  ObjectTypeId = 10
+	ObjectTypeApiToken     ObjectTypeId = 11
 )
 
 type ObjectType struct {
 	ID    ObjectTypeId `json:"id"`
 	Group string       `json:"group"`
 	Name  string       `json:"name"`
+}
+
+type ObjectChangeCreate struct {
+	Action ObjectChangeAction `json:"action"`
+
+	TargetObjectType ObjectTypeId `json:"target_object_type_id"`
+	TargetObjectID   uuid.UUID    `json:"target_object_id"`
+
+	PrechangeState  any `json:"prechange_state"`
+	PostchangeState any `json:"postchange_state"`
 }
 
 type ObjectChange struct {
@@ -45,8 +57,8 @@ type ObjectChange struct {
 	TargetObjectType ObjectTypeId `json:"target_object_type_id"`
 	TargetObjectID   uuid.UUID    `json:"target_object_id"`
 
-	PrechangeState  any `json:"prechange_state"`
-	PostchangeState any `json:"postchange_state"`
+	PrechangeState  json.RawMessage `json:"prechange_state"`
+	PostchangeState json.RawMessage `json:"postchange_state"`
 
 	Timestamp time.Time `json:"timestamp"`
 

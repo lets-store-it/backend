@@ -45,7 +45,18 @@ func (s *AuthService) CreateApiToken(ctx context.Context, orgID uuid.UUID, name 
 			Name:  name,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to create API token: %w", err)
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		tokenModel := toApiTokenModel(token)
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectID:   tokenModel.ID,
+			TargetObjectType: models.ObjectTypeApiToken,
+			PostchangeState:  tokenModel,
+		})
+		if err != nil {
+			return nil, err
 		}
 
 		span.SetAttributes(attribute.String("token.id", database.UUIDFromPgx(token.ID).String()))
@@ -74,6 +85,25 @@ func (s *AuthService) GetApiTokens(ctx context.Context, orgID uuid.UUID) ([]*mod
 	})
 }
 
+func (s *AuthService) GetApiToken(ctx context.Context, orgID uuid.UUID, id uuid.UUID) (*models.ApiToken, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "GetApiToken", func(ctx context.Context, span trace.Span) (*models.ApiToken, error) {
+		span.SetAttributes(
+			attribute.String("org.id", orgID.String()),
+			attribute.String("token.id", id.String()),
+		)
+
+		token, err := s.queries.GetApiToken(ctx, sqlc.GetApiTokenParams{
+			OrgID: database.PgUUID(orgID),
+			ID:    database.PgUUID(id),
+		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		return toApiTokenModel(token), nil
+	})
+}
+
 func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uuid.UUID) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "RevokeApiToken", func(ctx context.Context, span trace.Span) error {
 		span.SetAttributes(
@@ -81,12 +111,27 @@ func (s *AuthService) RevokeApiToken(ctx context.Context, orgID uuid.UUID, id uu
 			attribute.String("token.id", id.String()),
 		)
 
-		err := s.queries.RevokeApiToken(ctx, sqlc.RevokeApiTokenParams{
+		tokenBeforeRevoke, err := s.GetApiToken(ctx, orgID, id)
+		if err != nil {
+			return err
+		}
+
+		err = s.queries.RevokeApiToken(ctx, sqlc.RevokeApiTokenParams{
 			OrgID: database.PgUUID(orgID),
 			ID:    database.PgUUID(id),
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectID:   tokenBeforeRevoke.ID,
+			TargetObjectType: models.ObjectTypeApiToken,
+			PrechangeState:   tokenBeforeRevoke,
+		})
+		if err != nil {
+			return err
 		}
 
 		return nil

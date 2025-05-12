@@ -57,8 +57,9 @@ func (h *RestApiImplementation) GetOrganizationById(ctx context.Context, params 
 }
 
 func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api.OrganizationUpdate, params api.UpdateOrganizationParams) (api.UpdateOrganizationRes, error) {
+	ctx = context.WithValue(ctx, models.OrganizationIDContextKey, params.ID)
+
 	org := &models.Organization{
-		ID:   params.ID,
 		Name: req.Name,
 	}
 
@@ -73,6 +74,8 @@ func (h *RestApiImplementation) UpdateOrganization(ctx context.Context, req *api
 }
 
 func (h *RestApiImplementation) DeleteOrganization(ctx context.Context, params api.DeleteOrganizationParams) (api.DeleteOrganizationRes, error) {
+	ctx = context.WithValue(ctx, models.OrganizationIDContextKey, params.ID)
+
 	err := h.orgUseCase.Delete(ctx, params.ID)
 	if err != nil {
 		return nil, err

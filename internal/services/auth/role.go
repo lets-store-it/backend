@@ -147,37 +147,3 @@ func (s *AuthService) GetAvailableRoles(ctx context.Context) ([]*models.Role, er
 		return rolesModels, nil
 	})
 }
-
-func (s *AuthService) GetUserRoleInOrg(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) (*models.Role, error) {
-	return telemetry.WithTrace(ctx, s.tracer, "GetUserRoleInOrg", func(ctx context.Context, span trace.Span) (*models.Role, error) {
-		span.SetAttributes(
-			attribute.String("org.id", orgID.String()),
-			attribute.String("user.id", userID.String()),
-		)
-
-		result, err := s.queries.GetUserRoleInOrg(ctx, sqlc.GetUserRoleInOrgParams{
-			OrgID:  database.PgUUID(orgID),
-			UserID: database.PgUUID(userID),
-		})
-		if err != nil {
-			return nil, services.MapDbErrorToService(err)
-		}
-
-		return toRoleModel(result.AppRole), nil
-	})
-}
-
-func (s *AuthService) GetRoleById(ctx context.Context, id int) (*models.Role, error) {
-	return telemetry.WithTrace(ctx, s.tracer, "GetRoleById", func(ctx context.Context, span trace.Span) (*models.Role, error) {
-		span.SetAttributes(
-			attribute.Int("role.id", id),
-		)
-
-		role, err := s.queries.GetRoleById(ctx, int32(id))
-		if err != nil {
-			return nil, services.MapDbErrorToService(err)
-		}
-
-		return toRoleModel(role), nil
-	})
-}

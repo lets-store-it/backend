@@ -2,7 +2,6 @@ package organization
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -50,22 +49,6 @@ func (uc *OrganizationUseCase) Create(ctx context.Context, name string, subdomai
 		return nil, err
 	}
 
-	postchangeState, err := json.Marshal(org)
-	if err != nil {
-		return nil, err
-	}
-
-	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           &userId,
-		Action:           models.ObjectChangeActionCreate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   nil,
-		PostchangeState:  postchangeState,
-	})
-
 	return org, nil
 }
 
@@ -85,7 +68,7 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -98,13 +81,8 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return usecases.ErrNotAuthorized
-	}
-
-	org, err := uc.service.GetOrganizationByID(ctx, id)
-	if err != nil {
-		return err
 	}
 
 	err = uc.service.DeleteOrganization(ctx, id)
@@ -112,21 +90,6 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	prechangeState, err := json.Marshal(org)
-	if err != nil {
-		return err
-	}
-
-	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionDelete,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  nil,
-	})
 	return nil
 }
 
@@ -136,35 +99,16 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	orgUpdated, err := uc.service.Update(ctx, org)
+	org.ID = validateResult.OrgID
+
+	orgUpdated, err := uc.service.UpdateOrganization(ctx, org)
 	if err != nil {
 		return nil, err
 	}
-
-	prechangeState, err := json.Marshal(org)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(orgUpdated)
-	if err != nil {
-		return nil, err
-	}
-
-	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 
 	return orgUpdated, nil
 }
@@ -175,7 +119,7 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		return nil, err
 	}
 
-	if !validateResult.IsAuthorized {
+	if !validateResult.IsAllowed {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -192,31 +136,10 @@ func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates 
 		org.Subdomain = subdomain
 	}
 
-	orgUpdated, err := uc.service.Update(ctx, org)
+	orgUpdated, err := uc.service.UpdateOrganization(ctx, org)
 	if err != nil {
 		return nil, err
 	}
-
-	prechangeState, err := json.Marshal(org)
-	if err != nil {
-		return nil, err
-	}
-
-	postchangeState, err := json.Marshal(orgUpdated)
-	if err != nil {
-		return nil, err
-	}
-
-	uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
-		ID:               uuid.New(),
-		OrgID:            org.ID,
-		UserID:           validateResult.UserID,
-		Action:           models.ObjectChangeActionUpdate,
-		TargetObjectType: models.ObjectTypeOrganization,
-		TargetObjectID:   org.ID,
-		PrechangeState:   prechangeState,
-		PostchangeState:  postchangeState,
-	})
 
 	return orgUpdated, nil
 }
