@@ -1,0 +1,87 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: storeit
+          POSTGRES_USER: storeit
+          POSTGRES_PASSWORD: storeit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          cache: true
+
+      - name: Build Go app
+        run: |
+          go mod download
+          go build -o server ./cmd/server
+          go build -o init_db ./cmd/init_db
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version-file: "tests/e2e/.python-version"
+          enable-cache: true
+          cache-dependency-glob: "tests/e2e/uv.lock"
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "tests/e2e/.python-version"
+
+      - name: Install dependencies
+        working-directory: tests/e2e
+        run: uv sync --locked --all-extras --dev
+
+      - name: Initialize database
+        run: |
+          ./init_db -schema schema.sql
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: storeit
+          DB_USER: storeit
+          DB_PASSWORD: storeit
+
+      - name: Start Go app
+        run: |
+          ./storeit &
+          sleep 5
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: storeit
+          DB_USER: storeit
+          DB_PASSWORD: storeit
+          LISTEN_ADDRESS: 0.0.0.0:8080
+          KAFKA_ENABLED: false
+
+      - name: Run e2e tests
+        working-directory: tests/e2e
+        run: uv run pytest tests/
+        env:
+          API_BASE_URL: http://localhost:8080
