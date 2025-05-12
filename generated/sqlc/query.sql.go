@@ -2056,6 +2056,33 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 	return i, err
 }
 
+const updateItemInstance = `-- name: UpdateItemInstance :one
+UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at
+`
+
+type UpdateItemInstanceParams struct {
+	OrgID  pgtype.UUID
+	ID     pgtype.UUID
+	CellID pgtype.UUID
+}
+
+func (q *Queries) UpdateItemInstance(ctx context.Context, arg UpdateItemInstanceParams) (ItemInstance, error) {
+	row := q.db.QueryRow(ctx, updateItemInstance, arg.OrgID, arg.ID, arg.CellID)
+	var i ItemInstance
+	err := row.Scan(
+		&i.ID,
+		&i.OrgID,
+		&i.ItemID,
+		&i.VariantID,
+		&i.CellID,
+		&i.Status,
+		&i.AffectedByTaskID,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const updateItemVariant = `-- name: UpdateItemVariant :one
 UPDATE item_variant SET name = $4, article = $5, ean13 = $6 WHERE org_id = $1 AND item_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING id, org_id, item_id, name, article, ean13, created_at, deleted_at
 `
