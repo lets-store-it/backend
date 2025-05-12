@@ -76,6 +76,9 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 				return nil, services.MapDbErrorToService(err)
 			}
 
+			resultTask := toTask(createdTask)
+			resultTask.Items = make([]*models.TaskItem, 0, len(task.Items))
+
 			for _, item := range task.Items {
 				sourceCell, err := s.item.GetItemInstanceFull(ctx, orgID, item.InstanceID)
 				if err != nil {
@@ -96,20 +99,40 @@ func (s *TaskService) CreateTask(ctx context.Context, orgID uuid.UUID, task *mod
 
 				taskItem.SourceCell = sourceCell.Cell
 
-				cell, err := s.storageService.GetCellFull(ctx, orgID, *item.TargetCellID)
-				if err != nil {
-					return nil, fmt.Errorf("failed to get cell: %w", err)
+				if item.TargetCellID != nil {
+					cell, err := s.storageService.GetCellFull(ctx, orgID, *item.TargetCellID)
+					if err != nil {
+						return nil, fmt.Errorf("failed to get cell: %w", err)
+					}
+					taskItem.TargetCell = cell
 				}
-				taskItem.TargetCell = cell
 
 				instance, err := s.item.GetItemInstanceFull(ctx, orgID, item.InstanceID)
 				if err != nil {
 					return nil, fmt.Errorf("failed to get instance: %w", err)
 				}
 				taskItem.Instance = instance
+
+				resultTask.Items = append(resultTask.Items, taskItem)
 			}
 
-			return toTask(createdTask), nil
+			// Get the unit
+			unit, err := s.org.GetUnitByID(ctx, orgID, resultTask.UnitID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get unit: %w", err)
+			}
+			resultTask.Unit = unit
+
+			// Get assigned to if set
+			if resultTask.AssignedToUserID != nil {
+				assignedTo, err := s.auth.GetEmployee(ctx, orgID, *resultTask.AssignedToUserID)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get assigned to: %w", err)
+				}
+				resultTask.AssignedTo = assignedTo
+			}
+
+			return resultTask, nil
 		})
 	})
 }

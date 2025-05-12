@@ -7,6 +7,23 @@ import (
 	"github.com/let-store-it/backend/internal/models"
 )
 
+func convertCellPathToOptionalDTO(cellPath *[]models.CellPathSegment) []api.CellForInstanceOptionalCellPathItem {
+	if cellPath == nil {
+		return nil
+	}
+
+	dtoCellPath := make([]api.CellForInstanceOptionalCellPathItem, 0, len(*cellPath))
+	for _, pathSegment := range *cellPath {
+		dtoCellPath = append(dtoCellPath, api.CellForInstanceOptionalCellPathItem{
+			ID:         pathSegment.ID,
+			Alias:      pathSegment.Alias,
+			Name:       pathSegment.Name,
+			ObjectType: api.CellForInstanceOptionalCellPathItemObjectType(pathSegment.ObjectType),
+		})
+	}
+	return dtoCellPath
+}
+
 func convertCellPathToDTO(cellPath *[]models.CellPathSegment) []api.CellForInstanceCellPathItem {
 	if cellPath == nil {
 		return nil
@@ -24,14 +41,13 @@ func convertCellPathToDTO(cellPath *[]models.CellPathSegment) []api.CellForInsta
 	return dtoCellPath
 }
 
-func convertCellToNilDTO(cell *models.Cell) api.NilCellForInstance {
-	res := api.NilCellForInstance{}
+func convertCellToNilDTO(cell *models.Cell) api.CellForInstance {
+	res := api.CellForInstance{}
 	if cell == nil {
-		res.SetToNull()
 		return res
 	}
 	modelCell := convertCellToDTO(cell)
-	res.SetTo(modelCell)
+	res = modelCell
 	return res
 }
 
@@ -106,44 +122,65 @@ func convertItemInstancesForItemToDTO(itemInstances []*models.ItemInstance) []ap
 
 	dtoInstances := make([]api.InstanceForItem, 0, len(itemInstances))
 	for _, instance := range itemInstances {
+		if instance == nil {
+			continue
+		}
 
 		var cellPath []api.CellForInstanceCellPathItem
-		for _, pathSegment := range *instance.Cell.Path {
-			cellPath = append(cellPath, api.CellForInstanceCellPathItem{
-				ID:         pathSegment.ID,
-				Alias:      pathSegment.Alias,
-				Name:       pathSegment.Name,
-				ObjectType: api.CellForInstanceCellPathItemObjectType(pathSegment.ObjectType),
-			})
+		if instance.Cell != nil && instance.Cell.Path != nil {
+			cellPath = make([]api.CellForInstanceCellPathItem, 0, len(*instance.Cell.Path))
+			for _, pathSegment := range *instance.Cell.Path {
+				cellPath = append(cellPath, api.CellForInstanceCellPathItem{
+					ID:         pathSegment.ID,
+					Alias:      pathSegment.Alias,
+					Name:       pathSegment.Name,
+					ObjectType: api.CellForInstanceCellPathItemObjectType(pathSegment.ObjectType),
+				})
+			}
 		}
 
 		var article api.NilString
-		PtrToApiNil(instance.Variant.Article, &article)
+		if instance.Variant != nil {
+			PtrToApiNil(instance.Variant.Article, &article)
+		}
 
 		var ean13 api.NilInt64
-		PtrToApiNil(instance.Variant.EAN13, &ean13)
+		if instance.Variant != nil {
+			PtrToApiNil(instance.Variant.EAN13, &ean13)
+		}
 
-		dtoInstances = append(dtoInstances, api.InstanceForItem{
-			ID:     instance.ID,
-			Status: api.InstanceForItemStatus(instance.Status),
-			Variant: api.ItemVariant{
+		var variant api.ItemVariant
+		if instance.Variant != nil {
+			variant = api.ItemVariant{
 				ID:      instance.Variant.ID,
 				Name:    instance.Variant.Name,
 				Article: article,
 				Ean13:   ean13,
-			},
-			Cell: api.CellForInstance{
+			}
+		}
+
+		var cell api.CellForInstance
+		if instance.Cell != nil {
+			cell = api.CellForInstance{
 				ID:       instance.Cell.ID,
 				Alias:    instance.Cell.Alias,
 				Row:      instance.Cell.Row,
 				Level:    instance.Cell.Level,
 				Position: instance.Cell.Position,
 				CellPath: cellPath,
-			},
+			}
+		}
+
+		dtoInstances = append(dtoInstances, api.InstanceForItem{
+			ID:      instance.ID,
+			Status:  api.InstanceForItemStatus(instance.Status),
+			Variant: variant,
+			Cell:    cell,
 		})
 	}
 	return dtoInstances
 }
+
 func convertItemToFullDTO(item *models.Item, itemInstances []*models.ItemInstance) api.ItemFull {
 	variants := make([]api.ItemVariant, 0, len(item.Variants))
 	if item.Variants != nil {
@@ -385,16 +422,56 @@ func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *
 
 }
 
-// DeleteInstanceById implements api.Handler.
 func (h *RestApiImplementation) DeleteInstanceById(ctx context.Context, params api.DeleteInstanceByIdParams) (api.DeleteInstanceByIdRes, error) {
-	panic("unimplemented")
+	err := h.itemUseCase.DeleteItemInstance(ctx, params.InstanceId)
+	if err != nil {
+		return nil, err
+	}
 	return &api.DeleteInstanceByIdOK{}, nil
 }
 
-// GetInstances implements api.Handler.
+// GetInstanceById implements api.Handler.
+func (h *RestApiImplementation) GetInstanceById(ctx context.Context, params api.GetInstanceByIdParams) (api.GetInstanceByIdRes, error) {
+	instance, err := h.itemUseCase.GetItemInstanceById(ctx, params.InstanceId)
+	if err != nil {
+		return nil, err
+	}
+	return &api.GetInstanceByIdResponse{
+		Data: convertItemInstanceToTaskItemDTO(instance),
+	}, nil
+}
+
+func (h *RestApiImplementation) UpdateInstanceById(ctx context.Context, req *api.UpdateInstanceRequest, params api.UpdateInstanceByIdParams) (api.UpdateInstanceByIdRes, error) {
+	instance := &models.ItemInstance{
+		ID:        params.InstanceId,
+		VariantID: req.VariantId,
+		CellID:    &req.CellId,
+	}
+
+	updatedInstance, err := h.itemUseCase.UpdateItemInstance(ctx, instance)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateInstanceResponse{
+		Data: convertItemInstanceToTaskItemDTO(updatedInstance),
+	}, nil
+}
+
 func (h *RestApiImplementation) GetInstances(ctx context.Context) (api.GetInstancesRes, error) {
-	panic("unimplemented")
-	// return api.GetInstancesByItemIdResponse, nil
+	instances, err := h.itemUseCase.GetItemInstancesAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dtoInstances := make([]api.InstanceFull, 0, len(instances))
+	for _, instance := range instances {
+		dtoInstances = append(dtoInstances, convertItemInstanceToTaskItemDTO(instance))
+	}
+
+	return &api.GetInstancesResponse{
+		Data: dtoInstances,
+	}, nil
 }
 
 // GetInstancesByItemId implements api.Handler.

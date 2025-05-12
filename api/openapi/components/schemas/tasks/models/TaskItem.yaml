@@ -9,10 +9,9 @@ properties:
   sourceCell:
     $ref: ../../../schemas/cells-groups/models/CellForInstance.yaml
   targetCell:
-    nullable: true
-    $ref: ../../../schemas/cells-groups/models/CellForInstance.yaml
+    $ref: ../../../schemas/cells-groups/models/CellForInstanceOptional.yaml
   status:
-    type: string 
+    type: string
     enum:
       - pending
       - picked
@@ -24,4 +23,3 @@ required:
   - instance
   - id
   - status
-

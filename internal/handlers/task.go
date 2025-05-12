@@ -73,9 +73,18 @@ func taskItemToDto(item *models.TaskItem) api.TaskItem {
 		sourceCell = convertCellToDTO(item.SourceCell)
 	}
 
-	var targetCell api.CellForInstance
+	var targetCell api.NilCellForInstanceOptional
 	if item.TargetCell != nil {
-		targetCell = convertCellToDTO(item.TargetCell)
+		targetCell.SetTo(api.CellForInstanceOptional{
+			ID:       item.TargetCell.ID,
+			Alias:    item.TargetCell.Alias,
+			Row:      item.TargetCell.Row,
+			Level:    item.TargetCell.Level,
+			Position: item.TargetCell.Position,
+			CellPath: convertCellPathToOptionalDTO(item.TargetCell.Path),
+		})
+	} else {
+		targetCell.SetToNull()
 	}
 
 	return api.TaskItem{

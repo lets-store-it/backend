@@ -249,6 +249,146 @@ func (s CellForInstanceCellPathItemObjectType) Validate() error {
 		return nil
 	case "storage_group":
 		return nil
+	case "unit":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *CellForInstanceOptional) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.Int{
+			MinSet:        true,
+			Min:           1,
+			MaxSet:        false,
+			Max:           0,
+			MinExclusive:  false,
+			MaxExclusive:  false,
+			MultipleOfSet: false,
+			MultipleOf:    0,
+		}).Validate(int64(s.Row)); err != nil {
+			return errors.Wrap(err, "int")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "row",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := (validate.Int{
+			MinSet:        true,
+			Min:           1,
+			MaxSet:        false,
+			Max:           0,
+			MinExclusive:  false,
+			MaxExclusive:  false,
+			MultipleOfSet: false,
+			MultipleOf:    0,
+		}).Validate(int64(s.Level)); err != nil {
+			return errors.Wrap(err, "int")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "level",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := (validate.Int{
+			MinSet:        true,
+			Min:           1,
+			MaxSet:        false,
+			Max:           0,
+			MinExclusive:  false,
+			MaxExclusive:  false,
+			MultipleOfSet: false,
+			MultipleOf:    0,
+		}).Validate(int64(s.Position)); err != nil {
+			return errors.Wrap(err, "int")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "position",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.CellPath == nil {
+			return errors.New("nil is invalid value")
+		}
+		var failures []validate.FieldError
+		for i, elem := range s.CellPath {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "cellPath",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *CellForInstanceOptionalCellPathItem) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.ObjectType.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "objectType",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s CellForInstanceOptionalCellPathItemObjectType) Validate() error {
+	switch s {
+	case "cell":
+		return nil
+	case "cells_group":
+		return nil
+	case "storage_group":
+		return nil
+	case "unit":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
@@ -708,7 +848,7 @@ func (s *CreateTaskRequest) Validate() error {
 
 func (s CreateTaskRequestType) Validate() error {
 	switch s {
-	case "pick":
+	case "pickment":
 		return nil
 	case "movement":
 		return nil
@@ -961,6 +1101,29 @@ func (s *GetEmployeesResponse) Validate() error {
 	if err := func() error {
 		if s.Data == nil {
 			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "data",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *GetInstanceByIdResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Data.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -1653,15 +1816,8 @@ func (s *InstanceFull) Validate() error {
 		})
 	}
 	if err := func() error {
-		if value, ok := s.Cell.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Cell.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -2022,7 +2178,7 @@ func (s TaskBaseStatus) Validate() error {
 
 func (s TaskBaseType) Validate() error {
 	switch s {
-	case "pick":
+	case "pickment":
 		return nil
 	case "movement":
 		return nil
@@ -2123,7 +2279,7 @@ func (s TaskFullStatus) Validate() error {
 
 func (s TaskFullType) Validate() error {
 	switch s {
-	case "pick":
+	case "pickment":
 		return nil
 	case "movement":
 		return nil
@@ -2161,8 +2317,15 @@ func (s *TaskItem) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.TargetCell.Validate(); err != nil {
-			return err
+		if value, ok := s.TargetCell.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {
@@ -2383,6 +2546,29 @@ func (s *UpdateCellsGroupRequest) Validate() error {
 }
 
 func (s *UpdateCellsGroupResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Data.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "data",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *UpdateInstanceResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}

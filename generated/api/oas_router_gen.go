@@ -524,8 +524,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								s.handleDeleteInstanceByIdRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleGetInstanceByIdRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "PUT":
+								s.handleUpdateInstanceByIdRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "DELETE")
+								s.notAllowed(w, r, "DELETE,GET,PUT")
 							}
 
 							return
@@ -1729,6 +1737,22 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = DeleteInstanceByIdOperation
 								r.summary = "Delete Instance by ID"
 								r.operationID = "deleteInstanceById"
+								r.pathPattern = "/instances/{instanceId}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "GET":
+								r.name = GetInstanceByIdOperation
+								r.summary = "Get Instance by ID"
+								r.operationID = "getInstanceById"
+								r.pathPattern = "/instances/{instanceId}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PUT":
+								r.name = UpdateInstanceByIdOperation
+								r.summary = "Update Instance by ID"
+								r.operationID = "updateInstanceById"
 								r.pathPattern = "/instances/{instanceId}"
 								r.args = args
 								r.count = 1

@@ -8,7 +8,7 @@ properties:
   type:
     type: string
     enum:
-      - pick
+      - pickment
       - movement
   unitId:
     type: string

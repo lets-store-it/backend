@@ -6,6 +6,48 @@ parameters:
     schema:
       type: string
       format: uuid
+get:
+  tags:
+    - instance
+  summary: Get Instance by ID
+  operationId: getInstanceById
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instances/GetInstanceByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
+put:
+  tags:
+    - instance
+  summary: Update Instance by ID
+  operationId: updateInstanceById
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/instances/UpdateInstanceRequest.yaml
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instances/UpdateInstanceResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
+    default:
+      $ref: ../../components/responses/default-error.yaml
 delete:
   tags:
     - instance

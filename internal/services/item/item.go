@@ -147,28 +147,22 @@ func (s *ItemService) GetItemByID(ctx context.Context, orgID uuid.UUID, id uuid.
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		variants, err := s.queries.GetItemVariants(ctx, sqlc.GetItemVariantsParams{
-			OrgID:  database.PgUUID(orgID),
-			ItemID: database.PgUUID(id),
-		})
+		variants, err := s.GetItemVariantsAll(ctx, orgID, id)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get item variants: %w", err)
 		}
 
-		instances, err := s.queries.GetItemInstancesForItem(ctx, sqlc.GetItemInstancesForItemParams{
-			OrgID:  database.PgUUID(orgID),
-			ItemID: database.PgUUID(id),
-		})
+		instances, err := s.GetItemInstances(ctx, orgID, id)
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to get item instances: %w", err)
 		}
 
 		result := toItemModel(toItemModelParams{
-			item:      item,
-			variants:  variants,
-			instances: instances,
+			item: item,
 		})
-
+		result.Instances = instances
+		result.Variants = variants
 		span.SetStatus(codes.Ok, "item retrieved successfully")
 		return result, nil
 	})
@@ -396,7 +390,24 @@ func (s *ItemService) GetItemInstances(ctx context.Context, orgID uuid.UUID, ite
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toItemInstancesModel(instances), nil
+		instancesModels := make([]*models.ItemInstance, len(instances))
+		for i, instance := range instances {
+			instancesModels[i] = toItemInstance(instance)
+			if instancesModels[i].CellID != nil {
+				cell, err := s.storageService.GetCellFull(ctx, orgID, database.UUIDFromPgx(instance.CellID))
+				if err != nil {
+					return nil, err
+				}
+				instancesModels[i].Cell = cell
+			}
+			variant, err := s.GetItemVariantById(ctx, orgID, itemID, database.UUIDFromPgx(instance.VariantID))
+			if err != nil {
+				return nil, err
+			}
+			instancesModels[i].Variant = variant
+		}
+
+		return instancesModels, nil
 	})
 }
 
@@ -470,5 +481,57 @@ func (s *ItemService) SetInstanceCell(ctx context.Context, orgID uuid.UUID, inst
 		}
 
 		return nil
+	})
+}
+
+func (s *ItemService) GetItemInstanceById(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID) (*models.ItemInstance, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "GetItemInstanceById", func(ctx context.Context, span trace.Span) (*models.ItemInstance, error) {
+		instance, err := s.GetItemInstanceFull(ctx, orgID, instanceID)
+		if err != nil {
+			return nil, err
+		}
+
+		return instance, nil
+	})
+}
+
+func (s *ItemService) UpdateItemInstance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "UpdateItemInstance", func(ctx context.Context, span trace.Span) (*models.ItemInstance, error) {
+		instance, err := s.UpdateItemInstance(ctx, orgID, itemInstance)
+		if err != nil {
+			return nil, err
+		}
+
+		return instance, nil
+	})
+}
+
+func (s *ItemService) DeleteItemInstance(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID) error {
+	return telemetry.WithVoidTrace(ctx, s.tracer, "DeleteItemInstance", func(ctx context.Context, span trace.Span) error {
+		err := s.queries.DeleteItemInstance(ctx, sqlc.DeleteItemInstanceParams{
+			ID:    database.PgUUID(instanceID),
+			OrgID: database.PgUUID(orgID),
+		})
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		return nil
+	})
+}
+
+func (s *ItemService) GetItemInstancesAll(ctx context.Context, orgID uuid.UUID) ([]*models.ItemInstance, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "GetItemInstancesAll", func(ctx context.Context, span trace.Span) ([]*models.ItemInstance, error) {
+		instances, err := s.queries.GetItemInstancesAll(ctx, database.PgUUID(orgID))
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		instancesModels := make([]*models.ItemInstance, len(instances))
+		for i, instance := range instances {
+			instancesModels[i] = toItemInstance(instance)
+		}
+
+		return instancesModels, nil
 	})
 }

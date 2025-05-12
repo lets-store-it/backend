@@ -194,6 +194,12 @@ type Handler interface {
 	//
 	// GET /employees
 	GetEmployees(ctx context.Context) (GetEmployeesRes, error)
+	// GetInstanceById implements getInstanceById operation.
+	//
+	// Get Instance by ID.
+	//
+	// GET /instances/{instanceId}
+	GetInstanceById(ctx context.Context, params GetInstanceByIdParams) (GetInstanceByIdRes, error)
 	// GetInstances implements getInstances operation.
 	//
 	// Get list of Instances.
@@ -356,6 +362,12 @@ type Handler interface {
 	//
 	// PUT /cells-groups/{groupId}
 	UpdateCellsGroup(ctx context.Context, req *UpdateCellsGroupRequest, params UpdateCellsGroupParams) (UpdateCellsGroupRes, error)
+	// UpdateInstanceById implements updateInstanceById operation.
+	//
+	// Update Instance by ID.
+	//
+	// PUT /instances/{instanceId}
+	UpdateInstanceById(ctx context.Context, req *UpdateInstanceRequest, params UpdateInstanceByIdParams) (UpdateInstanceByIdRes, error)
 	// UpdateItem implements updateItem operation.
 	//
 	// Update Item.

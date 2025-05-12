@@ -193,6 +193,11 @@ SELECT * FROM item_instance WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 -- name: GetItemInstancesForCellsGroup :many
 SELECT * FROM item_instance WHERE item_instance.org_id = $1 AND cell_id IN (SELECT id FROM cell WHERE cells_group_id = $2 AND deleted_at IS NULL) AND deleted_at IS NULL;
 
+-- name: DeleteItemInstance :exec
+UPDATE item_instance SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
+
+-- name: GetItemInstancesAll :many
+SELECT * FROM item_instance WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- User
 -- name: CreateUser :one
@@ -305,13 +310,13 @@ UPDATE task_item SET status = $3 WHERE org_id = $1 AND item_instance_id = $2;
 INSERT INTO tv_board (org_id, unit_id, name) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: GetTvBoards :many
-SELECT * FROM tv_board WHERE org_id = $1;
+SELECT * FROM tv_board WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- name: GetTvBoardById :one
-SELECT * FROM tv_board WHERE org_id = $1 AND id = $2;
+SELECT * FROM tv_board WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL;
 
 -- name: DeleteTvBoard :exec
 UPDATE tv_board SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2;
 
 -- name: GetTvBoardByToken :one
-SELECT * FROM tv_board WHERE token = $1 AND deleted_at IS NULL;
+SELECT * FROM tv_board WHERE token = $1 AND deleted_at IS NULL LIMIT 1;

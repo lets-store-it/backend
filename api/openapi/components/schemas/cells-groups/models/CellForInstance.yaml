@@ -1,8 +1,6 @@
 allOf:
-  - nullable: true
-    $ref: ./Cell.yaml
+  - $ref: ./Cell.yaml
   - type: object
-    nullable: true
     properties:
       cellPath:
         type: array
@@ -22,6 +20,7 @@ allOf:
                 - cell
                 - cells_group
                 - storage_group
+                - unit
           required:
             - id
             - name
