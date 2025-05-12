@@ -2433,14 +2433,14 @@ func (s *Server) handleCreateUnitRequest(args [0]string, argsEscaped bool, w htt
 //
 // Delete Cell.
 //
-// DELETE /cells-groups/{groupId}/cells/{cellId}
-func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// DELETE /cells/{id}
+func (s *Server) handleDeleteCellRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteCell"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+		semconv.HTTPRouteKey.String("/cells/{id}"),
 	}
 
 	// Start a span for this request.
@@ -2589,13 +2589,9 @@ func (s *Server) handleDeleteCellRequest(args [2]string, argsEscaped bool, w htt
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "groupId",
+					Name: "id",
 					In:   "path",
-				}: params.GroupId,
-				{
-					Name: "cellId",
-					In:   "path",
-				}: params.CellId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -5147,14 +5143,14 @@ func (s *Server) handleGetAuditLogsRequest(args [0]string, argsEscaped bool, w h
 //
 // Get Cell by ID.
 //
-// GET /cells-groups/{groupId}/cells/{cellId}
-func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /cells/{id}
+func (s *Server) handleGetCellByIdRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCellById"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+		semconv.HTTPRouteKey.String("/cells/{id}"),
 	}
 
 	// Start a span for this request.
@@ -5303,13 +5299,9 @@ func (s *Server) handleGetCellByIdRequest(args [2]string, argsEscaped bool, w ht
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "groupId",
+					Name: "id",
 					In:   "path",
-				}: params.GroupId,
-				{
-					Name: "cellId",
-					In:   "path",
-				}: params.CellId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -11788,14 +11780,14 @@ func (s *Server) handleRevokeApiTokenRequest(args [1]string, argsEscaped bool, w
 //
 // Update Cell.
 //
-// PUT /cells-groups/{groupId}/cells/{cellId}
-func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /cells/{id}
+func (s *Server) handleUpdateCellRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateCell"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/cells-groups/{groupId}/cells/{cellId}"),
+		semconv.HTTPRouteKey.String("/cells/{id}"),
 	}
 
 	// Start a span for this request.
@@ -11959,13 +11951,9 @@ func (s *Server) handleUpdateCellRequest(args [2]string, argsEscaped bool, w htt
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "groupId",
+					Name: "id",
 					In:   "path",
-				}: params.GroupId,
-				{
-					Name: "cellId",
-					In:   "path",
-				}: params.CellId,
+				}: params.ID,
 			},
 			Raw: r,
 		}

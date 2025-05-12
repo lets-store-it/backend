@@ -1,11 +1,5 @@
 parameters:
-  - name: groupId
-    in: path
-    required: true
-    schema:
-      type: string
-      format: uuid
-  - name: cellId
+  - name: id
     in: path
     required: true
     schema:

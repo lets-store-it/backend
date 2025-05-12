@@ -604,6 +604,32 @@ func (s *ItemService) GetItemInstancesAll(ctx context.Context, orgID uuid.UUID) 
 		instancesModels := make([]*models.ItemInstance, len(instances))
 		for i, instance := range instances {
 			instancesModels[i] = toItemInstance(instance)
+			if instancesModels[i].CellID != nil {
+				cell, err := s.storageService.GetCellFull(ctx, orgID, database.UUIDFromPgx(instance.CellID))
+				if err != nil {
+					return nil, err
+				}
+				instancesModels[i].Cell = cell
+			}
+			variant, err := s.GetItemVariantById(ctx, orgID, database.UUIDFromPgx(instance.ItemID), database.UUIDFromPgx(instance.VariantID))
+			if err != nil {
+				return nil, err
+			}
+			instancesModels[i].Variant = variant
+
+			item, err := s.GetItemByID(ctx, orgID, database.UUIDFromPgx(instance.ItemID))
+			if err != nil {
+				return nil, err
+			}
+			instancesModels[i].Item = item
+
+			// if instancesModels[i].AffectedByTaskID != nil {
+			// 	task, err := s.GetTaskByID(ctx, orgID, *instancesModels[i].AffectedByTaskID)
+			// 	if err != nil {
+			// 		return nil, err
+			// 	}
+			// 	instancesModels[i].AffectedByTask = task
+			// }
 		}
 
 		return instancesModels, nil

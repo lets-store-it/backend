@@ -78,7 +78,7 @@ type Handler interface {
 	//
 	// Delete Cell.
 	//
-	// DELETE /cells-groups/{groupId}/cells/{cellId}
+	// DELETE /cells/{id}
 	DeleteCell(ctx context.Context, params DeleteCellParams) (DeleteCellRes, error)
 	// DeleteCellsGroup implements deleteCellsGroup operation.
 	//
@@ -156,7 +156,7 @@ type Handler interface {
 	//
 	// Get Cell by ID.
 	//
-	// GET /cells-groups/{groupId}/cells/{cellId}
+	// GET /cells/{id}
 	GetCellById(ctx context.Context, params GetCellByIdParams) (GetCellByIdRes, error)
 	// GetCells implements getCells operation.
 	//
@@ -348,7 +348,7 @@ type Handler interface {
 	//
 	// Update Cell.
 	//
-	// PUT /cells-groups/{groupId}/cells/{cellId}
+	// PUT /cells/{id}
 	UpdateCell(ctx context.Context, req *UpdateCellRequest, params UpdateCellParams) (UpdateCellRes, error)
 	// UpdateCellsGroup implements updateCellsGroup operation.
 	//

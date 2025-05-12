@@ -276,7 +276,7 @@ func (uc *StorageUseCase) DeleteCell(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID, cell *models.Cell) (*models.Cell, error) {
+func (uc *StorageUseCase) UpdateCell(ctx context.Context, cell *models.Cell) (*models.Cell, error) {
 	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelManager, true)
 	if err != nil {
 		return nil, err
@@ -287,7 +287,6 @@ func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID
 	}
 
 	cell.OrgID = validateResult.OrgID
-	cell.CellsGroupID = cellsGroupID
 
 	updatedCell, err := uc.storageService.UpdateCell(ctx, cell)
 	if err != nil {
