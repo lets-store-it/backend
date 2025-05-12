@@ -33,8 +33,9 @@ import (
 
 // Server represents the main server instance and its dependencies
 type Server struct {
-	echo   *echo.Echo
-	config *config.Config
+	echo         *echo.Echo
+	config       *config.Config
+	auditService *audit.AuditService
 }
 
 // New creates and configures a new server instance
@@ -89,7 +90,6 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	if err != nil {
 		return nil, err
 	}
-	defer auditService.Close()
 
 	authService := auth.New(auth.AuthServiceConfig{
 		Queries:      queries,
@@ -101,6 +101,7 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		Queries:        queries,
 		PGXPool:        pool,
 		StorageService: storageGroupService,
+		AuditService:   auditService,
 	})
 
 	yandexOAuthService := yandex.NewYandexOAuthService(yandex.YandexOAuthServiceConfig{
@@ -129,9 +130,8 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 
 	// Initialize use cases
 	itemUseCase := itemUC.New(itemUC.ItemUseCaseConfig{
-		Service:      itemService,
-		AuthService:  authService,
-		AuditService: auditService,
+		Service:     itemService,
+		AuthService: authService,
 	})
 	authUseCase := authUC.New(authUC.AuthUseCaseConfig{
 		AuthService:        authService,
@@ -139,16 +139,14 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		EmployeeService:    employeeService,
 	})
 	orgUseCase := organizationUC.New(organizationUC.OrganizationUseCaseConfig{
-		Service:      orgService,
-		AuthService:  authService,
-		AuditService: auditService,
+		Service:     orgService,
+		AuthService: authService,
 	})
 
 	storageUseCase := storageUC.New(storageUC.StorageUseCaseConfig{
-		Service:      storageGroupService,
-		OrgService:   orgService,
-		AuthService:  authService,
-		AuditService: auditService,
+		StorageService: storageGroupService,
+		OrgService:     orgService,
+		AuthService:    authService,
 	})
 	auditUseCase := auditUC.New(auditUC.AuditUseCaseConfig{
 		AuthService:  authService,
@@ -198,8 +196,9 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	e.Any("/*", echo.WrapHandler(server))
 
 	return &Server{
-		echo:   e,
-		config: cfg,
+		echo:         e,
+		config:       cfg,
+		auditService: auditService,
 	}, nil
 }
 
@@ -211,6 +210,9 @@ func (s *Server) Start() error {
 // Shutdown gracefully shuts down the server
 func (s *Server) Shutdown(ctx context.Context) error {
 	if err := telemetry.Shutdown(ctx); err != nil {
+		return err
+	}
+	if err := s.auditService.Close(); err != nil {
 		return err
 	}
 	return s.echo.Shutdown(ctx)

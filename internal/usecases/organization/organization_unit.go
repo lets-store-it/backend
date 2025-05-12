@@ -2,7 +2,6 @@ package organization
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
@@ -16,7 +15,7 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	createdUnit, err := uc.service.CreateUnit(ctx, validateResult.OrgID, name, alias, address)
@@ -28,31 +27,31 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 }
 
 func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	return uc.service.GetAllUnits(ctx, validateResult.OrgID)
 }
 
 func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	unit, err := uc.service.GetUnitByID(ctx, validateResult.OrgID, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get organization unit: %w", err)
+		return nil, err
 	}
 
 	return unit, nil
@@ -78,7 +77,7 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	unit.OrgID = validateResult.OrgID
@@ -89,33 +88,4 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 	}
 
 	return updatedUnit, nil
-}
-
-func (uc *OrganizationUseCase) PatchUnit(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
-	if err != nil {
-		return nil, err
-	}
-
-	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
-	}
-
-	unit, err := uc.service.GetUnitByID(ctx, validateResult.OrgID, id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get organization unit: %w", err)
-	}
-
-	// Apply updates
-	if name, ok := updates["name"].(string); ok {
-		unit.Name = name
-	}
-	if alias, ok := updates["alias"].(string); ok {
-		unit.Alias = alias
-	}
-	if address, ok := updates["address"].(string); ok {
-		unit.Address = &address
-	}
-
-	return uc.service.UpdateUnit(ctx, unit)
 }

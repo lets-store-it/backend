@@ -21,6 +21,9 @@ type AuditUseCaseConfig struct {
 }
 
 func New(config AuditUseCaseConfig) *AuditUseCase {
+	if config.AuthService == nil || config.AuditService == nil {
+		panic("AuthService and AuditService are required")
+	}
 	return &AuditUseCase{
 		authService:  config.AuthService,
 		auditService: config.AuditService,
@@ -34,7 +37,7 @@ func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 	changes, err := uc.auditService.GetObjectChanges(ctx, validateResult.OrgID, targetObjectTypeId, targetObjectID)
 	if err != nil {

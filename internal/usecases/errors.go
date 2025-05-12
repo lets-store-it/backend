@@ -7,5 +7,4 @@ import (
 var (
 	ErrForbidden     = errors.New("forbidden")
 	ErrNotAuthorized = errors.New("not authorized")
-
 )

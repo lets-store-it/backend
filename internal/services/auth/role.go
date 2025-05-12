@@ -14,13 +14,15 @@ import (
 	"github.com/let-store-it/backend/internal/telemetry"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"slices"
 )
 
 var roleHierarchy = map[models.AccessLevel][]models.RoleName{
 	models.AccessLevelWorker: {
-		models.RoleOwner,
-		models.RoleAdmin,
+		models.RoleWorker,
 		models.RoleManager,
+		models.RoleAdmin,
+		models.RoleOwner,
 	},
 	models.AccessLevelManager: {
 		models.RoleOwner,
@@ -98,10 +100,8 @@ func (s *AuthService) CheckUserAccess(ctx context.Context, orgID uuid.UUID, user
 			return false, fmt.Errorf("invalid access level: %s", accessLevel)
 		}
 
-		for _, allowedRole := range allowedRoles {
-			if role.Name == allowedRole {
-				return true, nil
-			}
+		if slices.Contains(allowedRoles, role.Name) {
+			return true, nil
 		}
 
 		return false, nil

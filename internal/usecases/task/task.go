@@ -24,6 +24,10 @@ type TaskUseCaseConfig struct {
 }
 
 func New(config TaskUseCaseConfig) *TaskUseCase {
+	if config.TaskService == nil || config.AuthService == nil || config.OrgService == nil {
+		panic("TaskService, AuthService and OrgService are required")
+	}
+
 	return &TaskUseCase{
 		taskService: config.TaskService,
 		authService: config.AuthService,
@@ -38,7 +42,7 @@ func (uc *TaskUseCase) CreateTask(ctx context.Context, task *models.Task) (*mode
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	task.OrgID = validateResult.OrgID
@@ -63,7 +67,7 @@ func (uc *TaskUseCase) GetTaskById(ctx context.Context, id uuid.UUID) (*models.T
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	task, err := uc.taskService.GetTaskById(ctx, validateResult.OrgID, id)
@@ -80,7 +84,7 @@ func (uc *TaskUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
 	}
 
 	if !validateResult.IsAllowed {
-		return nil, usecases.ErrNotAuthorized
+		return nil, usecases.ErrForbidden
 	}
 
 	tasks, err := uc.taskService.GetTasks(ctx, validateResult.OrgID)
