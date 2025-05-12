@@ -199,6 +199,9 @@ UPDATE item_instance SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id
 -- name: GetItemInstancesAll :many
 SELECT * FROM item_instance WHERE org_id = $1 AND deleted_at IS NULL;
 
+-- name: UpdateItemInstance :one
+UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+
 -- User
 -- name: CreateUser :one
 INSERT INTO app_user (email, first_name, last_name, middle_name, yandex_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;

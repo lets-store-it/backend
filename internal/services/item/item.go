@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 	"github.com/let-store-it/backend/internal/services"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/storage"
 	"github.com/let-store-it/backend/internal/telemetry"
 	"go.opentelemetry.io/otel"
@@ -24,12 +24,15 @@ type ItemService struct {
 	queries        *sqlc.Queries
 	pgxPool        *pgxpool.Pool
 	tracer         trace.Tracer
+
+	auditService *audit.AuditService
 }
 
 type ItemServiceConfig struct {
 	Queries        *sqlc.Queries
 	PGXPool        *pgxpool.Pool
 	StorageService *storage.StorageService
+	AuditService   *audit.AuditService
 }
 
 func New(config ItemServiceConfig) *ItemService {
@@ -38,6 +41,7 @@ func New(config ItemServiceConfig) *ItemService {
 		pgxPool:        config.PGXPool,
 		storageService: config.StorageService,
 		tracer:         otel.GetTracerProvider().Tracer("item-service"),
+		auditService:   config.AuditService,
 	}
 }
 
@@ -52,51 +56,29 @@ func (s *ItemService) CreateItem(ctx context.Context, orgID uuid.UUID, item *mod
 			span.SetAttributes(attribute.String("item.description", *item.Description))
 		}
 
-		return database.WithTransaction(ctx, s.pgxPool, s.tracer, func(ctx context.Context, tx pgx.Tx) (*models.Item, error) {
-			qtx := s.queries.WithTx(tx)
-
-			createdItem, err := qtx.CreateItem(ctx, sqlc.CreateItemParams{
-				OrgID:       database.PgUUID(orgID),
-				Name:        item.Name,
-				Description: database.PgTextPtr(item.Description),
-			})
-			if err != nil {
-				return nil, services.MapDbErrorToService(err)
-			}
-			item.ID = database.UUIDFromPgx(createdItem.ID)
-
-			// create variants if passed, unused for nuw
-			if item.Variants != nil {
-				createdVariants := make([]*models.ItemVariant, len(item.Variants))
-				for i, variant := range item.Variants {
-					var article string
-					if variant.Article != nil {
-						article = *variant.Article
-					}
-
-					createdVariant, err := qtx.CreateItemVariant(ctx, sqlc.CreateItemVariantParams{
-						ItemID:  createdItem.ID,
-						Name:    variant.Name,
-						Article: database.PgText(article),
-						Ean13:   database.PgInt8Ptr(variant.EAN13),
-					})
-
-					if err != nil {
-						return nil, services.MapDbErrorToService(err)
-					}
-
-					createdVariantModel := toItemVariantModel(createdVariant)
-					createdVariants[i] = createdVariantModel
-				}
-				item.Variants = createdVariants
-			}
-
-			if item.Variants == nil {
-				item.Variants = []*models.ItemVariant{}
-			}
-
-			return item, nil
+		createdItem, err := s.queries.CreateItem(ctx, sqlc.CreateItemParams{
+			OrgID:       database.PgUUID(orgID),
+			Name:        item.Name,
+			Description: database.PgTextPtr(item.Description),
 		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		item.ID = database.UUIDFromPgx(createdItem.ID)
+		item.Variants = []*models.ItemVariant{}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectType: models.ObjectTypeItem,
+			TargetObjectID:   item.ID,
+			PostchangeState:  item,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+		return item, nil
 	})
 }
 
@@ -184,66 +166,26 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		remainingVariants := make(map[uuid.UUID]bool)
-		if item.Variants != nil {
-			for _, v := range item.Variants {
-				remainingVariants[v.ID] = true
-			}
-		}
-
-		if existingItem.Variants != nil {
-			for _, v := range existingItem.Variants {
-				if !remainingVariants[v.ID] {
-					err := s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
-						ItemID: database.PgUUID(item.ID),
-						ID:     database.PgUUID(v.ID),
-					})
-					if err != nil {
-						return nil, services.MapDbErrorToService(err)
-					}
-				}
-			}
-		}
-
-		return database.WithTransaction(ctx, s.pgxPool, s.tracer, func(ctx context.Context, tx pgx.Tx) (*models.Item, error) {
-			qtx := s.queries.WithTx(tx)
-
-			var description string
-			if item.Description != nil {
-				description = *item.Description
-			}
-
-			_, err = qtx.UpdateItem(ctx, sqlc.UpdateItemParams{
-				OrgID:       database.PgUUID(orgID),
-				ID:          database.PgUUID(item.ID),
-				Name:        item.Name,
-				Description: database.PgText(description),
-			})
-			if err != nil {
-				return nil, services.MapDbErrorToService(err)
-			}
-
-			if item.Variants != nil {
-				for _, variant := range item.Variants {
-					var article string
-					if variant.Article != nil {
-						article = *variant.Article
-					}
-
-					_, err = qtx.UpdateItemVariant(ctx, sqlc.UpdateItemVariantParams{
-						ItemID:  database.PgUUID(item.ID),
-						Name:    variant.Name,
-						Article: database.PgText(article),
-						Ean13:   database.PgInt8Ptr(variant.EAN13),
-					})
-					if err != nil {
-						return nil, services.MapDbErrorToService(err)
-					}
-				}
-			}
-
-			return item, nil
+		_, err = s.queries.UpdateItem(ctx, sqlc.UpdateItemParams{
+			OrgID:       database.PgUUID(orgID),
+			ID:          database.PgUUID(item.ID),
+			Name:        item.Name,
+			Description: database.PgTextPtr(item.Description),
 		})
+		updatedItemModel, err := s.GetItemByID(ctx, orgID, item.ID)
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeItem,
+			TargetObjectID:   item.ID,
+			PrechangeState:   existingItem,
+			PostchangeState:  updatedItemModel,
+		})
+
+		return updatedItemModel, nil
 	})
 }
 
@@ -254,7 +196,12 @@ func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 			attribute.String("item.id", id.String()),
 		)
 
-		err := s.queries.DeleteItem(ctx, sqlc.DeleteItemParams{
+		itemBeforeDelete, err := s.GetItemByID(ctx, orgID, id)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.queries.DeleteItem(ctx, sqlc.DeleteItemParams{
 			ID:    database.PgUUID(id),
 			OrgID: database.PgUUID(orgID),
 		})
@@ -262,11 +209,19 @@ func (s *ItemService) DeleteItem(ctx context.Context, orgID uuid.UUID, id uuid.U
 			return services.MapDbErrorToService(err)
 		}
 
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectType: models.ObjectTypeItem,
+			TargetObjectID:   id,
+			PrechangeState:   itemBeforeDelete,
+		})
+
 		return nil
 	})
 }
 
 // Item Variants
+
 func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "CreateItemVariant", func(ctx context.Context, span trace.Span) (*models.ItemVariant, error) {
 		createdVariant, err := s.queries.CreateItemVariant(ctx, sqlc.CreateItemVariantParams{
@@ -280,13 +235,28 @@ func (s *ItemService) CreateItemVariant(ctx context.Context, orgID uuid.UUID, va
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toItemVariantModel(createdVariant), nil
+		variantModel := toItemVariantModel(createdVariant)
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectType: models.ObjectTypeItemVariant,
+			TargetObjectID:   variantModel.ID,
+			PostchangeState:  variantModel,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return variantModel, nil
 	})
 }
 
 func (s *ItemService) DeleteItemVariant(ctx context.Context, orgID uuid.UUID, id uuid.UUID, variantId uuid.UUID) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "DeleteItemVariant", func(ctx context.Context, span trace.Span) error {
-		err := s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
+		variantBeforeDelete, err := s.GetItemVariantById(ctx, orgID, id, variantId)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.queries.DeleteItemVariant(ctx, sqlc.DeleteItemVariantParams{
 			OrgID:  database.PgUUID(orgID),
 			ItemID: database.PgUUID(id),
 			ID:     database.PgUUID(variantId),
@@ -294,6 +264,13 @@ func (s *ItemService) DeleteItemVariant(ctx context.Context, orgID uuid.UUID, id
 		if err != nil {
 			return services.MapDbErrorToService(err)
 		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectType: models.ObjectTypeItemVariant,
+			TargetObjectID:   variantId,
+			PrechangeState:   variantBeforeDelete,
+		})
 
 		return nil
 	})
@@ -335,6 +312,11 @@ func (s *ItemService) GetItemVariantById(ctx context.Context, orgID uuid.UUID, i
 
 func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, variant *models.ItemVariant) (*models.ItemVariant, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "UpdateItemVariant", func(ctx context.Context, span trace.Span) (*models.ItemVariant, error) {
+		variantBeforeUpdate, err := s.GetItemVariantById(ctx, orgID, variant.ItemID, variant.ID)
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+
 		updatedVariant, err := s.queries.UpdateItemVariant(ctx, sqlc.UpdateItemVariantParams{
 			OrgID:   database.PgUUID(orgID),
 			ItemID:  database.PgUUID(variant.ItemID),
@@ -347,7 +329,16 @@ func (s *ItemService) UpdateItemVariant(ctx context.Context, orgID uuid.UUID, va
 			return nil, services.MapDbErrorToService(err)
 		}
 
-		return toItemVariantModel(updatedVariant), nil
+		updatedVariantModel := toItemVariantModel(updatedVariant)
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeItemVariant,
+			TargetObjectID:   variant.ID,
+			PrechangeState:   variantBeforeUpdate,
+			PostchangeState:  updatedVariantModel,
+		})
+
+		return updatedVariantModel, nil
 	})
 }
 
@@ -370,6 +361,14 @@ func (s *ItemService) CreateItemInstance(ctx context.Context, itemInstance *mode
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
 		}
+
+		model := toItemInstance(createdInstance)
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectType: models.ObjectTypeItemInstance,
+			TargetObjectID:   model.ID,
+			PostchangeState:  model,
+		})
 
 		result, err := s.GetItemInstanceFull(ctx, itemInstance.OrgID, database.UUIDFromPgx(createdInstance.ID))
 		if err != nil {
@@ -455,7 +454,12 @@ func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *m
 			attribute.String("instance.id", itemInstance.ID.String()),
 		)
 
-		err := s.queries.SetItemInstanceTaskStatus(ctx, sqlc.SetItemInstanceTaskStatusParams{
+		instanceBeforeUpdate, err := s.GetItemInstanceById(ctx, itemInstance.OrgID, itemInstance.ID)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.queries.SetItemInstanceTaskStatus(ctx, sqlc.SetItemInstanceTaskStatusParams{
 			OrgID:            database.PgUUID(itemInstance.OrgID),
 			ID:               database.PgUUID(itemInstance.ID),
 			Status:           sqlc.ItemInstanceStatus(itemInstance.Status),
@@ -465,13 +469,30 @@ func (s *ItemService) SetItemInstanceStatus(ctx context.Context, itemInstance *m
 			return services.MapDbErrorToService(err)
 		}
 
+		updatedInstance, err := s.GetItemInstanceById(ctx, itemInstance.OrgID, itemInstance.ID)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeItemInstance,
+			TargetObjectID:   itemInstance.ID,
+			PrechangeState:   instanceBeforeUpdate,
+			PostchangeState:  updatedInstance,
+		})
 		return nil
 	})
 }
 
 func (s *ItemService) SetInstanceCell(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID, cellID *uuid.UUID) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "SetInstanceCell", func(ctx context.Context, span trace.Span) error {
-		err := s.queries.SetItemInstanceCell(ctx, sqlc.SetItemInstanceCellParams{
+		instanceBeforeUpdate, err := s.GetItemInstanceById(ctx, orgID, instanceID)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.queries.SetItemInstanceCell(ctx, sqlc.SetItemInstanceCellParams{
 			OrgID:  database.PgUUID(orgID),
 			ID:     database.PgUUID(instanceID),
 			CellID: database.PgUUIDPtr(cellID),
@@ -479,6 +500,19 @@ func (s *ItemService) SetInstanceCell(ctx context.Context, orgID uuid.UUID, inst
 		if err != nil {
 			return services.MapDbErrorToService(err)
 		}
+
+		updatedInstance, err := s.GetItemInstanceById(ctx, orgID, instanceID)
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeItemInstance,
+			TargetObjectID:   instanceID,
+			PrechangeState:   instanceBeforeUpdate,
+			PostchangeState:  updatedInstance,
+		})
 
 		return nil
 	})
@@ -497,24 +531,55 @@ func (s *ItemService) GetItemInstanceById(ctx context.Context, orgID uuid.UUID, 
 
 func (s *ItemService) UpdateItemInstance(ctx context.Context, orgID uuid.UUID, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
 	return telemetry.WithTrace(ctx, s.tracer, "UpdateItemInstance", func(ctx context.Context, span trace.Span) (*models.ItemInstance, error) {
-		instance, err := s.UpdateItemInstance(ctx, orgID, itemInstance)
+		instanceBeforeUpdate, err := s.GetItemInstanceById(ctx, orgID, itemInstance.ID)
 		if err != nil {
-			return nil, err
+			return nil, services.MapDbErrorToService(err)
 		}
 
-		return instance, nil
+		instance, err := s.queries.UpdateItemInstance(ctx, sqlc.UpdateItemInstanceParams{
+			OrgID:  database.PgUUID(orgID),
+			ID:     database.PgUUID(itemInstance.ID),
+			CellID: database.PgUUIDPtr(itemInstance.CellID),
+		})
+
+		model := toItemInstance(instance)
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeItemInstance,
+			TargetObjectID:   itemInstance.ID,
+			PrechangeState:   instanceBeforeUpdate,
+			PostchangeState:  model,
+		})
+		return model, nil
 	})
 }
 
 func (s *ItemService) DeleteItemInstance(ctx context.Context, orgID uuid.UUID, instanceID uuid.UUID) error {
 	return telemetry.WithVoidTrace(ctx, s.tracer, "DeleteItemInstance", func(ctx context.Context, span trace.Span) error {
-		err := s.queries.DeleteItemInstance(ctx, sqlc.DeleteItemInstanceParams{
+
+		instanceBeforeDelete, err := s.queries.GetItemInstance(ctx, sqlc.GetItemInstanceParams{
 			ID:    database.PgUUID(instanceID),
 			OrgID: database.PgUUID(orgID),
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
 		}
+
+		err = s.queries.DeleteItemInstance(ctx, sqlc.DeleteItemInstanceParams{
+			ID:    database.PgUUID(instanceID),
+			OrgID: database.PgUUID(orgID),
+		})
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectType: models.ObjectTypeItemInstance,
+			TargetObjectID:   instanceID,
+			PrechangeState:   instanceBeforeDelete,
+		})
 
 		return nil
 	})
