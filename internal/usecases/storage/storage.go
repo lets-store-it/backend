@@ -2,10 +2,12 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/internal/models"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"github.com/let-store-it/backend/internal/services/auth"
 	"github.com/let-store-it/backend/internal/services/organization"
 	"github.com/let-store-it/backend/internal/services/storage"
@@ -13,22 +15,25 @@ import (
 )
 
 type StorageUseCase struct {
-	service     *storage.StorageService
-	orgService  *organization.OrganizationService
-	authService *auth.AuthService
+	service      *storage.StorageService
+	orgService   *organization.OrganizationService
+	authService  *auth.AuthService
+	auditService *audit.AuditService
 }
 
 type StorageUseCaseConfig struct {
-	Service     *storage.StorageService
-	OrgService  *organization.OrganizationService
-	AuthService *auth.AuthService
+	Service      *storage.StorageService
+	OrgService   *organization.OrganizationService
+	AuthService  *auth.AuthService
+	AuditService *audit.AuditService
 }
 
 func New(config StorageUseCaseConfig) *StorageUseCase {
 	return &StorageUseCase{
-		authService: config.AuthService,
-		service:     config.Service,
-		orgService:  config.OrgService,
+		authService:  config.AuthService,
+		service:      config.Service,
+		orgService:   config.OrgService,
+		auditService: config.AuditService,
 	}
 }
 
@@ -44,7 +49,30 @@ func (uc *StorageUseCase) Create(ctx context.Context, group *models.StorageGroup
 
 	group.OrgID = validateResult.OrgID
 
-	return uc.service.CreateStorageGroup(ctx, group)
+	createdGroup, err := uc.service.CreateStorageGroup(ctx, group)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(createdGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionCreate,
+		TargetObjectTypeId: models.ObjectTypeStorageGroup,
+		TargetObjectID:     createdGroup.ID,
+		PrechangeState:     nil,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return createdGroup, nil
 }
 
 func (uc *StorageUseCase) GetAll(ctx context.Context) ([]*models.StorageGroup, error) {
@@ -88,7 +116,36 @@ func (uc *StorageUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 		return usecases.ErrNotAuthorized
 	}
 
-	return uc.service.DeleteStorageGroup(ctx, validateResult.OrgID, id)
+	// Get current state for audit
+	currentGroup, err := uc.service.GetStorageGroupByID(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	prechangeState, err := json.Marshal(currentGroup)
+	if err != nil {
+		return err
+	}
+
+	err = uc.service.DeleteStorageGroup(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionDelete,
+		TargetObjectTypeId: models.ObjectTypeStorageGroup,
+		TargetObjectID:     id,
+		PrechangeState:     prechangeState,
+		PostchangeState:    nil,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
@@ -103,7 +160,41 @@ func (uc *StorageUseCase) Update(ctx context.Context, group *models.StorageGroup
 
 	group.OrgID = validateResult.OrgID
 
-	return uc.service.UpdateStoragrGroup(ctx, group)
+	// Get current state for audit
+	currentGroup, err := uc.service.GetStorageGroupByID(ctx, validateResult.OrgID, group.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	prechangeState, err := json.Marshal(currentGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedGroup, err := uc.service.UpdateStorageGroup(ctx, group)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(updatedGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeStorageGroup,
+		TargetObjectID:     updatedGroup.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedGroup, nil
 }
 
 // CellsGroups
@@ -133,7 +224,30 @@ func (uc *StorageUseCase) CreateCellsGroup(ctx context.Context, group *models.Ce
 
 	group.OrgID = validateResult.OrgID
 
-	return uc.service.CreateCellsGroup(ctx, group)
+	createdGroup, err := uc.service.CreateCellsGroup(ctx, group)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(createdGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionCreate,
+		TargetObjectTypeId: models.ObjectTypeCellsGroup,
+		TargetObjectID:     createdGroup.ID,
+		PrechangeState:     nil,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return createdGroup, nil
 }
 
 func (uc *StorageUseCase) GetCellsGroupByID(ctx context.Context, id uuid.UUID) (*models.CellsGroup, error) {
@@ -161,7 +275,41 @@ func (uc *StorageUseCase) UpdateCellsGroup(ctx context.Context, cellGroup *model
 
 	cellGroup.OrgID = validateResult.OrgID
 
-	return uc.service.UpdateCellsGroup(ctx, cellGroup)
+	// Get current state for audit
+	currentGroup, err := uc.service.GetCellsGroup(ctx, validateResult.OrgID, cellGroup.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	prechangeState, err := json.Marshal(currentGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedGroup, err := uc.service.UpdateCellsGroup(ctx, cellGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(updatedGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeCellsGroup,
+		TargetObjectID:     updatedGroup.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedGroup, nil
 }
 
 func (uc *StorageUseCase) DeleteCellsGroup(ctx context.Context, id uuid.UUID) error {
@@ -174,7 +322,36 @@ func (uc *StorageUseCase) DeleteCellsGroup(ctx context.Context, id uuid.UUID) er
 		return usecases.ErrNotAuthorized
 	}
 
-	return uc.service.DeleteCellsGroup(ctx, validateResult.OrgID, id)
+	// Get current state for audit
+	currentGroup, err := uc.service.GetCellsGroup(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	prechangeState, err := json.Marshal(currentGroup)
+	if err != nil {
+		return err
+	}
+
+	err = uc.service.DeleteCellsGroup(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionDelete,
+		TargetObjectTypeId: models.ObjectTypeCellsGroup,
+		TargetObjectID:     id,
+		PrechangeState:     prechangeState,
+		PostchangeState:    nil,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Cells
@@ -204,7 +381,30 @@ func (uc *StorageUseCase) CreateCell(ctx context.Context, cell *models.Cell) (*m
 
 	cell.OrgID = validateResult.OrgID
 
-	return uc.service.CreateCell(ctx, cell)
+	createdCell, err := uc.service.CreateCell(ctx, cell)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(createdCell)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionCreate,
+		TargetObjectTypeId: models.ObjectTypeCell,
+		TargetObjectID:     createdCell.ID,
+		PrechangeState:     nil,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return createdCell, nil
 }
 
 func (uc *StorageUseCase) GetCellByID(ctx context.Context, id uuid.UUID) (*models.Cell, error) {
@@ -230,7 +430,36 @@ func (uc *StorageUseCase) DeleteCell(ctx context.Context, id uuid.UUID) error {
 		return usecases.ErrNotAuthorized
 	}
 
-	return uc.service.DeleteCell(ctx, validateResult.OrgID, id)
+	// Get current state for audit
+	currentCell, err := uc.service.GetCellByID(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	prechangeState, err := json.Marshal(currentCell)
+	if err != nil {
+		return err
+	}
+
+	err = uc.service.DeleteCell(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionDelete,
+		TargetObjectTypeId: models.ObjectTypeCell,
+		TargetObjectID:     id,
+		PrechangeState:     prechangeState,
+		PostchangeState:    nil,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID, cell *models.Cell) (*models.Cell, error) {
@@ -246,5 +475,39 @@ func (uc *StorageUseCase) UpdateCell(ctx context.Context, cellsGroupID uuid.UUID
 	cell.OrgID = validateResult.OrgID
 	cell.CellsGroupID = cellsGroupID
 
-	return uc.service.UpdateCell(ctx, cell)
+	// Get current state for audit
+	currentCell, err := uc.service.GetCellByID(ctx, validateResult.OrgID, cell.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	prechangeState, err := json.Marshal(currentCell)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedCell, err := uc.service.UpdateCell(ctx, cell)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(updatedCell)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeCell,
+		TargetObjectID:     updatedCell.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedCell, nil
 }
