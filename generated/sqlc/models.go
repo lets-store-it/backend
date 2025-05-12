@@ -61,6 +61,7 @@ const (
 	TaskItemStatusPicked   TaskItemStatus = "picked"
 	TaskItemStatusDone     TaskItemStatus = "done"
 	TaskItemStatusReturned TaskItemStatus = "returned"
+	TaskItemStatusCanceled TaskItemStatus = "canceled"
 )
 
 func (e *TaskItemStatus) Scan(src interface{}) error {

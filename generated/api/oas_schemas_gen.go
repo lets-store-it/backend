@@ -2183,10 +2183,11 @@ func (s *GetInstancesByItemIdResponse) SetData(val []GetInstancesByItemIdRespons
 func (*GetInstancesByItemIdResponse) getInstancesByItemIdRes() {}
 
 type GetInstancesByItemIdResponseDataItem struct {
-	ID      uuid.UUID                                  `json:"id"`
-	Status  GetInstancesByItemIdResponseDataItemStatus `json:"status"`
-	Variant ItemVariant                                `json:"variant"`
-	Cell    CellForInstance                            `json:"cell"`
+	ID               uuid.UUID                                  `json:"id"`
+	Status           GetInstancesByItemIdResponseDataItemStatus `json:"status"`
+	AffectedByTaskId OptNilUUID                                 `json:"affectedByTaskId"`
+	Variant          ItemVariant                                `json:"variant"`
+	Cell             NilCellForInstanceOptional                 `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2199,13 +2200,18 @@ func (s *GetInstancesByItemIdResponseDataItem) GetStatus() GetInstancesByItemIdR
 	return s.Status
 }
 
+// GetAffectedByTaskId returns the value of AffectedByTaskId.
+func (s *GetInstancesByItemIdResponseDataItem) GetAffectedByTaskId() OptNilUUID {
+	return s.AffectedByTaskId
+}
+
 // GetVariant returns the value of Variant.
 func (s *GetInstancesByItemIdResponseDataItem) GetVariant() ItemVariant {
 	return s.Variant
 }
 
 // GetCell returns the value of Cell.
-func (s *GetInstancesByItemIdResponseDataItem) GetCell() CellForInstance {
+func (s *GetInstancesByItemIdResponseDataItem) GetCell() NilCellForInstanceOptional {
 	return s.Cell
 }
 
@@ -2219,13 +2225,18 @@ func (s *GetInstancesByItemIdResponseDataItem) SetStatus(val GetInstancesByItemI
 	s.Status = val
 }
 
+// SetAffectedByTaskId sets the value of AffectedByTaskId.
+func (s *GetInstancesByItemIdResponseDataItem) SetAffectedByTaskId(val OptNilUUID) {
+	s.AffectedByTaskId = val
+}
+
 // SetVariant sets the value of Variant.
 func (s *GetInstancesByItemIdResponseDataItem) SetVariant(val ItemVariant) {
 	s.Variant = val
 }
 
 // SetCell sets the value of Cell.
-func (s *GetInstancesByItemIdResponseDataItem) SetCell(val CellForInstance) {
+func (s *GetInstancesByItemIdResponseDataItem) SetCell(val NilCellForInstanceOptional) {
 	s.Cell = val
 }
 
@@ -2759,10 +2770,11 @@ func (*GetTvBoardsUnauthorized) getTvBoardsRes() {}
 
 // Ref: #/components/schemas/InstanceForItem
 type InstanceForItem struct {
-	ID      uuid.UUID             `json:"id"`
-	Status  InstanceForItemStatus `json:"status"`
-	Variant ItemVariant           `json:"variant"`
-	Cell    CellForInstance       `json:"cell"`
+	ID               uuid.UUID                  `json:"id"`
+	Status           InstanceForItemStatus      `json:"status"`
+	AffectedByTaskId OptNilUUID                 `json:"affectedByTaskId"`
+	Variant          ItemVariant                `json:"variant"`
+	Cell             NilCellForInstanceOptional `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2775,13 +2787,18 @@ func (s *InstanceForItem) GetStatus() InstanceForItemStatus {
 	return s.Status
 }
 
+// GetAffectedByTaskId returns the value of AffectedByTaskId.
+func (s *InstanceForItem) GetAffectedByTaskId() OptNilUUID {
+	return s.AffectedByTaskId
+}
+
 // GetVariant returns the value of Variant.
 func (s *InstanceForItem) GetVariant() ItemVariant {
 	return s.Variant
 }
 
 // GetCell returns the value of Cell.
-func (s *InstanceForItem) GetCell() CellForInstance {
+func (s *InstanceForItem) GetCell() NilCellForInstanceOptional {
 	return s.Cell
 }
 
@@ -2795,13 +2812,18 @@ func (s *InstanceForItem) SetStatus(val InstanceForItemStatus) {
 	s.Status = val
 }
 
+// SetAffectedByTaskId sets the value of AffectedByTaskId.
+func (s *InstanceForItem) SetAffectedByTaskId(val OptNilUUID) {
+	s.AffectedByTaskId = val
+}
+
 // SetVariant sets the value of Variant.
 func (s *InstanceForItem) SetVariant(val ItemVariant) {
 	s.Variant = val
 }
 
 // SetCell sets the value of Cell.
-func (s *InstanceForItem) SetCell(val CellForInstance) {
+func (s *InstanceForItem) SetCell(val NilCellForInstanceOptional) {
 	s.Cell = val
 }
 
@@ -2856,11 +2878,12 @@ func (s *InstanceForItemStatus) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/InstanceFull
 type InstanceFull struct {
 	// Instance ID.
-	ID      uuid.UUID                  `json:"id"`
-	Status  InstanceFullStatus         `json:"status"`
-	Item    ItemForList                `json:"item"`
-	Variant ItemVariant                `json:"variant"`
-	Cell    NilCellForInstanceOptional `json:"cell"`
+	ID               uuid.UUID                  `json:"id"`
+	Status           InstanceFullStatus         `json:"status"`
+	Item             ItemForList                `json:"item"`
+	AffectedByTaskId OptNilUUID                 `json:"affectedByTaskId"`
+	Variant          ItemVariant                `json:"variant"`
+	Cell             NilCellForInstanceOptional `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2876,6 +2899,11 @@ func (s *InstanceFull) GetStatus() InstanceFullStatus {
 // GetItem returns the value of Item.
 func (s *InstanceFull) GetItem() ItemForList {
 	return s.Item
+}
+
+// GetAffectedByTaskId returns the value of AffectedByTaskId.
+func (s *InstanceFull) GetAffectedByTaskId() OptNilUUID {
+	return s.AffectedByTaskId
 }
 
 // GetVariant returns the value of Variant.
@@ -2901,6 +2929,11 @@ func (s *InstanceFull) SetStatus(val InstanceFullStatus) {
 // SetItem sets the value of Item.
 func (s *InstanceFull) SetItem(val ItemForList) {
 	s.Item = val
+}
+
+// SetAffectedByTaskId sets the value of AffectedByTaskId.
+func (s *InstanceFull) SetAffectedByTaskId(val OptNilUUID) {
+	s.AffectedByTaskId = val
 }
 
 // SetVariant sets the value of Variant.

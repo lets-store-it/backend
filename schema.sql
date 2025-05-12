@@ -1,6 +1,6 @@
 CREATE TYPE task_type AS ENUM ('movement', 'pickment');
 CREATE TYPE task_status AS ENUM ('pending', 'in_progress', 'ready', 'completed', 'cancelled');
-CREATE TYPE task_item_status AS ENUM ('pending', 'picked', 'done', 'returned');
+CREATE TYPE task_item_status AS ENUM ('pending', 'picked', 'done', 'returned', 'canceled');
 CREATE TYPE item_instance_status AS ENUM ('available', 'reserved', 'consumed');
 
 

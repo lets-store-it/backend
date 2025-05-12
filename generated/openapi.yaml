@@ -1264,7 +1264,7 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
-  /tasks/{id}/awaiting:
+  /tasks/{id}/ready:
     parameters:
       - name: id
         in: path
@@ -1288,7 +1288,7 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
-  /tasks/{id}/done:
+  /tasks/{id}/completed:
     parameters:
       - name: id
         in: path
@@ -2146,6 +2146,11 @@ components:
                   - objectType
           required:
             - cellPath
+    CellForInstanceOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/CellForInstance'
     InstanceForItem:
       type: object
       properties:
@@ -2158,10 +2163,14 @@ components:
             - available
             - reserved
             - consumed
+        affectedByTaskId:
+          type: string
+          nullable: true
+          format: uuid
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:
-          $ref: '#/components/schemas/CellForInstance'
+          $ref: '#/components/schemas/CellForInstanceOptional'
       required:
         - id
         - status
@@ -2256,11 +2265,6 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
-    CellForInstanceOptional:
-      type: object
-      nullable: true
-      allOf:
-        - $ref: '#/components/schemas/CellForInstance'
     InstanceFull:
       type: object
       properties:
@@ -2278,6 +2282,10 @@ components:
         item:
           type: object
           $ref: '#/components/schemas/ItemForList'
+        affectedByTaskId:
+          type: string
+          nullable: true
+          format: uuid
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:

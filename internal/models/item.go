@@ -42,13 +42,13 @@ const (
 )
 
 type ItemInstance struct {
-	ID                    uuid.UUID          `json:"id"`
-	OrgID                 uuid.UUID          `json:"org_id"`
-	ItemID                uuid.UUID          `json:"item_id"`
-	VariantID             uuid.UUID          `json:"variant_id"`
-	CellID                *uuid.UUID         `json:"cell_id"`
-	Status                ItemInstanceStatus `json:"status"`
-	AffectedByOperationID *uuid.UUID         `json:"affected_by_operation_id"`
+	ID               uuid.UUID          `json:"id"`
+	OrgID            uuid.UUID          `json:"org_id"`
+	ItemID           uuid.UUID          `json:"item_id"`
+	VariantID        uuid.UUID          `json:"variant_id"`
+	CellID           *uuid.UUID         `json:"cell_id"`
+	Status           ItemInstanceStatus `json:"status"`
+	AffectedByTaskID *uuid.UUID         `json:"affected_by_task_id"`
 
 	Item    *Item        `json:"item"`
 	Cell    *Cell        `json:"cell"`
