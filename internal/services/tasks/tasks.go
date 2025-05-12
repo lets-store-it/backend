@@ -165,18 +165,28 @@ func (s *TaskService) GetTaskById(ctx context.Context, orgID uuid.UUID, id uuid.
 		taskItems := make([]*models.TaskItem, len(items))
 		for i, item := range items {
 			taskItems[i] = toTaskItem(item)
-			taskItems[i].SourceCell, err = s.storageService.GetCellFull(ctx, orgID, *taskItems[i].SourceCellID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get source cell: %w", err)
+
+			if taskItems[i].SourceCellID != nil {
+				sourceCell, err := s.storageService.GetCellFull(ctx, orgID, *taskItems[i].SourceCellID)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get source cell: %w", err)
+				}
+				taskItems[i].SourceCell = sourceCell
 			}
-			taskItems[i].TargetCell, err = s.storageService.GetCellFull(ctx, orgID, *taskItems[i].TargetCellID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get target cell: %w", err)
+
+			if taskItems[i].TargetCellID != nil {
+				targetCell, err := s.storageService.GetCellFull(ctx, orgID, *taskItems[i].TargetCellID)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get target cell: %w", err)
+				}
+				taskItems[i].TargetCell = targetCell
 			}
-			taskItems[i].Instance, err = s.item.GetItemInstanceFull(ctx, orgID, taskItems[i].InstanceID)
+
+			instance, err := s.item.GetItemInstanceFull(ctx, orgID, taskItems[i].InstanceID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get instance: %w", err)
 			}
+			taskItems[i].Instance = instance
 		}
 		res.Items = taskItems
 
