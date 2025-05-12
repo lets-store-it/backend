@@ -78,13 +78,13 @@ func (uc *OrganizationUseCase) GetUsersOrgs(ctx context.Context) ([]*models.Orga
 }
 
 func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*models.Organization, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -92,12 +92,12 @@ func (uc *OrganizationUseCase) GetByID(ctx context.Context, id uuid.UUID) (*mode
 }
 
 func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelOwner)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelOwner, false)
 	if err != nil {
 		return err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 
@@ -130,12 +130,12 @@ func (uc *OrganizationUseCase) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -169,12 +169,12 @@ func (uc *OrganizationUseCase) Update(ctx context.Context, org *models.Organizat
 }
 
 func (uc *OrganizationUseCase) Patch(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Organization, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 

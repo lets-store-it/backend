@@ -15,11 +15,6 @@ type ServerConfig struct {
 	CorsOrigins   []string `yaml:"cors_origins" env:"CORS_ORIGINS" env-default:"http://localhost:3000,http://localhost:8080,http://localhost,https://store-it.ru,https://www.store-it.ru,http://store-it.ru,http://www.store-it.ru"`
 }
 
-// GetCorsOrigins returns the list of allowed CORS origins
-func (s *ServerConfig) GetCorsOrigins() []string {
-	return strings.Split(s.CorsOrigins[0], ",")
-}
-
 type DatabaseConfig struct {
 	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
 	Port     string `yaml:"port" env:"DB_PORT" env-default:"5432"`

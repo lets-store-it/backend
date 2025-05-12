@@ -11,12 +11,12 @@ import (
 )
 
 func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alias string, address string) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -47,12 +47,12 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 }
 
 func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -60,12 +60,12 @@ func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.Organ
 }
 
 func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -78,12 +78,12 @@ func (uc *OrganizationUseCase) GetUnitByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 
@@ -91,12 +91,12 @@ func (uc *OrganizationUseCase) DeleteUnit(ctx context.Context, id uuid.UUID) err
 }
 
 func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.OrganizationUnit) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -139,12 +139,12 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 }
 
 func (uc *OrganizationUseCase) PatchUnit(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelAdmin)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelAdmin, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 

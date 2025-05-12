@@ -39,7 +39,7 @@ func (uc *TvBoardUseCase) CreateTvBoard(ctx context.Context, tvBoard *models.TvB
 		return nil, err
 	}
 
-	if !valRes.HasAccess {
+	if !valRes.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -66,7 +66,7 @@ func (uc *TvBoardUseCase) GetTvBoard(ctx context.Context, id uuid.UUID) (*models
 		return nil, err
 	}
 
-	if !valRes.HasAccess {
+	if !valRes.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -91,7 +91,7 @@ func (uc *TvBoardUseCase) GetTvBoards(ctx context.Context) ([]*models.TvBoard, e
 		return nil, err
 	}
 
-	if !valRes.HasAccess {
+	if !valRes.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -116,7 +116,7 @@ func (uc *TvBoardUseCase) DeleteTvBoard(ctx context.Context, id uuid.UUID) error
 		return err
 	}
 
-	if !valRes.HasAccess {
+	if !valRes.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 

@@ -44,25 +44,25 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	}
 
 	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: cfg.Server.GetCorsOrigins(),
-		AllowMethods: []string{
-			echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS,
-		},
-		AllowHeaders: []string{
-			echo.HeaderOrigin,
-			echo.HeaderContentType,
-			echo.HeaderAccept,
-			echo.HeaderAuthorization,
-			"X-Organization-Id",
-			"X-Api-Key",
-			"X-Requested-With",
-			"Access-Control-Allow-Origin",
-		},
+		AllowOrigins: cfg.Server.CorsOrigins,
+		// AllowMethods: []string{
+		// 	echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.PATCH, echo.OPTIONS,
+		// },
+		// AllowHeaders: []string{
+		// 	echo.HeaderOrigin,
+		// 	echo.HeaderContentType,
+		// 	echo.HeaderAccept,
+		// 	echo.HeaderAuthorization,
+		// 	"X-Organization-Id",
+		// 	"X-Api-Key",
+		// 	"X-Requested-With",
+		// 	"Access-Control-Allow-Origin",
+		// },
 		AllowCredentials: true,
 	}))
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	// Initialize services
 	storageGroupService, err := storage.New(&storage.StorageServiceConfig{
 		Queries: queries,

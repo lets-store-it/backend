@@ -28,12 +28,12 @@ func New(config AuditUseCaseConfig) *AuditUseCase {
 }
 
 func (uc *AuditUseCase) GetObjectChanges(ctx context.Context, targetObjectTypeId models.ObjectTypeId, targetObjectID uuid.UUID) ([]*models.ObjectChange, error) {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 	changes, err := uc.auditService.GetObjectChanges(ctx, validateResult.OrgID, targetObjectTypeId, targetObjectID)
