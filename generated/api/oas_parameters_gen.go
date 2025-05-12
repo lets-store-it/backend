@@ -215,30 +215,22 @@ func decodeCreateItemVariantParams(args [1]string, argsEscaped bool, r *http.Req
 
 // DeleteCellParams is parameters of deleteCell operation.
 type DeleteCellParams struct {
-	GroupId uuid.UUID
-	CellId  uuid.UUID
+	ID uuid.UUID
 }
 
 func unpackDeleteCellParams(packed middleware.Parameters) (params DeleteCellParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "groupId",
+			Name: "id",
 			In:   "path",
 		}
-		params.GroupId = packed[key].(uuid.UUID)
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "cellId",
-			In:   "path",
-		}
-		params.CellId = packed[key].(uuid.UUID)
+		params.ID = packed[key].(uuid.UUID)
 	}
 	return params
 }
 
-func decodeDeleteCellParams(args [2]string, argsEscaped bool, r *http.Request) (params DeleteCellParams, _ error) {
-	// Decode path: groupId.
+func decodeDeleteCellParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteCellParams, _ error) {
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -250,7 +242,7 @@ func decodeDeleteCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "groupId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -267,7 +259,7 @@ func decodeDeleteCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 					return err
 				}
 
-				params.GroupId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -278,52 +270,7 @@ func decodeDeleteCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "groupId",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	// Decode path: cellId.
-	if err := func() error {
-		param := args[1]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[1])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "cellId",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToUUID(val)
-				if err != nil {
-					return err
-				}
-
-				params.CellId = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "cellId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -1096,30 +1043,22 @@ func decodeGetAuditLogsParams(args [0]string, argsEscaped bool, r *http.Request)
 
 // GetCellByIdParams is parameters of getCellById operation.
 type GetCellByIdParams struct {
-	GroupId uuid.UUID
-	CellId  uuid.UUID
+	ID uuid.UUID
 }
 
 func unpackGetCellByIdParams(packed middleware.Parameters) (params GetCellByIdParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "groupId",
+			Name: "id",
 			In:   "path",
 		}
-		params.GroupId = packed[key].(uuid.UUID)
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "cellId",
-			In:   "path",
-		}
-		params.CellId = packed[key].(uuid.UUID)
+		params.ID = packed[key].(uuid.UUID)
 	}
 	return params
 }
 
-func decodeGetCellByIdParams(args [2]string, argsEscaped bool, r *http.Request) (params GetCellByIdParams, _ error) {
-	// Decode path: groupId.
+func decodeGetCellByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetCellByIdParams, _ error) {
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -1131,7 +1070,7 @@ func decodeGetCellByIdParams(args [2]string, argsEscaped bool, r *http.Request) 
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "groupId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -1148,7 +1087,7 @@ func decodeGetCellByIdParams(args [2]string, argsEscaped bool, r *http.Request) 
 					return err
 				}
 
-				params.GroupId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -1159,52 +1098,7 @@ func decodeGetCellByIdParams(args [2]string, argsEscaped bool, r *http.Request) 
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "groupId",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	// Decode path: cellId.
-	if err := func() error {
-		param := args[1]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[1])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "cellId",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToUUID(val)
-				if err != nil {
-					return err
-				}
-
-				params.CellId = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "cellId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -2447,30 +2341,22 @@ func decodeRevokeApiTokenParams(args [1]string, argsEscaped bool, r *http.Reques
 
 // UpdateCellParams is parameters of updateCell operation.
 type UpdateCellParams struct {
-	GroupId uuid.UUID
-	CellId  uuid.UUID
+	ID uuid.UUID
 }
 
 func unpackUpdateCellParams(packed middleware.Parameters) (params UpdateCellParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "groupId",
+			Name: "id",
 			In:   "path",
 		}
-		params.GroupId = packed[key].(uuid.UUID)
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "cellId",
-			In:   "path",
-		}
-		params.CellId = packed[key].(uuid.UUID)
+		params.ID = packed[key].(uuid.UUID)
 	}
 	return params
 }
 
-func decodeUpdateCellParams(args [2]string, argsEscaped bool, r *http.Request) (params UpdateCellParams, _ error) {
-	// Decode path: groupId.
+func decodeUpdateCellParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateCellParams, _ error) {
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -2482,7 +2368,7 @@ func decodeUpdateCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "groupId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -2499,7 +2385,7 @@ func decodeUpdateCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 					return err
 				}
 
-				params.GroupId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -2510,52 +2396,7 @@ func decodeUpdateCellParams(args [2]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "groupId",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	// Decode path: cellId.
-	if err := func() error {
-		param := args[1]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[1])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "cellId",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToUUID(val)
-				if err != nil {
-					return err
-				}
-
-				params.CellId = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "cellId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}

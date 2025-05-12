@@ -21,18 +21,18 @@ paths:
       summary: Get list of user Organizations
       operationId: getOrganizations
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetOrganizationsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetOrganizationsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - org
@@ -43,22 +43,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrganizationRequest'
+              $ref: "#/components/schemas/CreateOrganizationRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateOrganizationResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '409':
-          $ref: '#/components/responses/default-conflict'
+                $ref: "#/components/schemas/CreateOrganizationResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "409":
+          $ref: "#/components/responses/default-conflict"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /orgs/{id}:
     parameters:
       - name: id
@@ -74,36 +74,36 @@ paths:
       summary: Get Organization by ID
       operationId: getOrganizationById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetOrganizationByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetOrganizationByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - org
       summary: Delete Organization
       operationId: deleteOrganization
       responses:
-        '204':
-          $ref: '#/components/responses/default-no-content'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "204":
+          $ref: "#/components/responses/default-no-content"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - org
@@ -114,24 +114,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationUpdate'
+              $ref: "#/components/schemas/OrganizationUpdate"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateOrganizationResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateOrganizationResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /units:
     get:
       tags:
@@ -139,20 +139,20 @@ paths:
       summary: Get list of Organization Units
       operationId: getOrganizationUnits
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetOrganizationUnitsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetOrganizationUnitsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - unit
@@ -163,22 +163,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UnitBase'
+              $ref: "#/components/schemas/UnitBase"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateOrganizationUnitResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateOrganizationUnitResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /units/{id}:
     parameters:
       - name: id
@@ -194,36 +194,36 @@ paths:
       summary: Get Unit by ID
       operationId: getOrganizationUnitById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetOrganizationUnitByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetOrganizationUnitByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - unit
       summary: Delete Organization Unit
       operationId: deleteOrganizationUnit
       responses:
-        '204':
-          $ref: '#/components/responses/default-no-content'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "204":
+          $ref: "#/components/responses/default-no-content"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - unit
@@ -234,24 +234,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UnitBase'
+              $ref: "#/components/schemas/UnitBase"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateOrganizationUnitResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateOrganizationUnitResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /storage-groups:
     get:
       tags:
@@ -259,20 +259,20 @@ paths:
       summary: Get list of Storage Groups
       operationId: getStorageGroups
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetStorageGroupsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetStorageGroupsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - storage-group
@@ -283,22 +283,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StorageGroupBase'
+              $ref: "#/components/schemas/StorageGroupBase"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateStorageGroupResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateStorageGroupResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /storage-groups/{id}:
     parameters:
       - name: id
@@ -314,36 +314,36 @@ paths:
       summary: Get Storage Group by ID
       operationId: getStorageGroupById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetStorageGroupByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetStorageGroupByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - storage-group
       summary: Delete Storage Group
       operationId: deleteStorageGroup
       responses:
-        '204':
-          $ref: '#/components/responses/default-no-content'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "204":
+          $ref: "#/components/responses/default-no-content"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - storage-group
@@ -354,24 +354,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StorageGroupBase'
+              $ref: "#/components/schemas/StorageGroupBase"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateStorageGroupResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateStorageGroupResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /cells-groups:
     get:
       tags:
@@ -379,20 +379,20 @@ paths:
       summary: Get list of Cells Groups
       operationId: getCellsGroups
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCellsGroupsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetCellsGroupsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - cells-group
@@ -403,22 +403,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCellsGroupRequest'
+              $ref: "#/components/schemas/CreateCellsGroupRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateCellsGroupResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateCellsGroupResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /cells-groups/{groupId}:
     parameters:
       - name: groupId
@@ -434,36 +434,36 @@ paths:
       summary: Get Cells Group by ID
       operationId: getCellsGroupById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCellsGroupByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetCellsGroupByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - cells-group
       summary: Delete Cells Group
       operationId: deleteCellsGroup
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - cells-group
@@ -474,24 +474,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCellsGroupRequest'
+              $ref: "#/components/schemas/UpdateCellsGroupRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateCellsGroupResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateCellsGroupResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /cells-groups/{groupId}/cells:
     parameters:
       - name: groupId
@@ -506,20 +506,20 @@ paths:
       summary: Get list of Cells
       operationId: getCells
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCellsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetCellsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - cells-group
@@ -530,31 +530,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCellRequest'
+              $ref: "#/components/schemas/CreateCellRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateCellResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateCellResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
-  /cells-groups/{groupId}/cells/{cellId}:
+          $ref: "#/components/responses/default-error"
+  /cells/{id}:
     parameters:
-      - name: groupId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: cellId
+      - name: id
         in: path
         required: true
         schema:
@@ -566,36 +560,36 @@ paths:
       summary: Get Cell by ID
       operationId: getCellById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCellByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetCellByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - cells-group
       summary: Delete Cell
       operationId: deleteCell
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - cells-group
@@ -606,24 +600,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCellRequest'
+              $ref: "#/components/schemas/UpdateCellRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateCellResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateCellResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /items:
     get:
       tags:
@@ -631,20 +625,20 @@ paths:
       summary: Get list of Items
       operationId: getItems
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItemsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetItemsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - item
@@ -655,22 +649,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateItemRequest'
+              $ref: "#/components/schemas/CreateItemRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateItemResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateItemResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /items/{id}/variants:
     parameters:
       - name: id
@@ -686,20 +680,20 @@ paths:
       summary: Get Item Variants
       operationId: getItemVariants
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItemVariantsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetItemVariantsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - item
@@ -710,22 +704,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateItemVariantRequest'
+              $ref: "#/components/schemas/CreateItemVariantRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateItemVariantResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateItemVariantResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /items/{id}/variants/{variantId}:
     parameters:
       - name: id
@@ -748,20 +742,20 @@ paths:
       summary: Get Item Variant By ID
       operationId: getItemVariantById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItemVariantByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetItemVariantByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - item
@@ -772,40 +766,40 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateItemVariantRequest'
+              $ref: "#/components/schemas/UpdateItemVariantRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateItemVariantResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateItemVariantResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - item
       summary: Delete Item Variant By ID
       operationId: deleteItemVariant
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /items/{id}:
     parameters:
       - name: id
@@ -821,36 +815,36 @@ paths:
       summary: Get Item by ID
       operationId: getItemById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItemByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetItemByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - item
       summary: Delete Item
       operationId: deleteItem
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - item
@@ -861,22 +855,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateItemRequest'
+              $ref: "#/components/schemas/UpdateItemRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateItemResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateItemResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /instances:
     get:
       tags:
@@ -884,20 +878,20 @@ paths:
       summary: Get list of Instances
       operationId: getInstances
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetInstancesResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetInstancesResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /items/{itemId}/instances:
     parameters:
       - name: itemId
@@ -913,20 +907,20 @@ paths:
       summary: Get list of Instances For Item
       operationId: getInstancesByItemId
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetInstancesByItemIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetInstancesByItemIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - instance
@@ -937,22 +931,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateInstanceForItemRequest'
+              $ref: "#/components/schemas/CreateInstanceForItemRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateInstanceForItemResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateInstanceForItemResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /instances/{instanceId}:
     parameters:
       - name: instanceId
@@ -968,20 +962,20 @@ paths:
       summary: Get Instance by ID
       operationId: getInstanceById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetInstanceByIdResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetInstanceByIdResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     put:
       tags:
         - instance
@@ -992,40 +986,40 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateInstanceRequest'
+              $ref: "#/components/schemas/UpdateInstanceRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateInstanceResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/UpdateInstanceResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       tags:
         - instance
       summary: Delete Instance by ID
       operationId: deleteInstanceById
       responses:
-        '200':
+        "200":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /api-tokens:
     get:
       tags:
@@ -1033,20 +1027,20 @@ paths:
       summary: Get list of Service API Tokens
       operationId: getApiTokens
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetApiTokensResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetApiTokensResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - auth
@@ -1057,22 +1051,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateApiTokenRequest'
+              $ref: "#/components/schemas/CreateApiTokenRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateApiTokenResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateApiTokenResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /api-tokens/{id}:
     parameters:
       - name: id
@@ -1087,16 +1081,16 @@ paths:
       summary: Revoke Service API Token
       operationId: revokeApiToken
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /auth/oauth2/yandex:
     post:
       security: []
@@ -1117,12 +1111,12 @@ paths:
               required:
                 - access_token
       responses:
-        '200':
-          $ref: '#/components/responses/AuthResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
+        "200":
+          $ref: "#/components/responses/AuthResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /auth/logout:
     get:
       tags:
@@ -1130,12 +1124,12 @@ paths:
       summary: Logout user
       operationId: logout
       responses:
-        '200':
-          $ref: '#/components/responses/LogoutResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
+        "200":
+          $ref: "#/components/responses/LogoutResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /me:
     get:
       tags:
@@ -1143,16 +1137,16 @@ paths:
       summary: Get Current User
       operationId: getCurrentUser
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCurrentUserResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
+                $ref: "#/components/schemas/GetCurrentUserResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tasks:
     get:
       tags:
@@ -1160,20 +1154,20 @@ paths:
       summary: Get all tasks for organization
       operationId: getTasks
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetTasksResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetTasksResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - tasks
@@ -1184,22 +1178,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTaskRequest'
+              $ref: "#/components/schemas/CreateTaskRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateTaskResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateTaskResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tasks/{id}:
     parameters:
       - name: id
@@ -1214,20 +1208,20 @@ paths:
       summary: Get Task by ID
       operationId: getTaskById
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetTaskResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetTaskResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tasks/{id}/pick-instance:
     parameters:
       - name: id
@@ -1254,16 +1248,16 @@ paths:
               required:
                 - instanceId
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tasks/{id}/ready:
     parameters:
       - name: id
@@ -1278,16 +1272,16 @@ paths:
       summary: Mark task as awaiting to collect
       operationId: markTaskAsAwaiting
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tasks/{id}/completed:
     parameters:
       - name: id
@@ -1302,16 +1296,16 @@ paths:
       summary: Mark task as completed
       operationId: markTaskAsCompleted
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /employees:
     get:
       summary: Get employees of the organization
@@ -1320,20 +1314,20 @@ paths:
       description: Get all employees
       operationId: getEmployees
       responses:
-        '200':
+        "200":
           description: A list of employees
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetEmployeesResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetEmployeesResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /employees/{id}:
     parameters:
       - name: id
@@ -1348,20 +1342,20 @@ paths:
         - employees
       operationId: getEmployeeById
       responses:
-        '200':
+        "200":
           description: A single employee
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetEmployeeResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetEmployeeResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     patch:
       summary: Update employee by id
       tags:
@@ -1372,40 +1366,40 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchEmployeeRequest'
+              $ref: "#/components/schemas/PatchEmployeeRequest"
       responses:
-        '200':
+        "200":
           description: A single employee
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetEmployeeResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetEmployeeResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     delete:
       summary: Delete employee by id
       tags:
         - employees
       operationId: deleteEmployeeById
       responses:
-        '200':
+        "200":
           description: Employee deleted successfully
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /employees/invite:
     post:
       summary: Invite employee to the organization
@@ -1418,22 +1412,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/InviteEmployeeRequest'
+              $ref: "#/components/schemas/InviteEmployeeRequest"
       responses:
-        '200':
+        "200":
           description: Employee invited successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetEmployeeResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/GetEmployeeResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /app/roles:
     get:
       summary: Get all roles in system
@@ -1441,7 +1435,7 @@ paths:
         - employees
       operationId: getRoles
       responses:
-        '200':
+        "200":
           description: List of roles
           content:
             application/json:
@@ -1451,15 +1445,15 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Role'
+                      $ref: "#/components/schemas/Role"
                 required:
                   - data
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /audit-logs:
     get:
       summary: Get audit logs
@@ -1482,20 +1476,20 @@ paths:
             format: uuid
       operationId: getAuditLogs
       responses:
-        '200':
+        "200":
           description: Audit logs
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetAuditLogsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetAuditLogsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tv-boards:
     get:
       tags:
@@ -1503,20 +1497,20 @@ paths:
       summary: Get list of TV Boards
       operationId: getTvBoards
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetTvBoardsResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetTvBoardsResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
     post:
       tags:
         - tv-boards
@@ -1527,22 +1521,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTvBoardRequest'
+              $ref: "#/components/schemas/CreateTvBoardRequest"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateTvBoardResponse'
-        '400':
-          $ref: '#/components/responses/default-bad-request'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
+                $ref: "#/components/schemas/CreateTvBoardResponse"
+        "400":
+          $ref: "#/components/responses/default-bad-request"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tv-boards/{id}:
     parameters:
       - name: id
@@ -1557,16 +1551,16 @@ paths:
       summary: Delete TV Board
       operationId: deleteTvBoard
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "403":
+          $ref: "#/components/responses/default-forbidden"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
   /tv-boards/{tvToken}/data:
     parameters:
       - name: tvToken
@@ -1581,18 +1575,18 @@ paths:
       summary: Get data for rendering on TV Board
       operationId: getTvBoardsData
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetTvBoardDataResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '404':
-          $ref: '#/components/responses/default-not-found'
+                $ref: "#/components/schemas/GetTvBoardDataResponse"
+        "401":
+          $ref: "#/components/responses/default-unauthorized"
+        "404":
+          $ref: "#/components/responses/default-not-found"
         default:
-          $ref: '#/components/responses/default-error'
+          $ref: "#/components/responses/default-error"
 components:
   securitySchemes:
     apiToken:
@@ -1649,7 +1643,7 @@ components:
               readOnly: true
           required:
             - id
-        - $ref: '#/components/schemas/OrganizationBase'
+        - $ref: "#/components/schemas/OrganizationBase"
     GetOrganizationsResponse:
       type: object
       allOf:
@@ -1658,13 +1652,13 @@ components:
             data:
               type: array
               items:
-                $ref: '#/components/schemas/Organization'
+                $ref: "#/components/schemas/Organization"
           required:
             - data
     CreateOrganizationRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/OrganizationBase'
+        - $ref: "#/components/schemas/OrganizationBase"
     CreateOrganizationResponse:
       type: object
       allOf:
@@ -1672,7 +1666,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Organization'
+              $ref: "#/components/schemas/Organization"
           required:
             - data
     GetOrganizationByIdResponse:
@@ -1682,7 +1676,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Organization'
+              $ref: "#/components/schemas/Organization"
           required:
             - data
     OrganizationUpdate:
@@ -1702,7 +1696,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Organization'
+              $ref: "#/components/schemas/Organization"
           required:
             - data
     storage-alias:
@@ -1719,7 +1713,7 @@ components:
           maxLength: 100
           example: Moscow
         alias:
-          $ref: '#/components/schemas/storage-alias'
+          $ref: "#/components/schemas/storage-alias"
         address:
           type: string
           nullable: true
@@ -1740,7 +1734,7 @@ components:
               example: def3df1a-7b8f-4552-b437-a1eab851403f
           required:
             - id
-        - $ref: '#/components/schemas/UnitBase'
+        - $ref: "#/components/schemas/UnitBase"
         - type: object
           properties:
             address:
@@ -1756,7 +1750,7 @@ components:
             data:
               type: array
               items:
-                $ref: '#/components/schemas/Unit'
+                $ref: "#/components/schemas/Unit"
           required:
             - data
     CreateOrganizationUnitResponse:
@@ -1766,7 +1760,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Unit'
+              $ref: "#/components/schemas/Unit"
           required:
             - data
     GetOrganizationUnitByIdResponse:
@@ -1776,7 +1770,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Unit'
+              $ref: "#/components/schemas/Unit"
           required:
             - data
     UpdateOrganizationUnitResponse:
@@ -1786,7 +1780,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/Unit'
+              $ref: "#/components/schemas/Unit"
           required:
             - data
     StorageGroupBase:
@@ -1802,7 +1796,7 @@ components:
           maxLength: 100
           example: Main Warehouse
         alias:
-          $ref: '#/components/schemas/storage-alias'
+          $ref: "#/components/schemas/storage-alias"
         unitId:
           type: string
           format: uuid
@@ -1829,7 +1823,7 @@ components:
             - id
             - parentId
             - unitId
-        - $ref: '#/components/schemas/StorageGroupBase'
+        - $ref: "#/components/schemas/StorageGroupBase"
     GetStorageGroupsResponse:
       type: object
       allOf:
@@ -1838,7 +1832,7 @@ components:
             data:
               type: array
               items:
-                $ref: '#/components/schemas/StorageGroup'
+                $ref: "#/components/schemas/StorageGroup"
           required:
             - data
     CreateStorageGroupResponse:
@@ -1848,7 +1842,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/StorageGroup'
+              $ref: "#/components/schemas/StorageGroup"
           required:
             - data
     GetStorageGroupByIdResponse:
@@ -1858,7 +1852,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/StorageGroup'
+              $ref: "#/components/schemas/StorageGroup"
           required:
             - data
     UpdateStorageGroupResponse:
@@ -1868,7 +1862,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/StorageGroup'
+              $ref: "#/components/schemas/StorageGroup"
           required:
             - data
     CellGroupBase:
@@ -1877,7 +1871,7 @@ components:
         name:
           type: string
         alias:
-          $ref: '#/components/schemas/storage-alias'
+          $ref: "#/components/schemas/storage-alias"
         storageGroupId:
           type: string
           format: uuid
@@ -1899,7 +1893,7 @@ components:
               readOnly: true
           required:
             - id
-        - $ref: '#/components/schemas/CellGroupBase'
+        - $ref: "#/components/schemas/CellGroupBase"
         - type: object
           properties:
             storageGroupId:
@@ -1915,34 +1909,34 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CellGroup'
+            $ref: "#/components/schemas/CellGroup"
       required:
         - data
     CreateCellsGroupRequest:
       allOf:
-        - $ref: '#/components/schemas/CellGroupBase'
+        - $ref: "#/components/schemas/CellGroupBase"
     CreateCellsGroupResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroup'
+          $ref: "#/components/schemas/CellGroup"
       required:
         - data
     GetCellsGroupByIdResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroup'
+          $ref: "#/components/schemas/CellGroup"
       required:
         - data
     UpdateCellsGroupRequest:
       allOf:
-        - $ref: '#/components/schemas/CellGroupBase'
+        - $ref: "#/components/schemas/CellGroupBase"
     UpdateCellsGroupResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellGroup'
+          $ref: "#/components/schemas/CellGroup"
       required:
         - data
     CellBase:
@@ -1974,41 +1968,41 @@ components:
               readOnly: true
           required:
             - id
-        - $ref: '#/components/schemas/CellBase'
+        - $ref: "#/components/schemas/CellBase"
     GetCellsResponse:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Cell'
+            $ref: "#/components/schemas/Cell"
       required:
         - data
     CreateCellRequest:
       allOf:
-        - $ref: '#/components/schemas/CellBase'
+        - $ref: "#/components/schemas/CellBase"
     CreateCellResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/Cell'
+          $ref: "#/components/schemas/Cell"
       required:
         - data
     GetCellByIdResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/Cell'
+          $ref: "#/components/schemas/Cell"
       required:
         - data
     UpdateCellRequest:
       allOf:
-        - $ref: '#/components/schemas/CellBase'
+        - $ref: "#/components/schemas/CellBase"
     UpdateCellResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/Cell'
+          $ref: "#/components/schemas/Cell"
       required:
         - data
     ItemBase:
@@ -2029,7 +2023,7 @@ components:
         - name
     Item:
       allOf:
-        - $ref: '#/components/schemas/ItemBase'
+        - $ref: "#/components/schemas/ItemBase"
         - type: object
           properties:
             id:
@@ -2070,7 +2064,7 @@ components:
               readOnly: true
           required:
             - id
-        - $ref: '#/components/schemas/ItemVariantBase'
+        - $ref: "#/components/schemas/ItemVariantBase"
         - type: object
           properties:
             article:
@@ -2088,13 +2082,13 @@ components:
     ItemForList:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Item'
+        - $ref: "#/components/schemas/Item"
         - type: object
           properties:
             variants:
               type: array
               items:
-                $ref: '#/components/schemas/ItemVariant'
+                $ref: "#/components/schemas/ItemVariant"
           required:
             - variants
     GetItemsResponse:
@@ -2105,19 +2099,19 @@ components:
             data:
               type: array
               items:
-                $ref: '#/components/schemas/ItemForList'
+                $ref: "#/components/schemas/ItemForList"
           required:
             - data
     ItemCreate:
       allOf:
-        - $ref: '#/components/schemas/ItemBase'
+        - $ref: "#/components/schemas/ItemBase"
     CreateItemRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ItemCreate'
+        - $ref: "#/components/schemas/ItemCreate"
     CellForInstance:
       allOf:
-        - $ref: '#/components/schemas/Cell'
+        - $ref: "#/components/schemas/Cell"
         - type: object
           properties:
             cellPath:
@@ -2150,7 +2144,7 @@ components:
       type: object
       nullable: true
       allOf:
-        - $ref: '#/components/schemas/CellForInstance'
+        - $ref: "#/components/schemas/CellForInstance"
     InstanceForItem:
       type: object
       properties:
@@ -2168,9 +2162,9 @@ components:
           nullable: true
           format: uuid
         variant:
-          $ref: '#/components/schemas/ItemVariant'
+          $ref: "#/components/schemas/ItemVariant"
         cell:
-          $ref: '#/components/schemas/CellForInstanceOptional'
+          $ref: "#/components/schemas/CellForInstanceOptional"
       required:
         - id
         - status
@@ -2179,17 +2173,17 @@ components:
     ItemFull:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Item'
+        - $ref: "#/components/schemas/Item"
         - type: object
           properties:
             variants:
               type: array
               items:
-                $ref: '#/components/schemas/ItemVariant'
+                $ref: "#/components/schemas/ItemVariant"
             items:
               type: array
               items:
-                $ref: '#/components/schemas/InstanceForItem'
+                $ref: "#/components/schemas/InstanceForItem"
           required:
             - variants
             - items
@@ -2200,7 +2194,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/ItemFull'
+              $ref: "#/components/schemas/ItemFull"
           required:
             - data
     GetItemVariantsResponse:
@@ -2209,17 +2203,17 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/ItemVariant'
+            $ref: "#/components/schemas/ItemVariant"
       required:
         - data
     CreateItemVariantRequest:
       allOf:
-        - $ref: '#/components/schemas/ItemVariantBase'
+        - $ref: "#/components/schemas/ItemVariantBase"
     CreateItemVariantResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/ItemVariant'
+          $ref: "#/components/schemas/ItemVariant"
       required:
         - data
     GetItemVariantByIdResponse:
@@ -2227,18 +2221,18 @@ components:
       properties:
         data:
           type: object
-          $ref: '#/components/schemas/ItemVariant'
+          $ref: "#/components/schemas/ItemVariant"
       required:
         - data
     UpdateItemVariantRequest:
       allOf:
-        - $ref: '#/components/schemas/ItemVariantBase'
+        - $ref: "#/components/schemas/ItemVariantBase"
     UpdateItemVariantResponse:
       type: object
       properties:
         data:
           type: object
-          $ref: '#/components/schemas/ItemVariant'
+          $ref: "#/components/schemas/ItemVariant"
       required:
         - data
     GetItemByIdResponse:
@@ -2248,13 +2242,13 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/ItemFull'
+              $ref: "#/components/schemas/ItemFull"
           required:
             - data
     UpdateItemRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ItemCreate'
+        - $ref: "#/components/schemas/ItemCreate"
     UpdateItemResponse:
       type: object
       allOf:
@@ -2262,7 +2256,7 @@ components:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/ItemFull'
+              $ref: "#/components/schemas/ItemFull"
           required:
             - data
     InstanceFull:
@@ -2281,15 +2275,15 @@ components:
             - consumed
         item:
           type: object
-          $ref: '#/components/schemas/ItemForList'
+          $ref: "#/components/schemas/ItemForList"
         affectedByTaskId:
           type: string
           nullable: true
           format: uuid
         variant:
-          $ref: '#/components/schemas/ItemVariant'
+          $ref: "#/components/schemas/ItemVariant"
         cell:
-          $ref: '#/components/schemas/CellForInstanceOptional'
+          $ref: "#/components/schemas/CellForInstanceOptional"
       required:
         - id
         - itemId
@@ -2303,7 +2297,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/InstanceFull'
+            $ref: "#/components/schemas/InstanceFull"
       required:
         - data
     GetInstancesByItemIdResponse:
@@ -2313,7 +2307,7 @@ components:
           type: array
           items:
             allOf:
-              - $ref: '#/components/schemas/InstanceForItem'
+              - $ref: "#/components/schemas/InstanceForItem"
       required:
         - data
     InstanceCreateForItem:
@@ -2330,12 +2324,12 @@ components:
         - cellId
     CreateInstanceForItemRequest:
       allOf:
-        - $ref: '#/components/schemas/InstanceCreateForItem'
+        - $ref: "#/components/schemas/InstanceCreateForItem"
     CreateInstanceForItemResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/InstanceForItem'
+          $ref: "#/components/schemas/InstanceForItem"
       required:
         - data
     GetInstanceByIdResponse:
@@ -2343,18 +2337,18 @@ components:
       properties:
         data:
           type: object
-          $ref: '#/components/schemas/InstanceFull'
+          $ref: "#/components/schemas/InstanceFull"
       required:
         - data
     UpdateInstanceRequest:
       allOf:
-        - $ref: '#/components/schemas/InstanceCreateForItem'
+        - $ref: "#/components/schemas/InstanceCreateForItem"
     UpdateInstanceResponse:
       type: object
       properties:
         data:
           type: object
-          $ref: '#/components/schemas/InstanceFull'
+          $ref: "#/components/schemas/InstanceFull"
       required:
         - data
     Token:
@@ -2380,7 +2374,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Token'
+            $ref: "#/components/schemas/Token"
       required:
         - data
     TokenCreate:
@@ -2393,12 +2387,12 @@ components:
         - name
     CreateApiTokenRequest:
       allOf:
-        - $ref: '#/components/schemas/TokenCreate'
+        - $ref: "#/components/schemas/TokenCreate"
     CreateApiTokenResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/Token'
+          $ref: "#/components/schemas/Token"
       required:
         - data
     User:
@@ -2424,7 +2418,7 @@ components:
         - middle_name
     GetCurrentUserResponse:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: "#/components/schemas/User"
     Role:
       type: object
       properties:
@@ -2457,7 +2451,7 @@ components:
         email:
           type: string
         role:
-          $ref: '#/components/schemas/Role'
+          $ref: "#/components/schemas/Role"
       required:
         - userId
         - firstName
@@ -2469,7 +2463,7 @@ components:
       type: object
       nullable: true
       allOf:
-        - $ref: '#/components/schemas/Employee'
+        - $ref: "#/components/schemas/Employee"
     TaskBase:
       type: object
       properties:
@@ -2500,9 +2494,9 @@ components:
           format: date-time
         unit:
           type: object
-          $ref: '#/components/schemas/Unit'
+          $ref: "#/components/schemas/Unit"
         assignedTo:
-          $ref: '#/components/schemas/EmployeeOptional'
+          $ref: "#/components/schemas/EmployeeOptional"
         assignedAt:
           type: string
           format: date-time
@@ -2528,7 +2522,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/TaskBase'
+            $ref: "#/components/schemas/TaskBase"
       required:
         - data
     TaskCreate:
@@ -2572,16 +2566,16 @@ components:
         - instances
     CreateTaskRequest:
       allOf:
-        - $ref: '#/components/schemas/TaskCreate'
+        - $ref: "#/components/schemas/TaskCreate"
     TaskItem:
       type: object
       properties:
         instance:
-          $ref: '#/components/schemas/InstanceFull'
+          $ref: "#/components/schemas/InstanceFull"
         sourceCell:
-          $ref: '#/components/schemas/CellForInstance'
+          $ref: "#/components/schemas/CellForInstance"
         targetCell:
-          $ref: '#/components/schemas/CellForInstanceOptional'
+          $ref: "#/components/schemas/CellForInstanceOptional"
         status:
           type: string
           enum:
@@ -2595,20 +2589,20 @@ components:
         - status
     TaskFull:
       allOf:
-        - $ref: '#/components/schemas/TaskBase'
+        - $ref: "#/components/schemas/TaskBase"
         - type: object
           properties:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/TaskItem'
+                $ref: "#/components/schemas/TaskItem"
           required:
             - items
     CreateTaskResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/TaskFull'
+          $ref: "#/components/schemas/TaskFull"
       required:
         - data
     GetTaskResponse:
@@ -2616,7 +2610,7 @@ components:
       properties:
         data:
           type: object
-          $ref: '#/components/schemas/TaskFull'
+          $ref: "#/components/schemas/TaskFull"
       required:
         - data
     GetEmployeesResponse:
@@ -2626,7 +2620,7 @@ components:
             data:
               type: array
               items:
-                $ref: '#/components/schemas/Employee'
+                $ref: "#/components/schemas/Employee"
           required:
             - data
     GetEmployeeResponse:
@@ -2634,7 +2628,7 @@ components:
         - type: object
           properties:
             data:
-              $ref: '#/components/schemas/Employee'
+              $ref: "#/components/schemas/Employee"
           required:
             - data
     PatchEmployeeRequest:
@@ -2664,7 +2658,7 @@ components:
           type: string
           format: uuid
         employee:
-          $ref: '#/components/schemas/Employee'
+          $ref: "#/components/schemas/Employee"
         action:
           type: string
           enum:
@@ -2713,7 +2707,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/AuditLog'
+            $ref: "#/components/schemas/AuditLog"
       required:
         - data
     TvBoard:
@@ -2731,7 +2725,7 @@ components:
         unit:
           type: object
           nullable: true
-          $ref: '#/components/schemas/Unit'
+          $ref: "#/components/schemas/Unit"
       required:
         - id
         - token
@@ -2743,7 +2737,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/TvBoard'
+            $ref: "#/components/schemas/TvBoard"
       required:
         - data
     TvBoardBase:
@@ -2761,12 +2755,12 @@ components:
         - unitId
     CreateTvBoardRequest:
       allOf:
-        - $ref: '#/components/schemas/TvBoardBase'
+        - $ref: "#/components/schemas/TvBoardBase"
     CreateTvBoardResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/TvBoard'
+          $ref: "#/components/schemas/TvBoard"
       required:
         - data
     GetTvBoardDataResponse:
@@ -2777,11 +2771,11 @@ components:
           properties:
             tvBoard:
               type: object
-              $ref: '#/components/schemas/TvBoard'
+              $ref: "#/components/schemas/TvBoard"
             tasks:
               type: array
               items:
-                $ref: '#/components/schemas/TaskBase'
+                $ref: "#/components/schemas/TaskBase"
           required:
             - tvBoard
             - tasks
@@ -2793,37 +2787,37 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-not-found:
       description: Not Found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-bad-request:
       description: Bad Request
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-conflict:
       description: Conflict, resource duplication
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorContent'
+            $ref: "#/components/schemas/ErrorContent"
     default-no-content:
       description: Successful operation
     AuthResponse:

@@ -1950,23 +1950,21 @@ func (q *Queries) UnassignRoleFromUser(ctx context.Context, arg UnassignRoleFrom
 }
 
 const updateCell = `-- name: UpdateCell :one
-UPDATE cell SET alias = $4, row = $5, level = $6, position = $7 WHERE org_id = $1 AND cells_group_id = $2 AND id = $3 AND deleted_at IS NULL RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
+UPDATE cell SET alias = $3, row = $4, level = $5, position = $6 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, cells_group_id, alias, row, level, position, created_at, deleted_at
 `
 
 type UpdateCellParams struct {
-	OrgID        pgtype.UUID
-	CellsGroupID pgtype.UUID
-	ID           pgtype.UUID
-	Alias        string
-	Row          int32
-	Level        int32
-	Position     int32
+	OrgID    pgtype.UUID
+	ID       pgtype.UUID
+	Alias    string
+	Row      int32
+	Level    int32
+	Position int32
 }
 
 func (q *Queries) UpdateCell(ctx context.Context, arg UpdateCellParams) (Cell, error) {
 	row := q.db.QueryRow(ctx, updateCell,
 		arg.OrgID,
-		arg.CellsGroupID,
 		arg.ID,
 		arg.Alias,
 		arg.Row,

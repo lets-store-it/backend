@@ -221,7 +221,7 @@ func (h *RestApiImplementation) CreateCell(ctx context.Context, req *api.CreateC
 }
 
 func (h *RestApiImplementation) GetCellById(ctx context.Context, params api.GetCellByIdParams) (api.GetCellByIdRes, error) {
-	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.CellId)
+	cell, err := h.storageGroupUseCase.GetCellByID(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -250,14 +250,14 @@ func (h *RestApiImplementation) GetCells(ctx context.Context, params api.GetCell
 
 func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateCellRequest, params api.UpdateCellParams) (api.UpdateCellRes, error) {
 	cell := &models.Cell{
-		ID:       params.CellId,
+		ID:       params.ID,
 		Alias:    req.Alias,
 		Row:      req.Row,
 		Level:    req.Level,
 		Position: req.Position,
 	}
 
-	updatedCell, err := h.storageGroupUseCase.UpdateCell(ctx, params.GroupId, cell)
+	updatedCell, err := h.storageGroupUseCase.UpdateCell(ctx, cell)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func (h *RestApiImplementation) UpdateCell(ctx context.Context, req *api.UpdateC
 }
 
 func (h *RestApiImplementation) DeleteCell(ctx context.Context, params api.DeleteCellParams) (api.DeleteCellRes, error) {
-	err := h.storageGroupUseCase.DeleteCell(ctx, params.CellId)
+	err := h.storageGroupUseCase.DeleteCell(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -112,13 +112,12 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 		)
 
 		updatedCell, err := s.queries.UpdateCell(ctx, sqlc.UpdateCellParams{
-			ID:           database.PgUUID(cell.ID),
-			OrgID:        database.PgUUID(cell.OrgID),
-			CellsGroupID: database.PgUUID(cell.CellsGroupID),
-			Alias:        cell.Alias,
-			Row:          int32(cell.Row),
-			Level:        int32(cell.Level),
-			Position:     int32(cell.Position),
+			ID:       database.PgUUID(cell.ID),
+			OrgID:    database.PgUUID(cell.OrgID),
+			Alias:    cell.Alias,
+			Row:      int32(cell.Row),
+			Level:    int32(cell.Level),
+			Position: int32(cell.Position),
 		})
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
@@ -190,6 +189,11 @@ func (s *StorageService) GetCellPath(ctx context.Context, orgID uuid.UUID, cellI
 
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
+		}
+
+		// reverse segments
+		for i, j := 0, len(segments)-1; i < j; i, j = i+1, j-1 {
+			segments[i], segments[j] = segments[j], segments[i]
 		}
 
 		return toCellPathModel(segments), nil

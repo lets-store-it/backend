@@ -50,8 +50,11 @@ paths:
   /cells-groups/{groupId}/cells:
     $ref: paths/cells-groups/cells-groups_{id}_cells.yaml
 
-  /cells-groups/{groupId}/cells/{cellId}:
-    $ref: paths/cells-groups/cells-groups_{id}_cells_{cellId}.yaml
+  # /cells-groups/{groupId}/cells/{cellId}:
+  #   $ref: paths/cells-groups/cells-groups_{id}_cells_{cellId}.yaml
+
+  /cells/{id}:
+    $ref: paths/cells-groups/cells_{id}.yaml
 
   /items:
     $ref: paths/items/items.yaml

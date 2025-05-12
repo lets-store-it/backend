@@ -90,9 +90,13 @@ func convertItemInstanceToDTO(itemInstance *models.ItemInstance) api.InstanceFor
 }
 
 func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.InstanceFull {
-	var description api.NilString
+	if itemInstance == nil {
+		return api.InstanceFull{}
+	}
+
 	var item api.ItemForList
 	if itemInstance.Item != nil {
+		var description api.NilString
 		PtrToApiNil(itemInstance.Item.Description, &description)
 		item = api.ItemForList{
 			ID:          itemInstance.Item.ID,
@@ -111,6 +115,10 @@ func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.Ins
 }
 
 func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
+	if variant == nil {
+		return api.ItemVariant{}
+	}
+
 	var article api.NilString
 	PtrToApiNil(variant.Article, &article)
 
@@ -126,8 +134,14 @@ func convertItemVariantToDTO(variant *models.ItemVariant) api.ItemVariant {
 }
 
 func convertItemVariantsToDTO(variants []*models.ItemVariant) []api.ItemVariant {
+	if variants == nil {
+		return []api.ItemVariant{}
+	}
 	dtoVariants := make([]api.ItemVariant, 0, len(variants))
 	for _, variant := range variants {
+		if variant == nil {
+			continue
+		}
 		dtoVariants = append(dtoVariants, convertItemVariantToDTO(variant))
 	}
 	return dtoVariants
