@@ -1,9 +1,6 @@
 package handlers
 
 import (
-	"context"
-
-	"github.com/let-store-it/backend/generated/api"
 	auditUC "github.com/let-store-it/backend/internal/usecases/audit"
 	authUC "github.com/let-store-it/backend/internal/usecases/auth"
 	itemUC "github.com/let-store-it/backend/internal/usecases/item"
@@ -22,16 +19,6 @@ type RestApiImplementation struct {
 	auditUseCase        *auditUC.AuditUseCase
 	taskUseCase         *taskUC.TaskUseCase
 	tvBoardUseCase      *tvboardUC.TvBoardUseCase
-}
-
-// PatchCurrentUser implements api.Handler.
-func (h *RestApiImplementation) PatchCurrentUser(ctx context.Context, req *api.PatchCurrentUserRequest) (api.PatchCurrentUserRes, error) {
-	panic("unimplemented")
-}
-
-// PutCurrentUser implements api.Handler.
-func (h *RestApiImplementation) PutCurrentUser(ctx context.Context, req *api.UpdateCurrentUserRequest) (api.PutCurrentUserRes, error) {
-	panic("unimplemented")
 }
 
 func NewRestApiImplementation(

@@ -31,7 +31,7 @@ delete:
   operationId: deleteOrganization
   responses:
     "204":
-      description: Successful operation
+      $ref: ../../components/responses/default-no-content.yaml
     "401":
       $ref: ../../components/responses/default-unauthorized.yaml
     "403":

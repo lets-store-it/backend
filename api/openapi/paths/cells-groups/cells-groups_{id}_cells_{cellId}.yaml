@@ -23,6 +23,10 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/cells-groups/GetCellByIdResponse.yaml
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
 delete:
@@ -33,32 +37,12 @@ delete:
   responses:
     "204":
       description: Successful operation
+    "401":
+      $ref: ../../components/responses/default-unauthorized.yaml
+    "403":
+      $ref: ../../components/responses/default-forbidden.yaml
     default:
       $ref: ../../components/responses/default-error.yaml
-# patch:
-#   tags:
-#     - cells-group
-#   summary: Patch Cell
-#   operationId: patchCell
-#   requestBody:
-#     required: true
-#     content:
-#       application/json:
-#         schema:
-#           $ref: ../../components/schemas/cells-groups/PatchCellRequest.yaml
-#   responses:
-#     "200":
-#       description: Successful operation
-#       content:
-#         application/json:
-#           schema:
-#             $ref: ../../components/schemas/cells-groups/PatchCellResponse.yaml
-#     "401":
-#       $ref: ../../components/responses/default-unauthorized.yaml
-#     "403":
-#       $ref: ../../components/responses/default-forbidden.yaml
-#     default:
-#       $ref: ../../components/responses/default-error.yaml
 put:
   tags:
     - cells-group

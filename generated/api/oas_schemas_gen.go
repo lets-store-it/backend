@@ -1138,43 +1138,6 @@ type CreateOrganizationUnauthorized ErrorContent
 
 func (*CreateOrganizationUnauthorized) createOrganizationRes() {}
 
-// Ref: #/components/schemas/CreateOrganizationUnitRequest
-type CreateOrganizationUnitRequest struct {
-	Name    string       `json:"name"`
-	Alias   StorageAlias `json:"alias"`
-	Address OptNilString `json:"address"`
-}
-
-// GetName returns the value of Name.
-func (s *CreateOrganizationUnitRequest) GetName() string {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *CreateOrganizationUnitRequest) GetAlias() StorageAlias {
-	return s.Alias
-}
-
-// GetAddress returns the value of Address.
-func (s *CreateOrganizationUnitRequest) GetAddress() OptNilString {
-	return s.Address
-}
-
-// SetName sets the value of Name.
-func (s *CreateOrganizationUnitRequest) SetName(val string) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *CreateOrganizationUnitRequest) SetAlias(val StorageAlias) {
-	s.Alias = val
-}
-
-// SetAddress sets the value of Address.
-func (s *CreateOrganizationUnitRequest) SetAddress(val OptNilString) {
-	s.Address = val
-}
-
 // Ref: #/components/schemas/CreateOrganizationUnitResponse
 type CreateOrganizationUnitResponse struct {
 	Data Unit `json:"data"`
@@ -1195,54 +1158,6 @@ func (*CreateOrganizationUnitResponse) createUnitRes() {}
 type CreateStorageGroupForbidden ErrorContent
 
 func (*CreateStorageGroupForbidden) createStorageGroupRes() {}
-
-// Ref: #/components/schemas/CreateStorageGroupRequest
-type CreateStorageGroupRequest struct {
-	ParentId OptNilUUID   `json:"parentId"`
-	Name     string       `json:"name"`
-	Alias    StorageAlias `json:"alias"`
-	UnitId   uuid.UUID    `json:"unitId"`
-}
-
-// GetParentId returns the value of ParentId.
-func (s *CreateStorageGroupRequest) GetParentId() OptNilUUID {
-	return s.ParentId
-}
-
-// GetName returns the value of Name.
-func (s *CreateStorageGroupRequest) GetName() string {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *CreateStorageGroupRequest) GetAlias() StorageAlias {
-	return s.Alias
-}
-
-// GetUnitId returns the value of UnitId.
-func (s *CreateStorageGroupRequest) GetUnitId() uuid.UUID {
-	return s.UnitId
-}
-
-// SetParentId sets the value of ParentId.
-func (s *CreateStorageGroupRequest) SetParentId(val OptNilUUID) {
-	s.ParentId = val
-}
-
-// SetName sets the value of Name.
-func (s *CreateStorageGroupRequest) SetName(val string) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *CreateStorageGroupRequest) SetAlias(val StorageAlias) {
-	s.Alias = val
-}
-
-// SetUnitId sets the value of UnitId.
-func (s *CreateStorageGroupRequest) SetUnitId(val uuid.UUID) {
-	s.UnitId = val
-}
 
 // Ref: #/components/schemas/CreateStorageGroupResponse
 type CreateStorageGroupResponse struct {
@@ -1513,8 +1428,25 @@ func (s *DefaultErrorStatusCode) SetResponse(val ErrorContent) {
 	s.Response = val
 }
 
+// Ref: #/components/responses/default-no-content
+type DefaultNoContent struct{}
+
+func (*DefaultNoContent) deleteOrganizationRes()     {}
+func (*DefaultNoContent) deleteOrganizationUnitRes() {}
+func (*DefaultNoContent) deleteStorageGroupRes()     {}
+
+type DeleteCellForbidden ErrorContent
+
+func (*DeleteCellForbidden) deleteCellRes() {}
+
 // DeleteCellNoContent is response for DeleteCell operation.
 type DeleteCellNoContent struct{}
+
+func (*DeleteCellNoContent) deleteCellRes() {}
+
+type DeleteCellUnauthorized ErrorContent
+
+func (*DeleteCellUnauthorized) deleteCellRes() {}
 
 type DeleteCellsGroupForbidden ErrorContent
 
@@ -1585,11 +1517,6 @@ type DeleteOrganizationForbidden ErrorContent
 
 func (*DeleteOrganizationForbidden) deleteOrganizationRes() {}
 
-// DeleteOrganizationNoContent is response for DeleteOrganization operation.
-type DeleteOrganizationNoContent struct{}
-
-func (*DeleteOrganizationNoContent) deleteOrganizationRes() {}
-
 type DeleteOrganizationUnauthorized ErrorContent
 
 func (*DeleteOrganizationUnauthorized) deleteOrganizationRes() {}
@@ -1598,11 +1525,6 @@ type DeleteOrganizationUnitForbidden ErrorContent
 
 func (*DeleteOrganizationUnitForbidden) deleteOrganizationUnitRes() {}
 
-// DeleteOrganizationUnitNoContent is response for DeleteOrganizationUnit operation.
-type DeleteOrganizationUnitNoContent struct{}
-
-func (*DeleteOrganizationUnitNoContent) deleteOrganizationUnitRes() {}
-
 type DeleteOrganizationUnitUnauthorized ErrorContent
 
 func (*DeleteOrganizationUnitUnauthorized) deleteOrganizationUnitRes() {}
@@ -1610,11 +1532,6 @@ func (*DeleteOrganizationUnitUnauthorized) deleteOrganizationUnitRes() {}
 type DeleteStorageGroupForbidden ErrorContent
 
 func (*DeleteStorageGroupForbidden) deleteStorageGroupRes() {}
-
-// DeleteStorageGroupNoContent is response for DeleteStorageGroup operation.
-type DeleteStorageGroupNoContent struct{}
-
-func (*DeleteStorageGroupNoContent) deleteStorageGroupRes() {}
 
 type DeleteStorageGroupUnauthorized ErrorContent
 
@@ -1794,8 +1711,6 @@ func (*ErrorContent) getOrganizationsRes()          {}
 func (*ErrorContent) getRolesRes()                  {}
 func (*ErrorContent) getTvBoardsDataRes()           {}
 func (*ErrorContent) logoutRes()                    {}
-func (*ErrorContent) patchCurrentUserRes()          {}
-func (*ErrorContent) putCurrentUserRes()            {}
 func (*ErrorContent) updateItemRes()                {}
 
 type ErrorContentError struct {
@@ -1888,6 +1803,10 @@ type GetAuditLogsUnauthorized ErrorContent
 
 func (*GetAuditLogsUnauthorized) getAuditLogsRes() {}
 
+type GetCellByIdForbidden ErrorContent
+
+func (*GetCellByIdForbidden) getCellByIdRes() {}
+
 // Ref: #/components/schemas/GetCellByIdResponse
 type GetCellByIdResponse struct {
 	Data Cell `json:"data"`
@@ -1902,6 +1821,12 @@ func (s *GetCellByIdResponse) GetData() Cell {
 func (s *GetCellByIdResponse) SetData(val Cell) {
 	s.Data = val
 }
+
+func (*GetCellByIdResponse) getCellByIdRes() {}
+
+type GetCellByIdUnauthorized ErrorContent
+
+func (*GetCellByIdUnauthorized) getCellByIdRes() {}
 
 type GetCellsForbidden ErrorContent
 
@@ -2037,9 +1962,7 @@ func (s *GetCurrentUserResponse) SetEmail(val string) {
 	s.Email = val
 }
 
-func (*GetCurrentUserResponse) getCurrentUserRes()   {}
-func (*GetCurrentUserResponse) patchCurrentUserRes() {}
-func (*GetCurrentUserResponse) putCurrentUserRes()   {}
+func (*GetCurrentUserResponse) getCurrentUserRes() {}
 
 type GetEmployeeByIdForbidden ErrorContent
 
@@ -3652,52 +3575,6 @@ func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// NewOptString returns new OptString with value set to v.
-func NewOptString(v string) OptString {
-	return OptString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptString is optional string.
-type OptString struct {
-	Value string
-	Set   bool
-}
-
-// IsSet returns true if OptString was set.
-func (o OptString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptString) SetTo(v string) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptString) Get() (v string, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptUUID returns new OptUUID with value set to v.
 func NewOptUUID(v uuid.UUID) OptUUID {
 	return OptUUID{
@@ -3782,41 +3659,19 @@ func (s *Organization) SetSubdomain(val string) {
 	s.Subdomain = val
 }
 
-// Ref: #/components/schemas/PatchCurrentUserRequest
-type PatchCurrentUserRequest struct {
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	MiddleName NilString `json:"middle_name"`
+// Ref: #/components/schemas/OrganizationUpdate
+type OrganizationUpdate struct {
+	Name string `json:"name"`
 }
 
-// GetFirstName returns the value of FirstName.
-func (s *PatchCurrentUserRequest) GetFirstName() string {
-	return s.FirstName
+// GetName returns the value of Name.
+func (s *OrganizationUpdate) GetName() string {
+	return s.Name
 }
 
-// GetLastName returns the value of LastName.
-func (s *PatchCurrentUserRequest) GetLastName() string {
-	return s.LastName
-}
-
-// GetMiddleName returns the value of MiddleName.
-func (s *PatchCurrentUserRequest) GetMiddleName() NilString {
-	return s.MiddleName
-}
-
-// SetFirstName sets the value of FirstName.
-func (s *PatchCurrentUserRequest) SetFirstName(val string) {
-	s.FirstName = val
-}
-
-// SetLastName sets the value of LastName.
-func (s *PatchCurrentUserRequest) SetLastName(val string) {
-	s.LastName = val
-}
-
-// SetMiddleName sets the value of MiddleName.
-func (s *PatchCurrentUserRequest) SetMiddleName(val NilString) {
-	s.MiddleName = val
+// SetName sets the value of Name.
+func (s *OrganizationUpdate) SetName(val string) {
+	s.Name = val
 }
 
 type PatchEmployeeByIdForbidden ErrorContent
@@ -3852,68 +3707,6 @@ func (s *PatchEmployeeRequest) SetUserId(val uuid.UUID) {
 func (s *PatchEmployeeRequest) SetRoleId(val OptInt) {
 	s.RoleId = val
 }
-
-type PatchOrganizationUnitForbidden ErrorContent
-
-func (*PatchOrganizationUnitForbidden) patchOrganizationUnitRes() {}
-
-// Ref: #/components/schemas/PatchOrganizationUnitRequest
-type PatchOrganizationUnitRequest struct {
-	Name    OptString    `json:"name"`
-	Alias   OptString    `json:"alias"`
-	Address OptNilString `json:"address"`
-}
-
-// GetName returns the value of Name.
-func (s *PatchOrganizationUnitRequest) GetName() OptString {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *PatchOrganizationUnitRequest) GetAlias() OptString {
-	return s.Alias
-}
-
-// GetAddress returns the value of Address.
-func (s *PatchOrganizationUnitRequest) GetAddress() OptNilString {
-	return s.Address
-}
-
-// SetName sets the value of Name.
-func (s *PatchOrganizationUnitRequest) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *PatchOrganizationUnitRequest) SetAlias(val OptString) {
-	s.Alias = val
-}
-
-// SetAddress sets the value of Address.
-func (s *PatchOrganizationUnitRequest) SetAddress(val OptNilString) {
-	s.Address = val
-}
-
-// Ref: #/components/schemas/PatchOrganizationUnitResponse
-type PatchOrganizationUnitResponse struct {
-	Data Unit `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *PatchOrganizationUnitResponse) GetData() Unit {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *PatchOrganizationUnitResponse) SetData(val Unit) {
-	s.Data = val
-}
-
-func (*PatchOrganizationUnitResponse) patchOrganizationUnitRes() {}
-
-type PatchOrganizationUnitUnauthorized ErrorContent
-
-func (*PatchOrganizationUnitUnauthorized) patchOrganizationUnitRes() {}
 
 type PickInstanceFromCellForbidden ErrorContent
 
@@ -4065,6 +3858,54 @@ func (s *StorageGroup) SetName(val string) {
 // SetAlias sets the value of Alias.
 func (s *StorageGroup) SetAlias(val StorageAlias) {
 	s.Alias = val
+}
+
+// Ref: #/components/schemas/StorageGroupBase
+type StorageGroupBase struct {
+	ParentId OptNilUUID   `json:"parentId"`
+	Name     string       `json:"name"`
+	Alias    StorageAlias `json:"alias"`
+	UnitId   uuid.UUID    `json:"unitId"`
+}
+
+// GetParentId returns the value of ParentId.
+func (s *StorageGroupBase) GetParentId() OptNilUUID {
+	return s.ParentId
+}
+
+// GetName returns the value of Name.
+func (s *StorageGroupBase) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *StorageGroupBase) GetAlias() StorageAlias {
+	return s.Alias
+}
+
+// GetUnitId returns the value of UnitId.
+func (s *StorageGroupBase) GetUnitId() uuid.UUID {
+	return s.UnitId
+}
+
+// SetParentId sets the value of ParentId.
+func (s *StorageGroupBase) SetParentId(val OptNilUUID) {
+	s.ParentId = val
+}
+
+// SetName sets the value of Name.
+func (s *StorageGroupBase) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *StorageGroupBase) SetAlias(val StorageAlias) {
+	s.Alias = val
+}
+
+// SetUnitId sets the value of UnitId.
+func (s *StorageGroupBase) SetUnitId(val uuid.UUID) {
+	s.UnitId = val
 }
 
 // Ref: #/components/schemas/TaskBase
@@ -4740,6 +4581,43 @@ func (s *Unit) SetAddress(val NilString) {
 	s.Address = val
 }
 
+// Ref: #/components/schemas/UnitBase
+type UnitBase struct {
+	Name    string       `json:"name"`
+	Alias   StorageAlias `json:"alias"`
+	Address OptNilString `json:"address"`
+}
+
+// GetName returns the value of Name.
+func (s *UnitBase) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *UnitBase) GetAlias() StorageAlias {
+	return s.Alias
+}
+
+// GetAddress returns the value of Address.
+func (s *UnitBase) GetAddress() OptNilString {
+	return s.Address
+}
+
+// SetName sets the value of Name.
+func (s *UnitBase) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *UnitBase) SetAlias(val StorageAlias) {
+	s.Alias = val
+}
+
+// SetAddress sets the value of Address.
+func (s *UnitBase) SetAddress(val OptNilString) {
+	s.Address = val
+}
+
 type UpdateCellForbidden ErrorContent
 
 func (*UpdateCellForbidden) updateCellRes() {}
@@ -4885,43 +4763,6 @@ func (*UpdateCellsGroupResponse) updateCellsGroupRes() {}
 type UpdateCellsGroupUnauthorized ErrorContent
 
 func (*UpdateCellsGroupUnauthorized) updateCellsGroupRes() {}
-
-// Ref: #/components/schemas/UpdateCurrentUserRequest
-type UpdateCurrentUserRequest struct {
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	MiddleName NilString `json:"middle_name"`
-}
-
-// GetFirstName returns the value of FirstName.
-func (s *UpdateCurrentUserRequest) GetFirstName() string {
-	return s.FirstName
-}
-
-// GetLastName returns the value of LastName.
-func (s *UpdateCurrentUserRequest) GetLastName() string {
-	return s.LastName
-}
-
-// GetMiddleName returns the value of MiddleName.
-func (s *UpdateCurrentUserRequest) GetMiddleName() NilString {
-	return s.MiddleName
-}
-
-// SetFirstName sets the value of FirstName.
-func (s *UpdateCurrentUserRequest) SetFirstName(val string) {
-	s.FirstName = val
-}
-
-// SetLastName sets the value of LastName.
-func (s *UpdateCurrentUserRequest) SetLastName(val string) {
-	s.LastName = val
-}
-
-// SetMiddleName sets the value of MiddleName.
-func (s *UpdateCurrentUserRequest) SetMiddleName(val NilString) {
-	s.MiddleName = val
-}
 
 type UpdateInstanceByIdForbidden ErrorContent
 
@@ -5094,21 +4935,6 @@ type UpdateOrganizationForbidden ErrorContent
 
 func (*UpdateOrganizationForbidden) updateOrganizationRes() {}
 
-// Ref: #/components/schemas/UpdateOrganizationRequest
-type UpdateOrganizationRequest struct {
-	Name string `json:"name"`
-}
-
-// GetName returns the value of Name.
-func (s *UpdateOrganizationRequest) GetName() string {
-	return s.Name
-}
-
-// SetName sets the value of Name.
-func (s *UpdateOrganizationRequest) SetName(val string) {
-	s.Name = val
-}
-
 // Ref: #/components/schemas/UpdateOrganizationResponse
 type UpdateOrganizationResponse struct {
 	Data Organization `json:"data"`
@@ -5134,43 +4960,6 @@ type UpdateOrganizationUnitForbidden ErrorContent
 
 func (*UpdateOrganizationUnitForbidden) updateOrganizationUnitRes() {}
 
-// Ref: #/components/schemas/UpdateOrganizationUnitRequest
-type UpdateOrganizationUnitRequest struct {
-	Name    string       `json:"name"`
-	Alias   StorageAlias `json:"alias"`
-	Address OptNilString `json:"address"`
-}
-
-// GetName returns the value of Name.
-func (s *UpdateOrganizationUnitRequest) GetName() string {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *UpdateOrganizationUnitRequest) GetAlias() StorageAlias {
-	return s.Alias
-}
-
-// GetAddress returns the value of Address.
-func (s *UpdateOrganizationUnitRequest) GetAddress() OptNilString {
-	return s.Address
-}
-
-// SetName sets the value of Name.
-func (s *UpdateOrganizationUnitRequest) SetName(val string) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *UpdateOrganizationUnitRequest) SetAlias(val StorageAlias) {
-	s.Alias = val
-}
-
-// SetAddress sets the value of Address.
-func (s *UpdateOrganizationUnitRequest) SetAddress(val OptNilString) {
-	s.Address = val
-}
-
 // Ref: #/components/schemas/UpdateOrganizationUnitResponse
 type UpdateOrganizationUnitResponse struct {
 	Data Unit `json:"data"`
@@ -5195,54 +4984,6 @@ func (*UpdateOrganizationUnitUnauthorized) updateOrganizationUnitRes() {}
 type UpdateStorageGroupForbidden ErrorContent
 
 func (*UpdateStorageGroupForbidden) updateStorageGroupRes() {}
-
-// Ref: #/components/schemas/UpdateStorageGroupRequest
-type UpdateStorageGroupRequest struct {
-	ParentId OptNilUUID   `json:"parentId"`
-	Name     string       `json:"name"`
-	Alias    StorageAlias `json:"alias"`
-	UnitId   uuid.UUID    `json:"unitId"`
-}
-
-// GetParentId returns the value of ParentId.
-func (s *UpdateStorageGroupRequest) GetParentId() OptNilUUID {
-	return s.ParentId
-}
-
-// GetName returns the value of Name.
-func (s *UpdateStorageGroupRequest) GetName() string {
-	return s.Name
-}
-
-// GetAlias returns the value of Alias.
-func (s *UpdateStorageGroupRequest) GetAlias() StorageAlias {
-	return s.Alias
-}
-
-// GetUnitId returns the value of UnitId.
-func (s *UpdateStorageGroupRequest) GetUnitId() uuid.UUID {
-	return s.UnitId
-}
-
-// SetParentId sets the value of ParentId.
-func (s *UpdateStorageGroupRequest) SetParentId(val OptNilUUID) {
-	s.ParentId = val
-}
-
-// SetName sets the value of Name.
-func (s *UpdateStorageGroupRequest) SetName(val string) {
-	s.Name = val
-}
-
-// SetAlias sets the value of Alias.
-func (s *UpdateStorageGroupRequest) SetAlias(val StorageAlias) {
-	s.Alias = val
-}
-
-// SetUnitId sets the value of UnitId.
-func (s *UpdateStorageGroupRequest) SetUnitId(val uuid.UUID) {
-	s.UnitId = val
-}
 
 // Ref: #/components/schemas/UpdateStorageGroupResponse
 type UpdateStorageGroupResponse struct {

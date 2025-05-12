@@ -8,11 +8,11 @@ info:
     name: PRIVATE
     url: https://store-it.ru
 servers:
-  - url: http://localhost:8080/
+  - url: http://localhost:8080
+  - url: https://store-it.ru/api
 security:
   - apiToken: []
   - cookie: []
-tags: []
 paths:
   /orgs:
     get:
@@ -89,7 +89,7 @@ paths:
       operationId: deleteOrganization
       responses:
         '204':
-          description: Successful operation
+          $ref: '#/components/responses/default-no-content'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -106,7 +106,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationUpdate'
       responses:
         '200':
           description: Successful operation
@@ -149,7 +149,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrganizationUnitRequest'
+              $ref: '#/components/schemas/UnitBase'
       responses:
         '200':
           description: Successful operation
@@ -197,7 +197,7 @@ paths:
       operationId: deleteOrganizationUnit
       responses:
         '204':
-          description: Successful operation
+          $ref: '#/components/responses/default-no-content'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -214,7 +214,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateOrganizationUnitRequest'
+              $ref: '#/components/schemas/UnitBase'
       responses:
         '200':
           description: Successful operation
@@ -222,30 +222,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOrganizationUnitResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - unit
-      summary: Patch Organization Unit
-      operationId: patchOrganizationUnit
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchOrganizationUnitRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchOrganizationUnitResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -281,7 +257,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateStorageGroupRequest'
+              $ref: '#/components/schemas/StorageGroupBase'
       responses:
         '200':
           description: Successful operation
@@ -329,7 +305,7 @@ paths:
       operationId: deleteStorageGroup
       responses:
         '204':
-          description: Successful operation
+          $ref: '#/components/responses/default-no-content'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -346,7 +322,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateStorageGroupRequest'
+              $ref: '#/components/schemas/StorageGroupBase'
       responses:
         '200':
           description: Successful operation
@@ -544,6 +520,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCellByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -554,6 +534,10 @@ paths:
       responses:
         '204':
           description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -1044,8 +1028,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/LogoutResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
+        '400':
+          $ref: '#/components/responses/default-bad-request'
         default:
           $ref: '#/components/responses/default-error'
   /me:
@@ -1054,50 +1038,6 @@ paths:
         - user
       summary: Get Current User
       operationId: getCurrentUser
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetCurrentUserResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - user
-      summary: Update Current User
-      operationId: patchCurrentUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCurrentUserRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetCurrentUserResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        default:
-          $ref: '#/components/responses/default-error'
-    put:
-      tags:
-        - user
-      summary: Update Current User
-      operationId: putCurrentUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCurrentUserRequest'
       responses:
         '200':
           description: Successful operation
@@ -1472,11 +1412,12 @@ paths:
 components:
   securitySchemes:
     apiToken:
-      description: API key authentication
+      description: API Token Authentication
       type: apiKey
       name: X-Api-Key
       in: header
     cookie:
+      description: Session Cookie Authentication for User
       type: apiKey
       in: cookie
       name: storeit_session
@@ -1522,7 +1463,6 @@ components:
               type: string
               format: uuid
               readOnly: true
-              example: def3df1a-7b8f-4552-b437-a1eab851403f
           required:
             - id
         - $ref: '#/components/schemas/OrganizationBase'
@@ -1571,10 +1511,6 @@ components:
           maxLength: 100
       required:
         - name
-    UpdateOrganizationRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/OrganizationUpdate'
     UpdateOrganizationResponse:
       type: object
       allOf:
@@ -1604,6 +1540,8 @@ components:
           type: string
           nullable: true
           example: 123 Main St, Moscow, Russia
+          minLength: 1
+          maxLength: 255
       required:
         - name
         - alias
@@ -1637,10 +1575,6 @@ components:
                 $ref: '#/components/schemas/Unit'
           required:
             - data
-    CreateOrganizationUnitRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/UnitBase'
     CreateOrganizationUnitResponse:
       type: object
       allOf:
@@ -1661,39 +1595,7 @@ components:
               $ref: '#/components/schemas/Unit'
           required:
             - data
-    UpdateOrganizationUnitRequest:
-      allOf:
-        - $ref: '#/components/schemas/UnitBase'
     UpdateOrganizationUnitResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: object
-              $ref: '#/components/schemas/Unit'
-          required:
-            - data
-    UnitPatch:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-          example: Moscow
-        alias:
-          type: string
-          minLength: 1
-          maxLength: 100
-          example: MWS
-        address:
-          type: string
-          nullable: true
-    PatchOrganizationUnitRequest:
-      allOf:
-        - $ref: '#/components/schemas/UnitPatch'
-    PatchOrganizationUnitResponse:
       type: object
       allOf:
         - type: object
@@ -1755,10 +1657,6 @@ components:
                 $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    CreateStorageGroupRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/StorageGroupBase'
     CreateStorageGroupResponse:
       type: object
       allOf:
@@ -1779,10 +1677,6 @@ components:
               $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    UpdateStorageGroupRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/StorageGroupBase'
     UpdateStorageGroupResponse:
       type: object
       allOf:
@@ -2335,40 +2229,6 @@ components:
     GetCurrentUserResponse:
       allOf:
         - $ref: '#/components/schemas/User'
-    UserUpdate:
-      type: object
-      properties:
-        first_name:
-          type: string
-        last_name:
-          type: string
-        middle_name:
-          type: string
-          nullable: true
-      required:
-        - first_name
-        - last_name
-        - middle_name
-    UpdateCurrentUserRequest:
-      allOf:
-        - $ref: '#/components/schemas/UserUpdate'
-    UserPatch:
-      type: object
-      properties:
-        first_name:
-          type: string
-        last_name:
-          type: string
-        middle_name:
-          type: string
-          nullable: true
-      required:
-        - first_name
-        - last_name
-        - middle_name
-    PatchCurrentUserRequest:
-      allOf:
-        - $ref: '#/components/schemas/UserPatch'
     Role:
       type: object
       properties:
@@ -2761,6 +2621,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorContent'
+    default-no-content:
+      description: Successful operation
     AuthResponse:
       description: Auth response
       headers:

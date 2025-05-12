@@ -728,12 +728,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					switch r.Method {
 					case "GET":
 						s.handleGetCurrentUserRequest([0]string{}, elemIsEscaped, w, r)
-					case "PATCH":
-						s.handlePatchCurrentUserRequest([0]string{}, elemIsEscaped, w, r)
-					case "PUT":
-						s.handlePutCurrentUserRequest([0]string{}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "GET,PATCH,PUT")
+						s.notAllowed(w, r, "GET")
 					}
 
 					return
@@ -1080,16 +1076,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							s.handleGetOrganizationUnitByIdRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
-						case "PATCH":
-							s.handlePatchOrganizationUnitRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
 						case "PUT":
 							s.handleUpdateOrganizationUnitRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
@@ -1996,22 +1988,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.args = args
 						r.count = 0
 						return r, true
-					case "PATCH":
-						r.name = PatchCurrentUserOperation
-						r.summary = "Update Current User"
-						r.operationID = "patchCurrentUser"
-						r.pathPattern = "/me"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "PUT":
-						r.name = PutCurrentUserOperation
-						r.summary = "Update Current User"
-						r.operationID = "putCurrentUser"
-						r.pathPattern = "/me"
-						r.args = args
-						r.count = 0
-						return r, true
 					default:
 						return
 					}
@@ -2440,14 +2416,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.name = GetOrganizationUnitByIdOperation
 							r.summary = "Get Unit by ID"
 							r.operationID = "getOrganizationUnitById"
-							r.pathPattern = "/units/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PATCH":
-							r.name = PatchOrganizationUnitOperation
-							r.summary = "Patch Organization Unit"
-							r.operationID = "patchOrganizationUnit"
 							r.pathPattern = "/units/{id}"
 							r.args = args
 							r.count = 1

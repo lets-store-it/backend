@@ -45,6 +45,10 @@ type CreateUnitRes interface {
 	createUnitRes()
 }
 
+type DeleteCellRes interface {
+	deleteCellRes()
+}
+
 type DeleteCellsGroupRes interface {
 	deleteCellsGroupRes()
 }
@@ -91,6 +95,10 @@ type GetApiTokensRes interface {
 
 type GetAuditLogsRes interface {
 	getAuditLogsRes()
+}
+
+type GetCellByIdRes interface {
+	getCellByIdRes()
 }
 
 type GetCellsGroupByIdRes interface {
@@ -197,24 +205,12 @@ type LogoutRes interface {
 	logoutRes()
 }
 
-type PatchCurrentUserRes interface {
-	patchCurrentUserRes()
-}
-
 type PatchEmployeeByIdRes interface {
 	patchEmployeeByIdRes()
 }
 
-type PatchOrganizationUnitRes interface {
-	patchOrganizationUnitRes()
-}
-
 type PickInstanceFromCellRes interface {
 	pickInstanceFromCellRes()
-}
-
-type PutCurrentUserRes interface {
-	putCurrentUserRes()
 }
 
 type RevokeApiTokenRes interface {

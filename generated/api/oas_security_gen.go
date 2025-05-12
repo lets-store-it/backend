@@ -15,9 +15,10 @@ import (
 // SecurityHandler is handler for security parameters.
 type SecurityHandler interface {
 	// HandleApiToken handles apiToken security.
-	// API key authentication.
+	// API Token Authentication.
 	HandleApiToken(ctx context.Context, operationName OperationName, t ApiToken) (context.Context, error)
 	// HandleCookie handles cookie security.
+	// Session Cookie Authentication for User.
 	HandleCookie(ctx context.Context, operationName OperationName, t Cookie) (context.Context, error)
 }
 
