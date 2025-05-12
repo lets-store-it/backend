@@ -38,7 +38,7 @@ func (uc *ItemUseCase) CreateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -80,7 +80,7 @@ func (uc *ItemUseCase) GetItemsAll(ctx context.Context) ([]*models.Item, error) 
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -93,7 +93,7 @@ func (uc *ItemUseCase) GetItemById(ctx context.Context, id uuid.UUID) (*models.I
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -106,7 +106,7 @@ func (uc *ItemUseCase) UpdateItem(ctx context.Context, item *models.Item) (*mode
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -148,12 +148,12 @@ func (uc *ItemUseCase) UpdateItem(ctx context.Context, item *models.Item) (*mode
 }
 
 func (uc *ItemUseCase) DeleteItem(ctx context.Context, id uuid.UUID) error {
-	validateResult, err := usecases.ValidateAccess(ctx, uc.authService, models.AccessLevelWorker)
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 
@@ -195,7 +195,7 @@ func (uc *ItemUseCase) CreateItemVariant(ctx context.Context, variant *models.It
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -231,7 +231,7 @@ func (uc *ItemUseCase) GetItemVariantById(ctx context.Context, id uuid.UUID, var
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -244,7 +244,7 @@ func (uc *ItemUseCase) GetItemVariants(ctx context.Context, id uuid.UUID) ([]*mo
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -257,7 +257,7 @@ func (uc *ItemUseCase) UpdateItemVariant(ctx context.Context, variant *models.It
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -304,7 +304,7 @@ func (uc *ItemUseCase) DeleteItemVariant(ctx context.Context, id uuid.UUID, vari
 		return err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 
@@ -346,7 +346,7 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -389,7 +389,7 @@ func (uc *ItemUseCase) GetItemInstances(ctx context.Context, id uuid.UUID) ([]*m
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -402,7 +402,7 @@ func (uc *ItemUseCase) GetItemInstanceById(ctx context.Context, id uuid.UUID) (*
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -415,7 +415,7 @@ func (uc *ItemUseCase) GetItemInstancesAll(ctx context.Context) ([]*models.ItemI
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -428,7 +428,7 @@ func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return nil, usecases.ErrNotAuthorized
 	}
 
@@ -475,7 +475,7 @@ func (uc *ItemUseCase) DeleteItemInstance(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 
-	if !validateResult.HasAccess {
+	if !validateResult.IsAuthorized {
 		return usecases.ErrNotAuthorized
 	}
 

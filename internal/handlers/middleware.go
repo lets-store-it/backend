@@ -69,6 +69,7 @@ func generateAuthCookie(token string, timeToLive time.Duration) *http.Cookie {
 		HttpOnly: true,
 		Secure:   false, // TODO: Set to true in production
 		SameSite: http.SameSiteLaxMode,
+		// Domain:   "localhost",
 	}
 }
 
