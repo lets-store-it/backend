@@ -1,20 +1,46 @@
 import json
+import os
 import random
 import string
 import uuid
 from typing import Generator
 
 import pytest
+import requests
 
-from tests.apiclient.apiclient import APIClient
+from .apiclient.apiclient import APIClient
 
-API_BASE = "http://localhost:8080"
-SESSION_COOKIE = "8f208879-576a-4eb5-829e-1cbe87490532"
+API_BASE = os.getenv("API_BASE_URL", "http://localhost:8080")
 
 
 @pytest.fixture(scope="session")
-def api_client() -> APIClient:
-    client = APIClient(API_BASE, SESSION_COOKIE)
+def test_user() -> dict[str, str]:
+    """Create a single test user for all tests"""
+    return {
+        "email": f"e2e.test.user.{uuid.uuid4()}@example.com",
+        "firstName": f"TestUser{random.randint(1, 1000)}",
+        "lastName": f"LastName{random.randint(1, 1000)}"
+    }
+
+
+@pytest.fixture(scope="session")
+def session_cookie(test_user: dict[str, str]) -> str:
+    """Get session cookie for the test user"""
+    response = requests.post(f"{API_BASE}/auth/test", json=test_user)
+    assert response.status_code == 200, f"Authentication failed: {response.status_code} {response.text}"
+    
+    cookies = response.headers.get("Set-Cookie")
+    assert cookies, "No cookies received from authentication"
+    
+    session_cookie = next((c for c in cookies.split(";") if "storeit_session=" in c), None)
+    assert session_cookie, "Session cookie not found"
+    
+    return session_cookie.split("=")[1].strip()
+
+
+@pytest.fixture(scope="session")
+def api_client(session_cookie: str) -> APIClient:
+    client = APIClient(API_BASE, session_cookie)
     response = client.get("/me")
     assert response.status_code == 200
     return client
@@ -23,13 +49,14 @@ def api_client() -> APIClient:
 @pytest.fixture(scope="session")
 def api_client_with_organization(
     api_client: APIClient,
+    session_cookie: str,
 ) -> Generator[APIClient, None, None]:
     org_name = str(uuid.uuid4())
     response = api_client.post("/orgs", {"name": org_name, "subdomain": org_name})
     assert response.status_code == 200
     org_data = response.json()["data"]
 
-    client = APIClient(API_BASE, SESSION_COOKIE)
+    client = APIClient(API_BASE, session_cookie)
     response = client.get("/me")
     assert response.status_code == 200
     client.set_organization(org_data["id"])
@@ -138,7 +165,7 @@ class TestOrganizationUnit:
                 "address": address,
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 200, response.text
         unit_data = response.json()["data"]
         unit_id = unit_data["id"]
 
