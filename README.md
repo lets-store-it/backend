@@ -1,5 +1,9 @@
 # storeit — backend
 
+[![E2E Tests](https://github.com/lets-store-it/backend/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/lets-store-it/backend/actions/workflows/e2e-tests.yml)
+
+[![Build and Publish Docker Image](https://github.com/lets-store-it/backend/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/lets-store-it/backend/actions/workflows/docker-publish.yml)
+
 ## Структура проекта
 
 ### Основные директории
