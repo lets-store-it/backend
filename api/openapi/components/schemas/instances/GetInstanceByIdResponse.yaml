@@ -1,0 +1,7 @@
+type: object
+properties:
+  data:
+    type: object
+    $ref: ./models/InstanceFull.yaml
+required:
+  - data

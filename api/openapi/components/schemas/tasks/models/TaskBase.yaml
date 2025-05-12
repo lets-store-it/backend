@@ -12,7 +12,7 @@ properties:
   type:
     type: string
     enum:
-      - pick
+      - pickment
       - movement
   status:
     type: string

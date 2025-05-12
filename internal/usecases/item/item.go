@@ -357,6 +357,11 @@ func (uc *ItemUseCase) CreateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, err
 	}
 
+	// cellPath, err := uc.service.GetCellPath(ctx, validateResult.OrgID, createdInstance.CellID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	postchangeState, err := json.Marshal(createdInstance)
 	if err != nil {
 		return nil, err
@@ -389,4 +394,118 @@ func (uc *ItemUseCase) GetItemInstances(ctx context.Context, id uuid.UUID) ([]*m
 	}
 
 	return uc.service.GetItemInstances(ctx, validateResult.OrgID, id)
+}
+
+func (uc *ItemUseCase) GetItemInstanceById(ctx context.Context, id uuid.UUID) (*models.ItemInstance, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.GetItemInstanceById(ctx, validateResult.OrgID, id)
+}
+
+func (uc *ItemUseCase) GetItemInstancesAll(ctx context.Context) ([]*models.ItemInstance, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	return uc.service.GetItemInstancesAll(ctx, validateResult.OrgID)
+}
+
+func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if !validateResult.HasAccess {
+		return nil, usecases.ErrNotAuthorized
+	}
+
+	itemInstance.OrgID = validateResult.OrgID
+	currentInstance, err := uc.service.GetItemInstanceById(ctx, validateResult.OrgID, itemInstance.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	prechangeState, err := json.Marshal(currentInstance)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedInstance, err := uc.service.UpdateItemInstance(ctx, validateResult.OrgID, itemInstance)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(updatedInstance)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeItemInstance,
+		TargetObjectID:     updatedInstance.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedInstance, nil
+}
+
+func (uc *ItemUseCase) DeleteItemInstance(ctx context.Context, id uuid.UUID) error {
+	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
+	if err != nil {
+		return err
+	}
+
+	if !validateResult.HasAccess {
+		return usecases.ErrNotAuthorized
+	}
+
+	currentInstance, err := uc.service.GetItemInstanceById(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	prechangeState, err := json.Marshal(currentInstance)
+	if err != nil {
+		return err
+	}
+
+	err = uc.service.DeleteItemInstance(ctx, validateResult.OrgID, id)
+	if err != nil {
+		return err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionDelete,
+		TargetObjectTypeId: models.ObjectTypeItemInstance,
+		TargetObjectID:     id,
+		PrechangeState:     prechangeState,
+		PostchangeState:    nil,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

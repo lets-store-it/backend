@@ -62,11 +62,11 @@ func (h *RestApiImplementation) GetTvBoardsData(ctx context.Context, params api.
 	tvBoard, err := h.tvBoardUseCase.GetTvBoardByToken(ctx, params.TvToken)
 	if err != nil {
 		if errors.Is(err, usecases.ErrNotFound) {
-			return nil, h.NewUnauthorizedError(ctx)
+			return nil, h.NewUnauthorizedErrorWithMessage(ctx, "Invalid TV board token")
 		}
 		return nil, fmt.Errorf("failed to get TV board: %w", err)
 	}
-
+	
 	ctx = context.WithValue(ctx, models.OrganizationIDContextKey, tvBoard.OrgID)
 	ctx = context.WithValue(ctx, models.IsSystemUserContextKey, true)
 	ctx = context.WithValue(ctx, models.TvBoardIDContextKey, tvBoard.ID)

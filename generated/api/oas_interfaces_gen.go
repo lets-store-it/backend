@@ -117,6 +117,10 @@ type GetEmployeesRes interface {
 	getEmployeesRes()
 }
 
+type GetInstanceByIdRes interface {
+	getInstanceByIdRes()
+}
+
 type GetInstancesByItemIdRes interface {
 	getInstancesByItemIdRes()
 }
@@ -223,6 +227,10 @@ type UpdateCellRes interface {
 
 type UpdateCellsGroupRes interface {
 	updateCellsGroupRes()
+}
+
+type UpdateInstanceByIdRes interface {
+	updateInstanceByIdRes()
 }
 
 type UpdateItemRes interface {

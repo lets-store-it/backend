@@ -172,9 +172,9 @@ CREATE TABLE item_instance (
     affected_by_task_id UUID REFERENCES task(id) ON DELETE SET NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-    UNIQUE (item_id, variant_id)
+    deleted_at TIMESTAMP
 );
+
 CREATE INDEX item_instance_status_idx ON item_instance(status) WHERE deleted_at IS NULL;
 CREATE INDEX item_instance_task_idx ON item_instance(affected_by_task_id) WHERE affected_by_task_id IS NOT NULL;
 CREATE INDEX item_instance_cell_idx ON item_instance(cell_id) WHERE cell_id IS NOT NULL;

@@ -555,6 +555,20 @@ func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) error {
 	return err
 }
 
+const deleteItemInstance = `-- name: DeleteItemInstance :exec
+UPDATE item_instance SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id = $2
+`
+
+type DeleteItemInstanceParams struct {
+	OrgID pgtype.UUID
+	ID    pgtype.UUID
+}
+
+func (q *Queries) DeleteItemInstance(ctx context.Context, arg DeleteItemInstanceParams) error {
+	_, err := q.db.Exec(ctx, deleteItemInstance, arg.OrgID, arg.ID)
+	return err
+}
+
 const deleteItemVariant = `-- name: DeleteItemVariant :exec
 UPDATE item_variant SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND item_id = $2 AND id = $3
 `
@@ -1040,6 +1054,40 @@ func (q *Queries) GetItemInstance(ctx context.Context, arg GetItemInstanceParams
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getItemInstancesAll = `-- name: GetItemInstancesAll :many
+SELECT id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at FROM item_instance WHERE org_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetItemInstancesAll(ctx context.Context, orgID pgtype.UUID) ([]ItemInstance, error) {
+	rows, err := q.db.Query(ctx, getItemInstancesAll, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ItemInstance
+	for rows.Next() {
+		var i ItemInstance
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrgID,
+			&i.ItemID,
+			&i.VariantID,
+			&i.CellID,
+			&i.Status,
+			&i.AffectedByTaskID,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getItemInstancesForCell = `-- name: GetItemInstancesForCell :many
@@ -1620,7 +1668,7 @@ func (q *Queries) GetTasks(ctx context.Context, orgID pgtype.UUID) ([]Task, erro
 }
 
 const getTvBoardById = `-- name: GetTvBoardById :one
-SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1 AND id = $2
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL
 `
 
 type GetTvBoardByIdParams struct {
@@ -1644,7 +1692,7 @@ func (q *Queries) GetTvBoardById(ctx context.Context, arg GetTvBoardByIdParams) 
 }
 
 const getTvBoardByToken = `-- name: GetTvBoardByToken :one
-SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE token = $1 AND deleted_at IS NULL
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE token = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetTvBoardByToken(ctx context.Context, token string) (TvBoard, error) {
@@ -1663,7 +1711,7 @@ func (q *Queries) GetTvBoardByToken(ctx context.Context, token string) (TvBoard,
 }
 
 const getTvBoards = `-- name: GetTvBoards :many
-SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1
+SELECT id, org_id, unit_id, name, token, created_at, deleted_at FROM tv_board WHERE org_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetTvBoards(ctx context.Context, orgID pgtype.UUID) ([]TvBoard, error) {

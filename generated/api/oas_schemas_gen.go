@@ -428,6 +428,7 @@ const (
 	CellForInstanceCellPathItemObjectTypeCell         CellForInstanceCellPathItemObjectType = "cell"
 	CellForInstanceCellPathItemObjectTypeCellsGroup   CellForInstanceCellPathItemObjectType = "cells_group"
 	CellForInstanceCellPathItemObjectTypeStorageGroup CellForInstanceCellPathItemObjectType = "storage_group"
+	CellForInstanceCellPathItemObjectTypeUnit         CellForInstanceCellPathItemObjectType = "unit"
 )
 
 // AllValues returns all CellForInstanceCellPathItemObjectType values.
@@ -436,6 +437,7 @@ func (CellForInstanceCellPathItemObjectType) AllValues() []CellForInstanceCellPa
 		CellForInstanceCellPathItemObjectTypeCell,
 		CellForInstanceCellPathItemObjectTypeCellsGroup,
 		CellForInstanceCellPathItemObjectTypeStorageGroup,
+		CellForInstanceCellPathItemObjectTypeUnit,
 	}
 }
 
@@ -447,6 +449,8 @@ func (s CellForInstanceCellPathItemObjectType) MarshalText() ([]byte, error) {
 	case CellForInstanceCellPathItemObjectTypeCellsGroup:
 		return []byte(s), nil
 	case CellForInstanceCellPathItemObjectTypeStorageGroup:
+		return []byte(s), nil
+	case CellForInstanceCellPathItemObjectTypeUnit:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -464,6 +468,182 @@ func (s *CellForInstanceCellPathItemObjectType) UnmarshalText(data []byte) error
 		return nil
 	case CellForInstanceCellPathItemObjectTypeStorageGroup:
 		*s = CellForInstanceCellPathItemObjectTypeStorageGroup
+		return nil
+	case CellForInstanceCellPathItemObjectTypeUnit:
+		*s = CellForInstanceCellPathItemObjectTypeUnit
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/CellForInstanceOptional
+type CellForInstanceOptional struct {
+	ID       uuid.UUID                             `json:"id"`
+	Alias    string                                `json:"alias"`
+	Row      int                                   `json:"row"`
+	Level    int                                   `json:"level"`
+	Position int                                   `json:"position"`
+	CellPath []CellForInstanceOptionalCellPathItem `json:"cellPath"`
+}
+
+// GetID returns the value of ID.
+func (s *CellForInstanceOptional) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetAlias returns the value of Alias.
+func (s *CellForInstanceOptional) GetAlias() string {
+	return s.Alias
+}
+
+// GetRow returns the value of Row.
+func (s *CellForInstanceOptional) GetRow() int {
+	return s.Row
+}
+
+// GetLevel returns the value of Level.
+func (s *CellForInstanceOptional) GetLevel() int {
+	return s.Level
+}
+
+// GetPosition returns the value of Position.
+func (s *CellForInstanceOptional) GetPosition() int {
+	return s.Position
+}
+
+// GetCellPath returns the value of CellPath.
+func (s *CellForInstanceOptional) GetCellPath() []CellForInstanceOptionalCellPathItem {
+	return s.CellPath
+}
+
+// SetID sets the value of ID.
+func (s *CellForInstanceOptional) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CellForInstanceOptional) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetRow sets the value of Row.
+func (s *CellForInstanceOptional) SetRow(val int) {
+	s.Row = val
+}
+
+// SetLevel sets the value of Level.
+func (s *CellForInstanceOptional) SetLevel(val int) {
+	s.Level = val
+}
+
+// SetPosition sets the value of Position.
+func (s *CellForInstanceOptional) SetPosition(val int) {
+	s.Position = val
+}
+
+// SetCellPath sets the value of CellPath.
+func (s *CellForInstanceOptional) SetCellPath(val []CellForInstanceOptionalCellPathItem) {
+	s.CellPath = val
+}
+
+type CellForInstanceOptionalCellPathItem struct {
+	ID         uuid.UUID                                     `json:"id"`
+	Name       string                                        `json:"name"`
+	Alias      string                                        `json:"alias"`
+	ObjectType CellForInstanceOptionalCellPathItemObjectType `json:"objectType"`
+}
+
+// GetID returns the value of ID.
+func (s *CellForInstanceOptionalCellPathItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CellForInstanceOptionalCellPathItem) GetName() string {
+	return s.Name
+}
+
+// GetAlias returns the value of Alias.
+func (s *CellForInstanceOptionalCellPathItem) GetAlias() string {
+	return s.Alias
+}
+
+// GetObjectType returns the value of ObjectType.
+func (s *CellForInstanceOptionalCellPathItem) GetObjectType() CellForInstanceOptionalCellPathItemObjectType {
+	return s.ObjectType
+}
+
+// SetID sets the value of ID.
+func (s *CellForInstanceOptionalCellPathItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CellForInstanceOptionalCellPathItem) SetName(val string) {
+	s.Name = val
+}
+
+// SetAlias sets the value of Alias.
+func (s *CellForInstanceOptionalCellPathItem) SetAlias(val string) {
+	s.Alias = val
+}
+
+// SetObjectType sets the value of ObjectType.
+func (s *CellForInstanceOptionalCellPathItem) SetObjectType(val CellForInstanceOptionalCellPathItemObjectType) {
+	s.ObjectType = val
+}
+
+type CellForInstanceOptionalCellPathItemObjectType string
+
+const (
+	CellForInstanceOptionalCellPathItemObjectTypeCell         CellForInstanceOptionalCellPathItemObjectType = "cell"
+	CellForInstanceOptionalCellPathItemObjectTypeCellsGroup   CellForInstanceOptionalCellPathItemObjectType = "cells_group"
+	CellForInstanceOptionalCellPathItemObjectTypeStorageGroup CellForInstanceOptionalCellPathItemObjectType = "storage_group"
+	CellForInstanceOptionalCellPathItemObjectTypeUnit         CellForInstanceOptionalCellPathItemObjectType = "unit"
+)
+
+// AllValues returns all CellForInstanceOptionalCellPathItemObjectType values.
+func (CellForInstanceOptionalCellPathItemObjectType) AllValues() []CellForInstanceOptionalCellPathItemObjectType {
+	return []CellForInstanceOptionalCellPathItemObjectType{
+		CellForInstanceOptionalCellPathItemObjectTypeCell,
+		CellForInstanceOptionalCellPathItemObjectTypeCellsGroup,
+		CellForInstanceOptionalCellPathItemObjectTypeStorageGroup,
+		CellForInstanceOptionalCellPathItemObjectTypeUnit,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CellForInstanceOptionalCellPathItemObjectType) MarshalText() ([]byte, error) {
+	switch s {
+	case CellForInstanceOptionalCellPathItemObjectTypeCell:
+		return []byte(s), nil
+	case CellForInstanceOptionalCellPathItemObjectTypeCellsGroup:
+		return []byte(s), nil
+	case CellForInstanceOptionalCellPathItemObjectTypeStorageGroup:
+		return []byte(s), nil
+	case CellForInstanceOptionalCellPathItemObjectTypeUnit:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CellForInstanceOptionalCellPathItemObjectType) UnmarshalText(data []byte) error {
+	switch CellForInstanceOptionalCellPathItemObjectType(data) {
+	case CellForInstanceOptionalCellPathItemObjectTypeCell:
+		*s = CellForInstanceOptionalCellPathItemObjectTypeCell
+		return nil
+	case CellForInstanceOptionalCellPathItemObjectTypeCellsGroup:
+		*s = CellForInstanceOptionalCellPathItemObjectTypeCellsGroup
+		return nil
+	case CellForInstanceOptionalCellPathItemObjectTypeStorageGroup:
+		*s = CellForInstanceOptionalCellPathItemObjectTypeStorageGroup
+		return nil
+	case CellForInstanceOptionalCellPathItemObjectTypeUnit:
+		*s = CellForInstanceOptionalCellPathItemObjectTypeUnit
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1187,14 +1367,14 @@ func (s *CreateTaskRequestItemsItem) SetTargetCellId(val OptUUID) {
 type CreateTaskRequestType string
 
 const (
-	CreateTaskRequestTypePick     CreateTaskRequestType = "pick"
+	CreateTaskRequestTypePickment CreateTaskRequestType = "pickment"
 	CreateTaskRequestTypeMovement CreateTaskRequestType = "movement"
 )
 
 // AllValues returns all CreateTaskRequestType values.
 func (CreateTaskRequestType) AllValues() []CreateTaskRequestType {
 	return []CreateTaskRequestType{
-		CreateTaskRequestTypePick,
+		CreateTaskRequestTypePickment,
 		CreateTaskRequestTypeMovement,
 	}
 }
@@ -1202,7 +1382,7 @@ func (CreateTaskRequestType) AllValues() []CreateTaskRequestType {
 // MarshalText implements encoding.TextMarshaler.
 func (s CreateTaskRequestType) MarshalText() ([]byte, error) {
 	switch s {
-	case CreateTaskRequestTypePick:
+	case CreateTaskRequestTypePickment:
 		return []byte(s), nil
 	case CreateTaskRequestTypeMovement:
 		return []byte(s), nil
@@ -1214,8 +1394,8 @@ func (s CreateTaskRequestType) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *CreateTaskRequestType) UnmarshalText(data []byte) error {
 	switch CreateTaskRequestType(data) {
-	case CreateTaskRequestTypePick:
-		*s = CreateTaskRequestTypePick
+	case CreateTaskRequestTypePickment:
+		*s = CreateTaskRequestTypePickment
 		return nil
 	case CreateTaskRequestTypeMovement:
 		*s = CreateTaskRequestTypeMovement
@@ -1913,6 +2093,31 @@ type GetEmployeesUnauthorized ErrorContent
 
 func (*GetEmployeesUnauthorized) getEmployeesRes() {}
 
+type GetInstanceByIdForbidden ErrorContent
+
+func (*GetInstanceByIdForbidden) getInstanceByIdRes() {}
+
+// Ref: #/components/schemas/GetInstanceByIdResponse
+type GetInstanceByIdResponse struct {
+	Data InstanceFull `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *GetInstanceByIdResponse) GetData() InstanceFull {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *GetInstanceByIdResponse) SetData(val InstanceFull) {
+	s.Data = val
+}
+
+func (*GetInstanceByIdResponse) getInstanceByIdRes() {}
+
+type GetInstanceByIdUnauthorized ErrorContent
+
+func (*GetInstanceByIdUnauthorized) getInstanceByIdRes() {}
+
 type GetInstancesByItemIdForbidden ErrorContent
 
 func (*GetInstancesByItemIdForbidden) getInstancesByItemIdRes() {}
@@ -2536,7 +2741,7 @@ type InstanceFull struct {
 	Status  InstanceFullStatus `json:"status"`
 	Item    ItemForList        `json:"item"`
 	Variant ItemVariant        `json:"variant"`
-	Cell    NilCellForInstance `json:"cell"`
+	Cell    CellForInstance    `json:"cell"`
 }
 
 // GetID returns the value of ID.
@@ -2560,7 +2765,7 @@ func (s *InstanceFull) GetVariant() ItemVariant {
 }
 
 // GetCell returns the value of Cell.
-func (s *InstanceFull) GetCell() NilCellForInstance {
+func (s *InstanceFull) GetCell() CellForInstance {
 	return s.Cell
 }
 
@@ -2585,7 +2790,7 @@ func (s *InstanceFull) SetVariant(val ItemVariant) {
 }
 
 // SetCell sets the value of Cell.
-func (s *InstanceFull) SetCell(val NilCellForInstance) {
+func (s *InstanceFull) SetCell(val CellForInstance) {
 	s.Cell = val
 }
 
@@ -2942,37 +3147,37 @@ func (o NilAuditLogPrechangeState) Or(d AuditLogPrechangeState) AuditLogPrechang
 	return d
 }
 
-// NewNilCellForInstance returns new NilCellForInstance with value set to v.
-func NewNilCellForInstance(v CellForInstance) NilCellForInstance {
-	return NilCellForInstance{
+// NewNilCellForInstanceOptional returns new NilCellForInstanceOptional with value set to v.
+func NewNilCellForInstanceOptional(v CellForInstanceOptional) NilCellForInstanceOptional {
+	return NilCellForInstanceOptional{
 		Value: v,
 	}
 }
 
-// NilCellForInstance is nullable CellForInstance.
-type NilCellForInstance struct {
-	Value CellForInstance
+// NilCellForInstanceOptional is nullable CellForInstanceOptional.
+type NilCellForInstanceOptional struct {
+	Value CellForInstanceOptional
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilCellForInstance) SetTo(v CellForInstance) {
+func (o *NilCellForInstanceOptional) SetTo(v CellForInstanceOptional) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilCellForInstance) IsNull() bool { return o.Null }
+func (o NilCellForInstanceOptional) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilCellForInstance) SetToNull() {
+func (o *NilCellForInstanceOptional) SetToNull() {
 	o.Null = true
-	var v CellForInstance
+	var v CellForInstanceOptional
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilCellForInstance) Get() (v CellForInstance, ok bool) {
+func (o NilCellForInstanceOptional) Get() (v CellForInstanceOptional, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -2980,7 +3185,7 @@ func (o NilCellForInstance) Get() (v CellForInstance, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilCellForInstance) Or(d CellForInstance) CellForInstance {
+func (o NilCellForInstanceOptional) Or(d CellForInstanceOptional) CellForInstanceOptional {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -4041,14 +4246,14 @@ func (s *TaskBaseStatus) UnmarshalText(data []byte) error {
 type TaskBaseType string
 
 const (
-	TaskBaseTypePick     TaskBaseType = "pick"
+	TaskBaseTypePickment TaskBaseType = "pickment"
 	TaskBaseTypeMovement TaskBaseType = "movement"
 )
 
 // AllValues returns all TaskBaseType values.
 func (TaskBaseType) AllValues() []TaskBaseType {
 	return []TaskBaseType{
-		TaskBaseTypePick,
+		TaskBaseTypePickment,
 		TaskBaseTypeMovement,
 	}
 }
@@ -4056,7 +4261,7 @@ func (TaskBaseType) AllValues() []TaskBaseType {
 // MarshalText implements encoding.TextMarshaler.
 func (s TaskBaseType) MarshalText() ([]byte, error) {
 	switch s {
-	case TaskBaseTypePick:
+	case TaskBaseTypePickment:
 		return []byte(s), nil
 	case TaskBaseTypeMovement:
 		return []byte(s), nil
@@ -4068,8 +4273,8 @@ func (s TaskBaseType) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *TaskBaseType) UnmarshalText(data []byte) error {
 	switch TaskBaseType(data) {
-	case TaskBaseTypePick:
-		*s = TaskBaseTypePick
+	case TaskBaseTypePickment:
+		*s = TaskBaseTypePickment
 		return nil
 	case TaskBaseTypeMovement:
 		*s = TaskBaseTypeMovement
@@ -4270,14 +4475,14 @@ func (s *TaskFullStatus) UnmarshalText(data []byte) error {
 type TaskFullType string
 
 const (
-	TaskFullTypePick     TaskFullType = "pick"
+	TaskFullTypePickment TaskFullType = "pickment"
 	TaskFullTypeMovement TaskFullType = "movement"
 )
 
 // AllValues returns all TaskFullType values.
 func (TaskFullType) AllValues() []TaskFullType {
 	return []TaskFullType{
-		TaskFullTypePick,
+		TaskFullTypePickment,
 		TaskFullTypeMovement,
 	}
 }
@@ -4285,7 +4490,7 @@ func (TaskFullType) AllValues() []TaskFullType {
 // MarshalText implements encoding.TextMarshaler.
 func (s TaskFullType) MarshalText() ([]byte, error) {
 	switch s {
-	case TaskFullTypePick:
+	case TaskFullTypePickment:
 		return []byte(s), nil
 	case TaskFullTypeMovement:
 		return []byte(s), nil
@@ -4297,8 +4502,8 @@ func (s TaskFullType) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *TaskFullType) UnmarshalText(data []byte) error {
 	switch TaskFullType(data) {
-	case TaskFullTypePick:
-		*s = TaskFullTypePick
+	case TaskFullTypePickment:
+		*s = TaskFullTypePickment
 		return nil
 	case TaskFullTypeMovement:
 		*s = TaskFullTypeMovement
@@ -4310,10 +4515,10 @@ func (s *TaskFullType) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/TaskItem
 type TaskItem struct {
-	Instance   InstanceFull    `json:"instance"`
-	SourceCell CellForInstance `json:"sourceCell"`
-	TargetCell CellForInstance `json:"targetCell"`
-	Status     TaskItemStatus  `json:"status"`
+	Instance   InstanceFull               `json:"instance"`
+	SourceCell CellForInstance            `json:"sourceCell"`
+	TargetCell NilCellForInstanceOptional `json:"targetCell"`
+	Status     TaskItemStatus             `json:"status"`
 }
 
 // GetInstance returns the value of Instance.
@@ -4327,7 +4532,7 @@ func (s *TaskItem) GetSourceCell() CellForInstance {
 }
 
 // GetTargetCell returns the value of TargetCell.
-func (s *TaskItem) GetTargetCell() CellForInstance {
+func (s *TaskItem) GetTargetCell() NilCellForInstanceOptional {
 	return s.TargetCell
 }
 
@@ -4347,7 +4552,7 @@ func (s *TaskItem) SetSourceCell(val CellForInstance) {
 }
 
 // SetTargetCell sets the value of TargetCell.
-func (s *TaskItem) SetTargetCell(val CellForInstance) {
+func (s *TaskItem) SetTargetCell(val NilCellForInstanceOptional) {
 	s.TargetCell = val
 }
 
@@ -4717,6 +4922,57 @@ func (s *UpdateCurrentUserRequest) SetLastName(val string) {
 func (s *UpdateCurrentUserRequest) SetMiddleName(val NilString) {
 	s.MiddleName = val
 }
+
+type UpdateInstanceByIdForbidden ErrorContent
+
+func (*UpdateInstanceByIdForbidden) updateInstanceByIdRes() {}
+
+type UpdateInstanceByIdUnauthorized ErrorContent
+
+func (*UpdateInstanceByIdUnauthorized) updateInstanceByIdRes() {}
+
+// Ref: #/components/schemas/UpdateInstanceRequest
+type UpdateInstanceRequest struct {
+	VariantId uuid.UUID `json:"variantId"`
+	CellId    uuid.UUID `json:"cellId"`
+}
+
+// GetVariantId returns the value of VariantId.
+func (s *UpdateInstanceRequest) GetVariantId() uuid.UUID {
+	return s.VariantId
+}
+
+// GetCellId returns the value of CellId.
+func (s *UpdateInstanceRequest) GetCellId() uuid.UUID {
+	return s.CellId
+}
+
+// SetVariantId sets the value of VariantId.
+func (s *UpdateInstanceRequest) SetVariantId(val uuid.UUID) {
+	s.VariantId = val
+}
+
+// SetCellId sets the value of CellId.
+func (s *UpdateInstanceRequest) SetCellId(val uuid.UUID) {
+	s.CellId = val
+}
+
+// Ref: #/components/schemas/UpdateInstanceResponse
+type UpdateInstanceResponse struct {
+	Data InstanceFull `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UpdateInstanceResponse) GetData() InstanceFull {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UpdateInstanceResponse) SetData(val InstanceFull) {
+	s.Data = val
+}
+
+func (*UpdateInstanceResponse) updateInstanceByIdRes() {}
 
 // Ref: #/components/schemas/UpdateItemRequest
 type UpdateItemRequest struct {

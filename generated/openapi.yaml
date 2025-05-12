@@ -888,6 +888,48 @@ paths:
         schema:
           type: string
           format: uuid
+    get:
+      tags:
+        - instance
+      summary: Get Instance by ID
+      operationId: getInstanceById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInstanceByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - instance
+      summary: Update Instance by ID
+      operationId: updateInstanceById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInstanceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInstanceResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
     delete:
       tags:
         - instance
@@ -1997,10 +2039,8 @@ components:
         - $ref: '#/components/schemas/ItemCreate'
     CellForInstance:
       allOf:
-        - nullable: true
-          $ref: '#/components/schemas/Cell'
+        - $ref: '#/components/schemas/Cell'
         - type: object
-          nullable: true
           properties:
             cellPath:
               type: array
@@ -2020,6 +2060,7 @@ components:
                       - cell
                       - cells_group
                       - storage_group
+                      - unit
                 required:
                   - id
                   - name
@@ -2207,6 +2248,25 @@ components:
           $ref: '#/components/schemas/InstanceForItem'
       required:
         - data
+    GetInstanceByIdResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/InstanceFull'
+      required:
+        - data
+    UpdateInstanceRequest:
+      allOf:
+        - $ref: '#/components/schemas/InstanceCreateForItem'
+    UpdateInstanceResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/InstanceFull'
+      required:
+        - data
     Token:
       type: object
       properties:
@@ -2369,7 +2429,7 @@ components:
         type:
           type: string
           enum:
-            - pick
+            - pickment
             - movement
         status:
           type: string
@@ -2426,7 +2486,7 @@ components:
         type:
           type: string
           enum:
-            - pick
+            - pickment
             - movement
         unitId:
           type: string
@@ -2457,6 +2517,11 @@ components:
     CreateTaskRequest:
       allOf:
         - $ref: '#/components/schemas/TaskCreate'
+    CellForInstanceOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/CellForInstance'
     TaskItem:
       type: object
       properties:
@@ -2465,8 +2530,7 @@ components:
         sourceCell:
           $ref: '#/components/schemas/CellForInstance'
         targetCell:
-          nullable: true
-          $ref: '#/components/schemas/CellForInstance'
+          $ref: '#/components/schemas/CellForInstanceOptional'
         status:
           type: string
           enum:
