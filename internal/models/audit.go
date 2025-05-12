@@ -27,6 +27,7 @@ const (
 	ObjectTypeItemInstance ObjectTypeId = 7
 	ObjectTypeEmployee     ObjectTypeId = 8
 	ObjectTypeTask         ObjectTypeId = 9
+	ObjectTypeItemVariant  ObjectTypeId = 10
 )
 
 type ObjectType struct {

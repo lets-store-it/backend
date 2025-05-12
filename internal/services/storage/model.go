@@ -1,21 +1,13 @@
 package storage
 
 import (
-	"errors"
-
 	"github.com/google/uuid"
 	"github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/database"
 	"github.com/let-store-it/backend/internal/models"
 )
 
-func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
-	if !group.ID.Valid {
-		return nil, errors.New("failed to convert storage group: invalid ID")
-	}
-	if !group.UnitID.Valid {
-		return nil, errors.New("failed to convert storage group: invalid unit ID")
-	}
+func toStorageGroupModel(group sqlc.StorageGroup) *models.StorageGroup {
 
 	var parentID *uuid.UUID
 	if group.ParentID.Valid {
@@ -30,7 +22,7 @@ func toStorageGroup(group sqlc.StorageGroup) (*models.StorageGroup, error) {
 		Name:     group.Name,
 		Alias:    group.Alias,
 		OrgID:    group.OrgID.Bytes,
-	}, nil
+	}
 }
 
 func toCellsGroupModel(group sqlc.CellsGroup) *models.CellsGroup {
@@ -50,14 +42,7 @@ func toCellsGroupModel(group sqlc.CellsGroup) *models.CellsGroup {
 	}
 }
 
-func toCell(cell sqlc.Cell) (*models.Cell, error) {
-	if !cell.ID.Valid {
-		return nil, errors.New("failed to convert cell: invalid ID")
-	}
-	if !cell.CellsGroupID.Valid {
-		return nil, errors.New("failed to convert cell: invalid cells group ID")
-	}
-
+func toCellModel(cell sqlc.Cell) *models.Cell {
 	return &models.Cell{
 		ID:           database.UUIDFromPgx(cell.ID),
 		CellsGroupID: database.UUIDFromPgx(cell.CellsGroupID),
@@ -65,10 +50,10 @@ func toCell(cell sqlc.Cell) (*models.Cell, error) {
 		Row:          int(cell.Row),
 		Level:        int(cell.Level),
 		Position:     int(cell.Position),
-	}, nil
+	}
 }
 
-func toCellPath(segments []sqlc.GetCellPathRow) []models.CellPathSegment {
+func toCellPathModel(segments []sqlc.GetCellPathRow) []models.CellPathSegment {
 	result := make([]models.CellPathSegment, len(segments))
 	for i, segment := range segments {
 		result[i] = models.CellPathSegment{

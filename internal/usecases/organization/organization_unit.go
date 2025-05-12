@@ -2,6 +2,7 @@ package organization
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -19,7 +20,30 @@ func (uc *OrganizationUseCase) CreateUnit(ctx context.Context, name string, alia
 		return nil, usecases.ErrNotAuthorized
 	}
 
-	return uc.service.CreateUnit(ctx, validateResult.OrgID, name, alias, address)
+	createdUnit, err := uc.service.CreateUnit(ctx, validateResult.OrgID, name, alias, address)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(createdUnit)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionCreate,
+		TargetObjectTypeId: models.ObjectTypeUnit,
+		TargetObjectID:     createdUnit.ID,
+		PrechangeState:     nil,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUnit, nil
 }
 
 func (uc *OrganizationUseCase) GetAllUnits(ctx context.Context) ([]*models.OrganizationUnit, error) {
@@ -76,9 +100,42 @@ func (uc *OrganizationUseCase) UpdateUnit(ctx context.Context, unit *models.Orga
 		return nil, usecases.ErrNotAuthorized
 	}
 
+	beforeUpdate, err := uc.service.GetUnitByID(ctx, validateResult.OrgID, unit.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organization unit: %w", err)
+	}
+
+	prechangeState, err := json.Marshal(beforeUpdate)
+	if err != nil {
+		return nil, err
+	}
+
 	unit.OrgID = validateResult.OrgID
 
-	return uc.service.UpdateUnit(ctx, unit)
+	updatedUnit, err := uc.service.UpdateUnit(ctx, unit)
+	if err != nil {
+		return nil, err
+	}
+
+	postchangeState, err := json.Marshal(updatedUnit)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.auditService.CreateObjectChange(ctx, &models.ObjectChange{
+		OrgID:              validateResult.OrgID,
+		UserID:             validateResult.UserID,
+		Action:             models.ObjectChangeActionUpdate,
+		TargetObjectTypeId: models.ObjectTypeUnit,
+		TargetObjectID:     unit.ID,
+		PrechangeState:     prechangeState,
+		PostchangeState:    postchangeState,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUnit, nil
 }
 
 func (uc *OrganizationUseCase) PatchUnit(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.OrganizationUnit, error) {

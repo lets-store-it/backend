@@ -56,11 +56,7 @@ func (s *StorageService) CreateStorageGroup(ctx context.Context, group *models.S
 			}
 
 			// Convert to model
-			result, err := toStorageGroup(sqlGroup)
-			if err != nil {
-				return nil, fmt.Errorf("failed to convert storage group: %w", err)
-			}
-
+			result := toStorageGroupModel(sqlGroup)
 			return result, nil
 		},
 	)
@@ -83,12 +79,7 @@ func (s *StorageService) GetAllStorageGroups(ctx context.Context, orgID uuid.UUI
 
 	result := make([]*models.StorageGroup, len(groups))
 	for i, group := range groups {
-		result[i], err = toStorageGroup(group)
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, "failed to convert storage group")
-			return nil, fmt.Errorf("failed to convert storage group: %w", err)
-		}
+		result[i] = toStorageGroupModel(group)
 	}
 
 	span.SetStatus(codes.Ok, "storage groups retrieved successfully")
@@ -114,12 +105,7 @@ func (s *StorageService) GetStorageGroupByID(ctx context.Context, orgID uuid.UUI
 		return nil, fmt.Errorf("failed to get storage group: %w", err)
 	}
 
-	model, err := toStorageGroup(group)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to convert storage group")
-		return nil, err
-	}
+	model := toStorageGroupModel(group)
 
 	span.SetStatus(codes.Ok, "storage group retrieved successfully")
 	return model, nil
@@ -144,46 +130,35 @@ func (s *StorageService) DeleteStorageGroup(ctx context.Context, orgID uuid.UUID
 	})
 }
 
-func (s *StorageService) UpdateStoragrGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
-	ctx, span := s.tracer.Start(ctx, "UpdateStorageGroup",
-		trace.WithAttributes(
+func (s *StorageService) UpdateStorageGroup(ctx context.Context, group *models.StorageGroup) (*models.StorageGroup, error) {
+	return telemetry.WithTrace(ctx, s.tracer, "UpdateStorageGroup", func(ctx context.Context, span trace.Span) (*models.StorageGroup, error) {
+		if group == nil {
+			return nil, services.ErrValidationError
+		}
+		span.SetAttributes(
 			attribute.String("org.id", group.OrgID.String()),
 			attribute.String("storage_group.id", group.ID.String()),
-		),
-	)
-	defer span.End()
+			attribute.String("unit.id", group.UnitID.String()),
+			attribute.String("storage_group.name", group.Name),
+			attribute.String("storage_group.alias", group.Alias),
+		)
 
-	if group == nil {
-		span.SetStatus(codes.Error, "invalid storage group: nil")
-		return nil, services.ErrValidationError
-	}
+		if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
+			return nil, err
+		}
 
-	if err := s.validateStorageGroupData(group.Name, group.Alias); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "validation failed")
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
+		updatedGroup, err := s.queries.UpdateStorageGroup(ctx, sqlc.UpdateStorageGroupParams{
+			ID:     database.PgUUID(group.ID),
+			OrgID:  database.PgUUID(group.OrgID),
+			UnitID: database.PgUUID(group.UnitID),
+			Name:   group.Name,
+			Alias:  group.Alias,
+		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
 
-	updatedGroup, err := s.queries.UpdateStorageGroup(ctx, sqlc.UpdateStorageGroupParams{
-		ID:     database.PgUUID(group.ID),
-		OrgID:  database.PgUUID(group.OrgID),
-		UnitID: database.PgUUID(group.UnitID),
-		Name:   group.Name,
-		Alias:  group.Alias,
+		result := toStorageGroupModel(updatedGroup)
+		return result, nil
 	})
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to update storage group")
-		return nil, fmt.Errorf("failed to update storage group: %w", err)
-	}
-
-	result, err := toStorageGroup(updatedGroup)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "failed to convert storage group")
-		return nil, err
-	}
-
-	span.SetStatus(codes.Ok, "storage group updated successfully")
-	return result, nil
 }
