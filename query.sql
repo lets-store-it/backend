@@ -200,7 +200,7 @@ UPDATE item_instance SET deleted_at = CURRENT_TIMESTAMP WHERE org_id = $1 AND id
 SELECT * FROM item_instance WHERE org_id = $1 AND deleted_at IS NULL;
 
 -- name: UpdateItemInstance :one
-UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
+UPDATE item_instance SET cell_id = $3, variant_id = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *;
 
 -- User
 -- name: CreateUser :one

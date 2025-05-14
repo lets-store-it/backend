@@ -247,16 +247,22 @@ func (*AuthResponse) exchangeYandexAccessTokenRes() {}
 // Merged schema.
 // Ref: #/components/schemas/Cell
 type Cell struct {
-	ID       uuid.UUID `json:"id"`
-	Alias    string    `json:"alias"`
-	Row      int       `json:"row"`
-	Level    int       `json:"level"`
-	Position int       `json:"position"`
+	ID           uuid.UUID `json:"id"`
+	CellsGroupId uuid.UUID `json:"cellsGroupId"`
+	Alias        string    `json:"alias"`
+	Row          int       `json:"row"`
+	Level        int       `json:"level"`
+	Position     int       `json:"position"`
 }
 
 // GetID returns the value of ID.
 func (s *Cell) GetID() uuid.UUID {
 	return s.ID
+}
+
+// GetCellsGroupId returns the value of CellsGroupId.
+func (s *Cell) GetCellsGroupId() uuid.UUID {
+	return s.CellsGroupId
 }
 
 // GetAlias returns the value of Alias.
@@ -284,6 +290,11 @@ func (s *Cell) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
+// SetCellsGroupId sets the value of CellsGroupId.
+func (s *Cell) SetCellsGroupId(val uuid.UUID) {
+	s.CellsGroupId = val
+}
+
 // SetAlias sets the value of Alias.
 func (s *Cell) SetAlias(val string) {
 	s.Alias = val
@@ -307,17 +318,23 @@ func (s *Cell) SetPosition(val int) {
 // Merged schema.
 // Ref: #/components/schemas/CellForInstance
 type CellForInstance struct {
-	ID       uuid.UUID                     `json:"id"`
-	Alias    string                        `json:"alias"`
-	Row      int                           `json:"row"`
-	Level    int                           `json:"level"`
-	Position int                           `json:"position"`
-	CellPath []CellForInstanceCellPathItem `json:"cellPath"`
+	ID           uuid.UUID                     `json:"id"`
+	CellsGroupId uuid.UUID                     `json:"cellsGroupId"`
+	Alias        string                        `json:"alias"`
+	Row          int                           `json:"row"`
+	Level        int                           `json:"level"`
+	Position     int                           `json:"position"`
+	CellPath     []CellForInstanceCellPathItem `json:"cellPath"`
 }
 
 // GetID returns the value of ID.
 func (s *CellForInstance) GetID() uuid.UUID {
 	return s.ID
+}
+
+// GetCellsGroupId returns the value of CellsGroupId.
+func (s *CellForInstance) GetCellsGroupId() uuid.UUID {
+	return s.CellsGroupId
 }
 
 // GetAlias returns the value of Alias.
@@ -348,6 +365,11 @@ func (s *CellForInstance) GetCellPath() []CellForInstanceCellPathItem {
 // SetID sets the value of ID.
 func (s *CellForInstance) SetID(val uuid.UUID) {
 	s.ID = val
+}
+
+// SetCellsGroupId sets the value of CellsGroupId.
+func (s *CellForInstance) SetCellsGroupId(val uuid.UUID) {
+	s.CellsGroupId = val
 }
 
 // SetAlias sets the value of Alias.
@@ -480,17 +502,23 @@ func (s *CellForInstanceCellPathItemObjectType) UnmarshalText(data []byte) error
 // Merged schema.
 // Ref: #/components/schemas/CellForInstanceOptional
 type CellForInstanceOptional struct {
-	ID       uuid.UUID                             `json:"id"`
-	Alias    string                                `json:"alias"`
-	Row      int                                   `json:"row"`
-	Level    int                                   `json:"level"`
-	Position int                                   `json:"position"`
-	CellPath []CellForInstanceOptionalCellPathItem `json:"cellPath"`
+	ID           uuid.UUID                             `json:"id"`
+	CellsGroupId uuid.UUID                             `json:"cellsGroupId"`
+	Alias        string                                `json:"alias"`
+	Row          int                                   `json:"row"`
+	Level        int                                   `json:"level"`
+	Position     int                                   `json:"position"`
+	CellPath     []CellForInstanceOptionalCellPathItem `json:"cellPath"`
 }
 
 // GetID returns the value of ID.
 func (s *CellForInstanceOptional) GetID() uuid.UUID {
 	return s.ID
+}
+
+// GetCellsGroupId returns the value of CellsGroupId.
+func (s *CellForInstanceOptional) GetCellsGroupId() uuid.UUID {
+	return s.CellsGroupId
 }
 
 // GetAlias returns the value of Alias.
@@ -521,6 +549,11 @@ func (s *CellForInstanceOptional) GetCellPath() []CellForInstanceOptionalCellPat
 // SetID sets the value of ID.
 func (s *CellForInstanceOptional) SetID(val uuid.UUID) {
 	s.ID = val
+}
+
+// SetCellsGroupId sets the value of CellsGroupId.
+func (s *CellForInstanceOptional) SetCellsGroupId(val uuid.UUID) {
+	s.CellsGroupId = val
 }
 
 // SetAlias sets the value of Alias.
@@ -934,8 +967,8 @@ func (*CreateInstanceForItemForbidden) createInstanceForItemRes() {}
 
 // Ref: #/components/schemas/CreateInstanceForItemRequest
 type CreateInstanceForItemRequest struct {
-	VariantId uuid.UUID `json:"variantId"`
-	CellId    uuid.UUID `json:"cellId"`
+	VariantId uuid.UUID  `json:"variantId"`
+	CellId    OptNilUUID `json:"cellId"`
 }
 
 // GetVariantId returns the value of VariantId.
@@ -944,7 +977,7 @@ func (s *CreateInstanceForItemRequest) GetVariantId() uuid.UUID {
 }
 
 // GetCellId returns the value of CellId.
-func (s *CreateInstanceForItemRequest) GetCellId() uuid.UUID {
+func (s *CreateInstanceForItemRequest) GetCellId() OptNilUUID {
 	return s.CellId
 }
 
@@ -954,7 +987,7 @@ func (s *CreateInstanceForItemRequest) SetVariantId(val uuid.UUID) {
 }
 
 // SetCellId sets the value of CellId.
-func (s *CreateInstanceForItemRequest) SetCellId(val uuid.UUID) {
+func (s *CreateInstanceForItemRequest) SetCellId(val OptNilUUID) {
 	s.CellId = val
 }
 
@@ -2881,7 +2914,7 @@ type InstanceFull struct {
 	ID               uuid.UUID                  `json:"id"`
 	Status           InstanceFullStatus         `json:"status"`
 	Item             ItemForList                `json:"item"`
-	AffectedByTaskId OptNilUUID                 `json:"affectedByTaskId"`
+	AffectedByTaskId NilUUID                    `json:"affectedByTaskId"`
 	Variant          ItemVariant                `json:"variant"`
 	Cell             NilCellForInstanceOptional `json:"cell"`
 }
@@ -2902,7 +2935,7 @@ func (s *InstanceFull) GetItem() ItemForList {
 }
 
 // GetAffectedByTaskId returns the value of AffectedByTaskId.
-func (s *InstanceFull) GetAffectedByTaskId() OptNilUUID {
+func (s *InstanceFull) GetAffectedByTaskId() NilUUID {
 	return s.AffectedByTaskId
 }
 
@@ -2932,7 +2965,7 @@ func (s *InstanceFull) SetItem(val ItemForList) {
 }
 
 // SetAffectedByTaskId sets the value of AffectedByTaskId.
-func (s *InstanceFull) SetAffectedByTaskId(val OptNilUUID) {
+func (s *InstanceFull) SetAffectedByTaskId(val NilUUID) {
 	s.AffectedByTaskId = val
 }
 
@@ -5081,8 +5114,8 @@ func (*UpdateInstanceByIdUnauthorized) updateInstanceByIdRes() {}
 
 // Ref: #/components/schemas/UpdateInstanceRequest
 type UpdateInstanceRequest struct {
-	VariantId uuid.UUID `json:"variantId"`
-	CellId    uuid.UUID `json:"cellId"`
+	VariantId uuid.UUID  `json:"variantId"`
+	CellId    OptNilUUID `json:"cellId"`
 }
 
 // GetVariantId returns the value of VariantId.
@@ -5091,7 +5124,7 @@ func (s *UpdateInstanceRequest) GetVariantId() uuid.UUID {
 }
 
 // GetCellId returns the value of CellId.
-func (s *UpdateInstanceRequest) GetCellId() uuid.UUID {
+func (s *UpdateInstanceRequest) GetCellId() OptNilUUID {
 	return s.CellId
 }
 
@@ -5101,7 +5134,7 @@ func (s *UpdateInstanceRequest) SetVariantId(val uuid.UUID) {
 }
 
 // SetCellId sets the value of CellId.
-func (s *UpdateInstanceRequest) SetCellId(val uuid.UUID) {
+func (s *UpdateInstanceRequest) SetCellId(val OptNilUUID) {
 	s.CellId = val
 }
 

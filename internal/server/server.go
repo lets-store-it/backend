@@ -69,13 +69,6 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 		Queries: queries,
 		PGXPool: pool,
 	})
-	storageGroupService, err := storage.New(&storage.StorageServiceConfig{
-		Queries: queries,
-		PGXPool: pool,
-	})
-	if err != nil {
-		return nil, err
-	}
 
 	auditService, err := audit.New(audit.AuditServiceConfig{
 		Queries:         queries,
@@ -88,6 +81,12 @@ func New(cfg *config.Config, queries *sqlc.Queries, pool *pgxpool.Pool) (*Server
 	if err != nil {
 		return nil, err
 	}
+
+	storageGroupService := storage.New(&storage.StorageServiceConfig{
+		Queries: queries,
+		PGXPool: pool,
+		Audit:   auditService,
+	})
 
 	authService := auth.New(auth.AuthServiceConfig{
 		Queries:      queries,

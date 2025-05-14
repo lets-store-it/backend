@@ -543,10 +543,14 @@ func (s *ItemService) UpdateItemInstance(ctx context.Context, orgID uuid.UUID, i
 		}
 
 		instance, err := s.queries.UpdateItemInstance(ctx, sqlc.UpdateItemInstanceParams{
-			OrgID:  database.PgUUID(orgID),
-			ID:     database.PgUUID(itemInstance.ID),
-			CellID: database.PgUUIDPtr(itemInstance.CellID),
+			OrgID:     database.PgUUID(orgID),
+			ID:        database.PgUUID(itemInstance.ID),
+			CellID:    database.PgUUIDPtr(itemInstance.CellID),
+			VariantID: database.PgUUID(itemInstance.VariantID),
 		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
 
 		model := toItemInstance(instance)
 
@@ -557,6 +561,10 @@ func (s *ItemService) UpdateItemInstance(ctx context.Context, orgID uuid.UUID, i
 			PrechangeState:   instanceBeforeUpdate,
 			PostchangeState:  model,
 		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to create audit log: %w", err)
+		}
+
 		return model, nil
 	})
 }

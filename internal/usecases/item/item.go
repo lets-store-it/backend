@@ -254,7 +254,7 @@ func (uc *ItemUseCase) GetItemInstancesAll(ctx context.Context) ([]*models.ItemI
 	return uc.service.GetItemInstancesAll(ctx, validateResult.OrgID)
 }
 
-func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *models.ItemInstance) (*models.ItemInstance, error) {
+func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, instanceId uuid.UUID, variantId uuid.UUID, cellId *uuid.UUID) (*models.ItemInstance, error) {
 	validateResult, err := usecases.ValidateAccessWithOptionalApiToken(ctx, uc.authService, models.AccessLevelWorker, true)
 	if err != nil {
 		return nil, err
@@ -264,7 +264,13 @@ func (uc *ItemUseCase) UpdateItemInstance(ctx context.Context, itemInstance *mod
 		return nil, usecases.ErrForbidden
 	}
 
-	itemInstance.OrgID = validateResult.OrgID
+	itemInstance, err := uc.service.GetItemInstanceById(ctx, validateResult.OrgID, instanceId)
+	if err != nil {
+		return nil, err
+	}	
+
+	itemInstance.VariantID = variantId
+	itemInstance.CellID = cellId
 
 	updatedInstance, err := uc.service.UpdateItemInstance(ctx, validateResult.OrgID, itemInstance)
 	if err != nil {

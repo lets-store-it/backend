@@ -5,6 +5,11 @@ allOf:
         type: string
         format: uuid
         readOnly: true
+      cellsGroupId:
+        type: string
+        format: uuid
+        readOnly: true
     required:
       - id
+      - cellsGroupId
   - $ref: ./CellBase.yaml

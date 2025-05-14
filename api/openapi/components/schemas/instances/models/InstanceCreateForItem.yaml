@@ -6,6 +6,6 @@ properties:
   cellId:
     type: string
     format: uuid
+    nullable: true
 required:
   - variantId
-  - cellId
