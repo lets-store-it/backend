@@ -115,6 +115,8 @@ func (s *OrganizationService) CreateOrganization(ctx context.Context, name strin
 		}
 
 		orgModel := toOrganizationModel(org)
+		ctx = context.WithValue(ctx, models.OrganizationIDContextKey, database.UUIDFromPgx(org.ID))
+		ctx = context.WithValue(ctx, models.UserIDContextKey, nil)
 
 		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
 			Action:           models.ObjectChangeActionCreate,
