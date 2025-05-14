@@ -192,11 +192,12 @@ func (h *RestApiImplementation) DeleteCellsGroup(ctx context.Context, params api
 
 func cellToDTO(cell *models.Cell) api.Cell {
 	return api.Cell{
-		ID:       cell.ID,
-		Alias:    cell.Alias,
-		Row:      cell.Row,
-		Level:    cell.Level,
-		Position: cell.Position,
+		ID:           cell.ID,
+		Alias:        cell.Alias,
+		Row:          cell.Row,
+		Level:        cell.Level,
+		Position:     cell.Position,
+		CellsGroupId: cell.CellsGroupID,
 	}
 }
 

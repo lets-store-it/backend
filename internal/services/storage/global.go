@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	database "github.com/let-store-it/backend/generated/sqlc"
 	"github.com/let-store-it/backend/internal/common"
+	"github.com/let-store-it/backend/internal/services/audit"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -22,23 +23,26 @@ type StorageService struct {
 	queries *database.Queries
 	pgxPool *pgxpool.Pool
 	tracer  trace.Tracer
+	audit   *audit.AuditService
 }
 
 type StorageServiceConfig struct {
 	Queries *database.Queries
 	PGXPool *pgxpool.Pool
+	Audit   *audit.AuditService
 }
 
-func New(cfg *StorageServiceConfig) (*StorageService, error) {
-	if cfg == nil || cfg.Queries == nil || cfg.PGXPool == nil {
-		return nil, errors.New("invalid configuration")
+func New(cfg *StorageServiceConfig) *StorageService {
+	if cfg == nil || cfg.Queries == nil || cfg.PGXPool == nil || cfg.Audit == nil {
+		panic("invalid configuration")
 	}
 
 	return &StorageService{
 		queries: cfg.Queries,
 		pgxPool: cfg.PGXPool,
 		tracer:  otel.GetTracerProvider().Tracer("storage-service"),
-	}, nil
+		audit:   cfg.Audit,
+	}
 }
 
 func (s *StorageService) validateName(name string) error {

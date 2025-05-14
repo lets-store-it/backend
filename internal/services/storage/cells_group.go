@@ -98,6 +98,11 @@ func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.Cel
 			return nil, err
 		}
 
+		beforeUpdate, err := s.GetCellsGroup(ctx, group.OrgID, group.ID)
+		if err != nil {
+			return nil, err
+		}
+
 		updatedGroup, err := s.queries.UpdateCellsGroup(ctx, sqlc.UpdateCellsGroupParams{
 			ID:     database.PgUUID(group.ID),
 			OrgID:  database.PgUUID(group.OrgID),
@@ -107,6 +112,18 @@ func (s *StorageService) UpdateCellsGroup(ctx context.Context, group *models.Cel
 		})
 		if err != nil {
 			return nil, services.MapDbErrorToService(err)
+		}
+		model := toCellsGroupModel(updatedGroup)
+
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeCellsGroup,
+			TargetObjectID:   group.ID,
+			PrechangeState:   beforeUpdate,
+			PostchangeState:  model,
+		})
+		if err != nil {
+			return nil, err
 		}
 
 		return toCellsGroupModel(updatedGroup), nil

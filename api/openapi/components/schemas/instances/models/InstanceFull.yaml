@@ -29,3 +29,4 @@ required:
   - variant
   - cell
   - item
+  - affectedByTaskId

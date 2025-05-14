@@ -2055,17 +2055,23 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 }
 
 const updateItemInstance = `-- name: UpdateItemInstance :one
-UPDATE item_instance SET cell_id = $3 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at
+UPDATE item_instance SET cell_id = $3, variant_id = $4 WHERE org_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING id, org_id, item_id, variant_id, cell_id, status, affected_by_task_id, created_at, deleted_at
 `
 
 type UpdateItemInstanceParams struct {
-	OrgID  pgtype.UUID
-	ID     pgtype.UUID
-	CellID pgtype.UUID
+	OrgID     pgtype.UUID
+	ID        pgtype.UUID
+	CellID    pgtype.UUID
+	VariantID pgtype.UUID
 }
 
 func (q *Queries) UpdateItemInstance(ctx context.Context, arg UpdateItemInstanceParams) (ItemInstance, error) {
-	row := q.db.QueryRow(ctx, updateItemInstance, arg.OrgID, arg.ID, arg.CellID)
+	row := q.db.QueryRow(ctx, updateItemInstance,
+		arg.OrgID,
+		arg.ID,
+		arg.CellID,
+		arg.VariantID,
+	)
 	var i ItemInstance
 	err := row.Scan(
 		&i.ID,

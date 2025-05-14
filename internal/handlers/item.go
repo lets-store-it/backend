@@ -105,12 +105,16 @@ func convertItemInstanceToTaskItemDTO(itemInstance *models.ItemInstance) api.Ins
 			Variants:    convertItemVariantsToDTO(itemInstance.Item.Variants),
 		}
 	}
+	var affectedByTaskId api.NilUUID
+	PtrToApiNil(itemInstance.AffectedByTaskID, &affectedByTaskId)
+
 	return api.InstanceFull{
-		ID:      itemInstance.ID,
-		Status:  api.InstanceFullStatus(itemInstance.Status),
-		Variant: convertItemVariantToDTO(itemInstance.Variant),
-		Cell:    convertCellOptionalToNilDTO(itemInstance.Cell),
-		Item:    item,
+		ID:               itemInstance.ID,
+		Status:           api.InstanceFullStatus(itemInstance.Status),
+		Variant:          convertItemVariantToDTO(itemInstance.Variant),
+		Cell:             convertCellOptionalToNilDTO(itemInstance.Cell),
+		Item:             item,
+		AffectedByTaskId: affectedByTaskId,
 	}
 }
 
@@ -383,7 +387,7 @@ func (h *RestApiImplementation) CreateInstanceForItem(ctx context.Context, req *
 	itemInstance := &models.ItemInstance{
 		ItemID:    params.ItemId,
 		VariantID: req.VariantId,
-		CellID:    &req.CellId,
+		CellID:    ApiValueToPtr(req.CellId),
 	}
 
 	itemInstance, err := h.itemUseCase.CreateItemInstance(ctx, itemInstance)
@@ -416,19 +420,18 @@ func (h *RestApiImplementation) GetInstanceById(ctx context.Context, params api.
 }
 
 func (h *RestApiImplementation) UpdateInstanceById(ctx context.Context, req *api.UpdateInstanceRequest, params api.UpdateInstanceByIdParams) (api.UpdateInstanceByIdRes, error) {
-	instance := &models.ItemInstance{
-		ID:        params.InstanceId,
-		VariantID: req.VariantId,
-		CellID:    &req.CellId,
+	updatedInstance, err := h.itemUseCase.UpdateItemInstance(ctx, params.InstanceId, req.VariantId, ApiValueToPtr(req.CellId))
+	if err != nil {
+		return nil, err
 	}
 
-	updatedInstance, err := h.itemUseCase.UpdateItemInstance(ctx, instance)
+	fullInstance, err := h.itemUseCase.GetItemInstanceById(ctx, updatedInstance.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.UpdateInstanceResponse{
-		Data: convertItemInstanceToTaskItemDTO(updatedInstance),
+		Data: convertItemInstanceToTaskItemDTO(fullInstance),
 	}, nil
 }
 
