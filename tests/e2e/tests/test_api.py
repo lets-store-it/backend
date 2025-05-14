@@ -19,7 +19,7 @@ def test_user() -> dict[str, str]:
     return {
         "email": f"e2e.test.user.{uuid.uuid4()}@example.com",
         "firstName": f"TestUser{random.randint(1, 1000)}",
-        "lastName": f"LastName{random.randint(1, 1000)}"
+        "lastName": f"LastName{random.randint(1, 1000)}",
     }
 
 
@@ -27,14 +27,18 @@ def test_user() -> dict[str, str]:
 def session_cookie(test_user: dict[str, str]) -> str:
     """Get session cookie for the test user"""
     response = requests.post(f"{API_BASE}/auth/test", json=test_user)
-    assert response.status_code == 200, f"Authentication failed: {response.status_code} {response.text}"
-    
+    assert response.status_code == 200, (
+        f"Authentication failed: {response.status_code} {response.text}"
+    )
+
     cookies = response.headers.get("Set-Cookie")
     assert cookies, "No cookies received from authentication"
-    
-    session_cookie = next((c for c in cookies.split(";") if "storeit_session=" in c), None)
+
+    session_cookie = next(
+        (c for c in cookies.split(";") if "storeit_session=" in c), None
+    )
     assert session_cookie, "Session cookie not found"
-    
+
     return session_cookie.split("=")[1].strip()
 
 
@@ -118,7 +122,7 @@ class TestOrganization:
         # Create
         org_name = str(uuid.uuid4())
         response = api_client.post("/orgs", {"name": org_name, "subdomain": org_name})
-        assert response.status_code == 200
+        assert response.status_code == 200, response.text
         org_data = response.json()["data"]
         org_id = org_data["id"]
 
@@ -571,9 +575,7 @@ class TestCells:
         assert data[0]["id"] == cell_id
 
         # Get
-        response = api_client_with_organization.get(
-            f"/cells-groups/{cell_group['id']}/cells/{cell_id}"
-        )
+        response = api_client_with_organization.get(f"/cells/{cell_id}")
         assert response.status_code == 200
         data = response.json()["data"]
         assert data["id"] == cell_id
@@ -585,7 +587,7 @@ class TestCells:
         # Update
         new_alias = f"{alias}D"
         response = api_client_with_organization.put(
-            f"/cells-groups/{cell_group['id']}/cells/{cell_id}",
+            f"/cells/{cell_id}",
             {"alias": new_alias, "row": 1, "level": 1, "position": 1},
         )
         assert response.status_code == 200, response.text
@@ -597,9 +599,7 @@ class TestCells:
         assert data["position"] == 1
 
         # Delete
-        response = api_client_with_organization.delete(
-            f"/cells-groups/{cell_group['id']}/cells/{cell_id}"
-        )
+        response = api_client_with_organization.delete(f"/cells/{cell_id}")
         assert response.status_code == 204
 
 
