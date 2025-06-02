@@ -177,13 +177,26 @@ func (s *ItemService) UpdateItem(ctx context.Context, orgID uuid.UUID, item *mod
 			return nil, services.MapDbErrorToService(err)
 		}
 
+		// copy of existing item without instance and variant
+		existingItemWithoutInstances := *existingItem
+		existingItemWithoutInstances.Instances = nil
+		existingItemWithoutInstances.Variants = nil
+
+		// copy of updated item without instance and variant
+		updatedItemWithoutInstances := *updatedItemModel
+		updatedItemWithoutInstances.Instances = nil
+		updatedItemWithoutInstances.Variants = nil
+
 		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
 			Action:           models.ObjectChangeActionUpdate,
 			TargetObjectType: models.ObjectTypeItem,
 			TargetObjectID:   item.ID,
-			PrechangeState:   existingItem,
-			PostchangeState:  updatedItemModel,
+			PrechangeState:   &existingItemWithoutInstances,
+			PostchangeState:  &updatedItemWithoutInstances,
 		})
+		if err != nil {
+			return nil, err
+		}
 
 		return updatedItemModel, nil
 	})
@@ -554,11 +567,16 @@ func (s *ItemService) UpdateItemInstance(ctx context.Context, orgID uuid.UUID, i
 
 		model := toItemInstance(instance)
 
+		cleanupInstance := *instanceBeforeUpdate
+		cleanupInstance.Cell = nil
+		cleanupInstance.Variant = nil
+		cleanupInstance.Item = nil
+
 		err = s.auditService.CreateObjectChange(ctx, &models.ObjectChangeCreate{
 			Action:           models.ObjectChangeActionUpdate,
 			TargetObjectType: models.ObjectTypeItemInstance,
 			TargetObjectID:   itemInstance.ID,
-			PrechangeState:   instanceBeforeUpdate,
+			PrechangeState:   &cleanupInstance,
 			PostchangeState:  model,
 		})
 		if err != nil {

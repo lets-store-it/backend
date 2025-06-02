@@ -41,6 +41,18 @@ func (s *StorageService) CreateCellsGroup(ctx context.Context, group *models.Cel
 			return nil, services.MapDbErrorToService(err)
 		}
 
+		model := toCellsGroupModel(cellsGroup)
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectType: models.ObjectTypeCellsGroup,
+			TargetObjectID:   model.ID,
+			PrechangeState:   nil,
+			PostchangeState:  model,
+		})
+		if err != nil {
+			return nil, err
+		}
+
 		return toCellsGroupModel(cellsGroup), nil
 	})
 }

@@ -87,6 +87,18 @@ func (s *StorageService) CreateCell(ctx context.Context, cell *models.Cell) (*mo
 		}
 
 		result := toCellModel(createdCell)
+
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionCreate,
+			TargetObjectType: models.ObjectTypeCell,
+			TargetObjectID:   result.ID,
+			PrechangeState:   nil,
+			PostchangeState:  result,
+		})
+		if err != nil {
+			return nil, err
+		}
+
 		return result, nil
 	})
 }
@@ -110,6 +122,14 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 			attribute.Int("cell.level", cell.Level),
 			attribute.Int("cell.position", cell.Position),
 		)
+		beforeCell, err := s.queries.GetCellById(ctx, sqlc.GetCellByIdParams{
+			ID:    database.PgUUID(cell.ID),
+			OrgID: database.PgUUID(cell.OrgID),
+		})
+		if err != nil {
+			return nil, services.MapDbErrorToService(err)
+		}
+		beforeUpdate := toCellModel(beforeCell)
 
 		updatedCell, err := s.queries.UpdateCell(ctx, sqlc.UpdateCellParams{
 			ID:       database.PgUUID(cell.ID),
@@ -124,6 +144,18 @@ func (s *StorageService) UpdateCell(ctx context.Context, cell *models.Cell) (*mo
 		}
 
 		result := toCellModel(updatedCell)
+
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionUpdate,
+			TargetObjectType: models.ObjectTypeCell,
+			TargetObjectID:   result.ID,
+			PrechangeState:   beforeUpdate,
+			PostchangeState:  result,
+		})
+		if err != nil {
+			return nil, err
+		}
+
 		return result, nil
 	})
 }
@@ -135,12 +167,33 @@ func (s *StorageService) DeleteCell(ctx context.Context, orgID uuid.UUID, id uui
 			attribute.String("cell.id", id.String()),
 		)
 
-		err := s.queries.DeleteCell(ctx, sqlc.DeleteCellParams{
+		beforeCell, err := s.queries.GetCellById(ctx, sqlc.GetCellByIdParams{
 			ID:    database.PgUUID(id),
 			OrgID: database.PgUUID(orgID),
 		})
 		if err != nil {
 			return services.MapDbErrorToService(err)
+		}
+
+		beforeUpdate := toCellModel(beforeCell)
+
+		err = s.queries.DeleteCell(ctx, sqlc.DeleteCellParams{
+			ID:    database.PgUUID(id),
+			OrgID: database.PgUUID(orgID),
+		})
+		if err != nil {
+			return services.MapDbErrorToService(err)
+		}
+
+		err = s.audit.CreateObjectChange(ctx, &models.ObjectChangeCreate{
+			Action:           models.ObjectChangeActionDelete,
+			TargetObjectType: models.ObjectTypeCell,
+			TargetObjectID:   beforeUpdate.ID,
+			PrechangeState:   beforeUpdate,
+			PostchangeState:  nil,
+		})
+		if err != nil {
+			return err
 		}
 
 		return nil
